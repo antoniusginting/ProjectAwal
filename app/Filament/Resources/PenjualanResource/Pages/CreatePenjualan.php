@@ -1,0 +1,37 @@
+<?php
+
+namespace App\Filament\Resources\PenjualanResource\Pages;
+
+use App\Filament\Resources\PenjualanResource;
+use Filament\Actions;
+use Filament\Actions\Action;
+use Filament\Resources\Pages\CreateRecord;
+
+class CreatePenjualan extends CreateRecord
+{
+    protected static string $resource = PenjualanResource::class;
+
+     // Ubah judul halaman "Create Mobil" menjadi "Tambah Mobil"
+    function getTitle(): string
+    {
+        return 'Tambah Penjualan';
+    }
+
+    protected function getFormActions(): array
+    {
+        return [
+            Action::make('save')
+                ->label('Tambah')
+                ->action(fn() => $this->create()), // Gunakan method bawaan Filament
+            Action::make('cancel')
+                ->label('Batal')
+                ->color('gray')
+                ->url(PenjualanResource::getUrl('index')), // Redirect ke tabel utama
+        ];
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index'); // Arahkan ke daftar tabel
+    }
+}
