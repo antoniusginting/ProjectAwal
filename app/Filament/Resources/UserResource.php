@@ -26,7 +26,7 @@ class UserResource extends Resource implements HasShieldPermissions
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
     protected static ?string $navigationLabel = 'User';
-    
+
     public static ?string $label = 'Daftar User';
 
     public static function form(Form $form): Form
@@ -34,30 +34,31 @@ class UserResource extends Resource implements HasShieldPermissions
         return $form
             ->schema([
                 TextInput::make('name')
-                        ->label('Nama Lengkap')
-                        ->required()
-                        ->placeholder('Masukkan nama lengkap')
-                        ->maxLength(255),
+                    ->label('Nama Lengkap')
+                    ->required()
+                    ->placeholder('Masukkan nama lengkap')
+                    ->maxLength(255),
 
-                    TextInput::make('email')
-                        ->label('Alamat Email')
-                        ->email()
-                        ->required()
-                        ->placeholder('Masukkan alamat email')
-                        ->maxLength(255),
+                TextInput::make('email')
+                    ->label('Alamat Email')
+                    ->email()
+                    ->required()
+                    ->placeholder('Masukkan alamat email')
+                    ->maxLength(255),
 
-                    TextInput::make('password')
-                        ->label('Kata Sandi')
-                        ->password()
-                        ->required()
-                        ->placeholder('Masukkan kata sandi')
-                        ->minLength(8),// Bisa ditutup/buka untuk tampilan lebih rapi
+                TextInput::make('password')
+                    ->label('Kata Sandi')
+                    ->password()
+                    ->placeholder(fn($record) => $record ? 'Biarkan kosong jika tidak diubah' : 'Masukkan kata sandi')
+                    ->minLength(8)
+                    ->dehydrated(fn($state) => filled($state)) // Hanya kirim jika diisi
+                    ->required(fn($operation) => $operation === 'create'),
 
-                    Select::make('roles')
-                        ->relationship('roles','name')
-                        // ->multiple() // bisa dua role
-                        ->preload()
-                        ->searchable()
+                Select::make('roles')
+                    ->relationship('roles', 'name')
+                    // ->multiple() // bisa dua role
+                    ->preload()
+                    ->searchable()
             ]);
     }
 

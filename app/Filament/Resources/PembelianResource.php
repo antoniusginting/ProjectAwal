@@ -52,7 +52,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                         if ($record) {
                             return $record->no_spb;
                         }
-    
+
                         // Jika sedang membuat data baru, hitung kode berikutnya
                         $nextId = (Pembelian::max('id') ?? 0) + 1;
                         return 'B' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
@@ -112,13 +112,31 @@ class PembelianResource extends Resource implements HasShieldPermissions
                     // ->inlineLabel() // Membuat label sebelah kiri
                     ->native(false) // Mengunakan dropdown modern
                     ->required(), // Opsional: Atur default value,
+
                 Select::make('id_supplier')
                     ->label('Supplier')
+                    ->placeholder('Pilih Supplier')
                     ->options(Supplier::pluck('nama_supplier', 'id')) // Ambil daftar mobil
                     ->searchable() // Biar bisa cari
                     ->required(), // Wajib diisi
+
+                //     Select::make('id_supplier')
+                //     ->label('Pilih Supplier')
+                //     ->searchable()
+                //     ->options(Supplier::pluck('nama_supplier', 'id'))
+                //     ->reactive() // Reaktif agar memantau perubahan
+                //     ->afterStateUpdated(function ($state, callable $set) {
+                //         $supplier = Supplier::find($state);
+                //         $set('nama_supplier', $supplier?->nama_supplier);
+                //         $set('jenis_supplier', $supplier?->jenis_supplier);
+                //     }),
+
+                // Placeholder::make('jenis_supplier')
+                //     ->label('Jenis Supplier')
+                //     ->content(fn($get) => $get('jenis_supplier') ?? 'Pilih Nama Supplier terlebih dahulu'),
                 TextInput::make('jam_masuk')
                     ->readOnly()
+                    ->suffixIcon('heroicon-o-clock')
                     ->default(now()->format('H:i')),
                 TextInput::make('jam_keluar')
                     ->label('Jam Keluar')
@@ -135,7 +153,8 @@ class PembelianResource extends Resource implements HasShieldPermissions
                 TextInput::make('no_container')
                     ->placeholder('Masukkan No Container'),
                 TextInput::make('brondolan')
-                    ->placeholder('Masukkan Brondolan'),
+                    ->placeholder('Masukkan Brondolan')
+                    ->extraAttributes(['style' => 'margin-bottom: 20px;']),
             ]);
     }
 

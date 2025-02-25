@@ -99,6 +99,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
 
                 TextInput::make('jam_masuk')
                     ->readOnly()
+                    ->suffixIcon('heroicon-o-clock')
                     ->default(now()->format('H:i')),
                 TextInput::make('netto')
                     ->label('Netto')
