@@ -15,8 +15,9 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\SupplierResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\SupplierResource\RelationManagers;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
-class SupplierResource extends Resource
+class SupplierResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = Supplier::class;
 
@@ -81,6 +82,16 @@ class SupplierResource extends Resource
             'index' => Pages\ListSuppliers::route('/'),
             'create' => Pages\CreateSupplier::route('/create'),
             'edit' => Pages\EditSupplier::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view_any',
+            'create',
+            'update',
+            'delete',
         ];
     }
 }

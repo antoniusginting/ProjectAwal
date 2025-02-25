@@ -15,8 +15,9 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Placeholder;
 use App\Filament\Resources\PenjualanResource\Pages;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
-class PenjualanResource extends Resource
+class PenjualanResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = Penjualan::class;
 
@@ -195,6 +196,16 @@ class PenjualanResource extends Resource
             'index' => Pages\ListPenjualans::route('/'),
             'create' => Pages\CreatePenjualan::route('/create'),
             'edit' => Pages\EditPenjualan::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view_any',
+            'create',
+            'update',
+            'delete',
         ];
     }
 }

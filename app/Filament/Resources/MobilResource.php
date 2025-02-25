@@ -17,8 +17,9 @@ use App\Filament\Resources\MobilResource\Pages;
 
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\MobilResource\RelationManagers;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
-class MobilResource extends Resource
+class MobilResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = Mobil::class;
 
@@ -90,6 +91,15 @@ class MobilResource extends Resource
             'index' => Pages\ListMobils::route('/'),
             'create' => Pages\CreateMobil::route('/create'),
             'edit' => Pages\EditMobil::route('/{record}/edit'),
+        ];
+    }
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view_any',
+            'create',
+            'update',
+            'delete',
         ];
     }
 }

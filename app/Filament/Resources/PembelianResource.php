@@ -17,8 +17,9 @@ use Filament\Resources\Pages\EditRecord;
 use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Placeholder;
 use App\Filament\Resources\PembelianResource\Pages;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
-class PembelianResource extends Resource
+class PembelianResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = Pembelian::class;
 
@@ -192,6 +193,16 @@ class PembelianResource extends Resource
             'index' => Pages\ListPembelians::route('/'),
             'create' => Pages\CreatePembelian::route('/create'),
             'edit' => Pages\EditPembelian::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view_any',
+            'create',
+            'update',
+            'delete',
         ];
     }
 }

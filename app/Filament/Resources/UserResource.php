@@ -16,8 +16,10 @@ use App\Filament\Resources\UserResource\Pages;
 
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\UserResource\RelationManagers;
+use Filament\Forms\Components\Select;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
-class UserResource extends Resource
+class UserResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = User::class;
 
@@ -33,7 +35,6 @@ class UserResource extends Resource
             ->schema([
                 TextInput::make('name')
                         ->label('Nama Lengkap')
-                        ->columnSpan(2)
                         ->required()
                         ->placeholder('Masukkan nama lengkap')
                         ->maxLength(255),
@@ -51,6 +52,12 @@ class UserResource extends Resource
                         ->required()
                         ->placeholder('Masukkan kata sandi')
                         ->minLength(8),// Bisa ditutup/buka untuk tampilan lebih rapi
+
+                    Select::make('roles')
+                        ->relationship('roles','name')
+                        // ->multiple() // bisa dua role
+                        ->preload()
+                        ->searchable()
             ]);
     }
 
@@ -93,6 +100,16 @@ class UserResource extends Resource
             'index' => Pages\ListUsers::route('/'),
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view_any',
+            'create',
+            'update',
+            'delete',
         ];
     }
 }
