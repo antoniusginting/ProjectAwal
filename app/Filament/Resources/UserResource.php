@@ -68,7 +68,8 @@ class UserResource extends Resource implements HasShieldPermissions
                 TextColumn::make('id')->label('No'),
                 TextColumn::make('name')->label('Nama'),
                 TextColumn::make('email'),
-                // TextColumn::make('password'),
+                TextColumn::make('roles.name')
+                    ->label('Peran'),
                 TextColumn::make('created_at')
                     ->label('Dibuat Pada')
                     ->dateTime()

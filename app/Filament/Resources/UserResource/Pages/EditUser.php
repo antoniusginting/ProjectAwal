@@ -25,4 +25,8 @@ class EditUser extends EditRecord
             ->action(fn () => $this->save()), // Menggunakan fungsi simpan manual
     ];
 }
+protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index'); // Arahkan ke daftar tabel
+    }
 }
