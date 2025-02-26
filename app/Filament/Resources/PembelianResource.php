@@ -27,6 +27,11 @@ class PembelianResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationLabel = 'Pembelian';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
     protected static ?string $navigationGroup = 'Timbangan';
 
     public static ?string $label = 'Daftar Pembelian';

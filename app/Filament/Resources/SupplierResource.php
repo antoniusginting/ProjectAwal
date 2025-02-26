@@ -25,6 +25,11 @@ class SupplierResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationLabel = 'Supplier';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
     public static ?string $label = 'Daftar Supplier';
 
     public static function form(Form $form): Form

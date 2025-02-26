@@ -25,6 +25,11 @@ class MobilResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'heroicon-o-truck';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
     protected static ?string $navigationLabel = 'Mobil';
 
     public static ?string $label = 'Daftar Mobil';
