@@ -168,13 +168,20 @@ class PembelianResource extends Resource implements HasShieldPermissions
                     ->searchable()
                     ->copyable()
                     ->copyMessage('berhasil menyalin'),
-                TextColumn::make('mobil.plat_polisi')->label('Plat Polisi'),
-                TextColumn::make('nama_supir'),
-                TextColumn::make('supplier.nama_supplier')->label('Supplier'),
-                TextColumn::make('nama_barang'),
-                TextColumn::make('supplier.jenis_supplier')->label('Jenis'),
-                TextColumn::make('keterangan'),
-                TextColumn::make('no_container'),
+                TextColumn::make('mobil.plat_polisi')->label('Plat Polisi')
+                    ->searchable(),
+                TextColumn::make('nama_supir')
+                    ->searchable(),
+                TextColumn::make('supplier.nama_supplier')->label('Supplier')
+                    ->searchable(),
+                TextColumn::make('nama_barang')
+                    ->searchable(),
+                TextColumn::make('supplier.jenis_supplier')->label('Jenis')
+                    ->searchable(),
+                TextColumn::make('keterangan')
+                    ->searchable(),
+                TextColumn::make('no_container')
+                    ->searchable(),
                 TextColumn::make('brondolan'),
                 TextColumn::make('bruto'),
                 TextColumn::make('tara'),

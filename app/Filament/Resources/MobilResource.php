@@ -62,6 +62,7 @@ class MobilResource extends Resource implements HasShieldPermissions
                     ->label('Plat Polisi')
                     ->searchable(),
                 TextColumn::make('jenis_mobil')->label('Jenis Mobil')
+                    ->searchable()
                     ->copyable(),
             ])
             ->filters([

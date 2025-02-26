@@ -152,18 +152,26 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                     ->searchable()
                     ->copyable()
                     ->copyMessage('berhasil menyalin'),
-                TextColumn::make('mobil.plat_polisi')->label('Plat Polisi'),
-                TextColumn::make('nama_supir'),
-                TextColumn::make('supplier.nama_supplier')->label('Supplier'),
-                TextColumn::make('nama_barang'),
-                TextColumn::make('supplier.jenis_supplier')->label('Jenis'),
-                TextColumn::make('keterangan'),
-                TextColumn::make('kepemilikan'),
+                TextColumn::make('mobil.plat_polisi')->label('Plat Polisi')
+                    ->searchable(),
+                TextColumn::make('nama_supir')
+                    ->searchable(),
+                TextColumn::make('supplier.nama_supplier')->label('Supplier')
+                    ->searchable(),
+                TextColumn::make('nama_barang')
+                    ->searchable(),
+                TextColumn::make('supplier.jenis_supplier')->label('Jenis')
+                    ->searchable(),
+                TextColumn::make('keterangan')
+                    ->searchable(),
+                TextColumn::make('kepemilikan')
+                    ->searchable(),
                 TextColumn::make('brondolan'),
                 TextColumn::make('bruto'),
                 TextColumn::make('tara'),
                 TextColumn::make('netto'),
-                TextColumn::make('kepemilikan'),
+                TextColumn::make('kepemilikan')
+                ->searchable(),
                 TextColumn::make('jam_masuk'),
                 TextColumn::make('jam_keluar'),
                 TextColumn::make('no_lumbung'),

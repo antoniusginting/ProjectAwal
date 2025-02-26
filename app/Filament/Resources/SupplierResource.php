@@ -33,8 +33,10 @@ class SupplierResource extends Resource implements HasShieldPermissions
             ->schema([
                 TextInput::make('nama_supplier')
                     ->required()
+                    ->searchable()
                     ->placeholder('Masukkan Nama Supplier'),
                 Select::make('jenis_supplier')
+                    ->searchable()
                     ->label('Jenis Supplier')
                     ->options([
                         'Bonar Jaya' => 'Bonar Jaya',
