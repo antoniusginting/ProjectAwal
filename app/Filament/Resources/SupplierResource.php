@@ -30,7 +30,7 @@ class SupplierResource extends Resource implements HasShieldPermissions
         return static::getModel()::count();
     }
 
-    public static ?string $label = 'Daftar Supplier';
+    public static ?string $label = 'Daftar Supplier.';
 
     public static function form(Form $form): Form
     {
@@ -38,7 +38,6 @@ class SupplierResource extends Resource implements HasShieldPermissions
             ->schema([
                 TextInput::make('nama_supplier')
                     ->required()
-                    ->searchable()
                     ->placeholder('Masukkan Nama Supplier'),
                 Select::make('jenis_supplier')
                     ->searchable()
@@ -66,8 +65,10 @@ class SupplierResource extends Resource implements HasShieldPermissions
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->label('Ubah'),
+                Tables\Actions\DeleteAction::make()
+                    ->label('Hapus'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

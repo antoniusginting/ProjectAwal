@@ -32,7 +32,7 @@ class MobilResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationLabel = 'Mobil';
 
-    public static ?string $label = 'Daftar Mobil';
+    public static ?string $label = 'Daftar Mobil.';
 
     public static function form(Form $form): Form
     {
@@ -74,8 +74,10 @@ class MobilResource extends Resource implements HasShieldPermissions
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->label('Ubah'),
+                Tables\Actions\DeleteAction::make()
+                    ->label('Hapus'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

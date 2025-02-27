@@ -32,7 +32,7 @@ class UserResource extends Resource implements HasShieldPermissions
         return static::getModel()::count();
     }
 
-    public static ?string $label = 'Daftar User';
+    public static ?string $label = 'Daftar User.';
 
     public static function form(Form $form): Form
     {
@@ -62,6 +62,7 @@ class UserResource extends Resource implements HasShieldPermissions
                 Select::make('roles')
                     ->relationship('roles', 'name')
                     // ->multiple() // bisa dua role
+                    ->placeholder('Pilih salah satu role')
                     ->preload()
                     ->searchable()
             ]);
@@ -84,8 +85,10 @@ class UserResource extends Resource implements HasShieldPermissions
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->label('Ubah'),
+                Tables\Actions\DeleteAction::make()
+                    ->label('Hapus'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

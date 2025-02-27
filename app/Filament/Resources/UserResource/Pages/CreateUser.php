@@ -12,6 +12,11 @@ class CreateUser extends CreateRecord
 {
     protected static string $resource = UserResource::class;
 
+    function getTitle(): string
+    {
+        return 'Tambah User';
+    }
+
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index'); // Arahkan ke daftar tabel
