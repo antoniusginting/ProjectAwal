@@ -32,7 +32,7 @@ class UserResource extends Resource implements HasShieldPermissions
         return static::getModel()::count();
     }
 
-    public static ?string $label = 'Daftar User.';
+    public static ?string $label = 'Daftar User ';
 
     public static function form(Form $form): Form
     {

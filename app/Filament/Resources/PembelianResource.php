@@ -34,7 +34,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationGroup = 'Timbangan';
 
-    public static ?string $label = 'Daftar Pembelian.';
+    public static ?string $label = 'Daftar Pembelian ';
 
     public static function form(Form $form): Form
     {

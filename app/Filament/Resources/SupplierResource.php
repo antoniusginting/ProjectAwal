@@ -30,7 +30,7 @@ class SupplierResource extends Resource implements HasShieldPermissions
         return static::getModel()::count();
     }
 
-    public static ?string $label = 'Daftar Supplier.';
+    public static ?string $label = 'Daftar Supplier ';
 
     public static function form(Form $form): Form
     {
