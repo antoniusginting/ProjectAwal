@@ -23,7 +23,7 @@ class MobilPolicy
      */
     public function view(User $user, Mobil $mobil): bool
     {
-        return $user->can('view_mobil');
+        return $user->can('{{ View }}');
     }
 
     /**
@@ -55,7 +55,7 @@ class MobilPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_mobil');
+        return $user->can('{{ DeleteAny }}');
     }
 
     /**
@@ -63,7 +63,7 @@ class MobilPolicy
      */
     public function forceDelete(User $user, Mobil $mobil): bool
     {
-        return $user->can('force_delete_mobil');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class MobilPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_mobil');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class MobilPolicy
      */
     public function restore(User $user, Mobil $mobil): bool
     {
-        return $user->can('restore_mobil');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class MobilPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_mobil');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class MobilPolicy
      */
     public function replicate(User $user, Mobil $mobil): bool
     {
-        return $user->can('replicate_mobil');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class MobilPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_mobil');
+        return $user->can('{{ Reorder }}');
     }
 }

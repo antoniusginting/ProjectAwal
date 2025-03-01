@@ -23,7 +23,7 @@ class PenjualanPolicy
      */
     public function view(User $user, Penjualan $penjualan): bool
     {
-        return $user->can('view_penjualan');
+        return $user->can('{{ View }}');
     }
 
     /**
@@ -55,7 +55,7 @@ class PenjualanPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_penjualan');
+        return $user->can('{{ DeleteAny }}');
     }
 
     /**
@@ -63,7 +63,7 @@ class PenjualanPolicy
      */
     public function forceDelete(User $user, Penjualan $penjualan): bool
     {
-        return $user->can('force_delete_penjualan');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class PenjualanPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_penjualan');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class PenjualanPolicy
      */
     public function restore(User $user, Penjualan $penjualan): bool
     {
-        return $user->can('restore_penjualan');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class PenjualanPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_penjualan');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class PenjualanPolicy
      */
     public function replicate(User $user, Penjualan $penjualan): bool
     {
-        return $user->can('replicate_penjualan');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class PenjualanPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_penjualan');
+        return $user->can('{{ Reorder }}');
     }
 }
