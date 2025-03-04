@@ -8,6 +8,7 @@ use App\Models\Pembelian;
 use App\Models\Sortiran;
 use Filament\Forms;
 use Filament\Forms\Components\Card;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
@@ -17,6 +18,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -89,60 +91,137 @@ class SortiranResource extends Resource
                     ->schema([
                         TextInput::make('lumbung')
                             ->label('Lumbung')
+                            ->numeric()
+                            ->required()
                             ->columnSpan(2),
                         // Grid untuk menyusun field ke kanan
-                Grid::make(3) // 3 Kolom
-                ->schema([
-                    // Kualitas Jagung 1
-                    Card::make()
-                        ->schema([
-                            TextInput::make('kualitas_jagung_1')
-                                ->label('Kualitas Jagung 1'),
-                            TextInput::make('foto_jagung_1')
-                                ->label('Foto Jagung 1'),
-                            TextInput::make('x1_x10_1')
-                                ->label('X1-X10 1'),
-                            TextInput::make('jumlah_karung_1')
-                                ->label('Jumlah Karung 1'),
-                            TextInput::make('kadar_air_1')
-                                ->label('Kadar Air 1'),
-                        ])
-                        ->columnSpan(1), // Satu card per kolom
+                        Grid::make(3) // 3 Kolom
+                            ->schema([
+                                // Kualitas Jagung 1
+                                Card::make()
+                                    ->schema([
+                                        Select::make('kualitas_jagung_1') // Gantilah 'tipe' dengan nama field di database
+                                            ->label('Kualitas Jagung 1')
+                                            ->options([
+                                                'JG Kering' => 'Jagung Kering',
+                                                'JG Basah' => 'Jagung Basah Becek',
+                                                'JG Kurang Kering' => 'Jagung Kurang Kering',
+                                            ])
+                                            ->placeholder('Pilih Kualitas Jagung')
+                                            ->native(false) // Mengunakan dropdown modern
+                                            ->required(), // Opsional: Atur default value
+                                        FileUpload::make('foto_jagung_1')
+                                            ->image()
+                                            ->label('Foto Jagung 1'),
+                                        Select::make('x1_x10_1')
+                                            ->label('X1-X10 1')
+                                            ->options([
+                                                'X0' => 'X0',
+                                                'X1' => 'X1',
+                                                'X2' => 'X2',
+                                                'X3' => 'X3',
+                                                'X4' => 'X4',
+                                                'X5' => 'X5',
+                                                'X6' => 'X6',
+                                                'X7' => 'X7',
+                                                'X8' => 'X8',
+                                                'X9' => 'X9',
+                                                'X10' => 'X10',
+                                            ])
+                                            ->placeholder('Pilih Silang Jagung')
+                                            ->native(false) // Mengunakan dropdown modern
+                                            ->required(), // Opsional: Atur default value
+                                        TextInput::make('jumlah_karung_1')
+                                            ->label('Jumlah Karung 1'),
+                                        TextInput::make('kadar_air_1')
+                                            ->label('Kadar Air 1'),
+                                    ])
+                                    ->columnSpan(1), // Satu card per kolom
 
-                    // Kualitas Jagung 2
-                    Card::make()
-                        ->schema([
-                            TextInput::make('kualitas_jagung_2')
-                                ->label('Kualitas Jagung 2'),
-                            TextInput::make('foto_jagung_2')
-                                ->label('Foto Jagung 2'),
-                            TextInput::make('x1_x10_2')
-                                ->label('X1-X10 2'),
-                            TextInput::make('jumlah_karung_2')
-                                ->label('Jumlah Karung 2'),
-                            TextInput::make('kadar_air_2')
-                                ->label('Kadar Air 2'),
-                        ])
-                        ->columnSpan(1), 
+                                // Kualitas Jagung 2
+                                Card::make()
+                                    ->schema([
+                                        Select::make('kualitas_jagung_2') // Gantilah 'tipe' dengan nama field di database
+                                        ->label('Kualitas Jagung 2')
+                                        ->options([
+                                            'JG Kering' => 'Jagung Kering',
+                                            'JG Basah' => 'Jagung Basah Becek',
+                                            'JG Kurang Kering' => 'Jagung Kurang Kering',
+                                        ])
+                                        ->placeholder('Pilih Kualitas Jagung')
+                                        ->native(false), // Mengunakan dropdown modern
+                                        
+                                        FileUpload::make('foto_jagung_2')
+                                            ->image()
+                                            ->label('Foto Jagung 2'),
+                                        Select::make('x1_x10_2')
+                                            ->label('X1-X10 2')
+                                            ->options([
+                                                'X0' => 'X0',
+                                                'X1' => 'X1',
+                                                'X2' => 'X2',
+                                                'X3' => 'X3',
+                                                'X4' => 'X4',
+                                                'X5' => 'X5',
+                                                'X6' => 'X6',
+                                                'X7' => 'X7',
+                                                'X8' => 'X8',
+                                                'X9' => 'X9',
+                                                'X10' => 'X10',
+                                            ])
+                                            ->placeholder('Pilih Silang Jagung')
+                                            ->native(false), // Mengunakan dropdown modern
+                                  
+                                        TextInput::make('jumlah_karung_2')
+                                            ->label('Jumlah Karung 2'),
+                                        TextInput::make('kadar_air_2')
+                                            ->label('Kadar Air 2'),
+                                    ])
+                                    ->columnSpan(1),
 
-                    // Kualitas Jagung 3
-                    Card::make()
-                        ->schema([
-                            TextInput::make('kualitas_jagung_3')
-                                ->label('Kualitas Jagung 3'),
-                            TextInput::make('foto_jagung_3')
-                                ->label('Foto Jagung 3'),
-                            TextInput::make('x1_x10_3')
-                                ->label('X1-X10 3'),
-                            TextInput::make('jumlah_karung_3')
-                                ->label('Jumlah Karung 3'),
-                            TextInput::make('kadar_air_3')
-                                ->label('Kadar Air 3'),
-                        ])
-                        ->columnSpan(1), 
-                ])
-        ])
-        ->columns(1), // Agar Grid tetap dalam satu Card
+                                // Kualitas Jagung 3
+                                Card::make()
+                                    ->schema([
+                                        Select::make('kualitas_jagung_3') // Gantilah 'tipe' dengan nama field di database
+                                        ->label('Kualitas Jagung 3')
+                                        ->options([
+                                            'JG Kering' => 'Jagung Kering',
+                                            'JG Basah' => 'Jagung Basah Becek',
+                                            'JG Kurang Kering' => 'Jagung Kurang Kering',
+                                        ])
+                                        ->placeholder('Pilih Kualitas Jagung')
+                                        ->native(false), // Mengunakan dropdown modern
+                                      
+                                        FileUpload::make('foto_jagung_3')
+                                            ->image()
+                                            ->label('Foto Jagung 3'),
+                                        Select::make('x1_x10_3')
+                                            ->label('X1-X10 3')
+                                            ->options([
+                                                'X0' => 'X0',
+                                                'X1' => 'X1',
+                                                'X2' => 'X2',
+                                                'X3' => 'X3',
+                                                'X4' => 'X4',
+                                                'X5' => 'X5',
+                                                'X6' => 'X6',
+                                                'X7' => 'X7',
+                                                'X8' => 'X8',
+                                                'X9' => 'X9',
+                                                'X10' => 'X10',
+                                            ])
+                                            ->placeholder('Pilih Silang Jagung')
+                                            ->native(false), // Mengunakan dropdown modern
+                                            
+                                        TextInput::make('jumlah_karung_3')
+                                            ->label('Jumlah Karung 3'),
+                                        TextInput::make('kadar_air_3')
+                                            ->label('Kadar Air 3'),
+                                    ])
+                                    ->columnSpan(1),
+                            ])
+                    ])
+                    ->columns(1), // Agar Grid tetap dalam satu Card
             ]);
     }
 
@@ -157,7 +236,7 @@ class SortiranResource extends Resource
                 TextColumn::make('lumbung'),
                 TextColumn::make('kualitas_jagung_1')
                     ->label('Kualitas Jagung 1'),
-                TextColumn::make('foto_jagung_1')
+                ImageColumn::make('foto_jagung_1')
                     ->label('Foto Jagung 1'),
                 TextColumn::make('x1_x10_1')
                     ->label('X1 - X10'),
@@ -167,7 +246,7 @@ class SortiranResource extends Resource
                     ->label('Kadar Air 2'),
                 TextColumn::make('kualitas_jagung_2')
                     ->label('Kualitas Jagung 2'),
-                TextColumn::make('foto_jagung_2')
+                ImageColumn::make('foto_jagung_2')
                     ->label('Foto Jagung 2'),
                 TextColumn::make('x1_x10_2')
                     ->label('X1 - X10'),
@@ -177,7 +256,7 @@ class SortiranResource extends Resource
                     ->label('Kadar Air 2'),
                 TextColumn::make('kualitas_jagung_3')
                     ->label('Kualitas Jagung 3'),
-                TextColumn::make('foto_jagung_3')
+                ImageColumn::make('foto_jagung_3')
                     ->label('Foto Jagung 3'),
                 TextColumn::make('x1_x10_3')
                     ->label('X1 - X10'),
