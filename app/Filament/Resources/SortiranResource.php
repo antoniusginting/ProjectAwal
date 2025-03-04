@@ -26,7 +26,9 @@ class SortiranResource extends Resource
 {
     protected static ?string $model = Sortiran::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
+
+    public static ?string $label = 'Daftar Sortiran ';
 
     public static function form(Form $form): Form
     {

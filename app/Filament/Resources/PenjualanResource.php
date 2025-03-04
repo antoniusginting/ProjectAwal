@@ -21,14 +21,14 @@ class PenjualanResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = Penjualan::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-bolt';
-
-    protected static ?string $navigationLabel = 'Penjualan';
-
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();
     }
+    protected static ?string $navigationIcon = 'heroicon-o-bolt';
+
+    protected static ?string $navigationLabel = 'Penjualan';
+
 
     protected static ?string $navigationGroup = 'Timbangan';
 
