@@ -11,14 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('gerbangs', function (Blueprint $table) {
+        Schema::create('kendaraan_masuks', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_supir');
-            $table->string('plat_polisi');
-            $table->time('jam_masuk');
+
+            $table->string('status');
+            $table->string('nama_sup_per');
+            $table->string('plat_polisi')->nullable();
             $table->string('nama_barang')->nullable();
-            $table->integer('keterangan');
+            $table->string('keterangan')->nullable();
+            $table->time('jam_masuk');
             $table->time('jam_keluar')->nullable();
+
+            $table->timestamps();
         });
     }
 
@@ -27,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('table_satpams');
+        Schema::dropIfExists('kendaraan_masuks');
     }
 };
