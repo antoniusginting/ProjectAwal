@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
+use Filament\Infolists\Infolist;
 use App\Models\Mobil;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
@@ -14,10 +15,11 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\MobilResource\Pages;
-
+use Filament\Infolists\Components\TextEntry;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\MobilResource\RelationManagers;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use Filament\Actions\ViewAction;
 
 class MobilResource extends Resource implements HasShieldPermissions
 {
@@ -38,7 +40,7 @@ class MobilResource extends Resource implements HasShieldPermissions
     {
         return $form
             ->schema([
-                TextInput::make('plat_polisi')
+                Textinput::make('plat_polisi')
                     ->prefixIcon('heroicon-o-truck')
                     ->placeholder('Masukkan Plat Polisi'),
                 Select::make('jenis_mobil') // Gantilah 'tipe' dengan nama field di database
@@ -74,14 +76,13 @@ class MobilResource extends Resource implements HasShieldPermissions
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                    ->label('Ubah'),
-                Tables\Actions\DeleteAction::make()
-                    ->label('Hapus'),
+                Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    // Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -110,4 +111,6 @@ class MobilResource extends Resource implements HasShieldPermissions
             'delete',
         ];
     }
+
+    
 }

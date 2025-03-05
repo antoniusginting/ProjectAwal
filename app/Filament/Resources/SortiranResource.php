@@ -366,7 +366,7 @@ class SortiranResource extends Resource
                 ImageColumn::make('foto_jagung_1')
                     ->label('Foto Jagung 1'),
                 TextColumn::make('x1_x10_1')
-                    ->label('X1 - X10'),
+                    ->label('X1 - X10 1'),
                 TextColumn::make('jumlah_karung_1')
                     ->label('Jumlah Karung 1'),
 
@@ -376,7 +376,7 @@ class SortiranResource extends Resource
                 ImageColumn::make('foto_jagung_2')
                     ->label('Foto Jagung 2'),
                 TextColumn::make('x1_x10_2')
-                    ->label('X1 - X10'),
+                    ->label('X1 - X10 2'),
                 TextColumn::make('jumlah_karung_2')
                     ->label('Jumlah Karung 2'),
             
@@ -386,7 +386,7 @@ class SortiranResource extends Resource
                 ImageColumn::make('foto_jagung_3')
                     ->label('Foto Jagung 3'),
                 TextColumn::make('x1_x10_3')
-                    ->label('X1 - X10'),
+                    ->label('X1 - X10 3'),
                 TextColumn::make('jumlah_karung_3')
                     ->label('Jumlah Karung 3'),
 
@@ -396,7 +396,7 @@ class SortiranResource extends Resource
                 ImageColumn::make('foto_jagung_4')
                     ->label('Foto Jagung 4'),
                 TextColumn::make('x1_x10_4')
-                    ->label('X1 - X10'),
+                    ->label('X1 - X10 4'),
                 TextColumn::make('jumlah_karung_4')
                     ->label('Jumlah Karung 4'),
 
@@ -406,7 +406,7 @@ class SortiranResource extends Resource
                 ImageColumn::make('foto_jagung_5')
                     ->label('Foto Jagung 5'),
                 TextColumn::make('x1_x10_5')
-                    ->label('X1 - X10'),
+                    ->label('X1 - X10 5'),
                 TextColumn::make('jumlah_karung_5')
                     ->label('Jumlah Karung 5'),
 
@@ -416,16 +416,20 @@ class SortiranResource extends Resource
                 ImageColumn::make('foto_jagung_6')
                     ->label('Foto Jagung 6'),
                 TextColumn::make('x1_x10_6')
-                    ->label('X1 - X10'),
+                    ->label('X1 - X10 6'),
                 TextColumn::make('jumlah_karung_6')
                     ->label('Jumlah Karung 6'),
+
+                TextColumn::make('kadar_air')
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-            ])
+                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ViewAction::make(),
+                ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),

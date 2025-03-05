@@ -201,10 +201,9 @@ class PembelianResource extends Resource implements HasShieldPermissions
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                    ->label('Ubah'),
-                Tables\Actions\DeleteAction::make()
-                    ->label('Hapus'),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
