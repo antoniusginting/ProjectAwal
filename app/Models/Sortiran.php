@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Sortiran extends Model
 {
     protected $fillable = [
-        'pembelian_id',
-        'lumbung',
+        'id_pembelian',
+        'id_lumbung_basah',
         'kualitas_jagung_1',
         'foto_jagung_1',
         'x1_x10_1',
@@ -34,11 +34,18 @@ class Sortiran extends Model
         'x1_x10_6',
         'jumlah_karung_6',
         'kadar_air',
+        'total_karung',
     ];
 
     // Relasi ke tabel pembelian
     public function pembelian()
     {
-        return $this->belongsTo(Pembelian::class, 'pembelian_id', 'id');
+        return $this->belongsTo(Pembelian::class, 'id_pembelian', 'id');
+    }
+
+    // Relasi ke tabel pembelian
+    public function kapasitas()
+    {
+        return $this->belongsTo(KapasitasLumbungBasah::class, 'id_lumbung_basah', 'id');
     }
 }

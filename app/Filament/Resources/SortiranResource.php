@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SortiranResource\Pages;
 use App\Filament\Resources\SortiranResource\RelationManagers;
+use App\Models\KapasitasLumbungBasah;
 use App\Models\Pembelian;
 use App\Models\Sortiran;
 use Filament\Forms;
@@ -44,21 +45,29 @@ class SortiranResource extends Resource
                                 //     ->label('Tanggal Sekarang')
                                 //     ->placeholder(now()->format('d-m-Y')) // Tampilkan di input
                                 //     ->disabled(), // Tidak bisa diedit
-                                Select::make('pembelian_id')
+                                Select::make('id_pembelian')
                                     ->label('No SPB')
                                     ->placeholder('Pilih No SPB Pembelian')
                                     ->options(Pembelian::pluck('no_spb', 'id'))
                                     ->searchable()
                                     ->required()
                                     ->reactive()
+                                    ->disabled(fn($record) => $record !== null)
+                                    ->afterStateHydrated(function ($state, callable $set) {
+                                        if ($state) {
+                                            $pembelian = Pembelian::find($state);
+                                            $set('netto_pembelian', $pembelian?->netto ?? 0);
+                                            $set('nama_barang', $pembelian?->nama_barang ?? 'Barang tidak ditemukan');
+                                            $set('plat_polisi', $pembelian?->mobil?->plat_polisi ?? 'Plat tidak ditemukan');
+                                            $set('nama_supplier', $pembelian?->supplier->nama_supplier ?? 'Supplier tidak ditemukan');
+                                            $set('brondolan', $pembelian?->brondolan ?? 'Barang tidak ditemukan');
+                                        }
+                                    })
                                     ->afterStateUpdated(function ($state, callable $set) {
                                         $pembelian = Pembelian::find($state);
                                         $set('netto_pembelian', $pembelian?->netto ?? 0);
                                         $set('nama_barang', $pembelian?->nama_barang ?? 'Barang tidak ditemukan');
-
-                                        // Mengambil data mobil berdasarkan mobil_id di tabel pembelian
                                         $set('plat_polisi', $pembelian?->mobil?->plat_polisi ?? 'Plat tidak ditemukan');
-
                                         $set('nama_supplier', $pembelian?->supplier->nama_supplier ?? 'Supplier tidak ditemukan');
                                         $set('brondolan', $pembelian?->brondolan ?? 'Barang tidak ditemukan');
                                     }),
@@ -89,10 +98,28 @@ class SortiranResource extends Resource
                     ->collapsible(),
                 Card::make()
                     ->schema([
-                        TextInput::make('lumbung')
-                            ->label('Lumbung')
-                            ->numeric()
+
+                        Placeholder::make('next_id')
+                            ->label('No Sortiran')
+                            ->columnSpan(2)
+                            ->content(function ($record) {
+                                // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
+                                if ($record) {
+                                    return $record->no_sortiran;
+                                }
+
+                                // Jika sedang membuat data baru, hitung kode berikutnya
+                                $nextId = (KapasitasLumbungBasah::max('id') ?? 0) + 1;
+                                return 'S' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+                            }),
+
+                        Select::make('id_lumbung_basah')
+                            ->label('No Lumbung')
+                            ->placeholder('Pilih No Lumbung')
+                            ->options(KapasitasLumbungBasah::pluck('no_lumbung', 'id'))
+                            ->searchable()
                             ->required()
+                            ->reactive()
                             ->columnSpan(2),
                         // Grid untuk menyusun field ke kanan
                         Grid::make(3) // 3 Kolom
@@ -341,11 +368,22 @@ class SortiranResource extends Resource
                                     ])
                                     ->columnSpan(1),
                             ]),
-                        //Kadar air
-                        TextInput::make('kadar_air')
-                            ->label('Kadar Air')
-                            ->numeric()
-                            ->columnSpan(2), // Supaya melebar
+                        Card::make()
+                            ->schema([
+                                TextInput::make('kadar_air')
+                                    ->label('Kadar Air')
+                                    ->numeric()
+                                    ->placeholder('Masukkan kadar air')
+                                    ->required(),
+
+                                TextInput::make('total_karung')
+                                    ->label('Total Karung')
+                                    ->numeric()
+                                    ->placeholder('Masukkan total karung')
+                                    ->required(),
+                            ])
+                            ->columnSpan(3), // Menggunakan lebar penuh agar sejajar
+
                     ])
             ]);
     }
@@ -356,9 +394,12 @@ class SortiranResource extends Resource
             ->columns([
                 TextColumn::make('created_at')->label('Tanggal')
                     ->dateTime('d-m-Y'),
+                TextColumn::make('no_sortiran')->label('No Sortiran'),
                 TextColumn::make('pembelian.no_spb')->label('No SPB')
                     ->searchable(),
-                TextColumn::make('lumbung'),
+                TextColumn::make('kapasitas.no_lumbung')->label('No Lumbung')
+                    ->searchable()
+                    ->alignCenter(),
 
                 //Jagung 1
                 TextColumn::make('kualitas_jagung_1')
@@ -379,7 +420,7 @@ class SortiranResource extends Resource
                     ->label('X1 - X10 2'),
                 TextColumn::make('jumlah_karung_2')
                     ->label('Jumlah Karung 2'),
-            
+
                 //Jagung 3
                 TextColumn::make('kualitas_jagung_3')
                     ->label('Kualitas Jagung 3'),
@@ -424,12 +465,12 @@ class SortiranResource extends Resource
             ])
             ->filters([
                 //
-            ])
+            ])  
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
                 Tables\Actions\ViewAction::make(),
-                ])
+            ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),

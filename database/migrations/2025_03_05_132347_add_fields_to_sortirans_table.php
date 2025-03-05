@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sortirans', function (Blueprint $table) {
-            $table->id(); // Auto increment primary key
-
+        Schema::table('sortirans', function (Blueprint $table) {
+            
+            // Foreign key ke tabel Kapasitas Lumbung Basah
+            $table->unsignedBigInteger('id_lumbung_basah');
+            $table->foreign('id_lumbung_basah')->references('id')->on('kapasitas_lumbung_basahs')->onDelete('cascade');
             // Foreign key ke tabel pembelians
-            $table->unsignedBigInteger('pembelian_id');
-            $table->foreign('pembelian_id')->references('id')->on('pembelians')->onDelete('cascade');
-
-            $table->string('lumbung');
+            $table->unsignedBigInteger('id_pembelian');
+            $table->foreign('id_pembelian')->references('id')->on('pembelians')->onDelete('cascade');
 
             // Data kualitas jagung 1
             $table->string('kualitas_jagung_1');
@@ -54,6 +54,7 @@ return new class extends Migration
             $table->integer('jumlah_karung_6')->nullable();
 
             $table->float('kadar_air');
+            $table->integer('total_karung');
 
             $table->timestamps(); // created_at & updated_at
         });
@@ -64,6 +65,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sortirans');
+        Schema::table('sortirans', function (Blueprint $table) {
+            //
+        });
     }
 };
