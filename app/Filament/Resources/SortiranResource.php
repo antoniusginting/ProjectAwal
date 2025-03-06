@@ -113,13 +113,11 @@ class SortiranResource extends Resource
                                 return 'S' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
                             }),
 
-                        Select::make('id_lumbung_basah')
+                        TextInput::make('no_lumbung')
                             ->label('No Lumbung')
-                            ->placeholder('Pilih No Lumbung')
-                            ->options(KapasitasLumbungBasah::pluck('no_lumbung', 'id'))
-                            ->searchable()
+                            ->placeholder('Masukkan No Lumbung')
                             ->required()
-                            ->reactive()
+                            ->numeric()
                             ->columnSpan(2),
                         // Grid untuk menyusun field ke kanan
                         Grid::make(3) // 3 Kolom
@@ -397,7 +395,7 @@ class SortiranResource extends Resource
                 TextColumn::make('no_sortiran')->label('No Sortiran'),
                 TextColumn::make('pembelian.no_spb')->label('No SPB')
                     ->searchable(),
-                TextColumn::make('kapasitas.no_lumbung')->label('No Lumbung')
+                TextColumn::make('no_lumbung')->label('No Lumbung')
                     ->searchable()
                     ->alignCenter(),
 

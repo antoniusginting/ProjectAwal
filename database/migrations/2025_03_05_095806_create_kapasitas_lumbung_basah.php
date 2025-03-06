@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('kapasitas_lumbung_basahs', function (Blueprint $table) {
             $table->id();
 
-            $table->integer('no_lumbung');
-            $table->integer('kapasitas');
+            $table->integer('no_kapasitas_lumbung');
+            $table->integer('kapasitas_total');
+            $table->integer('kapasitas_sisa');
 
             $table->timestamps();
         });

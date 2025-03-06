@@ -13,13 +13,14 @@ return new class extends Migration
     {
         Schema::table('sortirans', function (Blueprint $table) {
             
-            // Foreign key ke tabel Kapasitas Lumbung Basah
-            $table->unsignedBigInteger('id_lumbung_basah');
-            $table->foreign('id_lumbung_basah')->references('id')->on('kapasitas_lumbung_basahs')->onDelete('cascade');
+            // // Foreign key ke tabel Kapasitas Lumbung Basah
+            // $table->unsignedBigInteger('id_lumbung_basah');
+            // $table->foreign('id_lumbung_basah')->references('id')->on('kapasitas_lumbung_basahs')->onDelete('cascade');
             // Foreign key ke tabel pembelians
             $table->unsignedBigInteger('id_pembelian');
             $table->foreign('id_pembelian')->references('id')->on('pembelians')->onDelete('cascade');
 
+            $table->integer('no_lumbung');
             // Data kualitas jagung 1
             $table->string('kualitas_jagung_1');
             $table->string('foto_jagung_1')->nullable();
