@@ -16,7 +16,7 @@ return new class extends Migration
             //Foreign key ke kapasitas lumbung basah
             $table->unsignedBigInteger('no_lumbung_basah');
             $table->foreign('no_lumbung_basah')->references('id')->on('kapasitas_lumbung_basahs')->onDelete('cascade');
-            
+            $table->string('jenis_jagung');
             //Foreign key ke sortiran
             $table->unsignedBigInteger('id_sortiran_1');
             $table->foreign('id_sortiran_1')->references('id')->on('sortirans')->onDelete('cascade');
@@ -28,7 +28,6 @@ return new class extends Migration
             //Foreign key ke sortiran
             $table->unsignedBigInteger('id_sortiran_3');
             $table->foreign('id_sortiran_3')->references('id')->on('sortirans')->onDelete('cascade');
-            $table->integer('total_netto');
             //Foreign key ke sortiran
             $table->unsignedBigInteger('id_sortiran_4');
             $table->foreign('id_sortiran_4')->references('id')->on('sortirans')->onDelete('cascade');
@@ -36,6 +35,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_sortiran_5');
             $table->foreign('id_sortiran_5')->references('id')->on('sortirans')->onDelete('cascade');
             
+            $table->integer('total_netto');
             $table->string('status');
             $table->timestamps();
         });

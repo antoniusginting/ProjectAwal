@@ -59,7 +59,7 @@ class AdminPanelProvider extends PanelProvider
             // ->authMiddleware([
             //     Authenticate::class,
             // ])
-            ->sidebarWidth('18rem')
+            ->sidebarWidth('20rem')
             ->sidebarCollapsibleOnDesktop()
             ->plugins([
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),

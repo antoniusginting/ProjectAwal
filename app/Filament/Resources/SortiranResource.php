@@ -60,7 +60,6 @@ class SortiranResource extends Resource
                                             $set('nama_barang', $pembelian?->nama_barang ?? 'Barang tidak ditemukan');
                                             $set('plat_polisi', $pembelian?->mobil?->plat_polisi ?? 'Plat tidak ditemukan');
                                             $set('nama_supplier', $pembelian?->supplier->nama_supplier ?? 'Supplier tidak ditemukan');
-                                            $set('brondolan', $pembelian?->brondolan ?? 'Barang tidak ditemukan');
                                         }
                                     })
                                     ->afterStateUpdated(function ($state, callable $set) {
@@ -69,7 +68,6 @@ class SortiranResource extends Resource
                                         $set('nama_barang', $pembelian?->nama_barang ?? 'Barang tidak ditemukan');
                                         $set('plat_polisi', $pembelian?->mobil?->plat_polisi ?? 'Plat tidak ditemukan');
                                         $set('nama_supplier', $pembelian?->supplier->nama_supplier ?? 'Supplier tidak ditemukan');
-                                        $set('brondolan', $pembelian?->brondolan ?? 'Barang tidak ditemukan');
                                     }),
 
                                 TextInput::make('plat_polisi')
@@ -88,18 +86,29 @@ class SortiranResource extends Resource
                                     ->label('Netto Pembelian')
                                     ->numeric()
                                     ->disabled(),
-
-                                TextInput::make('brondolan')
-                                    ->label('Brondolan')
-                                    ->disabled(),
-
+                                TextInput::make('total_karung')
+                                    ->label('Total Karung')
+                                    ->numeric()
+                                    ->placeholder('Masukkan Total Karung')
+                                    ->required()
+                                    ->reactive()
+                                    ->debounce(350)
+                                    ->afterStateUpdated(function ($state, $set, $get) {
+                                        $netto = $get('netto_pembelian') ?? 1; // Pastikan tidak terjadi pembagian dengan nol
+                                        $set('tonase_1', ($get('jumlah_karung_1') ?? 0) *  $netto / $state);
+                                        $set('tonase_2', ($get('jumlah_karung_2') ?? 0) *  $netto / $state);
+                                        $set('tonase_3', ($get('jumlah_karung_3') ?? 0) *  $netto / $state);
+                                        $set('tonase_4', ($get('jumlah_karung_4') ?? 0) *  $netto / $state);
+                                        $set('tonase_5', ($get('jumlah_karung_5') ?? 0) *  $netto / $state);
+                                        $set('tonase_6', ($get('jumlah_karung_6') ?? 0) *  $netto / $state);
+                                    }),
                             ])->columns(2),
                     ])
                     ->collapsible(),
                 Card::make()
                     ->schema([
 
-                        Placeholder::make('next_id')
+                        Placeholder::make('next_idi')
                             ->label('No Sortiran')
                             ->columnSpan(2)
                             ->content(function ($record) {
@@ -109,7 +118,7 @@ class SortiranResource extends Resource
                                 }
 
                                 // Jika sedang membuat data baru, hitung kode berikutnya
-                                $nextId = (KapasitasLumbungBasah::max('id') ?? 0) + 1;
+                                $nextId = (Sortiran::max('id') ?? 0) + 1;
                                 return 'S' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
                             }),
 
@@ -158,7 +167,26 @@ class SortiranResource extends Resource
                                             ->required(), // Opsional: Atur default value
                                         TextInput::make('jumlah_karung_1')
                                             ->placeholder('Masukkan Jumlah Karung')
-                                            ->label('Jumlah Karung 1'),
+                                            ->label('Jumlah Karung 1')
+                                            ->numeric()
+                                            ->reactive()
+                                            ->afterStateUpdated(
+                                                fn($state, $set, $get) =>
+                                                $set(
+                                                    'total_karung',
+                                                    ($get('jumlah_karung_1') ?? 0) +
+                                                        ($get('jumlah_karung_2') ?? 0) +
+                                                        ($get('jumlah_karung_3') ?? 0) +
+                                                        ($get('jumlah_karung_4') ?? 0) +
+                                                        ($get('jumlah_karung_5') ?? 0) +
+                                                        ($get('jumlah_karung_6') ?? 0)
+                                                )
+                                            ),
+
+                                        TextInput::make('tonase_1')
+                                            ->placeholder('Otomatis Terisi Tonase')
+                                            ->label('Tonase 1')
+                                            ->readOnly(),
                                     ])
                                     ->columnSpan(1), // Satu card per kolom
 
@@ -198,7 +226,26 @@ class SortiranResource extends Resource
 
                                         TextInput::make('jumlah_karung_2')
                                             ->placeholder('Masukkan Jumlah Karung')
-                                            ->label('Jumlah Karung 2'),
+                                            ->label('Jumlah Karung 2')
+                                            ->numeric()
+                                            ->reactive()
+                                            ->afterStateUpdated(
+                                                fn($state, $set, $get) =>
+                                                $set(
+                                                    'total_karung',
+                                                    ($get('jumlah_karung_1') ?? 0) +
+                                                        ($get('jumlah_karung_2') ?? 0) +
+                                                        ($get('jumlah_karung_3') ?? 0) +
+                                                        ($get('jumlah_karung_4') ?? 0) +
+                                                        ($get('jumlah_karung_5') ?? 0) +
+                                                        ($get('jumlah_karung_6') ?? 0)
+                                                )
+                                            ),
+
+                                        TextInput::make('tonase_2')
+                                            ->placeholder('Otomatis Terisi Tonase')
+                                            ->label('Tonase 2')
+                                            ->readOnly(),
 
                                     ])
                                     ->columnSpan(1),
@@ -239,7 +286,26 @@ class SortiranResource extends Resource
 
                                         TextInput::make('jumlah_karung_3')
                                             ->placeholder('Masukkan Jumlah Karung')
-                                            ->label('Jumlah Karung 3'),
+                                            ->label('Jumlah Karung 3')
+                                            ->numeric()
+                                            ->reactive()
+                                            ->afterStateUpdated(
+                                                fn($state, $set, $get) =>
+                                                $set(
+                                                    'total_karung',
+                                                    ($get('jumlah_karung_1') ?? 0) +
+                                                        ($get('jumlah_karung_2') ?? 0) +
+                                                        ($get('jumlah_karung_3') ?? 0) +
+                                                        ($get('jumlah_karung_4') ?? 0) +
+                                                        ($get('jumlah_karung_5') ?? 0) +
+                                                        ($get('jumlah_karung_6') ?? 0)
+                                                )
+                                            ),
+
+                                        TextInput::make('tonase_3')
+                                            ->placeholder('Otomatis Terisi Tonase')
+                                            ->label('Tonase 3')
+                                            ->readOnly(),
                                     ])
                                     ->columnSpan(1),
 
@@ -279,8 +345,26 @@ class SortiranResource extends Resource
 
                                         TextInput::make('jumlah_karung_4')
                                             ->placeholder('Masukkan Jumlah Karung')
-                                            ->label('Jumlah Karung 4'),
+                                            ->label('Jumlah Karung 4')
+                                            ->numeric()
+                                            ->reactive()
+                                            ->afterStateUpdated(
+                                                fn($state, $set, $get) =>
+                                                $set(
+                                                    'total_karung',
+                                                    ($get('jumlah_karung_1') ?? 0) +
+                                                        ($get('jumlah_karung_2') ?? 0) +
+                                                        ($get('jumlah_karung_3') ?? 0) +
+                                                        ($get('jumlah_karung_4') ?? 0) +
+                                                        ($get('jumlah_karung_5') ?? 0) +
+                                                        ($get('jumlah_karung_6') ?? 0)
+                                                )
+                                            ),
 
+                                        TextInput::make('tonase_4')
+                                            ->placeholder('Otomatis Terisi Tonase')
+                                            ->label('Tonase 4')
+                                            ->readOnly(),
                                     ])
                                     ->columnSpan(1),
 
@@ -320,7 +404,26 @@ class SortiranResource extends Resource
 
                                         TextInput::make('jumlah_karung_5')
                                             ->placeholder('Masukkan Jumlah Karung')
-                                            ->label('Jumlah Karung 5'),
+                                            ->label('Jumlah Karung 5')
+                                            ->numeric()
+                                            ->reactive()
+                                            ->afterStateUpdated(
+                                                fn($state, $set, $get) =>
+                                                $set(
+                                                    'total_karung',
+                                                    ($get('jumlah_karung_1') ?? 0) +
+                                                        ($get('jumlah_karung_2') ?? 0) +
+                                                        ($get('jumlah_karung_3') ?? 0) +
+                                                        ($get('jumlah_karung_4') ?? 0) +
+                                                        ($get('jumlah_karung_5') ?? 0) +
+                                                        ($get('jumlah_karung_6') ?? 0)
+                                                )
+                                            ),
+
+                                        TextInput::make('tonase_5')
+                                            ->placeholder('Otomatis Terisi Tonase')
+                                            ->label('Tonase 5')
+                                            ->readOnly(),
 
                                     ])
                                     ->columnSpan(1),
@@ -361,7 +464,26 @@ class SortiranResource extends Resource
 
                                         TextInput::make('jumlah_karung_6')
                                             ->placeholder('Masukkan Jumlah Karung')
-                                            ->label('Jumlah Karung 6'),
+                                            ->label('Jumlah Karung 6')
+                                            ->numeric()
+                                            ->placeholder('Masukkan Jumlah Karung')
+                                            ->reactive()
+                                            ->afterStateUpdated(
+                                                fn($state, $set, $get) =>
+                                                $set(
+                                                    'total_karung',
+                                                    ($get('jumlah_karung_1') ?? 0) +
+                                                        ($get('jumlah_karung_2') ?? 0) +
+                                                        ($get('jumlah_karung_3') ?? 0) +
+                                                        ($get('jumlah_karung_4') ?? 0) +
+                                                        ($get('jumlah_karung_5') ?? 0) +
+                                                        ($get('jumlah_karung_6') ?? 0)
+                                                )
+                                            ),
+                                        TextInput::make('tonase_5')
+                                            ->placeholder('Otomatis Terisi Tonase')
+                                            ->label('Tonase 5')
+                                            ->readOnly(),
 
                                     ])
                                     ->columnSpan(1),
@@ -374,11 +496,7 @@ class SortiranResource extends Resource
                                     ->placeholder('Masukkan kadar air')
                                     ->required(),
 
-                                TextInput::make('total_karung')
-                                    ->label('Total Karung')
-                                    ->numeric()
-                                    ->placeholder('Masukkan total karung')
-                                    ->required(),
+
                             ])
                             ->columnSpan(3), // Menggunakan lebar penuh agar sejajar
 
@@ -398,6 +516,9 @@ class SortiranResource extends Resource
                 TextColumn::make('no_lumbung')->label('No Lumbung')
                     ->searchable()
                     ->alignCenter(),
+                TextColumn::make('total_karung')->label('Total Karung')
+                    ->searchable()
+                    ->alignCenter(),
 
                 //Jagung 1
                 TextColumn::make('kualitas_jagung_1')
@@ -408,6 +529,8 @@ class SortiranResource extends Resource
                     ->label('X1 - X10 1'),
                 TextColumn::make('jumlah_karung_1')
                     ->label('Jumlah Karung 1'),
+                TextColumn::make('tonase_1')
+                    ->label('Tonase 1'),
 
                 //Jagung 2
                 TextColumn::make('kualitas_jagung_2')
@@ -463,7 +586,7 @@ class SortiranResource extends Resource
             ])
             ->filters([
                 //
-            ])  
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
