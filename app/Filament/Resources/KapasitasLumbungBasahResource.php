@@ -31,9 +31,14 @@ class KapasitasLumbungBasahResource extends Resource
             ->schema([
                 TextInput::make('no_kapasitas_lumbung')
                 ->label('No Lumbung')
-                ->columnSpan(2),
-                TextInput::make('kapasitas_total'),
-                TextInput::make('kapasitas_sisa'),
+                ->columnSpan(2)
+                ->placeholder('Masukkan No Kapasitas Lumbung'),
+                TextInput::make('kapasitas_total')
+                ->label('Kapasitas Total')
+                ->placeholder('Masukkan Jumlah Kapasitas Total'),
+                TextInput::make('kapasitas_sisa')
+                ->label('Kapasitas Sisa')
+                ->placeholder('Masukkan Jumlah Kapasitas Sisa'),
             ]);
     }
 
@@ -52,7 +57,7 @@ class KapasitasLumbungBasahResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
-                // Tables\Actions\ViewAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

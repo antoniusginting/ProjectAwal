@@ -32,7 +32,7 @@ class BlogPostsChart extends ChartWidget
                 [
                     'label' => 'Jumlah pembelian',
                     'data' => array_values($pembelianPerBulan), // Data diurutkan dari Jan - Des
-                    'backgroundColor' => '#4CAF50', // Warna batang chart
+                    'backgroundColor' => '#000080', // Warna batang chart
                 ],
             ],
             'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],

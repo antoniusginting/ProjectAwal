@@ -82,10 +82,12 @@ class SortiranResource extends Resource
                                     ->label('Nama Barang')
                                     ->disabled(),
 
-                                TextInput::make('netto_pembelian')
+                                    TextInput::make('netto_pembelian')
                                     ->label('Netto Pembelian')
-                                    ->numeric()
+                                    ->reactive()
+                                    ->afterStateHydrated(fn ($state, $set) => $set('netto_pembelian', number_format($state, 0, ',', '.')))
                                     ->disabled(),
+                                
                                 TextInput::make('total_karung')
                                     ->label('Total Karung')
                                     ->numeric()
