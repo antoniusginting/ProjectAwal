@@ -26,7 +26,7 @@ class LumbungBasahResource extends Resource
 {
     protected static ?string $model = LumbungBasah::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-funnel';
 
     public static ?string $label = 'Daftar Lumbung Basah ';
 
@@ -56,7 +56,8 @@ class LumbungBasahResource extends Resource
                                     ->label('Total netto')
                                     ->readOnly()
                                     ->placeholder('Otomatis Terhitung')
-                                    ->numeric(),
+                                    ->numeric()
+                                    ->suffix(' kg'),
                                 Select::make('no_lumbung_basah')
                                     ->label('No Lumbung Basah')
                                     ->placeholder('Pilih No Lumbung')

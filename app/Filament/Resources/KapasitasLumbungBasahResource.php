@@ -6,6 +6,7 @@ use App\Filament\Resources\KapasitasLumbungBasahResource\Pages;
 use App\Filament\Resources\KapasitasLumbungBasahResource\RelationManagers;
 use App\Models\KapasitasLumbungBasah;
 use Filament\Forms;
+use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -58,6 +59,14 @@ class KapasitasLumbungBasahResource extends Resource
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
                 Tables\Actions\ViewAction::make(),
+                Action::make('reset_kapasitas')
+                ->label('Reset')
+                ->action(fn ($record) => $record->update([
+                    'kapasitas_sisa' => $record->kapasitas_total
+                ]))
+                ->requiresConfirmation()
+                ->color('warning')
+                ->icon('heroicon-o-arrow-path'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
