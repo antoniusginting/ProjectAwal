@@ -23,6 +23,11 @@ use Filament\Actions\ViewAction;
 
 class MobilResource extends Resource implements HasShieldPermissions
 {
+
+    public static function getNavigationSort(): int
+    {
+        return 5; // Ini akan muncul di atas
+    }
     protected static ?string $model = Mobil::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-truck';

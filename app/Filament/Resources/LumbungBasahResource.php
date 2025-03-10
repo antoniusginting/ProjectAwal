@@ -24,6 +24,11 @@ use App\Filament\Resources\LumbungBasahResource\RelationManagers;
 
 class LumbungBasahResource extends Resource
 {
+
+    public static function getNavigationSort(): int
+    {
+        return 2; // Ini akan muncul di atas
+    }
     protected static ?string $model = LumbungBasah::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-funnel';
@@ -56,8 +61,8 @@ class LumbungBasahResource extends Resource
                                     ->label('Total netto')
                                     ->readOnly()
                                     ->placeholder('Otomatis Terhitung')
-                                    ->numeric()
-                                    ->suffix(' kg'),
+                                    ->reactive()
+                                    ->numeric(),
                                 Select::make('no_lumbung_basah')
                                     ->label('No Lumbung Basah')
                                     ->placeholder('Pilih No Lumbung')
@@ -70,11 +75,15 @@ class LumbungBasahResource extends Resource
                                         if ($state) {
                                             $kapasitaslumbungbasah = KapasitasLumbungBasah::find($state);
                                             $set('kapasitas_sisa', $kapasitaslumbungbasah?->kapasitas_sisa ?? 'Tidak ada');
+                                            $formattedSisa = number_format($kapasitaslumbungbasah?->kapasitas_sisa ?? 0, 0, ',', '.');
+                                            $set('kapasitas_sisa', $formattedSisa);
                                         }
                                     })
                                     ->afterStateUpdated(function ($state, callable $set) {
                                         $kapasitaslumbungbasah = KapasitasLumbungBasah::find($state);
                                         $set('kapasitas_sisa', $kapasitaslumbungbasah?->kapasitas_sisa ?? 'Tidak ada');
+                                        $formattedSisa = number_format($kapasitaslumbungbasah?->kapasitas_sisa ?? 0, 0, ',', '.');
+                                        $set('kapasitas_sisa', $formattedSisa);
                                     }),
                                 TextInput::make('jenis_jagung')
                                     ->label('Jenis Jagung')
@@ -95,7 +104,7 @@ class LumbungBasahResource extends Resource
                     ->schema([
                         Grid::make(3)
                             ->schema([
-                                //Card No sortiran
+                                //Card No sortiran1
                                 Card::make()
                                     ->schema([
                                         Select::make('id_sortiran_1')
@@ -112,6 +121,13 @@ class LumbungBasahResource extends Resource
                                                 // Set netto hanya untuk sortiran pertama
                                                 $set('netto_1', $sortiran1?->pembelian?->netto ?? 'Tidak ada');
 
+                                                // Ambil netto dan format angka dengan titik ribuan
+                                                $nettoFormatted = number_format($sortiran1?->pembelian?->netto ?? 0, 0, ',', '.');
+
+                                                // Set nilai ke TextInput yang hanya untuk tampilan
+                                                $set('netto_1_display', $nettoFormatted);
+
+                                                // Ambil nomor lumbung
                                                 $sortiran1 = Sortiran::find($state);
                                                 $set('no_lumbung_1', $sortiran1?->no_lumbung ?? 'Tidak ada');
 
@@ -124,10 +140,14 @@ class LumbungBasahResource extends Resource
                                                     ($get('netto_5') ?? 0) +
                                                     ($get('netto_6') ?? 0);
 
+                                                // Debug: Pastikan nilai total benar
+                                                // dump('Total Netto:', $totalNetto);
+
                                                 $set('total_netto', $totalNetto);
+                                                $set('total_netto_display', number_format($totalNetto, 0, ',', '.') . ' kg');
                                             }),
 
-                                        TextInput::make('netto_1')
+                                        TextInput::make('netto_1_display')
                                             ->label('Netto Pembelian 1')
                                             ->placeholder('Pilih terlebih dahulu no sortiran 1')
                                             ->disabled(),
@@ -356,31 +376,32 @@ class LumbungBasahResource extends Resource
                     ->alignCenter(),
 
                 //Jagung 1
-                TextColumn::make('sortiran_1')
+                TextColumn::make('sortiran1.no_sortiran')
                     ->label('Sortiran 1'),
 
                 //Jagung 2
-                TextColumn::make('sortiran_2')
+                TextColumn::make('sortiran2.no_sortiran')
                     ->label('Sortiran 2'),
 
                 //Jagung 3
-                TextColumn::make('sortiran_3')
+                TextColumn::make('sortiran3.no_sortiran')
                     ->label('Sortiran 3'),
 
                 //Jagung 4
-                TextColumn::make('sortiran_4')
+                TextColumn::make('sortiran4.no_sortiran')
                     ->label('Sortiran 4'),
 
                 //Jagung 5
-                TextColumn::make('sortiran_5')
+                TextColumn::make('sortiran5.no_sortiran')
                     ->label('Sortiran 5'),
 
                 //Jagung 6
-                TextColumn::make('sortiran_6')
+                TextColumn::make('sortiran6.no_sortiran')
                     ->label('Sortiran 6'),
 
                 TextColumn::make('total_netto')
-                    ->label('Total Netto'),
+                    ->label('Total Netto')
+                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('status')
                     ->label('Status'),
             ])

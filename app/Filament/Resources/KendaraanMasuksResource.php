@@ -21,8 +21,14 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class KendaraanMasuksResource extends Resource
 {
+
+    public static function getNavigationSort(): int
+    {
+        return 4; // Ini akan muncul di atas
+    }
     protected static ?string $model = KendaraanMasuks::class;
 
+    protected static ?string $navigationGroup = 'Satpam';
     protected static ?string $navigationIcon = 'heroicon-o-forward';
 
     protected static ?string $navigationLabel = 'Kendaraan Masuk';

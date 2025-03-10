@@ -61,6 +61,12 @@ class AdminPanelProvider extends PanelProvider
             // ])
             ->sidebarWidth('20rem')
             ->sidebarCollapsibleOnDesktop()
+            ->navigationGroups([
+                'dashboard',
+                'satpam',
+                'timbangan',
+                'pelindung'
+            ])
             ->plugins([
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
             ]);

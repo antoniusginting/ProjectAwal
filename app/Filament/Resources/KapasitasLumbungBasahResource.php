@@ -18,6 +18,10 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class KapasitasLumbungBasahResource extends Resource
 {
+    public static function getNavigationSort(): int
+    {
+        return 3; // Ini akan muncul di atas
+    }
     protected static ?string $model = KapasitasLumbungBasah::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
@@ -31,15 +35,27 @@ class KapasitasLumbungBasahResource extends Resource
         return $form
             ->schema([
                 TextInput::make('no_kapasitas_lumbung')
-                ->label('No Lumbung')
-                ->columnSpan(2)
-                ->placeholder('Masukkan No Kapasitas Lumbung'),
+                    ->label('No Lumbung')
+                    ->columnSpan(2)
+                    ->placeholder('Masukkan No Kapasitas Lumbung'),
                 TextInput::make('kapasitas_total')
-                ->label('Kapasitas Total')
-                ->placeholder('Masukkan Jumlah Kapasitas Total'),
+                    ->label('Kapasitas Total')
+                    ->placeholder('Masukkan Jumlah Kapasitas Total')
+                    ->live() // Memastikan perubahan langsung terjadi di Livewire
+                    ->extraAttributes([
+                        'x-data' => '{}',
+                        'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
+                    ])
+                    ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)), // Hapus titik sebelum dikirim ke database
                 TextInput::make('kapasitas_sisa')
-                ->label('Kapasitas Sisa')
-                ->placeholder('Masukkan Jumlah Kapasitas Sisa'),
+                    ->label('Kapasitas Sisa')
+                    ->placeholder('Masukkan Jumlah Kapasitas Sisa')
+                    ->live() // Memastikan perubahan langsung terjadi di Livewire
+                    ->extraAttributes([
+                        'x-data' => '{}',
+                        'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
+                    ])
+                    ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)), // Hapus titik sebelum dikirim ke database
             ]);
     }
 
@@ -48,9 +64,14 @@ class KapasitasLumbungBasahResource extends Resource
         return $table
             ->columns([
                 // TextColumn::make('id')->label('No'),
-                TextColumn::make('no_kapasitas_lumbung')->label('No Lumbung'),
-                TextColumn::make('kapasitas_total')->label('Kapasitas Total'),
-                TextColumn::make('kapasitas_sisa')->label('Kapasitas Sisa'),
+                TextColumn::make('no_kapasitas_lumbung')
+                    ->label('No Lumbung'),
+                TextColumn::make('kapasitas_total')
+                    ->label('Kapasitas Total')
+                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')), // Tambah pemisah ribuan,
+                TextColumn::make('kapasitas_sisa')
+                    ->label('Kapasitas Sisa')
+                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
             ])
             ->filters([
                 //
@@ -60,13 +81,13 @@ class KapasitasLumbungBasahResource extends Resource
                 Tables\Actions\DeleteAction::make(),
                 Tables\Actions\ViewAction::make(),
                 Action::make('reset_kapasitas')
-                ->label('Reset')
-                ->action(fn ($record) => $record->update([
-                    'kapasitas_sisa' => $record->kapasitas_total
-                ]))
-                ->requiresConfirmation()
-                ->color('warning')
-                ->icon('heroicon-o-arrow-path'),
+                    ->label('Reset')
+                    ->action(fn($record) => $record->update([
+                        'kapasitas_sisa' => $record->kapasitas_total
+                    ]))
+                    ->requiresConfirmation()
+                    ->color('warning')
+                    ->icon('heroicon-o-arrow-path'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -188,9 +188,12 @@ class PembelianResource extends Resource implements HasShieldPermissions
                 TextColumn::make('no_container')
                     ->searchable(),
                 TextColumn::make('brondolan'),
-                TextColumn::make('bruto'),
-                TextColumn::make('tara'),
-                TextColumn::make('netto'),
+                TextColumn::make('bruto')
+                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                TextColumn::make('tara')
+                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                TextColumn::make('netto')
+                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('kepemilikan'),
                 TextColumn::make('jam_masuk'),
                 TextColumn::make('jam_keluar'),

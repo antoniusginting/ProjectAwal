@@ -19,6 +19,10 @@ use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
 class SupplierResource extends Resource implements HasShieldPermissions
 {
+    public static function getNavigationSort(): int
+    {
+        return 6; // Ini akan muncul di atas
+    }
     protected static ?string $model = Supplier::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';

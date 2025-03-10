@@ -16,8 +16,6 @@ class LumbungBasah extends Model
         'id_sortiran_5',
         'total_netto',
         'status',
-
-
     ];
 
     // Relasi ke Kapasitas
@@ -26,12 +24,35 @@ class LumbungBasah extends Model
         return $this->belongsTo(KapasitasLumbungBasah::class, 'no_lumbung_basah', 'id');
     }
 
-    // Relasi ke Sortiran
-    public function sortiran()
+    public function sortiran1()
     {
-        return $this->belongsTo(Sortiran::class, 'id_sortiran_1', 'id');
+        return $this->belongsTo(Sortiran::class, 'id_sortiran_1');
     }
 
+    public function sortiran2()
+    {
+        return $this->belongsTo(Sortiran::class, 'id_sortiran_2');
+    }
+
+    public function sortiran3()
+    {
+        return $this->belongsTo(Sortiran::class, 'id_sortiran_3');
+    }
+
+    public function sortiran4()
+    {
+        return $this->belongsTo(Sortiran::class, 'id_sortiran_4');
+    }
+
+    public function sortiran5()
+    {
+        return $this->belongsTo(Sortiran::class, 'id_sortiran_5');
+    }
+
+    public function sortiran6()
+    {
+        return $this->belongsTo(Sortiran::class, 'id_sortiran_6');
+    }
     // Pengurangan kapasitas_sisa dengan total_netto
     protected static function booted()
     {

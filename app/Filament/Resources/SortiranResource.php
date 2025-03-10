@@ -27,10 +27,15 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class SortiranResource extends Resource
 {
+    public static function getNavigationSort(): int
+    {
+        return 1; // Ini akan muncul di atas
+    }
     protected static ?string $model = Sortiran::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
+    protected static ?string $navigationLabel = 'Sortiran';
     public static ?string $label = 'Daftar Sortiran ';
 
     public static function form(Form $form): Form
@@ -82,12 +87,12 @@ class SortiranResource extends Resource
                                     ->label('Nama Barang')
                                     ->disabled(),
 
-                                    TextInput::make('netto_pembelian')
+                                TextInput::make('netto_pembelian')
                                     ->label('Netto Pembelian')
                                     ->reactive()
-                                    ->afterStateHydrated(fn ($state, $set) => $set('netto_pembelian', number_format($state, 0, ',', '.')))
+                                    ->afterStateHydrated(fn($state, $set) => $set('netto_pembelian', number_format($state, 0, ',', '.')))
                                     ->disabled(),
-                                
+
                                 TextInput::make('total_karung')
                                     ->label('Total Karung')
                                     ->numeric()
@@ -520,7 +525,8 @@ class SortiranResource extends Resource
                     ->alignCenter(),
                 TextColumn::make('total_karung')->label('Total Karung')
                     ->searchable()
-                    ->alignCenter(),
+                    ->alignCenter()
+                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
 
                 //Jagung 1
                 TextColumn::make('kualitas_jagung_1')
@@ -528,9 +534,11 @@ class SortiranResource extends Resource
                 ImageColumn::make('foto_jagung_1')
                     ->label('Foto Jagung 1'),
                 TextColumn::make('x1_x10_1')
-                    ->label('X1 - X10 1'),
+                    ->label('X1 - X10 1')
+                    ->alignCenter(),
                 TextColumn::make('jumlah_karung_1')
-                    ->label('Jumlah Karung 1'),
+                    ->label('Jumlah Karung 1')
+                    ->alignCenter(),
                 TextColumn::make('tonase_1')
                     ->label('Tonase 1'),
 
@@ -540,9 +548,13 @@ class SortiranResource extends Resource
                 ImageColumn::make('foto_jagung_2')
                     ->label('Foto Jagung 2'),
                 TextColumn::make('x1_x10_2')
-                    ->label('X1 - X10 2'),
+                    ->label('X1 - X10 2')
+                    ->alignCenter(),
                 TextColumn::make('jumlah_karung_2')
-                    ->label('Jumlah Karung 2'),
+                    ->label('Jumlah Karung 2')
+                    ->alignCenter(),
+                TextColumn::make('tonase_2')
+                    ->label('Tonase 2'),
 
                 //Jagung 3
                 TextColumn::make('kualitas_jagung_3')
@@ -550,40 +562,52 @@ class SortiranResource extends Resource
                 ImageColumn::make('foto_jagung_3')
                     ->label('Foto Jagung 3'),
                 TextColumn::make('x1_x10_3')
-                    ->label('X1 - X10 3'),
+                    ->label('X1 - X10 3')
+                    ->alignCenter(),
                 TextColumn::make('jumlah_karung_3')
-                    ->label('Jumlah Karung 3'),
-
+                    ->label('Jumlah Karung 3')
+                    ->alignCenter(),
+                TextColumn::make('tonase_3')
+                    ->label('Tonase 3'),
                 //Jagung 4
                 TextColumn::make('kualitas_jagung_4')
                     ->label('Kualitas Jagung 4'),
                 ImageColumn::make('foto_jagung_4')
                     ->label('Foto Jagung 4'),
                 TextColumn::make('x1_x10_4')
-                    ->label('X1 - X10 4'),
+                    ->label('X1 - X10 4')
+                    ->alignCenter(),
                 TextColumn::make('jumlah_karung_4')
-                    ->label('Jumlah Karung 4'),
-
+                    ->label('Jumlah Karung 4')
+                    ->alignCenter(),
+                TextColumn::make('tonase_4')
+                    ->label('Tonase 4'),
                 //Jagung 5
                 TextColumn::make('kualitas_jagung_5')
                     ->label('Kualitas Jagung 5'),
                 ImageColumn::make('foto_jagung_5')
                     ->label('Foto Jagung 5'),
                 TextColumn::make('x1_x10_5')
-                    ->label('X1 - X10 5'),
+                    ->label('X1 - X10 5')
+                    ->alignCenter(),
                 TextColumn::make('jumlah_karung_5')
-                    ->label('Jumlah Karung 5'),
-
+                    ->label('Jumlah Karung 5')
+                    ->alignCenter(),
+                TextColumn::make('tonase_5')
+                    ->label('Tonase 6'),
                 //Jagung 6
                 TextColumn::make('kualitas_jagung_6')
                     ->label('Kualitas Jagung 6'),
                 ImageColumn::make('foto_jagung_6')
                     ->label('Foto Jagung 6'),
                 TextColumn::make('x1_x10_6')
-                    ->label('X1 - X10 6'),
+                    ->label('X1 - X10 6')
+                    ->alignCenter(),
                 TextColumn::make('jumlah_karung_6')
-                    ->label('Jumlah Karung 6'),
-
+                    ->label('Jumlah Karung 6')
+                    ->alignCenter(),
+                TextColumn::make('tonase_6')
+                    ->label('Tonase 6'),
                 TextColumn::make('kadar_air')
             ])
             ->filters([
