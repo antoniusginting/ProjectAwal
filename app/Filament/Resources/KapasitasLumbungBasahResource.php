@@ -23,6 +23,7 @@ class KapasitasLumbungBasahResource extends Resource
         return 3; // Ini akan muncul di atas
     }
     protected static ?string $model = KapasitasLumbungBasah::class;
+    protected static ?string $navigationGroup = 'Kapasitas';
 
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
 

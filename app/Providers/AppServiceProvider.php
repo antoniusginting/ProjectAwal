@@ -22,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
         //Mengatur letak group menu di sidebar
         Filament::registerNavigationGroups([
             'Dashboard',
+            'Kapasitas',
             'Timbangan',
             'Satpam',
         ]);

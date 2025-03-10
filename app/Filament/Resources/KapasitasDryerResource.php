@@ -19,8 +19,8 @@ class KapasitasDryerResource extends Resource
 {
     protected static ?string $model = KapasitasDryer::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
+    protected static ?string $navigationIcon = 'heroicon-o-archive-box-x-mark';
+    protected static ?string $navigationGroup = 'Kapasitas';
     protected static ?string $navigationLabel = 'Kapasitas Dryer';
 
     public static ?string $label = 'Daftar Kapasitas Dryer ';
