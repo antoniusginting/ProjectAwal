@@ -609,6 +609,7 @@ class SortiranResource extends Resource
                 TextColumn::make('tonase_6')
                     ->label('Tonase 6'),
                 TextColumn::make('kadar_air')
+                    ->suffix('%'),
             ])
             ->filters([
                 //

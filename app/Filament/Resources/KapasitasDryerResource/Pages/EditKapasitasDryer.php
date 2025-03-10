@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Filament\Resources\KapasitasLumbungBasahResource\Pages;
+namespace App\Filament\Resources\KapasitasDryerResource\Pages;
 
 use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
-use App\Filament\Resources\KapasitasLumbungBasahResource;
+use App\Filament\Resources\KapasitasDryerResource;
+use App\Models\KapasitasDryer;
 
-class EditKapasitasLumbungBasah extends EditRecord
+class EditKapasitasDryer extends EditRecord
 {
-    protected static string $resource = KapasitasLumbungBasahResource::class;
+    protected static string $resource = KapasitasDryerResource::class;
 
     protected function getHeaderActions(): array
     {
@@ -26,7 +27,7 @@ class EditKapasitasLumbungBasah extends EditRecord
             Action::make('cancel')
                 ->label('Batal')
                 ->color('gray')
-                ->url(KapasitasLumbungBasahResource::getUrl('index')),
+                ->url(KapasitasDryer::getUrl('index')),
         ];
     }
     protected function getRedirectUrl(): string

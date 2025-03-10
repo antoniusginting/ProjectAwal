@@ -51,7 +51,7 @@ class LumbungBasahResource extends Resource
                                     ->content(function ($record) {
                                         // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
                                         if ($record) {
-                                            return $record->no_spb;
+                                            return $record->no_lb;
                                         }
 
                                         // Jika sedang membuat data baru, hitung kode berikutnya
@@ -210,7 +210,6 @@ class LumbungBasahResource extends Resource
                                             ->placeholder('Pilih No Sortiran 2')
                                             ->options(Sortiran::pluck('no_sortiran', 'id')->toArray())
                                             ->searchable()
-                                            ->required()
                                             ->reactive()
                                             ->disabled(fn($record) => $record !== null)
                                             ->afterStateHydrated(function ($state, callable $set) {
@@ -273,7 +272,7 @@ class LumbungBasahResource extends Resource
                                                     $set('netto_2_display', $nettoFormatted);
 
                                                     // Ambil nomor lumbung
-                                                    $set('no_lumbung_2', $sortiran1?->no_lumbung ?? 'Tidak ada');
+                                                    $set('no_lumbung_2', $sortiran2?->no_lumbung ?? 'Tidak ada');
                                                 }
 
                                                 // Langsung hitung total netto setelah perubahan
@@ -298,7 +297,7 @@ class LumbungBasahResource extends Resource
                                             ->disabled(),
 
                                     ])->columnSpan(1),
-                                //No sortiran 3
+                                //Card No sortiran 3
                                 Card::make()
                                     ->schema([
                                         Select::make('id_sortiran_3')
@@ -306,7 +305,6 @@ class LumbungBasahResource extends Resource
                                             ->placeholder('Pilih No Sortiran 3')
                                             ->options(Sortiran::pluck('no_sortiran', 'id')->toArray())
                                             ->searchable()
-                                            ->required()
                                             ->reactive()
                                             ->disabled(fn($record) => $record !== null)
                                             ->afterStateHydrated(function ($state, callable $set) {
@@ -392,7 +390,7 @@ class LumbungBasahResource extends Resource
                                             ->placeholder('Pilih terlebih dahulu no sortiran 3')
                                             ->disabled(),
                                     ])->columnSpan(1),
-                                //No Sortiran 4
+                                //Card No Sortiran 4
                                 Card::make()
                                     ->schema([
                                         Select::make('id_sortiran_4')
@@ -400,7 +398,6 @@ class LumbungBasahResource extends Resource
                                             ->placeholder('Pilih No Sortiran 4')
                                             ->options(Sortiran::pluck('no_sortiran', 'id')->toArray())
                                             ->searchable()
-                                            ->required()
                                             ->reactive()
                                             ->disabled(fn($record) => $record !== null)
                                             ->afterStateHydrated(function ($state, callable $set) {
@@ -488,7 +485,7 @@ class LumbungBasahResource extends Resource
                                             ->disabled(),
 
                                     ])->columnSpan(1),
-                                //No sortiran 5
+                                //Card No sortiran 5
                                 Card::make()
                                     ->schema([
                                         Select::make('id_sortiran_5')
@@ -496,7 +493,6 @@ class LumbungBasahResource extends Resource
                                             ->placeholder('Pilih No Sortiran 5')
                                             ->options(Sortiran::pluck('no_sortiran', 'id')->toArray())
                                             ->searchable()
-                                            ->required()
                                             ->reactive()
                                             ->disabled(fn($record) => $record !== null)
                                             ->afterStateHydrated(function ($state, callable $set) {
@@ -584,7 +580,7 @@ class LumbungBasahResource extends Resource
                                             ->placeholder('Pilih terlebih dahulu no sortiran 5')
                                             ->disabled(),
                                     ])->columnSpan(1),
-                                //No Sortiran 6
+                                //Card No Sortiran 6
                                 Card::make()
                                     ->schema([
                                         Select::make('id_sortiran_6')
@@ -592,7 +588,6 @@ class LumbungBasahResource extends Resource
                                             ->placeholder('Pilih No Sortiran 6')
                                             ->options(Sortiran::pluck('no_sortiran', 'id')->toArray())
                                             ->searchable()
-                                            ->required()
                                             ->reactive()
                                             ->disabled(fn($record) => $record !== null)
                                             ->afterStateHydrated(function ($state, callable $set) {
