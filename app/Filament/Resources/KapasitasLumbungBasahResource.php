@@ -18,10 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class KapasitasLumbungBasahResource extends Resource
 {
-    public static function getNavigationSort(): int
-    {
-        return 3; // Ini akan muncul di atas
-    }
+    
     protected static ?string $model = KapasitasLumbungBasah::class;
     protected static ?string $navigationGroup = 'Kapasitas';
 

@@ -49,7 +49,7 @@ class KapasitasDryerResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('nama_kapasitas_dryer')
-                    ->label('No Lumbung'),
+                    ->label('Nama Dryer'),
                 TextColumn::make('kapasitas_total')
                     ->label('Kapasitas Total')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')), // Tambah pemisah ribuan,

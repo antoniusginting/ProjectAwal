@@ -10,6 +10,8 @@ class Dryer extends Model
         'id_kapasitas_dryer',
         'id_lumbung_1',
         'id_lumbung_2',
+        'id_lumbung_3',
+        'id_lumbung_4',
         'operator',
         'jenis_jagung',
         'lumbung_tujuan',
@@ -34,4 +36,13 @@ class Dryer extends Model
         return $this->belongsTo(LumbungBasah::class, 'id_lumbung_2');
     }
     
+    public function lumbung3()
+    {
+        return $this->belongsTo(LumbungBasah::class, 'id_lumbung_3');
+    }
+
+    public function lumbung4()
+    {
+        return $this->belongsTo(LumbungBasah::class, 'id_lumbung_4');
+    }
 }

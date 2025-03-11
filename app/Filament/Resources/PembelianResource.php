@@ -21,16 +21,16 @@ use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
 class PembelianResource extends Resource implements HasShieldPermissions
 {
+    // public static function getNavigationBadge(): ?string
+    // {
+    //     return static::getModel()::count();
+    // }
     protected static ?string $model = Pembelian::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?string $navigationLabel = 'Pembelian';
 
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::count();
-    }
 
     protected static ?string $navigationGroup = 'Timbangan';
 

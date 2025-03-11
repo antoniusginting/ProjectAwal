@@ -19,12 +19,12 @@ use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
 class PenjualanResource extends Resource implements HasShieldPermissions
 {
+    // public static function getNavigationBadge(): ?string
+    // {
+    //     return static::getModel()::count();
+    // }
     protected static ?string $model = Penjualan::class;
 
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::count();
-    }
     protected static ?string $navigationIcon = 'heroicon-o-bolt';
 
     protected static ?string $navigationLabel = 'Penjualan';

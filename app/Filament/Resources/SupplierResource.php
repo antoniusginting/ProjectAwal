@@ -19,6 +19,10 @@ use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
 class SupplierResource extends Resource implements HasShieldPermissions
 {
+    // public static function getNavigationBadge(): ?string
+    // {
+    //     return static::getModel()::count();
+    // }
     public static function getNavigationSort(): int
     {
         return 6; // Ini akan muncul di atas
@@ -29,10 +33,6 @@ class SupplierResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationLabel = 'Supplier';
 
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::count();
-    }
 
     public static ?string $label = 'Daftar Supplier ';
 

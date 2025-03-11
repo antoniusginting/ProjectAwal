@@ -21,6 +21,10 @@ use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
 class UserResource extends Resource implements HasShieldPermissions
 {
+    // public static function getNavigationBadge(): ?string
+    // {
+    //     return static::getModel()::count();
+    // }
     public static function getNavigationSort(): int
     {
         return 7; // Ini akan muncul di atas
@@ -31,10 +35,6 @@ class UserResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationLabel = 'User';
 
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::count();
-    }
 
     public static ?string $label = 'Daftar User ';
 

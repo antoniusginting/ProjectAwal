@@ -23,6 +23,10 @@ use Filament\Actions\ViewAction;
 
 class MobilResource extends Resource implements HasShieldPermissions
 {
+    // public static function getNavigationBadge(): ?string
+    // {
+    //     return static::getModel()::count();
+    // }
 
     public static function getNavigationSort(): int
     {
@@ -32,10 +36,6 @@ class MobilResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'heroicon-o-truck';
 
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::count();
-    }
 
     protected static ?string $navigationLabel = 'Mobil';
 

@@ -24,6 +24,14 @@ return new class extends Migration
             //Foreign key ke lumbung 2
             $table->unsignedBigInteger('id_lumbung_2');
             $table->foreign('id_lumbung_2')->references('id')->on('lumbung_basahs')->onDelete('cascade');
+            
+            //Foreign key ke lumbung 3
+            $table->unsignedBigInteger('id_lumbung_3');
+            $table->foreign('id_lumbung_3')->references('id')->on('lumbung_basahs')->onDelete('cascade');
+            
+            //Foreign key ke lumbung 4
+            $table->unsignedBigInteger('id_lumbung_4');
+            $table->foreign('id_lumbung_4')->references('id')->on('lumbung_basahs')->onDelete('cascade');
 
             $table->string('operator');
             $table->string('jenis_jagung');
