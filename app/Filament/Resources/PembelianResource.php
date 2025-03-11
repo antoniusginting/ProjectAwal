@@ -108,7 +108,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                 TextInput::make('keterangan')
                     ->placeholder('Masukkan Keterangan'),
                 Select::make('kepemilikan')
-                    ->label('Kepemilikan')
+                    ->label('Kepemilikan kendaraan')
                     ->options([
                         'Milik Sendiri' => 'Milik Sendiri',
                         'Minjam' => 'Minjam',

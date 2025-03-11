@@ -111,7 +111,7 @@ class LumbungBasahResource extends Resource
                                         Select::make('id_sortiran_1')
                                             ->label('No Sortiran 1')
                                             ->placeholder('Pilih No Sortiran 1')
-                                            ->options(Sortiran::pluck('no_sortiran', 'id')->toArray())
+                                            ->options(Sortiran::latest()->pluck('no_sortiran', 'id')->toArray())
                                             ->searchable()
                                             ->required()
                                             ->reactive()
@@ -208,7 +208,7 @@ class LumbungBasahResource extends Resource
                                         Select::make('id_sortiran_2')
                                             ->label('No Sortiran 2')
                                             ->placeholder('Pilih No Sortiran 2')
-                                            ->options(Sortiran::pluck('no_sortiran', 'id')->toArray())
+                                            ->options(Sortiran::latest()->pluck('no_sortiran', 'id')->toArray())
                                             ->searchable()
                                             ->reactive()
                                             ->disabled(fn($record) => $record !== null)
@@ -303,7 +303,7 @@ class LumbungBasahResource extends Resource
                                         Select::make('id_sortiran_3')
                                             ->label('No Sortiran 3')
                                             ->placeholder('Pilih No Sortiran 3')
-                                            ->options(Sortiran::pluck('no_sortiran', 'id')->toArray())
+                                            ->options(Sortiran::latest()->pluck('no_sortiran', 'id')->toArray())
                                             ->searchable()
                                             ->reactive()
                                             ->disabled(fn($record) => $record !== null)
@@ -396,7 +396,7 @@ class LumbungBasahResource extends Resource
                                         Select::make('id_sortiran_4')
                                             ->label('No Sortiran 4')
                                             ->placeholder('Pilih No Sortiran 4')
-                                            ->options(Sortiran::pluck('no_sortiran', 'id')->toArray())
+                                            ->options(Sortiran::latest()->pluck('no_sortiran', 'id')->toArray())
                                             ->searchable()
                                             ->reactive()
                                             ->disabled(fn($record) => $record !== null)
@@ -477,7 +477,7 @@ class LumbungBasahResource extends Resource
 
                                         TextInput::make('netto_4_display')
                                             ->label('Netto Pembelian 4')
-                                            ->placeholder('Pilih terlebih dahulu no sortiran 2')
+                                            ->placeholder('Pilih terlebih dahulu no sortiran 4')
                                             ->disabled(),
                                         TextInput::make('no_lumbung_4')
                                             ->label('No lumbung 4')
@@ -491,7 +491,7 @@ class LumbungBasahResource extends Resource
                                         Select::make('id_sortiran_5')
                                             ->label('No Sortiran 5')
                                             ->placeholder('Pilih No Sortiran 5')
-                                            ->options(Sortiran::pluck('no_sortiran', 'id')->toArray())
+                                            ->options(Sortiran::latest()->pluck('no_sortiran', 'id')->toArray())
                                             ->searchable()
                                             ->reactive()
                                             ->disabled(fn($record) => $record !== null)
@@ -572,7 +572,7 @@ class LumbungBasahResource extends Resource
 
                                         TextInput::make('netto_5_display')
                                             ->label('Netto Pembelian 5')
-                                            ->placeholder('Pilih terlebih dahulu no sortiran 2')
+                                            ->placeholder('Pilih terlebih dahulu no sortiran 5')
                                             ->disabled(),
 
                                         TextInput::make('no_lumbung_5')
@@ -586,7 +586,7 @@ class LumbungBasahResource extends Resource
                                         Select::make('id_sortiran_6')
                                             ->label('No Sortiran 6')
                                             ->placeholder('Pilih No Sortiran 6')
-                                            ->options(Sortiran::pluck('no_sortiran', 'id')->toArray())
+                                            ->options(Sortiran::latest()->pluck('no_sortiran', 'id')->toArray())
                                             ->searchable()
                                             ->reactive()
                                             ->disabled(fn($record) => $record !== null)
@@ -667,7 +667,7 @@ class LumbungBasahResource extends Resource
 
                                         TextInput::make('netto_6_display')
                                             ->label('Netto Pembelian 6')
-                                            ->placeholder('Pilih terlebih dahulu no sortiran 2')
+                                            ->placeholder('Pilih terlebih dahulu no sortiran 6')
                                             ->disabled(),
                                         TextInput::make('no_lumbung_6')
                                             ->label('No lumbung 6')

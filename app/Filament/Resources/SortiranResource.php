@@ -53,7 +53,7 @@ class SortiranResource extends Resource
                                 Select::make('id_pembelian')
                                     ->label('No SPB')
                                     ->placeholder('Pilih No SPB Pembelian')
-                                    ->options(Pembelian::pluck('no_spb', 'id'))
+                                    ->options(Pembelian::latest()->pluck('no_spb', 'id'))
                                     ->searchable()
                                     ->required()
                                     ->reactive()
@@ -97,7 +97,6 @@ class SortiranResource extends Resource
                                     ->label('Total Karung')
                                     ->numeric()
                                     ->placeholder('Masukkan Total Karung')
-                                    ->required()
                                     ->reactive()
                                     ->debounce(350)
                                     ->afterStateUpdated(function ($state, $set, $get) {
@@ -520,6 +519,9 @@ class SortiranResource extends Resource
                 TextColumn::make('no_sortiran')->label('No Sortiran'),
                 TextColumn::make('pembelian.no_spb')->label('No SPB')
                     ->searchable(),
+                TextColumn::make('pembelian.netto')->label('Netto')
+                    ->searchable()
+                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('no_lumbung')->label('No Lumbung')
                     ->searchable()
                     ->alignCenter(),
@@ -610,7 +612,7 @@ class SortiranResource extends Resource
                     ->label('Tonase 6'),
                 TextColumn::make('kadar_air')
                     ->suffix('%'),
-            ])
+            ])->defaultSort('no_sortiran', 'desc')
             ->filters([
                 //
             ])
