@@ -69,5 +69,38 @@ class LumbungBasah extends Model
                 }
             }
         });
+
+        static::updating(function ($lumbungBasah) {
+            // Ambil data lama sebelum perubahan
+            $oldLumbungBasah = $lumbungBasah->getOriginal();
+            $oldNetto = $oldLumbungBasah['total_netto'] ?? 0;
+            $oldNoLumbung = $oldLumbungBasah['no_lumbung_basah'];
+        
+            // Cek apakah nomor lumbung berubah
+            if ($oldNoLumbung !== $lumbungBasah->no_lumbung_basah) {
+                throw new \Exception('Nomor Lumbung tidak dapat diubah!');
+            }
+        
+            // Cari data kapasitas berdasarkan ID lama
+            $kapasitas = KapasitasLumbungBasah::find($oldNoLumbung);
+        
+            if ($kapasitas) {
+                // Hitung selisih perubahan
+                $selisih = $lumbungBasah->total_netto - $oldNetto;
+        
+                if ($selisih > 0) {
+                    // Jika netto bertambah, pastikan kapasitas cukup
+                    if ($kapasitas->kapasitas_sisa >= $selisih) {
+                        $kapasitas->decrement('kapasitas_sisa', $selisih);
+                    } else {
+                        throw new \Exception('Kapasitas tidak mencukupi!');
+                    }
+                } elseif ($selisih < 0) {
+                    // Jika netto berkurang, tambahkan kembali ke kapasitas
+                    $kapasitas->increment('kapasitas_sisa', abs($selisih));
+                }
+            }
+        });
+        
     }
 }

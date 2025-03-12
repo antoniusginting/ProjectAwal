@@ -72,7 +72,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                     ->numeric()
                     ->placeholder('Masukkan Nilai Bruto')
                     ->required()
-                    ->live(debounce: 500) // Tunggu 500ms setelah user berhenti mengetik
+                    ->live(debounce: 300) // Tunggu 500ms setelah user berhenti mengetik
                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                         $tara = $get('tara') ?? 0;
                         $set('netto', max(0, intval($state) - intval($tara))); // Hitung netto

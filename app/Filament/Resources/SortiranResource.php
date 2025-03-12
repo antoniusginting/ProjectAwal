@@ -98,16 +98,29 @@ class SortiranResource extends Resource
                                     ->numeric()
                                     ->placeholder('Masukkan Total Karung')
                                     ->reactive()
-                                    ->debounce(350)
                                     ->afterStateUpdated(function ($state, $set, $get) {
-                                        $netto = $get('netto_pembelian') ?? 1; // Pastikan tidak terjadi pembagian dengan nol
-                                        $set('tonase_1', ($get('jumlah_karung_1') ?? 0) *  $netto / $state);
-                                        $set('tonase_2', ($get('jumlah_karung_2') ?? 0) *  $netto / $state);
-                                        $set('tonase_3', ($get('jumlah_karung_3') ?? 0) *  $netto / $state);
-                                        $set('tonase_4', ($get('jumlah_karung_4') ?? 0) *  $netto / $state);
-                                        $set('tonase_5', ($get('jumlah_karung_5') ?? 0) *  $netto / $state);
-                                        $set('tonase_6', ($get('jumlah_karung_6') ?? 0) *  $netto / $state);
+                                        $netto = (float) ($get('netto_pembelian') ?? 1); // Konversi ke float
+
+                                        // Jika total_karung kosong
+                                        if (empty($state)) {
+                                            $set('tonase_1', null);
+                                            $set('tonase_2', null);
+                                            $set('tonase_3', null);
+                                            $set('tonase_4', null);
+                                            $set('tonase_5', null);
+                                            $set('tonase_6', null);
+                                            return;
+                                        }
+
+                                        // Lakukan perhitungan tonase dengan konversi nilai ke float agar tidak error
+                                        $set('tonase_1', ((int) $get('jumlah_karung_1') ?? 0) * $netto / (float) $state);
+                                        $set('tonase_2', ((int) $get('jumlah_karung_2') ?? 0) * $netto / (float) $state);
+                                        $set('tonase_3', ((int) $get('jumlah_karung_3') ?? 0) * $netto / (float) $state);
+                                        $set('tonase_4', ((int) $get('jumlah_karung_4') ?? 0) * $netto / (float) $state);
+                                        $set('tonase_5', ((int) $get('jumlah_karung_5') ?? 0) * $netto / (float) $state);
+                                        $set('tonase_6', ((int) $get('jumlah_karung_6') ?? 0) * $netto / (float) $state);
                                     }),
+
                             ])->columns(2),
                     ])
                     ->collapsible(),
@@ -176,16 +189,17 @@ class SortiranResource extends Resource
                                             ->label('Jumlah Karung 1')
                                             ->numeric()
                                             ->reactive()
+                                            ->debounce(500)
                                             ->afterStateUpdated(
                                                 fn($state, $set, $get) =>
                                                 $set(
                                                     'total_karung',
-                                                    ($get('jumlah_karung_1') ?? 0) +
-                                                        ($get('jumlah_karung_2') ?? 0) +
-                                                        ($get('jumlah_karung_3') ?? 0) +
-                                                        ($get('jumlah_karung_4') ?? 0) +
-                                                        ($get('jumlah_karung_5') ?? 0) +
-                                                        ($get('jumlah_karung_6') ?? 0)
+                                                    (int) ($get('jumlah_karung_1') ?? 0) +
+                                                        (int) ($get('jumlah_karung_2') ?? 0) +
+                                                        (int) ($get('jumlah_karung_3') ?? 0) +
+                                                        (int) ($get('jumlah_karung_4') ?? 0) +
+                                                        (int) ($get('jumlah_karung_5') ?? 0) +
+                                                        (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
 
@@ -234,17 +248,18 @@ class SortiranResource extends Resource
                                             ->placeholder('Masukkan Jumlah Karung')
                                             ->label('Jumlah Karung 2')
                                             ->numeric()
+                                            ->debounce(500)
                                             ->reactive()
                                             ->afterStateUpdated(
                                                 fn($state, $set, $get) =>
                                                 $set(
                                                     'total_karung',
-                                                    ($get('jumlah_karung_1') ?? 0) +
-                                                        ($get('jumlah_karung_2') ?? 0) +
-                                                        ($get('jumlah_karung_3') ?? 0) +
-                                                        ($get('jumlah_karung_4') ?? 0) +
-                                                        ($get('jumlah_karung_5') ?? 0) +
-                                                        ($get('jumlah_karung_6') ?? 0)
+                                                    (int) ($get('jumlah_karung_1') ?? 0) +
+                                                        (int) ($get('jumlah_karung_2') ?? 0) +
+                                                        (int) ($get('jumlah_karung_3') ?? 0) +
+                                                        (int) ($get('jumlah_karung_4') ?? 0) +
+                                                        (int) ($get('jumlah_karung_5') ?? 0) +
+                                                        (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
 
@@ -294,17 +309,18 @@ class SortiranResource extends Resource
                                             ->placeholder('Masukkan Jumlah Karung')
                                             ->label('Jumlah Karung 3')
                                             ->numeric()
+                                            ->debounce(500)
                                             ->reactive()
                                             ->afterStateUpdated(
                                                 fn($state, $set, $get) =>
                                                 $set(
                                                     'total_karung',
-                                                    ($get('jumlah_karung_1') ?? 0) +
-                                                        ($get('jumlah_karung_2') ?? 0) +
-                                                        ($get('jumlah_karung_3') ?? 0) +
-                                                        ($get('jumlah_karung_4') ?? 0) +
-                                                        ($get('jumlah_karung_5') ?? 0) +
-                                                        ($get('jumlah_karung_6') ?? 0)
+                                                    (int) ($get('jumlah_karung_1') ?? 0) +
+                                                        (int) ($get('jumlah_karung_2') ?? 0) +
+                                                        (int) ($get('jumlah_karung_3') ?? 0) +
+                                                        (int) ($get('jumlah_karung_4') ?? 0) +
+                                                        (int) ($get('jumlah_karung_5') ?? 0) +
+                                                        (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
 
@@ -353,17 +369,18 @@ class SortiranResource extends Resource
                                             ->placeholder('Masukkan Jumlah Karung')
                                             ->label('Jumlah Karung 4')
                                             ->numeric()
+                                            ->debounce(500)
                                             ->reactive()
                                             ->afterStateUpdated(
                                                 fn($state, $set, $get) =>
                                                 $set(
                                                     'total_karung',
-                                                    ($get('jumlah_karung_1') ?? 0) +
-                                                        ($get('jumlah_karung_2') ?? 0) +
-                                                        ($get('jumlah_karung_3') ?? 0) +
-                                                        ($get('jumlah_karung_4') ?? 0) +
-                                                        ($get('jumlah_karung_5') ?? 0) +
-                                                        ($get('jumlah_karung_6') ?? 0)
+                                                    (int) ($get('jumlah_karung_1') ?? 0) +
+                                                        (int) ($get('jumlah_karung_2') ?? 0) +
+                                                        (int) ($get('jumlah_karung_3') ?? 0) +
+                                                        (int) ($get('jumlah_karung_4') ?? 0) +
+                                                        (int) ($get('jumlah_karung_5') ?? 0) +
+                                                        (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
 
@@ -412,17 +429,18 @@ class SortiranResource extends Resource
                                             ->placeholder('Masukkan Jumlah Karung')
                                             ->label('Jumlah Karung 5')
                                             ->numeric()
+                                            ->debounce(500)
                                             ->reactive()
                                             ->afterStateUpdated(
                                                 fn($state, $set, $get) =>
                                                 $set(
                                                     'total_karung',
-                                                    ($get('jumlah_karung_1') ?? 0) +
-                                                        ($get('jumlah_karung_2') ?? 0) +
-                                                        ($get('jumlah_karung_3') ?? 0) +
-                                                        ($get('jumlah_karung_4') ?? 0) +
-                                                        ($get('jumlah_karung_5') ?? 0) +
-                                                        ($get('jumlah_karung_6') ?? 0)
+                                                    (int) ($get('jumlah_karung_1') ?? 0) +
+                                                        (int) ($get('jumlah_karung_2') ?? 0) +
+                                                        (int) ($get('jumlah_karung_3') ?? 0) +
+                                                        (int) ($get('jumlah_karung_4') ?? 0) +
+                                                        (int) ($get('jumlah_karung_5') ?? 0) +
+                                                        (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
 
@@ -472,23 +490,22 @@ class SortiranResource extends Resource
                                             ->placeholder('Masukkan Jumlah Karung')
                                             ->label('Jumlah Karung 6')
                                             ->numeric()
-                                            ->placeholder('Masukkan Jumlah Karung')
                                             ->reactive()
                                             ->afterStateUpdated(
                                                 fn($state, $set, $get) =>
                                                 $set(
                                                     'total_karung',
-                                                    ($get('jumlah_karung_1') ?? 0) +
-                                                        ($get('jumlah_karung_2') ?? 0) +
-                                                        ($get('jumlah_karung_3') ?? 0) +
-                                                        ($get('jumlah_karung_4') ?? 0) +
-                                                        ($get('jumlah_karung_5') ?? 0) +
-                                                        ($get('jumlah_karung_6') ?? 0)
+                                                    (int) ($get('jumlah_karung_1') ?? 0) +
+                                                        (int) ($get('jumlah_karung_2') ?? 0) +
+                                                        (int) ($get('jumlah_karung_3') ?? 0) +
+                                                        (int) ($get('jumlah_karung_4') ?? 0) +
+                                                        (int) ($get('jumlah_karung_5') ?? 0) +
+                                                        (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
-                                        TextInput::make('tonase_5')
+                                        TextInput::make('tonase_6')
                                             ->placeholder('Otomatis Terisi Tonase')
-                                            ->label('Tonase 5')
+                                            ->label('Tonase 6')
                                             ->readOnly(),
 
                                     ])
@@ -520,6 +537,9 @@ class SortiranResource extends Resource
                 TextColumn::make('pembelian.no_spb')->label('No SPB')
                     ->searchable(),
                 TextColumn::make('pembelian.netto')->label('Netto')
+                    ->searchable()
+                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                TextColumn::make('pembelian.tara')->label('Tara')
                     ->searchable()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('no_lumbung')->label('No Lumbung')

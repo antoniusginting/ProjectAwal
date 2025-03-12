@@ -48,6 +48,7 @@ class LumbungBasahResource extends Resource
                             ->schema([
                                 Placeholder::make('next_id')
                                     ->label('No LB')
+                                    ->columnSpan(2)
                                     ->content(function ($record) {
                                         // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
                                         if ($record) {
@@ -58,12 +59,6 @@ class LumbungBasahResource extends Resource
                                         $nextId = (LumbungBasah::max('id') ?? 0) + 1;
                                         return 'LB' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
                                     }),
-                                TextInput::make('total_netto')
-                                    ->label('Total netto')
-                                    ->readOnly()
-                                    ->placeholder('Otomatis Terhitung')
-                                    ->reactive()
-                                    ->numeric(),
                                 Select::make('no_lumbung_basah')
                                     ->label('No Lumbung Basah')
                                     ->placeholder('Pilih No Lumbung')
@@ -78,6 +73,9 @@ class LumbungBasahResource extends Resource
                                             $set('kapasitas_sisa', $kapasitaslumbungbasah?->kapasitas_sisa ?? 'Tidak ada');
                                             $formattedSisa = number_format($kapasitaslumbungbasah?->kapasitas_sisa ?? 0, 0, ',', '.');
                                             $set('kapasitas_sisa', $formattedSisa);
+                                            $set('kapasitas_total', $kapasitaslumbungbasah?->kapasitas_total ?? 'Tidak ada');
+                                            $formattedtotal = number_format($kapasitaslumbungbasah?->kapasitas_total ?? 0, 0, ',', '.');
+                                            $set('kapasitas_total', $formattedtotal);
                                         }
                                     })
                                     ->afterStateUpdated(function ($state, callable $set) {
@@ -85,20 +83,36 @@ class LumbungBasahResource extends Resource
                                         $set('kapasitas_sisa', $kapasitaslumbungbasah?->kapasitas_sisa ?? 'Tidak ada');
                                         $formattedSisa = number_format($kapasitaslumbungbasah?->kapasitas_sisa ?? 0, 0, ',', '.');
                                         $set('kapasitas_sisa', $formattedSisa);
+                                        $set('kapasitas_total', $kapasitaslumbungbasah?->kapasitas_total ?? 'Tidak ada');
+                                        $formattedtotal = number_format($kapasitaslumbungbasah?->kapasitas_total ?? 0, 0, ',', '.');
+                                        $set('kapasitas_total', $formattedtotal);
                                     }),
+                                TextInput::make('kapasitas_total')
+                                    ->label('Kapasitas Total')
+                                    ->placeholder('Pilih terlebih dahulu no lumbung basah')
+                                    ->disabled(),
+
+
                                 TextInput::make('jenis_jagung')
                                     ->label('Jenis Jagung')
                                     ->placeholder('Masukkan Jenis Jagung'),
-
-                                TextInput::make('kapasitas_sisa')
-                                    ->label('Kapasitas Sisa')
-                                    ->placeholder('Pilih terlebih dahulu no lumbung basah')
-                                    ->disabled(),
+                                TextInput::make('total_netto')
+                                    ->label('Total netto')
+                                    ->readOnly()
+                                    ->placeholder('Otomatis Terhitung')
+                                    ->reactive()
+                                    ->numeric(),
 
                                 TextInput::make('created_at')
                                     ->label('Tanggal Sekarang')
                                     ->placeholder(now()->format('d-m-Y')) // Tampilkan di input
                                     ->disabled(), // Tidak bisa diedit
+                                TextInput::make('kapasitas_sisa')
+                                    ->label('Kapasitas Sisa')
+                                    ->placeholder('Pilih terlebih dahulu no lumbung basah')
+                                    ->disabled(),
+
+
                             ])->columns(2)
                     ])->collapsible(),
                 Card::make()
@@ -115,7 +129,7 @@ class LumbungBasahResource extends Resource
                                             ->searchable()
                                             ->required()
                                             ->reactive()
-                                            ->disabled(fn($record) => $record !== null)
+                                            //->disabled(fn($record) => $record !== null)
                                             ->afterStateHydrated(function ($state, callable $set) {
                                                 if ($state) {
                                                     // Ambil data sortiran berdasarkan ID yang dipilih
@@ -133,61 +147,38 @@ class LumbungBasahResource extends Resource
                                             })
                                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                                 if (empty($state)) {
-                                                    // Reset semua nilai terkait jika Select dibatalkan
+                                                    // Reset nilai jika Select dikosongkan
                                                     $set('netto_1', null);
                                                     $set('netto_1_display', null);
                                                     $set('no_lumbung_1', null);
                                                 } else {
-
-                                                    // Cek apakah sortiran sudah dipilih sebelumnya di field lain
-                                                    $selectedSortirans = [
-                                                        $get('id_sortiran_1'),
-                                                        $get('id_sortiran_2'),
-                                                        $get('id_sortiran_3'),
-                                                        $get('id_sortiran_4'),
-                                                        $get('id_sortiran_5'),
-                                                        $get('id_sortiran_6'),
-                                                    ];
-                                                    // Hitung jumlah kemunculan dari ID yang dipilih
-                                                    $occurrences = array_count_values(array_filter($selectedSortirans));
-
-                                                    if ($occurrences[$state] > 1) {
-                                                        // Tampilkan notifikasi jika ada duplikasi
-                                                        Notification::make()
-                                                            ->title('Peringatan!')
-                                                            ->body('No Sortiran tidak boleh sama.')
-                                                            ->danger()
-                                                            ->send();
-                                        
-                                                        // Reset kembali jika terdeteksi duplikasi
-                                                        $set('id_sortiran_1', null);
-                                                        return;
-                                                    }
-
                                                     // Ambil data sortiran berdasarkan ID yang dipilih
                                                     $sortiran1 = Sortiran::with('pembelian')->find($state);
 
-                                                    // Set netto hanya untuk sortiran pertama
-                                                    $set('netto_1', $sortiran1?->pembelian?->netto ?? 'Tidak ada');
+                                                    // Pastikan netto diambil dari sortiran yang benar
+                                                    $netto = $sortiran1?->pembelian?->netto ?? 0;
 
-                                                    // Ambil netto dan format angka dengan titik ribuan
-                                                    $nettoFormatted = number_format($sortiran1?->pembelian?->netto ?? 0, 0, ',', '.');
+                                                    // Simpan netto agar bisa digunakan dalam perhitungan
+                                                    $set('netto_1', $netto);
 
-                                                    // Set nilai ke TextInput yang hanya untuk tampilan
+                                                    // Format angka dengan titik ribuan
+                                                    $nettoFormatted = number_format($netto, 0, ',', '.');
+
+                                                    // Set nilai ke TextInput tampilan
                                                     $set('netto_1_display', $nettoFormatted);
 
                                                     // Ambil nomor lumbung
                                                     $set('no_lumbung_1', $sortiran1?->no_lumbung ?? 'Tidak ada');
                                                 }
 
-                                                // Langsung hitung total netto setelah perubahan
+                                                // 🔥 Hitung ulang total netto dengan mengambil semua nilai netto yang sudah tersimpan
                                                 $totalNetto =
-                                                    ($get('netto_1') ?? 0) +
-                                                    ($get('netto_2') ?? 0) +
-                                                    ($get('netto_3') ?? 0) +
-                                                    ($get('netto_4') ?? 0) +
-                                                    ($get('netto_5') ?? 0) +
-                                                    ($get('netto_6') ?? 0);
+                                                    intval($get('netto_1') ?? 0) +
+                                                    intval($get('netto_2') ?? 0) +
+                                                    intval($get('netto_3') ?? 0) +
+                                                    intval($get('netto_4') ?? 0) +
+                                                    intval($get('netto_5') ?? 0) +
+                                                    intval($get('netto_6') ?? 0);
 
                                                 $set('total_netto', $totalNetto);
                                             }),
@@ -211,7 +202,7 @@ class LumbungBasahResource extends Resource
                                             ->options(Sortiran::latest()->pluck('no_sortiran', 'id')->toArray())
                                             ->searchable()
                                             ->reactive()
-                                            ->disabled(fn($record) => $record !== null)
+                                            //->disabled(fn($record) => $record !== null)
                                             ->afterStateHydrated(function ($state, callable $set) {
                                                 if ($state) {
                                                     // Ambil data sortiran berdasarkan ID yang dipilih
@@ -229,60 +220,38 @@ class LumbungBasahResource extends Resource
                                             })
                                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                                 if (empty($state)) {
-                                                    // Reset semua nilai terkait jika Select dibatalkan
+                                                    // Reset nilai jika Select dikosongkan
                                                     $set('netto_2', null);
                                                     $set('netto_2_display', null);
                                                     $set('no_lumbung_2', null);
                                                 } else {
-
-                                                     // Cek apakah sortiran sudah dipilih sebelumnya di field lain
-                                                     $selectedSortirans = [
-                                                        $get('id_sortiran_1'),
-                                                        $get('id_sortiran_2'),
-                                                        $get('id_sortiran_3'),
-                                                        $get('id_sortiran_4'),
-                                                        $get('id_sortiran_5'),
-                                                        $get('id_sortiran_6'),
-                                                    ];
-                                                    // Hitung jumlah kemunculan dari ID yang dipilih
-                                                    $occurrences = array_count_values(array_filter($selectedSortirans));
-
-                                                    if ($occurrences[$state] > 1) {
-                                                        // Tampilkan notifikasi jika ada duplikasi
-                                                        Notification::make()
-                                                            ->title('Peringatan!')
-                                                            ->body('No Sortiran tidak boleh sama.')
-                                                            ->danger()
-                                                            ->send();
-                                        
-                                                        // Reset kembali jika terdeteksi duplikasi
-                                                        $set('id_sortiran_2', null);
-                                                        return;
-                                                    }
                                                     // Ambil data sortiran berdasarkan ID yang dipilih
                                                     $sortiran2 = Sortiran::with('pembelian')->find($state);
 
-                                                    // Set netto hanya untuk sortiran pertama
-                                                    $set('netto_2', $sortiran2?->pembelian?->netto ?? 'Tidak ada');
+                                                    // Pastikan netto diambil dari sortiran yang benar
+                                                    $netto = $sortiran2?->pembelian?->netto ?? 0;
 
-                                                    // Ambil netto dan format angka dengan titik ribuan
-                                                    $nettoFormatted = number_format($sortiran2?->pembelian?->netto ?? 0, 0, ',', '.');
+                                                    // Simpan netto agar bisa digunakan dalam perhitungan
+                                                    $set('netto_2', $netto);
 
-                                                    // Set nilai ke TextInput yang hanya untuk tampilan
+                                                    // Format angka dengan titik ribuan
+                                                    $nettoFormatted = number_format($netto, 0, ',', '.');
+
+                                                    // Set nilai ke TextInput tampilan
                                                     $set('netto_2_display', $nettoFormatted);
 
                                                     // Ambil nomor lumbung
                                                     $set('no_lumbung_2', $sortiran2?->no_lumbung ?? 'Tidak ada');
                                                 }
 
-                                                // Langsung hitung total netto setelah perubahan
+                                                // 🔥 Hitung ulang total netto dengan mengambil semua nilai netto yang sudah tersimpan
                                                 $totalNetto =
-                                                    ($get('netto_1') ?? 0) +
-                                                    ($get('netto_2') ?? 0) +
-                                                    ($get('netto_3') ?? 0) +
-                                                    ($get('netto_4') ?? 0) +
-                                                    ($get('netto_5') ?? 0) +
-                                                    ($get('netto_6') ?? 0);
+                                                    intval($get('netto_1') ?? 0) +
+                                                    intval($get('netto_2') ?? 0) +
+                                                    intval($get('netto_3') ?? 0) +
+                                                    intval($get('netto_4') ?? 0) +
+                                                    intval($get('netto_5') ?? 0) +
+                                                    intval($get('netto_6') ?? 0);
 
                                                 $set('total_netto', $totalNetto);
                                             }),
@@ -306,7 +275,7 @@ class LumbungBasahResource extends Resource
                                             ->options(Sortiran::latest()->pluck('no_sortiran', 'id')->toArray())
                                             ->searchable()
                                             ->reactive()
-                                            ->disabled(fn($record) => $record !== null)
+                                            //->disabled(fn($record) => $record !== null)
                                             ->afterStateHydrated(function ($state, callable $set) {
                                                 if ($state) {
                                                     // Ambil data sortiran berdasarkan ID yang dipilih
@@ -324,60 +293,38 @@ class LumbungBasahResource extends Resource
                                             })
                                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                                 if (empty($state)) {
-                                                    // Reset semua nilai terkait jika Select dibatalkan
-                                                    $set('netto_3', null);
-                                                    $set('netto_3_display', null);
-                                                    $set('no_lumbung_3', null);
+                                                    // Reset nilai jika Select dikosongkan
+                                                    $set('netto_3', 0);
+                                                    $set('netto_3_display', '');
+                                                    $set('no_lumbung_3', '');
                                                 } else {
-
-                                                     // Cek apakah sortiran sudah dipilih sebelumnya di field lain
-                                                     $selectedSortirans = [
-                                                        $get('id_sortiran_1'),
-                                                        $get('id_sortiran_2'),
-                                                        $get('id_sortiran_3'),
-                                                        $get('id_sortiran_4'),
-                                                        $get('id_sortiran_5'),
-                                                        $get('id_sortiran_6'),
-                                                    ];
-                                                    // Hitung jumlah kemunculan dari ID yang dipilih
-                                                    $occurrences = array_count_values(array_filter($selectedSortirans));
-
-                                                    if ($occurrences[$state] > 1) {
-                                                        // Tampilkan notifikasi jika ada duplikasi
-                                                        Notification::make()
-                                                            ->title('Peringatan!')
-                                                            ->body('No Sortiran tidak boleh sama.')
-                                                            ->danger()
-                                                            ->send();
-                                        
-                                                        // Reset kembali jika terdeteksi duplikasi
-                                                        $set('id_sortiran_3', null);
-                                                        return;
-                                                    }
                                                     // Ambil data sortiran berdasarkan ID yang dipilih
                                                     $sortiran3 = Sortiran::with('pembelian')->find($state);
 
-                                                    // Set netto hanya untuk sortiran pertama
-                                                    $set('netto_3', $sortiran3?->pembelian?->netto ?? 'Tidak ada');
+                                                    // Pastikan netto diambil dari sortiran yang benar
+                                                    $netto = $sortiran3?->pembelian?->netto ?? 0;
 
-                                                    // Ambil netto dan format angka dengan titik ribuan
-                                                    $nettoFormatted = number_format($sortiran3?->pembelian?->netto ?? 0, 0, ',', '.');
+                                                    // Simpan netto agar bisa digunakan dalam perhitungan
+                                                    $set('netto_3', $netto);
 
-                                                    // Set nilai ke TextInput yang hanya untuk tampilan
+                                                    // Format angka dengan titik ribuan
+                                                    $nettoFormatted = number_format($netto, 0, ',', '.');
+
+                                                    // Set nilai ke TextInput tampilan
                                                     $set('netto_3_display', $nettoFormatted);
 
                                                     // Ambil nomor lumbung
                                                     $set('no_lumbung_3', $sortiran3?->no_lumbung ?? 'Tidak ada');
                                                 }
 
-                                                // Langsung hitung total netto setelah perubahan
+                                                // 🔥 Hitung ulang total netto dengan mengambil semua nilai netto yang sudah tersimpan
                                                 $totalNetto =
-                                                    ($get('netto_1') ?? 0) +
-                                                    ($get('netto_2') ?? 0) +
-                                                    ($get('netto_3') ?? 0) +
-                                                    ($get('netto_4') ?? 0) +
-                                                    ($get('netto_5') ?? 0) +
-                                                    ($get('netto_6') ?? 0);
+                                                    intval($get('netto_1') ?? 0) +
+                                                    intval($get('netto_2') ?? 0) +
+                                                    intval($get('netto_3') ?? 0) +
+                                                    intval($get('netto_4') ?? 0) +
+                                                    intval($get('netto_5') ?? 0) +
+                                                    intval($get('netto_6') ?? 0);
 
                                                 $set('total_netto', $totalNetto);
                                             }),
@@ -399,7 +346,7 @@ class LumbungBasahResource extends Resource
                                             ->options(Sortiran::latest()->pluck('no_sortiran', 'id')->toArray())
                                             ->searchable()
                                             ->reactive()
-                                            ->disabled(fn($record) => $record !== null)
+                                            //->disabled(fn($record) => $record !== null)
                                             ->afterStateHydrated(function ($state, callable $set) {
                                                 if ($state) {
                                                     // Ambil data sortiran berdasarkan ID yang dipilih
@@ -417,60 +364,38 @@ class LumbungBasahResource extends Resource
                                             })
                                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                                 if (empty($state)) {
-                                                    // Reset semua nilai terkait jika Select dibatalkan
-                                                    $set('netto_4', null);
-                                                    $set('netto_4_display', null);
-                                                    $set('no_lumbung_4', null);
+                                                    // Reset nilai jika Select dikosongkan
+                                                    $set('netto_4', 0);
+                                                    $set('netto_4_display', '');
+                                                    $set('no_lumbung_4', '');
                                                 } else {
-
-                                                     // Cek apakah sortiran sudah dipilih sebelumnya di field lain
-                                                     $selectedSortirans = [
-                                                        $get('id_sortiran_1'),
-                                                        $get('id_sortiran_2'),
-                                                        $get('id_sortiran_3'),
-                                                        $get('id_sortiran_4'),
-                                                        $get('id_sortiran_5'),
-                                                        $get('id_sortiran_6'),
-                                                    ];
-                                                    // Hitung jumlah kemunculan dari ID yang dipilih
-                                                    $occurrences = array_count_values(array_filter($selectedSortirans));
-
-                                                    if ($occurrences[$state] > 1) {
-                                                        // Tampilkan notifikasi jika ada duplikasi
-                                                        Notification::make()
-                                                            ->title('Peringatan!')
-                                                            ->body('No Sortiran tidak boleh sama.')
-                                                            ->danger()
-                                                            ->send();
-                                        
-                                                        // Reset kembali jika terdeteksi duplikasi
-                                                        $set('id_sortiran_4', null);
-                                                        return;
-                                                    }
                                                     // Ambil data sortiran berdasarkan ID yang dipilih
                                                     $sortiran4 = Sortiran::with('pembelian')->find($state);
 
-                                                    // Set netto hanya untuk sortiran pertama
-                                                    $set('netto_4', $sortiran4?->pembelian?->netto ?? 'Tidak ada');
+                                                    // Pastikan netto diambil dari sortiran yang benar
+                                                    $netto = $sortiran4?->pembelian?->netto ?? 0;
 
-                                                    // Ambil netto dan format angka dengan titik ribuan
-                                                    $nettoFormatted = number_format($sortiran4?->pembelian?->netto ?? 0, 0, ',', '.');
+                                                    // Simpan netto agar bisa digunakan dalam perhitungan
+                                                    $set('netto_4', $netto);
 
-                                                    // Set nilai ke TextInput yang hanya untuk tampilan
+                                                    // Format angka dengan titik ribuan
+                                                    $nettoFormatted = number_format($netto, 0, ',', '.');
+
+                                                    // Set nilai ke TextInput tampilan
                                                     $set('netto_4_display', $nettoFormatted);
 
                                                     // Ambil nomor lumbung
-                                                    $set('no_lumbung_4', $sortiran4?->no_lumbung ?? 'Tidak ada');
+                                                    $set('no_lumbung_4', $sortiran1?->no_lumbung ?? 'Tidak ada');
                                                 }
 
-                                                // Langsung hitung total netto setelah perubahan
+                                                // 🔥 Hitung ulang total netto dengan mengambil semua nilai netto yang sudah tersimpan
                                                 $totalNetto =
-                                                    ($get('netto_1') ?? 0) +
-                                                    ($get('netto_2') ?? 0) +
-                                                    ($get('netto_3') ?? 0) +
-                                                    ($get('netto_4') ?? 0) +
-                                                    ($get('netto_5') ?? 0) +
-                                                    ($get('netto_6') ?? 0);
+                                                    intval($get('netto_1') ?? 0) +
+                                                    intval($get('netto_2') ?? 0) +
+                                                    intval($get('netto_3') ?? 0) +
+                                                    intval($get('netto_4') ?? 0) +
+                                                    intval($get('netto_5') ?? 0) +
+                                                    intval($get('netto_6') ?? 0);
 
                                                 $set('total_netto', $totalNetto);
                                             }),
@@ -494,7 +419,7 @@ class LumbungBasahResource extends Resource
                                             ->options(Sortiran::latest()->pluck('no_sortiran', 'id')->toArray())
                                             ->searchable()
                                             ->reactive()
-                                            ->disabled(fn($record) => $record !== null)
+                                            //->disabled(fn($record) => $record !== null)
                                             ->afterStateHydrated(function ($state, callable $set) {
                                                 if ($state) {
                                                     // Ambil data sortiran berdasarkan ID yang dipilih
@@ -512,60 +437,38 @@ class LumbungBasahResource extends Resource
                                             })
                                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                                 if (empty($state)) {
-                                                    // Reset semua nilai terkait jika Select dibatalkan
-                                                    $set('netto_5', null);
-                                                    $set('netto_5_display', null);
-                                                    $set('no_lumbung_5', null);
+                                                    // Reset nilai jika Select dikosongkan
+                                                    $set('netto_5', 0);
+                                                    $set('netto_5_display', '');
+                                                    $set('no_lumbung_5', '');
                                                 } else {
-
-                                                     // Cek apakah sortiran sudah dipilih sebelumnya di field lain
-                                                     $selectedSortirans = [
-                                                        $get('id_sortiran_1'),
-                                                        $get('id_sortiran_2'),
-                                                        $get('id_sortiran_3'),
-                                                        $get('id_sortiran_4'),
-                                                        $get('id_sortiran_5'),
-                                                        $get('id_sortiran_6'),
-                                                    ];
-                                                    // Hitung jumlah kemunculan dari ID yang dipilih
-                                                    $occurrences = array_count_values(array_filter($selectedSortirans));
-
-                                                    if ($occurrences[$state] > 1) {
-                                                        // Tampilkan notifikasi jika ada duplikasi
-                                                        Notification::make()
-                                                            ->title('Peringatan!')
-                                                            ->body('No Sortiran tidak boleh sama.')
-                                                            ->danger()
-                                                            ->send();
-                                        
-                                                        // Reset kembali jika terdeteksi duplikasi
-                                                        $set('id_sortiran_5', null);
-                                                        return;
-                                                    }
                                                     // Ambil data sortiran berdasarkan ID yang dipilih
                                                     $sortiran5 = Sortiran::with('pembelian')->find($state);
 
-                                                    // Set netto hanya untuk sortiran pertama
-                                                    $set('netto_5', $sortiran5?->pembelian?->netto ?? 'Tidak ada');
+                                                    // Pastikan netto diambil dari sortiran yang benar
+                                                    $netto = $sortiran5?->pembelian?->netto ?? 0;
 
-                                                    // Ambil netto dan format angka dengan titik ribuan
-                                                    $nettoFormatted = number_format($sortiran5?->pembelian?->netto ?? 0, 0, ',', '.');
+                                                    // Simpan netto agar bisa digunakan dalam perhitungan
+                                                    $set('netto_5', $netto);
 
-                                                    // Set nilai ke TextInput yang hanya untuk tampilan
+                                                    // Format angka dengan titik ribuan
+                                                    $nettoFormatted = number_format($netto, 0, ',', '.');
+
+                                                    // Set nilai ke TextInput tampilan
                                                     $set('netto_5_display', $nettoFormatted);
 
                                                     // Ambil nomor lumbung
                                                     $set('no_lumbung_5', $sortiran5?->no_lumbung ?? 'Tidak ada');
                                                 }
 
-                                                // Langsung hitung total netto setelah perubahan
+                                                // 🔥 Hitung ulang total netto dengan mengambil semua nilai netto yang sudah tersimpan
                                                 $totalNetto =
-                                                    ($get('netto_1') ?? 0) +
-                                                    ($get('netto_2') ?? 0) +
-                                                    ($get('netto_3') ?? 0) +
-                                                    ($get('netto_4') ?? 0) +
-                                                    ($get('netto_5') ?? 0) +
-                                                    ($get('netto_6') ?? 0);
+                                                    intval($get('netto_1') ?? 0) +
+                                                    intval($get('netto_2') ?? 0) +
+                                                    intval($get('netto_3') ?? 0) +
+                                                    intval($get('netto_4') ?? 0) +
+                                                    intval($get('netto_5') ?? 0) +
+                                                    intval($get('netto_6') ?? 0);
 
                                                 $set('total_netto', $totalNetto);
                                             }),
@@ -589,7 +492,7 @@ class LumbungBasahResource extends Resource
                                             ->options(Sortiran::latest()->pluck('no_sortiran', 'id')->toArray())
                                             ->searchable()
                                             ->reactive()
-                                            ->disabled(fn($record) => $record !== null)
+                                            //->disabled(fn($record) => $record !== null)
                                             ->afterStateHydrated(function ($state, callable $set) {
                                                 if ($state) {
                                                     // Ambil data sortiran berdasarkan ID yang dipilih
@@ -607,60 +510,38 @@ class LumbungBasahResource extends Resource
                                             })
                                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                                 if (empty($state)) {
-                                                    // Reset semua nilai terkait jika Select dibatalkan
-                                                    $set('netto_6', null);
-                                                    $set('netto_6_display', null);
-                                                    $set('no_lumbung_6', null);
+                                                    // Reset nilai jika Select dikosongkan
+                                                    $set('netto_6', 0);
+                                                    $set('netto_6_display', '');
+                                                    $set('no_lumbung_6', '');
                                                 } else {
-
-                                                     // Cek apakah sortiran sudah dipilih sebelumnya di field lain
-                                                     $selectedSortirans = [
-                                                        $get('id_sortiran_1'),
-                                                        $get('id_sortiran_2'),
-                                                        $get('id_sortiran_3'),
-                                                        $get('id_sortiran_4'),
-                                                        $get('id_sortiran_5'),
-                                                        $get('id_sortiran_6'),
-                                                    ];
-                                                    // Hitung jumlah kemunculan dari ID yang dipilih
-                                                    $occurrences = array_count_values(array_filter($selectedSortirans));
-
-                                                    if ($occurrences[$state] > 1) {
-                                                        // Tampilkan notifikasi jika ada duplikasi
-                                                        Notification::make()
-                                                            ->title('Peringatan!')
-                                                            ->body('No Sortiran tidak boleh sama.')
-                                                            ->danger()
-                                                            ->send();
-                                        
-                                                        // Reset kembali jika terdeteksi duplikasi
-                                                        $set('id_sortiran_6', null);
-                                                        return;
-                                                    }
                                                     // Ambil data sortiran berdasarkan ID yang dipilih
                                                     $sortiran6 = Sortiran::with('pembelian')->find($state);
 
-                                                    // Set netto hanya untuk sortiran pertama
-                                                    $set('netto_6', $sortiran6?->pembelian?->netto ?? 'Tidak ada');
+                                                    // Pastikan netto diambil dari sortiran yang benar
+                                                    $netto = $sortiran6?->pembelian?->netto ?? 0;
 
-                                                    // Ambil netto dan format angka dengan titik ribuan
-                                                    $nettoFormatted = number_format($sortiran6?->pembelian?->netto ?? 0, 0, ',', '.');
+                                                    // Simpan netto agar bisa digunakan dalam perhitungan
+                                                    $set('netto_6', $netto);
 
-                                                    // Set nilai ke TextInput yang hanya untuk tampilan
+                                                    // Format angka dengan titik ribuan
+                                                    $nettoFormatted = number_format($netto, 0, ',', '.');
+
+                                                    // Set nilai ke TextInput tampilan
                                                     $set('netto_6_display', $nettoFormatted);
 
                                                     // Ambil nomor lumbung
                                                     $set('no_lumbung_6', $sortiran6?->no_lumbung ?? 'Tidak ada');
                                                 }
 
-                                                // Langsung hitung total netto setelah perubahan
+                                                // 🔥 Hitung ulang total netto dengan mengambil semua nilai netto yang sudah tersimpan
                                                 $totalNetto =
-                                                    ($get('netto_1') ?? 0) +
-                                                    ($get('netto_2') ?? 0) +
-                                                    ($get('netto_3') ?? 0) +
-                                                    ($get('netto_4') ?? 0) +
-                                                    ($get('netto_5') ?? 0) +
-                                                    ($get('netto_6') ?? 0);
+                                                    intval($get('netto_1') ?? 0) +
+                                                    intval($get('netto_2') ?? 0) +
+                                                    intval($get('netto_3') ?? 0) +
+                                                    intval($get('netto_4') ?? 0) +
+                                                    intval($get('netto_5') ?? 0) +
+                                                    intval($get('netto_6') ?? 0);
 
                                                 $set('total_netto', $totalNetto);
                                             }),
@@ -723,6 +604,7 @@ class LumbungBasahResource extends Resource
                 TextColumn::make('status')
                     ->label('Status'),
             ])
+            ->defaultSort('no_lb', 'desc')
             ->filters([
                 //
             ])
@@ -733,7 +615,7 @@ class LumbungBasahResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    // Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }
