@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\KapasitasLumbungKeringResource\Pages;
 use App\Filament\Resources\KapasitasLumbungKeringResource\RelationManagers;
+use Filament\Forms\Components\Card;
 
 class KapasitasLumbungKeringResource extends Resource
 {
@@ -29,9 +30,10 @@ class KapasitasLumbungKeringResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('nama_kapasitas_lumbung')
+                Card::make()
+                ->schema([
+                    TextInput::make('nama_kapasitas_lumbung')
                     ->label('Nama Lumbung')
-                    ->columnSpan(2)
                     ->placeholder('Masukkan Nama Kapasitas Lumbung'),
                 TextInput::make('kapasitas_total')
                     ->label('Kapasitas Total')
@@ -42,6 +44,7 @@ class KapasitasLumbungKeringResource extends Resource
                         'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
                     ])
                     ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)), // Hapus titik sebelum dikirim ke database
+                ])->columns(2)
                 
             ]);
     }

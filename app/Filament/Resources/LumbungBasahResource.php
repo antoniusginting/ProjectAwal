@@ -32,7 +32,7 @@ class LumbungBasahResource extends Resource
     }
     protected static ?string $model = LumbungBasah::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-funnel';
+    protected static ?string $navigationIcon = 'heroicon-o-beaker';
 
     public static ?string $label = 'Daftar Lumbung Basah ';
 

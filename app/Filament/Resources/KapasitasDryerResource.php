@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\KapasitasDryerResource\Pages;
 use App\Filament\Resources\KapasitasDryerResource\RelationManagers;
+use Filament\Forms\Components\Card;
 
 class KapasitasDryerResource extends Resource
 {
@@ -29,7 +30,9 @@ class KapasitasDryerResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('nama_kapasitas_dryer')
+                Card::make()
+                ->schema([
+                    TextInput::make('nama_kapasitas_dryer')
                     ->label('Nama Dryer')
                     ->placeholder('Masukkan Nama Kapasitas Dryer'),
                 TextInput::make('kapasitas_total')
@@ -41,6 +44,7 @@ class KapasitasDryerResource extends Resource
                         'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
                     ])
                     ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)), // Hapus titik sebelum dikirim ke database
+                ])->columns(2)
             ]);
     }
 

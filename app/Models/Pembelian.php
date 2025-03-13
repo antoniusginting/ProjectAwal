@@ -19,6 +19,7 @@ class Pembelian extends Model
         'tara',
         'netto',
         'keterangan',
+        'no_po',
         'jam_masuk',
         'jam_keluar',
     ];

@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\UserResource\RelationManagers;
 use Filament\Forms\Components\Select;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use Filament\Forms\Components\Card;
 
 class UserResource extends Resource implements HasShieldPermissions
 {
@@ -42,7 +43,9 @@ class UserResource extends Resource implements HasShieldPermissions
     {
         return $form
             ->schema([
-                TextInput::make('name')
+                Card::make()
+                ->schema([
+                    TextInput::make('name')
                     ->label('Nama Lengkap')
                     ->required()
                     ->placeholder('Masukkan nama lengkap')
@@ -69,6 +72,7 @@ class UserResource extends Resource implements HasShieldPermissions
                     ->placeholder('Pilih salah satu role')
                     ->preload()
                     ->searchable()
+                ])->columns(2)
             ]);
     }
 

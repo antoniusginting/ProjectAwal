@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('netto')->nullable();
             $table->string('kepemilikan'); // Kolom untuk kepemilikan
             $table->string('keterangan')->nullable();
+            $table->string('no_po');
             $table->time('jam_masuk');
             $table->time('jam_keluar')->nullable();
             $table->timestamps();

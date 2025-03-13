@@ -6,6 +6,7 @@ use App\Filament\Resources\KapasitasLumbungBasahResource\Pages;
 use App\Filament\Resources\KapasitasLumbungBasahResource\RelationManagers;
 use App\Models\KapasitasLumbungBasah;
 use Filament\Forms;
+use Filament\Forms\Components\Card;
 use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -32,7 +33,9 @@ class KapasitasLumbungBasahResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('no_kapasitas_lumbung')
+                Card::make()
+                ->schema([
+                    TextInput::make('no_kapasitas_lumbung')
                     ->label('No Lumbung')
                     ->columnSpan(2)
                     ->placeholder('Masukkan No Kapasitas Lumbung'),
@@ -54,6 +57,7 @@ class KapasitasLumbungBasahResource extends Resource
                         'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
                     ])
                     ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)), // Hapus titik sebelum dikirim ke database
+                ])->columns(2)
             ]);
     }
 

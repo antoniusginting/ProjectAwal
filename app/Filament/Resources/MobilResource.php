@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\MobilResource\RelationManagers;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Card;
 
 class MobilResource extends Resource implements HasShieldPermissions
 {
@@ -45,7 +46,9 @@ class MobilResource extends Resource implements HasShieldPermissions
     {
         return $form
             ->schema([
-                Textinput::make('plat_polisi')
+                Card::make()
+                ->schema([
+                    Textinput::make('plat_polisi')
                     ->prefixIcon('heroicon-o-truck')
                     ->placeholder('Masukkan Plat Polisi'),
                 Select::make('jenis_mobil') // Gantilah 'tipe' dengan nama field di database
@@ -53,12 +56,15 @@ class MobilResource extends Resource implements HasShieldPermissions
                     ->options([
                         'CD' => 'Colt Diesel (CD)',
                         'DT' => 'Dump Truck (DT)',
+                        'Eltor' => 'Eltor',
+                        'L300' => 'L300',
                     ])
                     ->placeholder('Pilih Jenis Mobil')
                     // ->inlineLabel() // Membuat label sebelah kiri
                     ->native(false) // Mengunakan dropdown modern
                     ->required(), // Opsional: Atur default value
 
+                ])->columns(2)
             ]);
     }
 

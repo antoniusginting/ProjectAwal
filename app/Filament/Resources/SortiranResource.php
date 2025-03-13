@@ -189,7 +189,7 @@ class SortiranResource extends Resource
                                             ->label('Jumlah Karung 1')
                                             ->numeric()
                                             ->reactive()
-                                            ->debounce(500)
+                                            
                                             ->afterStateUpdated(
                                                 fn($state, $set, $get) =>
                                                 $set(
@@ -248,7 +248,7 @@ class SortiranResource extends Resource
                                             ->placeholder('Masukkan Jumlah Karung')
                                             ->label('Jumlah Karung 2')
                                             ->numeric()
-                                            ->debounce(500)
+                                            
                                             ->reactive()
                                             ->afterStateUpdated(
                                                 fn($state, $set, $get) =>
@@ -309,7 +309,7 @@ class SortiranResource extends Resource
                                             ->placeholder('Masukkan Jumlah Karung')
                                             ->label('Jumlah Karung 3')
                                             ->numeric()
-                                            ->debounce(500)
+                                            
                                             ->reactive()
                                             ->afterStateUpdated(
                                                 fn($state, $set, $get) =>
@@ -369,7 +369,7 @@ class SortiranResource extends Resource
                                             ->placeholder('Masukkan Jumlah Karung')
                                             ->label('Jumlah Karung 4')
                                             ->numeric()
-                                            ->debounce(500)
+                                            
                                             ->reactive()
                                             ->afterStateUpdated(
                                                 fn($state, $set, $get) =>
@@ -429,7 +429,7 @@ class SortiranResource extends Resource
                                             ->placeholder('Masukkan Jumlah Karung')
                                             ->label('Jumlah Karung 5')
                                             ->numeric()
-                                            ->debounce(500)
+                                            
                                             ->reactive()
                                             ->afterStateUpdated(
                                                 fn($state, $set, $get) =>
@@ -490,6 +490,7 @@ class SortiranResource extends Resource
                                             ->placeholder('Masukkan Jumlah Karung')
                                             ->label('Jumlah Karung 6')
                                             ->numeric()
+                                            
                                             ->reactive()
                                             ->afterStateUpdated(
                                                 fn($state, $set, $get) =>

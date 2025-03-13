@@ -16,6 +16,7 @@ use App\Filament\Resources\SupplierResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\SupplierResource\RelationManagers;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use Filament\Forms\Components\Card;
 
 class SupplierResource extends Resource implements HasShieldPermissions
 {
@@ -40,7 +41,9 @@ class SupplierResource extends Resource implements HasShieldPermissions
     {
         return $form
             ->schema([
-                TextInput::make('nama_supplier')
+                Card::make()
+                ->schema([
+                    TextInput::make('nama_supplier')
                     ->required()
                     ->placeholder('Masukkan Nama Supplier'),
                 Select::make('jenis_supplier')
@@ -54,6 +57,7 @@ class SupplierResource extends Resource implements HasShieldPermissions
                     ->placeholder('Pilih Jenis Supplier')
                     ->native(false) // Mengunakan dropdown modern
                     ->required(), // Opsional: Atur default value,
+                ])->columns(2)
             ]);
     }
 

@@ -10,6 +10,7 @@ use Filament\Forms;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -80,8 +81,9 @@ class KendaraanMasuksResource extends Resource
                                     }
                                 }),
                                 
-                                TextInput::make('keterangan')
-                                    ->placeholder('Masukkan Keterangan'),
+                                Textarea::make('keterangan')
+                                    ->placeholder('Masukkan Keterangan')
+                                    ->columnSpan(2),
                         ])
                         ->columns([
                             'sm' => 1,       // Mobile: 1 kolom

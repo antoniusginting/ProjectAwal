@@ -92,8 +92,7 @@ class DryerResource extends Resource
                                         'I' => 'I',
                                     ])
                                     ->placeholder('Pilih nama lumbung kering')
-                                    ->native(false)
-                                    ->required(),
+                                    ->native(false),
                                 TextInput::make('kapasitas_total')
                                     ->label('Kapasitas Total')
                                     ->placeholder('Pilih terlebih dahulu nama Dryer')
