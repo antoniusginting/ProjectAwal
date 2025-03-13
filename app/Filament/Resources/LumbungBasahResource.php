@@ -120,10 +120,10 @@ class LumbungBasahResource extends Resource
                         Grid::make(3)
                             ->schema([
                                 //Card No sortiran1
-                                Card::make()
+                                Card::make('Sortiran ke-1')
                                     ->schema([
                                         Select::make('id_sortiran_1')
-                                            ->label('No Sortiran 1')
+                                            ->label('No Sortiran')
                                             ->placeholder('Pilih No Sortiran 1')
                                             ->options(Sortiran::latest()->pluck('no_sortiran', 'id')->toArray())
                                             ->searchable()
@@ -169,6 +169,31 @@ class LumbungBasahResource extends Resource
 
                                                     // Ambil nomor lumbung
                                                     $set('no_lumbung_1', $sortiran1?->no_lumbung ?? 'Tidak ada');
+
+                                                    // 🔥 Validasi Duplikasi
+                                                    $selectedSortiran = [
+                                                        $get('id_sortiran_1'),
+                                                        $get('id_sortiran_2'),
+                                                        $get('id_sortiran_3'),
+                                                        $get('id_sortiran_4'),
+                                                        $get('id_sortiran_5'),
+                                                        $get('id_sortiran_6'),
+                                                    ];
+
+                                                    // Jika nilai duplikat ditemukan
+                                                    if (count(array_filter($selectedSortiran)) !== count(array_unique(array_filter($selectedSortiran)))) {
+                                                        // Reset nilai yang baru diinputkan
+                                                        $set('id_sortiran_1', null);
+                                                        $set('netto_1_display', null);
+                                                        $set('no_lumbung_1', null);
+
+                                                        // Memunculkan notifikasi
+                                                        Notification::make()
+                                                            ->title('Gagal!')
+                                                            ->danger()
+                                                            ->body('Sortiran tidak boleh duplikat. Pilih nomor lain.')
+                                                            ->send();
+                                                    }
                                                 }
 
                                                 // 🔥 Hitung ulang total netto dengan mengambil semua nilai netto yang sudah tersimpan
@@ -184,20 +209,21 @@ class LumbungBasahResource extends Resource
                                             }),
 
                                         TextInput::make('netto_1_display')
-                                            ->label('Netto Pembelian 1')
+                                            ->label('Netto Pembelian')
                                             ->placeholder('Pilih terlebih dahulu no sortiran 1')
                                             ->disabled(),
 
                                         TextInput::make('no_lumbung_1')
-                                            ->label('No lumbung 1')
+                                            ->label('No lumbung')
                                             ->placeholder('Pilih terlebih dahulu no sortiran 1')
                                             ->disabled(),
-                                    ])->columnSpan(1),
+                                    ])->columnSpan(1)
+                                    ->collapsible(),
                                 //Card No sortiran 2
-                                Card::make()
+                                Card::make('Sortiran ke-2')
                                     ->schema([
                                         Select::make('id_sortiran_2')
-                                            ->label('No Sortiran 2')
+                                            ->label('No Sortiran')
                                             ->placeholder('Pilih No Sortiran 2')
                                             ->options(Sortiran::latest()->pluck('no_sortiran', 'id')->toArray())
                                             ->searchable()
@@ -242,6 +268,31 @@ class LumbungBasahResource extends Resource
 
                                                     // Ambil nomor lumbung
                                                     $set('no_lumbung_2', $sortiran2?->no_lumbung ?? 'Tidak ada');
+
+                                                    // 🔥 Validasi Duplikasi
+                                                    $selectedSortiran = [
+                                                        $get('id_sortiran_1'),
+                                                        $get('id_sortiran_2'),
+                                                        $get('id_sortiran_3'),
+                                                        $get('id_sortiran_4'),
+                                                        $get('id_sortiran_5'),
+                                                        $get('id_sortiran_6'),
+                                                    ];
+
+                                                    // Jika nilai duplikat ditemukan
+                                                    if (count(array_filter($selectedSortiran)) !== count(array_unique(array_filter($selectedSortiran)))) {
+                                                        // Reset nilai yang baru diinputkan
+                                                        $set('id_sortiran_2', null);
+                                                        $set('netto_2_display', null);
+                                                        $set('no_lumbung_2', null);
+
+                                                        // Memunculkan notifikasi
+                                                        Notification::make()
+                                                            ->title('Gagal!')
+                                                            ->danger()
+                                                            ->body('Sortiran tidak boleh duplikat. Pilih nomor lain.')
+                                                            ->send();
+                                                    }
                                                 }
 
                                                 // 🔥 Hitung ulang total netto dengan mengambil semua nilai netto yang sudah tersimpan
@@ -257,20 +308,21 @@ class LumbungBasahResource extends Resource
                                             }),
 
                                         TextInput::make('netto_2_display')
-                                            ->label('Netto Pembelian 2')
+                                            ->label('Netto Pembelian')
                                             ->placeholder('Pilih terlebih dahulu no sortiran 2')
                                             ->disabled(),
                                         TextInput::make('no_lumbung_2')
-                                            ->label('No lumbung 2')
+                                            ->label('No lumbung')
                                             ->placeholder('Pilih terlebih dahulu no sortiran 2')
                                             ->disabled(),
 
-                                    ])->columnSpan(1),
+                                    ])->columnSpan(1)
+                                    ->collapsible(),
                                 //Card No sortiran 3
-                                Card::make()
+                                Card::make('Sortiran ke-3')
                                     ->schema([
                                         Select::make('id_sortiran_3')
-                                            ->label('No Sortiran 3')
+                                            ->label('No Sortiran')
                                             ->placeholder('Pilih No Sortiran 3')
                                             ->options(Sortiran::latest()->pluck('no_sortiran', 'id')->toArray())
                                             ->searchable()
@@ -315,6 +367,31 @@ class LumbungBasahResource extends Resource
 
                                                     // Ambil nomor lumbung
                                                     $set('no_lumbung_3', $sortiran3?->no_lumbung ?? 'Tidak ada');
+
+                                                    // 🔥 Validasi Duplikasi
+                                                    $selectedSortiran = [
+                                                        $get('id_sortiran_1'),
+                                                        $get('id_sortiran_2'),
+                                                        $get('id_sortiran_3'),
+                                                        $get('id_sortiran_4'),
+                                                        $get('id_sortiran_5'),
+                                                        $get('id_sortiran_6'),
+                                                    ];
+
+                                                    // Jika nilai duplikat ditemukan
+                                                    if (count(array_filter($selectedSortiran)) !== count(array_unique(array_filter($selectedSortiran)))) {
+                                                        // Reset nilai yang baru diinputkan
+                                                        $set('id_sortiran_3', null);
+                                                        $set('netto_3_display', null);
+                                                        $set('no_lumbung_3', null);
+
+                                                        // Memunculkan notifikasi
+                                                        Notification::make()
+                                                            ->title('Gagal!')
+                                                            ->danger()
+                                                            ->body('Sortiran tidak boleh duplikat. Pilih nomor lain.')
+                                                            ->send();
+                                                    }
                                                 }
 
                                                 // 🔥 Hitung ulang total netto dengan mengambil semua nilai netto yang sudah tersimpan
@@ -329,19 +406,20 @@ class LumbungBasahResource extends Resource
                                                 $set('total_netto', $totalNetto);
                                             }),
                                         TextInput::make('netto_3_display')
-                                            ->label('Netto Pembelian 3')
+                                            ->label('Netto Pembelian')
                                             ->placeholder('Pilih terlebih dahulu no sortiran 3')
                                             ->disabled(),
                                         TextInput::make('no_lumbung_3')
-                                            ->label('No lumbung 3')
+                                            ->label('No lumbung')
                                             ->placeholder('Pilih terlebih dahulu no sortiran 3')
                                             ->disabled(),
-                                    ])->columnSpan(1),
+                                    ])->columnSpan(1)
+                                    ->collapsible(),
                                 //Card No Sortiran 4
-                                Card::make()
+                                Card::make('Sortiran ke-4')
                                     ->schema([
                                         Select::make('id_sortiran_4')
-                                            ->label('No Sortiran 4')
+                                            ->label('No Sortiran')
                                             ->placeholder('Pilih No Sortiran 4')
                                             ->options(Sortiran::latest()->pluck('no_sortiran', 'id')->toArray())
                                             ->searchable()
@@ -386,6 +464,31 @@ class LumbungBasahResource extends Resource
 
                                                     // Ambil nomor lumbung
                                                     $set('no_lumbung_4', $sortiran1?->no_lumbung ?? 'Tidak ada');
+
+                                                    // 🔥 Validasi Duplikasi
+                                                    $selectedSortiran = [
+                                                        $get('id_sortiran_1'),
+                                                        $get('id_sortiran_2'),
+                                                        $get('id_sortiran_3'),
+                                                        $get('id_sortiran_4'),
+                                                        $get('id_sortiran_5'),
+                                                        $get('id_sortiran_6'),
+                                                    ];
+
+                                                    // Jika nilai duplikat ditemukan
+                                                    if (count(array_filter($selectedSortiran)) !== count(array_unique(array_filter($selectedSortiran)))) {
+                                                        // Reset nilai yang baru diinputkan
+                                                        $set('id_sortiran_4', null);
+                                                        $set('netto_4_display', null);
+                                                        $set('no_lumbung_4', null);
+
+                                                        // Memunculkan notifikasi
+                                                        Notification::make()
+                                                            ->title('Gagal!')
+                                                            ->danger()
+                                                            ->body('Sortiran tidak boleh duplikat. Pilih nomor lain.')
+                                                            ->send();
+                                                    }
                                                 }
 
                                                 // 🔥 Hitung ulang total netto dengan mengambil semua nilai netto yang sudah tersimpan
@@ -401,20 +504,21 @@ class LumbungBasahResource extends Resource
                                             }),
 
                                         TextInput::make('netto_4_display')
-                                            ->label('Netto Pembelian 4')
+                                            ->label('Netto Pembelian')
                                             ->placeholder('Pilih terlebih dahulu no sortiran 4')
                                             ->disabled(),
                                         TextInput::make('no_lumbung_4')
-                                            ->label('No lumbung 4')
+                                            ->label('No lumbung')
                                             ->placeholder('Pilih terlebih dahulu no sortiran 4')
                                             ->disabled(),
 
-                                    ])->columnSpan(1),
+                                    ])->columnSpan(1)
+                                    ->collapsible(),
                                 //Card No sortiran 5
-                                Card::make()
+                                Card::make('Sortiran ke-5')
                                     ->schema([
                                         Select::make('id_sortiran_5')
-                                            ->label('No Sortiran 5')
+                                            ->label('No Sortiran')
                                             ->placeholder('Pilih No Sortiran 5')
                                             ->options(Sortiran::latest()->pluck('no_sortiran', 'id')->toArray())
                                             ->searchable()
@@ -459,6 +563,31 @@ class LumbungBasahResource extends Resource
 
                                                     // Ambil nomor lumbung
                                                     $set('no_lumbung_5', $sortiran5?->no_lumbung ?? 'Tidak ada');
+
+                                                    // 🔥 Validasi Duplikasi
+                                                    $selectedSortiran = [
+                                                        $get('id_sortiran_1'),
+                                                        $get('id_sortiran_2'),
+                                                        $get('id_sortiran_3'),
+                                                        $get('id_sortiran_4'),
+                                                        $get('id_sortiran_5'),
+                                                        $get('id_sortiran_6'),
+                                                    ];
+
+                                                    // Jika nilai duplikat ditemukan
+                                                    if (count(array_filter($selectedSortiran)) !== count(array_unique(array_filter($selectedSortiran)))) {
+                                                        // Reset nilai yang baru diinputkan
+                                                        $set('id_sortiran_5', null);
+                                                        $set('netto_5_display', null);
+                                                        $set('no_lumbung_5', null);
+
+                                                        // Memunculkan notifikasi
+                                                        Notification::make()
+                                                            ->title('Gagal!')
+                                                            ->danger()
+                                                            ->body('Sortiran tidak boleh duplikat. Pilih nomor lain.')
+                                                            ->send();
+                                                    }
                                                 }
 
                                                 // 🔥 Hitung ulang total netto dengan mengambil semua nilai netto yang sudah tersimpan
@@ -474,20 +603,21 @@ class LumbungBasahResource extends Resource
                                             }),
 
                                         TextInput::make('netto_5_display')
-                                            ->label('Netto Pembelian 5')
+                                            ->label('Netto Pembelian')
                                             ->placeholder('Pilih terlebih dahulu no sortiran 5')
                                             ->disabled(),
 
                                         TextInput::make('no_lumbung_5')
-                                            ->label('No lumbung 5')
+                                            ->label('No lumbung')
                                             ->placeholder('Pilih terlebih dahulu no sortiran 5')
                                             ->disabled(),
-                                    ])->columnSpan(1),
+                                    ])->columnSpan(1)
+                                    ->collapsible(),
                                 //Card No Sortiran 6
-                                Card::make()
+                                Card::make('Sortiran ke-6')
                                     ->schema([
                                         Select::make('id_sortiran_6')
-                                            ->label('No Sortiran 6')
+                                            ->label('No Sortiran')
                                             ->placeholder('Pilih No Sortiran 6')
                                             ->options(Sortiran::latest()->pluck('no_sortiran', 'id')->toArray())
                                             ->searchable()
@@ -532,6 +662,31 @@ class LumbungBasahResource extends Resource
 
                                                     // Ambil nomor lumbung
                                                     $set('no_lumbung_6', $sortiran6?->no_lumbung ?? 'Tidak ada');
+
+                                                    // 🔥 Validasi Duplikasi
+                                                    $selectedSortiran = [
+                                                        $get('id_sortiran_1'),
+                                                        $get('id_sortiran_2'),
+                                                        $get('id_sortiran_3'),
+                                                        $get('id_sortiran_4'),
+                                                        $get('id_sortiran_5'),
+                                                        $get('id_sortiran_6'),
+                                                    ];
+
+                                                    // Jika nilai duplikat ditemukan
+                                                    if (count(array_filter($selectedSortiran)) !== count(array_unique(array_filter($selectedSortiran)))) {
+                                                        // Reset nilai yang baru diinputkan
+                                                        $set('id_sortiran_6', null);
+                                                        $set('netto_6_display', null);
+                                                        $set('no_lumbung_6', null);
+
+                                                        // Memunculkan notifikasi
+                                                        Notification::make()
+                                                            ->title('Gagal!')
+                                                            ->danger()
+                                                            ->body('Sortiran tidak boleh duplikat. Pilih nomor lain.')
+                                                            ->send();
+                                                    }
                                                 }
 
                                                 // 🔥 Hitung ulang total netto dengan mengambil semua nilai netto yang sudah tersimpan
@@ -547,14 +702,15 @@ class LumbungBasahResource extends Resource
                                             }),
 
                                         TextInput::make('netto_6_display')
-                                            ->label('Netto Pembelian 6')
+                                            ->label('Netto Pembelian')
                                             ->placeholder('Pilih terlebih dahulu no sortiran 6')
                                             ->disabled(),
                                         TextInput::make('no_lumbung_6')
-                                            ->label('No lumbung 6')
+                                            ->label('No lumbung')
                                             ->placeholder('Pilih terlebih dahulu no sortiran 6')
                                             ->disabled(),
-                                    ])->columnSpan(1),
+                                    ])->columnSpan(1)
+                                    ->collapsible(),
                             ])
                     ])
             ]);

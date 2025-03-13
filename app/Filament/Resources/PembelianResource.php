@@ -42,133 +42,133 @@ class PembelianResource extends Resource implements HasShieldPermissions
         return $form
             ->schema([
                 Card::make()
-                ->schema([
-                    // TextInput::make('no_spb')
-                //     ->label('No SPB')
-                //     ->disabled()
-                //     ->extraAttributes(['readonly' => true])
-                //     ->dehydrated(false)
-                //     ->afterStateUpdated(function (callable $set, $get) {
-                //         $nextId = Pembelian::max('id') + 1; // Ambil ID terakhir + 1
-                //         $set('no_spb', $get('jenis') . '-' . $nextId);
-                //     }),
-                Placeholder::make('next_id')
-                ->label('No SPB')
-                ->content(function ($record) {
-                    // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
-                    if ($record) {
-                        return $record->no_spb;
-                    }
+                    ->schema([
+                        // TextInput::make('no_spb')
+                        //     ->label('No SPB')
+                        //     ->disabled()
+                        //     ->extraAttributes(['readonly' => true])
+                        //     ->dehydrated(false)
+                        //     ->afterStateUpdated(function (callable $set, $get) {
+                        //         $nextId = Pembelian::max('id') + 1; // Ambil ID terakhir + 1
+                        //         $set('no_spb', $get('jenis') . '-' . $nextId);
+                        //     }),
+                        Placeholder::make('next_id')
+                            ->label('No SPB')
+                            ->content(function ($record) {
+                                // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
+                                if ($record) {
+                                    return $record->no_spb;
+                                }
 
-                    // Jika sedang membuat data baru, hitung kode berikutnya
-                    $nextId = (Pembelian::max('id') ?? 0) + 1;
-                    return 'B' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
-                }),
-            TextInput::make('no_po')
-                ->label('Nomor PO') // Memberikan label deskriptif
-                ->placeholder('Masukkan Nomor PO'), // Placeholder
-                // Menambahkan note
-                // ->helperText('Catatan: Pastikan Nomor PO diisi dengan format yang benar.'), 
+                                // Jika sedang membuat data baru, hitung kode berikutnya
+                                $nextId = (Pembelian::max('id') ?? 0) + 1;
+                                return 'B' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+                            }),
+                        TextInput::make('no_po')
+                            ->label('Nomor PO') // Memberikan label deskriptif
+                            ->placeholder('Masukkan Nomor PO'), // Placeholder
+                        // Menambahkan note
+                        // ->helperText('Catatan: Pastikan Nomor PO diisi dengan format yang benar.'), 
 
-            TextInput::make('created_at')
-                ->label('Tanggal')
-                ->placeholder(now()->format('d-m-Y')) // Tampilkan di input
-                ->disabled(), // Tidak bisa diedit
+                        TextInput::make('created_at')
+                            ->label('Tanggal')
+                            ->placeholder(now()->format('d-m-Y')) // Tampilkan di input
+                            ->disabled(), // Tidak bisa diedit
 
-            TextInput::make('bruto')
-                ->label('Bruto')
-                ->numeric()
-                ->placeholder('Masukkan Nilai Bruto')
-                ->required()
-                ->live(debounce: 300) // Tunggu 500ms setelah user berhenti mengetik
-                ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                    $tara = $get('tara') ?? 0;
-                    $set('netto', max(0, intval($state) - intval($tara))); // Hitung netto
-                }),
+                        TextInput::make('bruto')
+                            ->label('Bruto')
+                            ->numeric()
+                            ->placeholder('Masukkan Nilai Bruto')
+                            ->required()
+                            ->live(debounce: 300) // Tunggu 500ms setelah user berhenti mengetik
+                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                $tara = $get('tara') ?? 0;
+                                $set('netto', max(0, intval($state) - intval($tara))); // Hitung netto
+                            }),
 
-            Select::make('id_mobil')
-                ->label('Plat Polisi')
-                ->options(Mobil::pluck('plat_polisi', 'id')) // Ambil daftar mobil
-                ->searchable() // Biar bisa cari
-                ->required(), // Wajib diisi
+                        Select::make('id_mobil')
+                            ->label('Plat Polisi')
+                            ->options(Mobil::pluck('plat_polisi', 'id')) // Ambil daftar mobil
+                            ->searchable() // Biar bisa cari
+                            ->required(), // Wajib diisi
 
-            TextInput::make('tara')
-                ->label('Tara')
-                ->placeholder('Masukkan Nilai Tara')
-                ->numeric()
-                ->live(debounce: 500) // Tambahkan debounce juga di sini
-                ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                    $bruto = $get('bruto') ?? 0;
-                    $set('netto', max(0, intval($bruto) - intval($state)));
-                }),
+                        TextInput::make('tara')
+                            ->label('Tara')
+                            ->placeholder('Masukkan Nilai Tara')
+                            ->numeric()
+                            ->live(debounce: 500) // Tambahkan debounce juga di sini
+                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                $bruto = $get('bruto') ?? 0;
+                                $set('netto', max(0, intval($bruto) - intval($state)));
+                            }),
 
-            TextInput::make('nama_supir')
-                ->placeholder('Masukkan Nama Supir'),
+                        TextInput::make('nama_supir')
+                            ->placeholder('Masukkan Nama Supir'),
 
-            TextInput::make('netto')
-                ->label('Netto')
-                ->readOnly()
-                ->placeholder('Otomatis Terhitung')
-                ->numeric(),
+                        TextInput::make('netto')
+                            ->label('Netto')
+                            ->readOnly()
+                            ->placeholder('Otomatis Terhitung')
+                            ->numeric(),
 
-            TextInput::make('nama_barang')
-                ->placeholder('Masukkan Nama Barang'),
-            TextInput::make('keterangan')
-                ->placeholder('Masukkan Keterangan'),
-            Select::make('kepemilikan')
-                ->label('Kepemilikan kendaraan')
-                ->options([
-                    'Milik Sendiri' => 'Milik Sendiri',
-                    'Minjam' => 'Minjam',
-                ])
-                ->placeholder('Pilih Status Kepemilikan')
-                // ->inlineLabel() // Membuat label sebelah kiri
-                ->native(false) // Mengunakan dropdown modern
-                ->required(), // Opsional: Atur default value,
+                        TextInput::make('nama_barang')
+                            ->placeholder('Masukkan Nama Barang'),
+                        TextInput::make('keterangan')
+                            ->placeholder('Masukkan Keterangan'),
+                        Select::make('kepemilikan')
+                            ->label('Kepemilikan kendaraan')
+                            ->options([
+                                'Milik Sendiri' => 'Milik Sendiri',
+                                'Minjam' => 'Minjam',
+                            ])
+                            ->placeholder('Pilih Status Kepemilikan')
+                            // ->inlineLabel() // Membuat label sebelah kiri
+                            ->native(false) // Mengunakan dropdown modern
+                            ->required(), // Opsional: Atur default value,
 
-            Select::make('id_supplier')
-                ->label('Supplier')
-                ->placeholder('Pilih Supplier')
-                ->options(Supplier::pluck('nama_supplier', 'id')) // Ambil daftar mobil
-                ->searchable() // Biar bisa cari
-                ->required(), // Wajib diisi
+                        Select::make('id_supplier')
+                            ->label('Supplier')
+                            ->placeholder('Pilih Supplier')
+                            ->options(Supplier::pluck('nama_supplier', 'id')) // Ambil daftar mobil
+                            ->searchable() // Biar bisa cari
+                            ->required(), // Wajib diisi
 
-            //     Select::make('id_supplier')
-            //     ->label('Pilih Supplier')
-            //     ->searchable()
-            //     ->options(Supplier::pluck('nama_supplier', 'id'))
-            //     ->reactive() // Reaktif agar memantau perubahan
-            //     ->afterStateUpdated(function ($state, callable $set) {
-            //         $supplier = Supplier::find($state);
-            //         $set('nama_supplier', $supplier?->nama_supplier);
-            //         $set('jenis_supplier', $supplier?->jenis_supplier);
-            //     }),
+                        //     Select::make('id_supplier')
+                        //     ->label('Pilih Supplier')
+                        //     ->searchable()
+                        //     ->options(Supplier::pluck('nama_supplier', 'id'))
+                        //     ->reactive() // Reaktif agar memantau perubahan
+                        //     ->afterStateUpdated(function ($state, callable $set) {
+                        //         $supplier = Supplier::find($state);
+                        //         $set('nama_supplier', $supplier?->nama_supplier);
+                        //         $set('jenis_supplier', $supplier?->jenis_supplier);
+                        //     }),
 
-            // Placeholder::make('jenis_supplier')
-            //     ->label('Jenis Supplier')
-            //     ->content(fn($get) => $get('jenis_supplier') ?? 'Pilih Nama Supplier terlebih dahulu'),
-            TextInput::make('jam_masuk')
-                ->readOnly()
-                ->suffixIcon('heroicon-o-clock')
-                ->default(now()->format('H:i')),
-            TextInput::make('jam_keluar')
-                ->label('Jam Keluar')
-                ->readOnly()
-                ->placeholder('Kosongkan jika belum keluar')
-                ->suffixIcon('heroicon-o-clock')
-                ->required(false) // Bisa kosong saat tambah data
-                ->afterStateHydrated(function ($state, callable $set, $record) {
-                    // Jika sedang edit dan jam_keluar kosong, isi waktu sekarang
-                    if ($record && empty($state)) {
-                        $set('jam_keluar', now()->format('H:i:s'));
-                    }
-                }),
-            TextInput::make('no_container')
-                ->placeholder('Masukkan No Container'),
-            TextInput::make('brondolan')
-                ->placeholder('Masukkan Brondolan')
-                ->extraAttributes(['style' => 'margin-bottom: 20px;']),
-                ])->columns(2)
+                        // Placeholder::make('jenis_supplier')
+                        //     ->label('Jenis Supplier')
+                        //     ->content(fn($get) => $get('jenis_supplier') ?? 'Pilih Nama Supplier terlebih dahulu'),
+                        TextInput::make('jam_masuk')
+                            ->readOnly()
+                            ->suffixIcon('heroicon-o-clock')
+                            ->default(now()->format('H:i')),
+                        TextInput::make('jam_keluar')
+                            ->label('Jam Keluar')
+                            ->readOnly()
+                            ->placeholder('Kosongkan jika belum keluar')
+                            ->suffixIcon('heroicon-o-clock')
+                            ->required(false) // Bisa kosong saat tambah data
+                            ->afterStateHydrated(function ($state, callable $set, $record) {
+                                // Jika sedang edit dan jam_keluar kosong, isi waktu sekarang
+                                if ($record && empty($state)) {
+                                    $set('jam_keluar', now()->format('H:i:s'));
+                                }
+                            }),
+                        TextInput::make('no_container')
+                            ->placeholder('Masukkan No Container'),
+                        TextInput::make('brondolan')
+                            ->placeholder('Masukkan Brondolan')
+                            ->extraAttributes(['style' => 'margin-bottom: 20px;']),
+                    ])->columns(2)
             ]);
     }
 

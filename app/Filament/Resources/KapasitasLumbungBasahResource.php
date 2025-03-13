@@ -2,24 +2,25 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\KapasitasLumbungBasahResource\Pages;
-use App\Filament\Resources\KapasitasLumbungBasahResource\RelationManagers;
-use App\Models\KapasitasLumbungBasah;
 use Filament\Forms;
+use Filament\Tables;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
 use Filament\Tables\Actions\Action;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
+use App\Models\KapasitasLumbungBasah;
+use Filament\Notifications\Collection;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
+use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\KapasitasLumbungBasahResource\Pages;
+use App\Filament\Resources\KapasitasLumbungBasahResource\RelationManagers;
 
 class KapasitasLumbungBasahResource extends Resource
 {
-    
+
     protected static ?string $model = KapasitasLumbungBasah::class;
     protected static ?string $navigationGroup = 'Kapasitas';
 
@@ -34,30 +35,30 @@ class KapasitasLumbungBasahResource extends Resource
         return $form
             ->schema([
                 Card::make()
-                ->schema([
-                    TextInput::make('no_kapasitas_lumbung')
-                    ->label('No Lumbung')
-                    ->columnSpan(2)
-                    ->placeholder('Masukkan No Kapasitas Lumbung'),
-                TextInput::make('kapasitas_total')
-                    ->label('Kapasitas Total')
-                    ->placeholder('Masukkan Jumlah Kapasitas Total')
-                    ->live() // Memastikan perubahan langsung terjadi di Livewire
-                    ->extraAttributes([
-                        'x-data' => '{}',
-                        'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
-                    ])
-                    ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)), // Hapus titik sebelum dikirim ke database
-                TextInput::make('kapasitas_sisa')
-                    ->label('Kapasitas Sisa')
-                    ->placeholder('Masukkan Jumlah Kapasitas Sisa')
-                    ->live() // Memastikan perubahan langsung terjadi di Livewire
-                    ->extraAttributes([
-                        'x-data' => '{}',
-                        'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
-                    ])
-                    ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)), // Hapus titik sebelum dikirim ke database
-                ])->columns(2)
+                    ->schema([
+                        TextInput::make('no_kapasitas_lumbung')
+                            ->label('No Lumbung')
+                            ->columnSpan(2)
+                            ->placeholder('Masukkan No Kapasitas Lumbung'),
+                        TextInput::make('kapasitas_total')
+                            ->label('Kapasitas Total')
+                            ->placeholder('Masukkan Jumlah Kapasitas Total')
+                            ->live() // Memastikan perubahan langsung terjadi di Livewire
+                            ->extraAttributes([
+                                'x-data' => '{}',
+                                'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
+                            ])
+                            ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)), // Hapus titik sebelum dikirim ke database
+                        TextInput::make('kapasitas_sisa')
+                            ->label('Kapasitas Sisa')
+                            ->placeholder('Masukkan Jumlah Kapasitas Sisa')
+                            ->live() // Memastikan perubahan langsung terjadi di Livewire
+                            ->extraAttributes([
+                                'x-data' => '{}',
+                                'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
+                            ])
+                            ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)), // Hapus titik sebelum dikirim ke database
+                    ])->columns(2)
             ]);
     }
 
@@ -92,9 +93,18 @@ class KapasitasLumbungBasahResource extends Resource
                     ->icon('heroicon-o-arrow-path'),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\BulkAction::make('reset_kapasitas')
+                    ->label('Reset Kapasitas')
+                    ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                        foreach ($records as $record) {
+                            $record->update([
+                                'kapasitas_sisa' => $record->kapasitas_total,
+                            ]);
+                        }
+                    })
+                    ->requiresConfirmation()
+                    ->color('warning')
+                    ->icon('heroicon-o-arrow-path'),
             ]);
     }
 

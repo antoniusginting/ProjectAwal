@@ -39,57 +39,57 @@ class KendaraanMasuksResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-        ->schema([
-            Card::make()
-                ->schema([
-                    Grid::make()
-                        ->schema([
-                            Select::make('status')
-                                ->label('Status')
-                                ->options([
-                                    'Tamu' => 'Tamu',
-                                    'Supplier' => 'Supplier',
-                                ])
-                                ->placeholder('Pilih Status')
-                                ->native(false) 
-                                ->required(),
-                            
-                            TextInput::make('nama_sup_per')
-                                ->placeholder('Masukkan nama supplier atau perusahaan'),
-        
-                            TextInput::make('plat_polisi')
-                                ->placeholder('Masukkan plat polisi'),
-        
-                            TextInput::make('nama_barang')
-                                ->placeholder('Masukkan nama barang'),
-        
-                                
+            ->schema([
+                Card::make()
+                    ->schema([
+                        Grid::make()
+                            ->schema([
+                                Select::make('status')
+                                    ->label('Status')
+                                    ->options([
+                                        'Tamu' => 'Tamu',
+                                        'Supplier' => 'Supplier',
+                                    ])
+                                    ->placeholder('Pilih Status')
+                                    ->native(false)
+                                    ->required(),
+
+                                TextInput::make('nama_sup_per')
+                                    ->placeholder('Masukkan nama supplier atau perusahaan'),
+
+                                TextInput::make('plat_polisi')
+                                    ->placeholder('Masukkan plat polisi'),
+
+                                TextInput::make('nama_barang')
+                                    ->placeholder('Masukkan nama barang'),
+
+
                                 TextInput::make('jam_masuk')
-                                ->readOnly()
-                                ->suffixIcon('heroicon-o-clock')
-                                ->default(now()->format('H:i')),
-                                
+                                    ->readOnly()
+                                    ->suffixIcon('heroicon-o-clock')
+                                    ->default(now()->format('H:i')),
+
                                 TextInput::make('jam_keluar')
-                                ->label('Jam Keluar')
-                                ->readOnly()
-                                ->placeholder('Kosongkan jika belum keluar')
-                                ->suffixIcon('heroicon-o-clock')
-                                ->required(false)
-                                ->afterStateHydrated(function ($state, callable $set, $record) {
-                                    if ($record && empty($state)) {
-                                        $set('jam_keluar', now()->format('H:i:s'));
-                                    }
-                                }),
-                                
+                                    ->label('Jam Keluar')
+                                    ->readOnly()
+                                    ->placeholder('Kosongkan jika belum keluar')
+                                    ->suffixIcon('heroicon-o-clock')
+                                    ->required(false)
+                                    ->afterStateHydrated(function ($state, callable $set, $record) {
+                                        if ($record && empty($state)) {
+                                            $set('jam_keluar', now()->format('H:i:s'));
+                                        }
+                                    }),
+
                                 Textarea::make('keterangan')
                                     ->placeholder('Masukkan Keterangan')
                                     ->columnSpan(2),
-                        ])
-                        ->columns([
-                            'sm' => 1,       // Mobile: 1 kolom
-                        ]),
-                ]),
-            ]);        
+                            ])
+                            ->columns([
+                                'sm' => 1,       // Mobile: 1 kolom
+                            ]),
+                    ]),
+            ]);
     }
 
     public static function table(Table $table): Table

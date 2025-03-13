@@ -42,22 +42,22 @@ class SupplierResource extends Resource implements HasShieldPermissions
         return $form
             ->schema([
                 Card::make()
-                ->schema([
-                    TextInput::make('nama_supplier')
-                    ->required()
-                    ->placeholder('Masukkan Nama Supplier'),
-                Select::make('jenis_supplier')
-                    ->searchable()
-                    ->label('Jenis Supplier')
-                    ->options([
-                        'Bonar Jaya' => 'Bonar Jaya',
-                        'Simpang 2' => 'Simpang 2',
-                        'Agen Purchasing' => 'Agen Purchasing',
-                    ])
-                    ->placeholder('Pilih Jenis Supplier')
-                    ->native(false) // Mengunakan dropdown modern
-                    ->required(), // Opsional: Atur default value,
-                ])->columns(2)
+                    ->schema([
+                        TextInput::make('nama_supplier')
+                            ->required()
+                            ->placeholder('Masukkan Nama Supplier'),
+                        Select::make('jenis_supplier')
+                            ->searchable()
+                            ->label('Jenis Supplier')
+                            ->options([
+                                'Bonar Jaya' => 'Bonar Jaya',
+                                'Simpang 2' => 'Simpang 2',
+                                'Agen Purchasing' => 'Agen Purchasing',
+                            ])
+                            ->placeholder('Pilih Jenis Supplier')
+                            ->native(false) // Mengunakan dropdown modern
+                            ->required(), // Opsional: Atur default value,
+                    ])->columns(2)
             ]);
     }
 

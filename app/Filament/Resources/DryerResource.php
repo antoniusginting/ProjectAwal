@@ -195,7 +195,8 @@ class DryerResource extends Resource
                                             ->label('Jenis Jagung')
                                             ->placeholder('Pilih terlebih dahulu No Lumbung 1')
                                             ->disabled(),
-                                    ])->columnSpan(1),
+                                    ])->columnSpan(1)
+                                    ->collapsible(),
                                 //Card Lumbung 2
                                 Card::make('Lumbung ke-2')
                                     ->schema([
@@ -264,7 +265,7 @@ class DryerResource extends Resource
                                             ->disabled(),
 
 
-                                    ])->columnSpan(1),
+                                    ])->columnSpan(1)->collapsible(),
                                 //Card Lumbung 3
                                 Card::make('Lumbung ke-3')
                                     ->schema([

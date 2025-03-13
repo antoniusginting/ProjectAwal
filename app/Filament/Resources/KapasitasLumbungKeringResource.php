@@ -31,21 +31,21 @@ class KapasitasLumbungKeringResource extends Resource
         return $form
             ->schema([
                 Card::make()
-                ->schema([
-                    TextInput::make('nama_kapasitas_lumbung')
-                    ->label('Nama Lumbung')
-                    ->placeholder('Masukkan Nama Kapasitas Lumbung'),
-                TextInput::make('kapasitas_total')
-                    ->label('Kapasitas Total')
-                    ->placeholder('Masukkan Jumlah Kapasitas Total')
-                    ->live() // Memastikan perubahan langsung terjadi di Livewire
-                    ->extraAttributes([
-                        'x-data' => '{}',
-                        'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
-                    ])
-                    ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)), // Hapus titik sebelum dikirim ke database
-                ])->columns(2)
-                
+                    ->schema([
+                        TextInput::make('nama_kapasitas_lumbung')
+                            ->label('Nama Lumbung')
+                            ->placeholder('Masukkan Nama Kapasitas Lumbung'),
+                        TextInput::make('kapasitas_total')
+                            ->label('Kapasitas Total')
+                            ->placeholder('Masukkan Jumlah Kapasitas Total')
+                            ->live() // Memastikan perubahan langsung terjadi di Livewire
+                            ->extraAttributes([
+                                'x-data' => '{}',
+                                'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
+                            ])
+                            ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)), // Hapus titik sebelum dikirim ke database
+                    ])->columns(2)
+
             ]);
     }
 
