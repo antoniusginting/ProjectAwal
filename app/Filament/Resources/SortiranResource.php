@@ -2,28 +2,29 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\SortiranResource\Pages;
-use App\Filament\Resources\SortiranResource\RelationManagers;
-use App\Models\KapasitasLumbungBasah;
-use App\Models\Pembelian;
-use App\Models\Sortiran;
 use Filament\Forms;
-use Filament\Forms\Components\Card;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\TextColumn;
+use App\Models\Sortiran;
+use Filament\Forms\Form;
+use App\Models\Pembelian;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Grid;
+use Illuminate\Support\Facades\Log;
+use App\Models\KapasitasLumbungBasah;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Repeater;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\Placeholder;
+use App\Filament\Resources\SortiranResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\SortiranResource\RelationManagers;
 
 class SortiranResource extends Resource
 {
@@ -99,27 +100,26 @@ class SortiranResource extends Resource
                                     ->placeholder('Masukkan Total Karung')
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, $set, $get) {
-                                        $netto = (float) ($get('netto_pembelian') ?? 1); // Konversi ke float
-
-                                        // Jika total_karung kosong
+                                        $netto = floatval($get('netto_pembelian') ?? 1); // Pastikan float
+                                        $totalKarung = floatval($state ?: 1); // Jangan biarkan nol
+                                    
+                                        // Jika total_karung kosong, reset semua tonase
                                         if (empty($state)) {
-                                            $set('tonase_1', null);
-                                            $set('tonase_2', null);
-                                            $set('tonase_3', null);
-                                            $set('tonase_4', null);
-                                            $set('tonase_5', null);
-                                            $set('tonase_6', null);
+                                            foreach (range(1, 6) as $i) {
+                                                $set("tonase_$i", null);
+                                            }
                                             return;
                                         }
-
-                                        // Lakukan perhitungan tonase dengan konversi nilai ke float agar tidak error
-                                        $set('tonase_1', ((int) $get('jumlah_karung_1') ?? 0) * $netto / (float) $state);
-                                        $set('tonase_2', ((int) $get('jumlah_karung_2') ?? 0) * $netto / (float) $state);
-                                        $set('tonase_3', ((int) $get('jumlah_karung_3') ?? 0) * $netto / (float) $state);
-                                        $set('tonase_4', ((int) $get('jumlah_karung_4') ?? 0) * $netto / (float) $state);
-                                        $set('tonase_5', ((int) $get('jumlah_karung_5') ?? 0) * $netto / (float) $state);
-                                        $set('tonase_6', ((int) $get('jumlah_karung_6') ?? 0) * $netto / (float) $state);
+                                    
+                                        // Hitung tonase dengan skala besar
+                                        foreach (range(1, 6) as $i) {
+                                            $jumlahKarung = floatval($get("jumlah_karung_$i") ?? 0);
+                                            $tonase = ($jumlahKarung * $netto) / $totalKarung * 1000; // Ubah skala
+                                            $set("tonase_$i", floatval($tonase));  // Simpan float asli dalam skala besar
+                                        }
                                     }),
+                                    
+                                    
 
                             ])->columns(2),
                     ])
@@ -203,10 +203,13 @@ class SortiranResource extends Resource
                                                 )
                                             ),
 
-                                        TextInput::make('tonase_1')
-                                            ->placeholder('Otomatis Terisi Tonase')
+                                            TextInput::make('tonase_1')
                                             ->label('Tonase 1')
-                                            ->readOnly(),
+                                            ->numeric()
+                                            ->readOnly()
+                                            ->default(0)
+                                            ->formatStateUsing(fn ($state) => number_format((float) $state, 2, ',', '')),                                        
+                                        
                                     ])
                                     ->columnSpan(1), // Satu card per kolom
 

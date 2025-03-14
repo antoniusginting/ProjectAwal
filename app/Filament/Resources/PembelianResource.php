@@ -54,6 +54,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                         //     }),
                         Placeholder::make('next_id')
                             ->label('No SPB')
+                            ->columnSpan(2)
                             ->content(function ($record) {
                                 // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
                                 if ($record) {
@@ -64,9 +65,9 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                 $nextId = (Pembelian::max('id') ?? 0) + 1;
                                 return 'B' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
                             }),
-                        TextInput::make('no_po')
-                            ->label('Nomor PO') // Memberikan label deskriptif
-                            ->placeholder('Masukkan Nomor PO'), // Placeholder
+                        // TextInput::make('no_po')
+                        //     ->label('Nomor PO') // Memberikan label deskriptif
+                        //     ->placeholder('Masukkan Nomor PO'), // Placeholder
                         // Menambahkan note
                         // ->helperText('Catatan: Pastikan Nomor PO diisi dengan format yang benar.'), 
 

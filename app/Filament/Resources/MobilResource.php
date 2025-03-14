@@ -31,7 +31,7 @@ class MobilResource extends Resource implements HasShieldPermissions
 
     public static function getNavigationSort(): int
     {
-        return 5; // Ini akan muncul di atas
+        return 6; // Ini akan muncul di atas
     }
     protected static ?string $model = Mobil::class;
 

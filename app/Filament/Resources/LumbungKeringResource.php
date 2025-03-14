@@ -16,10 +16,15 @@ use Filament\Forms\Components\Placeholder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\LumbungKeringResource\Pages;
 use App\Filament\Resources\LumbungKeringResource\RelationManagers;
+use Filament\Forms\Components\Grid;
 
 class LumbungKeringResource extends Resource
 {
     protected static ?string $model = LumbungKering::class;
+    public static function getNavigationSort(): int
+    {
+        return 4; // Ini akan muncul di atas
+    }
 
     protected static ?string $navigationIcon = 'heroicon-o-funnel';
 
@@ -47,6 +52,62 @@ class LumbungKeringResource extends Resource
                                     ->label('Jenis Jagung')
                                     ->placeholder('Masukkan Jenis Jagung'),
                             ])->columns(2)
+                    ])->collapsible(),
+                Card::make()
+                    ->schema([
+                        Grid::make(3)
+                            ->schema([
+                                Card::make('Laporan penjualan ke-1')
+                                    ->schema([
+                                        TextInput::make('id_laporan_penjualan_1')
+                                            ->label('No laporan penjualan'),
+                                    ])->columnSpan(1),
+                                Card::make('Laporan penjualan ke-2')
+                                    ->schema([
+                                        TextInput::make('id_laporan_penjualan_2')
+                                            ->label('No laporan penjualan'),
+                                    ])->columnSpan(1),
+                                Card::make('Laporan penjualan ke-3')
+                                    ->schema([
+                                        TextInput::make('id_laporan_penjualan_3')
+                                            ->label('No laporan penjualan'),
+                                    ])->columnSpan(1),
+                                Card::make('Laporan penjualan ke-4')
+                                    ->schema([
+                                        TextInput::make('id_laporan_penjualan_4')
+                                            ->label('No laporan penjualan'),
+                                    ])->columnSpan(1)->collapsed(),
+                                Card::make('Laporan penjualan ke-5')
+                                    ->schema([
+                                        TextInput::make('id_laporan_penjualan_5')
+                                            ->label('No laporan penjualan'),
+                                    ])->columnSpan(1)->collapsed(),
+                                Card::make('Laporan penjualan ke-6')
+                                    ->schema([
+                                        TextInput::make('id_laporan_penjualan_6')
+                                            ->label('No laporan penjualan'),
+                                    ])->columnSpan(1)->collapsed(),
+                                Card::make('Laporan penjualan ke-7')
+                                    ->schema([
+                                        TextInput::make('id_laporan_penjualan_7')
+                                            ->label('No laporan penjualan'),
+                                    ])->columnSpan(1)->collapsed(),
+                                Card::make('Laporan penjualan ke-8')
+                                    ->schema([
+                                        TextInput::make('id_laporan_penjualan_8')
+                                            ->label('No laporan penjualan'),
+                                    ])->columnSpan(1)->collapsed(),
+                                Card::make('Laporan penjualan ke-9')
+                                    ->schema([
+                                        TextInput::make('id_laporan_penjualan_9')
+                                            ->label('No laporan penjualan'),
+                                    ])->columnSpan(1)->collapsed(),
+                                Card::make('Laporan penjualan ke-10')
+                                    ->schema([
+                                        TextInput::make('id_laporan_penjualan_10')
+                                            ->label('No laporan penjualan'),
+                                    ])->columnSpan(1)->collapsed(),
+                            ])
                     ])
             ]);
     }

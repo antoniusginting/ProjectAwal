@@ -75,6 +75,7 @@ class KendaraanMasuksResource extends Resource
                                     ->placeholder('Kosongkan jika belum keluar')
                                     ->suffixIcon('heroicon-o-clock')
                                     ->required(false)
+                                    ->hidden(fn ($livewire, $state) => $livewire instanceof \Filament\Resources\Pages\ViewRecord && empty($state)) // Sembunyikan jika mode ViewRecord dan masih kosong
                                     ->afterStateHydrated(function ($state, callable $set, $record) {
                                         if ($record && empty($state)) {
                                             $set('jam_keluar', now()->format('H:i:s'));

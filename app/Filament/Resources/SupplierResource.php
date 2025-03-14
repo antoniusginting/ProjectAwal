@@ -26,7 +26,7 @@ class SupplierResource extends Resource implements HasShieldPermissions
     // }
     public static function getNavigationSort(): int
     {
-        return 6; // Ini akan muncul di atas
+        return 7; // Ini akan muncul di atas
     }
     protected static ?string $model = Supplier::class;
 

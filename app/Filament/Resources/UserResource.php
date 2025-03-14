@@ -28,7 +28,7 @@ class UserResource extends Resource implements HasShieldPermissions
     // }
     public static function getNavigationSort(): int
     {
-        return 7; // Ini akan muncul di atas
+        return 8; // Ini akan muncul di atas
     }
     protected static ?string $model = User::class;
 
