@@ -19,6 +19,10 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class LaporanPenjualanResource extends Resource
 {
+    public static function canAccess(): bool
+    {
+        return false; // Menyembunyikan resource dari sidebar
+    }
     protected static ?string $model = LaporanPenjualan::class;
     public static function getNavigationSort(): int
     {
@@ -36,65 +40,66 @@ class LaporanPenjualanResource extends Resource
                             ->schema([])
                     ]),
                 Card::make()
-                ->schema([
-                    Grid::make(3)
                     ->schema([
-                        Card::make('Lumbung kering ke-1')
-                        ->schema([
-                            TextInput::make('id_lumbung_kering_1')
-                            ->label('No Lumbung Kering'),
-                            TextInput::make('berat_1')
-                            ->label('Berat')
-                            ->numeric(),
-                        ])->columnSpan(1)->collapsible(),
-                        Card::make('Lumbung kering ke-2')
-                        ->schema([
-                            TextInput::make('id_lumbung_kering_2')
-                            ->label('No Lumbung Kering'),
-                            TextInput::make('berat_2')
-                            ->label('Berat')
-                            ->numeric(),
-                        ])->columnSpan(1)->collapsible(),
-                        Card::make('Lumbung kering ke-3')
-                        ->schema([
-                            TextInput::make('id_lumbung_kering_3')
-                            ->label('No Lumbung Kering'),
-                            TextInput::make('berat_3')
-                            ->label('Berat')
-                            ->numeric(),
-                        ])->columnSpan(1)->collapsible(),
-                        Card::make('Lumbung kering ke-4')
-                        ->schema([
-                            TextInput::make('id_lumbung_kering_4')
-                            ->label('No Lumbung Kering'),
-                            TextInput::make('berat_4')
-                            ->label('Berat')
-                            ->numeric(),
-                        ])->columnSpan(1)->collapsed(),
-                        Card::make('Lumbung kering ke-5')
-                        ->schema([
-                            TextInput::make('id_lumbung_kering_5')
-                            ->label('No Lumbung Kering'),
-                            TextInput::make('berat_5')
-                            ->label('Berat')
-                            ->numeric(),
-                        ])->columnSpan(1)->collapsed(),
-                        Card::make('Lumbung kering ke-6')
-                        ->schema([
-                            TextInput::make('id_lumbung_kering_6')
-                            ->label('No Lumbung Kering'),
-                            TextInput::make('berat_6')
-                            ->label('Berat')
-                            ->numeric(),
-                        ])->columnSpan(1)->collapsed(),
+                        Grid::make(3)
+                            ->schema([
+                                Card::make('Lumbung kering ke-1')
+                                    ->schema([
+                                        TextInput::make('id_lumbung_kering_1')
+                                            ->label('No Lumbung Kering'),
+                                        TextInput::make('berat_1')
+                                            ->label('Berat')
+                                            ->numeric(),
+                                    ])->columnSpan(1)->collapsible(),
+                                Card::make('Lumbung kering ke-2')
+                                    ->schema([
+                                        TextInput::make('id_lumbung_kering_2')
+                                            ->label('No Lumbung Kering'),
+                                        TextInput::make('berat_2')
+                                            ->label('Berat')
+                                            ->numeric(),
+                                    ])->columnSpan(1)->collapsible(),
+                                Card::make('Lumbung kering ke-3')
+                                    ->schema([
+                                        TextInput::make('id_lumbung_kering_3')
+                                            ->label('No Lumbung Kering'),
+                                        TextInput::make('berat_3')
+                                            ->label('Berat')
+                                            ->numeric(),
+                                    ])->columnSpan(1)->collapsible(),
+                                Card::make('Lumbung kering ke-4')
+                                    ->schema([
+                                        TextInput::make('id_lumbung_kering_4')
+                                            ->label('No Lumbung Kering'),
+                                        TextInput::make('berat_4')
+                                            ->label('Berat')
+                                            ->numeric(),
+                                    ])->columnSpan(1)->collapsed(),
+                                Card::make('Lumbung kering ke-5')
+                                    ->schema([
+                                        TextInput::make('id_lumbung_kering_5')
+                                            ->label('No Lumbung Kering'),
+                                        TextInput::make('berat_5')
+                                            ->label('Berat')
+                                            ->numeric(),
+                                    ])->columnSpan(1)->collapsed(),
+                                Card::make('Lumbung kering ke-6')
+                                    ->schema([
+                                        TextInput::make('id_lumbung_kering_6')
+                                            ->label('No Lumbung Kering'),
+                                        TextInput::make('berat_6')
+                                            ->label('Berat')
+                                            ->numeric(),
+                                    ])->columnSpan(1)->collapsed(),
+                            ])
                     ])
-                ])
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultPaginationPageOption(5)
             ->columns([
                 //
             ])

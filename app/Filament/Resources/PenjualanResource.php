@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use Carbon\Carbon;
 use Filament\Tables;
 use App\Models\Mobil;
 use App\Models\Supplier;
@@ -9,16 +10,17 @@ use Filament\Forms\Form;
 use App\Models\Penjualan;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\TextColumn;
-
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Placeholder;
-use App\Filament\Resources\PenjualanResource\Pages;
-use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms\Components\Card;
 
-class PenjualanResource extends Resource implements HasShieldPermissions
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\Placeholder;
+use App\Filament\Resources\PenjualanResource\Pages;
+
+class PenjualanResource extends Resource 
 {
     // public static function getNavigationBadge(): ?string
     // {
@@ -152,6 +154,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultPaginationPageOption(5)
             ->columns([
                 TextColumn::make('created_at')->label('Tanggal')
                     ->dateTime('d-m-Y'),
@@ -194,11 +197,19 @@ class PenjualanResource extends Resource implements HasShieldPermissions
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    // Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                // ]),
+            ])
+            ->filters([
+                Filter::make('Hari Ini')
+                    ->query(
+                        fn(Builder $query) =>
+                        $query->whereDate('created_at', Carbon::today())
+                    ),
             ]);
     }
 
@@ -215,16 +226,6 @@ class PenjualanResource extends Resource implements HasShieldPermissions
             'index' => Pages\ListPenjualans::route('/'),
             'create' => Pages\CreatePenjualan::route('/create'),
             'edit' => Pages\EditPenjualan::route('/{record}/edit'),
-        ];
-    }
-
-    public static function getPermissionPrefixes(): array
-    {
-        return [
-            'view_any',
-            'create',
-            'update',
-            'delete',
         ];
     }
 }

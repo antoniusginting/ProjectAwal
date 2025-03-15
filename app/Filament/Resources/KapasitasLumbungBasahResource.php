@@ -21,6 +21,11 @@ use App\Filament\Resources\KapasitasLumbungBasahResource\RelationManagers;
 class KapasitasLumbungBasahResource extends Resource
 {
 
+    public static function canAccess(): bool
+    {
+        return false; // Menyembunyikan resource dari sidebar
+    }
+
     protected static ?string $model = KapasitasLumbungBasah::class;
     protected static ?string $navigationGroup = 'Kapasitas';
 

@@ -18,12 +18,15 @@ use App\Filament\Resources\MobilResource\Pages;
 use Filament\Infolists\Components\TextEntry;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\MobilResource\RelationManagers;
-use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Card;
 
-class MobilResource extends Resource implements HasShieldPermissions
+class MobilResource extends Resource
 {
+    public static function canAccess(): bool
+    {
+        return false; // Menyembunyikan resource dari sidebar
+    }
     // public static function getNavigationBadge(): ?string
     // {
     //     return static::getModel()::count();
@@ -71,6 +74,7 @@ class MobilResource extends Resource implements HasShieldPermissions
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultPaginationPageOption(5)
             ->columns([
                 TextColumn::make('id')->label('No')
                     ->copyable()
@@ -111,15 +115,6 @@ class MobilResource extends Resource implements HasShieldPermissions
             'index' => Pages\ListMobils::route('/'),
             'create' => Pages\CreateMobil::route('/create'),
             'edit' => Pages\EditMobil::route('/{record}/edit'),
-        ];
-    }
-    public static function getPermissionPrefixes(): array
-    {
-        return [
-            'view_any',
-            'create',
-            'update',
-            'delete',
         ];
     }
 }

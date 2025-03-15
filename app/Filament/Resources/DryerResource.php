@@ -25,6 +25,10 @@ use App\Filament\Resources\DryerResource\RelationManagers;
 
 class DryerResource extends Resource
 {
+    public static function canAccess(): bool
+    {
+        return false; // Menyembunyikan resource dari sidebar
+    }
     public static function getNavigationSort(): int
     {
         return 3; // Ini akan muncul di atas
@@ -412,6 +416,7 @@ class DryerResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultPaginationPageOption(5)
             ->columns([
                 TextColumn::make('created_at')
                     ->label('Tanggal')
@@ -459,7 +464,7 @@ class DryerResource extends Resource
 
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    // Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }

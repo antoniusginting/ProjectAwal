@@ -10,17 +10,18 @@ use Filament\Forms\Form;
 use App\Models\Pembelian;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\Card;
+use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Forms\Components\TimePicker;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use App\Filament\Resources\PembelianResource\Pages;
-use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
-use Filament\Forms\Components\Card;
 
-class PembelianResource extends Resource implements HasShieldPermissions
+class PembelianResource extends Resource
 {
     // public static function getNavigationBadge(): ?string
     // {
@@ -114,8 +115,19 @@ class PembelianResource extends Resource implements HasShieldPermissions
 
                         TextInput::make('nama_barang')
                             ->placeholder('Masukkan Nama Barang'),
-                        TextInput::make('keterangan')
-                            ->placeholder('Masukkan Keterangan'),
+                        Select::make('keterangan') // Gantilah 'tipe' dengan nama field di database
+                            ->label('Timbangan ke-')
+                            ->options([
+                                '1' => 'Timbangan ke-1',
+                                '2' => 'Timbangan ke-2',
+                                '3' => 'Timbangan ke-3',
+                                '4' => 'Timbangan ke-4',
+                                '5' => 'Timbangan ke-5',
+                            ])
+                            ->placeholder('Pilih timbangan ke-')
+                            // ->inlineLabel() // Membuat label sebelah kiri
+                            ->native(false) // Mengunakan dropdown modern
+                            ->required(), // Opsional: Atur default value
                         Select::make('kepemilikan')
                             ->label('Kepemilikan kendaraan')
                             ->options([
@@ -176,6 +188,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultPaginationPageOption(5)
             ->columns([
                 TextColumn::make('created_at')->label('Tanggal')
                     ->dateTime('d-m-Y'),
@@ -194,6 +207,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                 TextColumn::make('supplier.jenis_supplier')->label('Jenis')
                     ->searchable(),
                 TextColumn::make('keterangan')
+                    ->prefix('Timbangan-')
                     ->searchable(),
                 TextColumn::make('no_container')
                     ->searchable(),
@@ -219,9 +233,16 @@ class PembelianResource extends Resource implements HasShieldPermissions
                 Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    // Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                // ]),
+            ])
+            ->filters([
+                Filter::make('Hari Ini')
+                    ->query(
+                        fn(Builder $query) =>
+                        $query->whereDate('created_at', Carbon::today())
+                    ),
             ]);
     }
 
@@ -241,13 +262,4 @@ class PembelianResource extends Resource implements HasShieldPermissions
         ];
     }
 
-    public static function getPermissionPrefixes(): array
-    {
-        return [
-            'view_any',
-            'create',
-            'update',
-            'delete',
-        ];
-    }
 }

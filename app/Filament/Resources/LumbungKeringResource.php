@@ -20,6 +20,10 @@ use Filament\Forms\Components\Grid;
 
 class LumbungKeringResource extends Resource
 {
+    public static function canAccess(): bool
+    {
+        return false; // Menyembunyikan resource dari sidebar
+    }
     protected static ?string $model = LumbungKering::class;
     public static function getNavigationSort(): int
     {
@@ -115,6 +119,7 @@ class LumbungKeringResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultPaginationPageOption(5)
             ->columns([
                 //
             ])

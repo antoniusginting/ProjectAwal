@@ -8,6 +8,8 @@ use App\Models\Supplier;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
@@ -15,10 +17,8 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\SupplierResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\SupplierResource\RelationManagers;
-use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
-use Filament\Forms\Components\Card;
 
-class SupplierResource extends Resource implements HasShieldPermissions
+class SupplierResource extends Resource
 {
     // public static function getNavigationBadge(): ?string
     // {
@@ -40,34 +40,93 @@ class SupplierResource extends Resource implements HasShieldPermissions
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                Card::make()
-                    ->schema([
-                        TextInput::make('nama_supplier')
-                            ->required()
-                            ->placeholder('Masukkan Nama Supplier'),
-                        Select::make('jenis_supplier')
-                            ->searchable()
-                            ->label('Jenis Supplier')
-                            ->options([
-                                'Bonar Jaya' => 'Bonar Jaya',
-                                'Simpang 2' => 'Simpang 2',
-                                'Agen Purchasing' => 'Agen Purchasing',
-                            ])
-                            ->placeholder('Pilih Jenis Supplier')
-                            ->native(false) // Mengunakan dropdown modern
-                            ->required(), // Opsional: Atur default value,
-                    ])->columns(2)
+        ->schema([
+            Card::make()
+                ->schema([
+                    Grid::make()
+                        ->schema([
+                            TextInput::make('nama_supplier')
+                                ->required()
+                                ->placeholder('Masukkan Nama Supplier'),
+        
+                            Select::make('jenis_supplier')
+                                ->label('Jenis Supplier')
+                                ->options([
+                                    'Bonar Jaya' => 'Bonar Jaya',
+                                    'Simpang 2' => 'Simpang 2',
+                                    'Agen Purchasing' => 'Agen Purchasing',
+                                ])
+                                ->placeholder('Pilih Jenis Supplier')
+                                ->native(false)
+                                ->required(),
+        
+                            TextInput::make('no_ktp')
+                                ->label('Nomor KTP')
+                                ->required()
+                                ->numeric()
+                                ->placeholder('Masukkan nomor KTP'),
+        
+                            TextInput::make('npwp')
+                                ->label('NPWP')
+                                ->required()
+                                ->numeric()
+                                ->placeholder('Masukkan NPWP'),
+        
+                            TextInput::make('no_rek')
+                                ->label('Nomor rekening')
+                                ->required()
+                                ->numeric()
+                                ->placeholder('Masukkan nomor rekening'),
+        
+                            Select::make('nama_bank')
+                                ->label('Nama Bank')
+                                ->options([
+                                    'BRI' => 'BRI',
+                                    'BCA' => 'BCA',
+                                    'Mandiri' => 'Mandiri',
+                                ])
+                                ->placeholder('Pilih nama bank')
+                                ->native(false)
+                                ->required(),
+        
+                            TextInput::make('atas_nama_bank')
+                                ->label('Atas nama bank')
+                                ->required()
+                                ->placeholder('Masukkan atas nama bank'),
+                        ])->columns(2) // 2 kolom di layar besar
+                ]),
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultPaginationPageOption(5)
             ->columns([
-                TextColumn::make('id')->label('No'),
-                TextColumn::make('nama_supplier'),
+                // Kalau mau buat border di tabel ->extraAttributes(['style' => 'border-right: 1px solid #ddd;'])
+                TextColumn::make('id')
+                    ->label('No'),
+                TextColumn::make('nama_supplier')
+                    ->label('Nama supplier')
+                    ->searchable(),
                 TextColumn::make('jenis_supplier')
+                    ->label('Jenis supplier')
+                    ->searchable(),
+                TextColumn::make('no_ktp')
+                    ->label('No KTP')
+                    ->searchable(),
+                TextColumn::make('npwp')
+                    ->label('NPWP')
+                    ->searchable(),
+                TextColumn::make('no_rek')
+                    ->label('No Rekening')
+                    ->searchable(),
+                TextColumn::make('nama_bank')
+                    ->label('Nama Bank')
+                    ->searchable(),
+                TextColumn::make('atas_nama_bank')
+                    ->label('Atas nama')
+                    ->searchable(),
             ])
             ->filters([
                 //
@@ -100,13 +159,4 @@ class SupplierResource extends Resource implements HasShieldPermissions
         ];
     }
 
-    public static function getPermissionPrefixes(): array
-    {
-        return [
-            'view_any',
-            'create',
-            'update',
-            'delete',
-        ];
-    }
 }

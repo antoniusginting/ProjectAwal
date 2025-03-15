@@ -2,15 +2,18 @@
 
 namespace App\Filament\Resources;
 
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Sortiran;
 use Filament\Forms\Form;
 use App\Models\Pembelian;
 use Filament\Tables\Table;
+use Filament\Tables\Actions\Action;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\Log;
 use App\Models\KapasitasLumbungBasah;
 use Filament\Forms\Components\Select;
@@ -22,6 +25,7 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
+use Filament\Tables\Enums\ActionsPosition;
 use App\Filament\Resources\SortiranResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\SortiranResource\RelationManagers;
@@ -54,7 +58,9 @@ class SortiranResource extends Resource
                                 Select::make('id_pembelian')
                                     ->label('No SPB')
                                     ->placeholder('Pilih No SPB Pembelian')
-                                    ->options(Pembelian::latest()->pluck('no_spb', 'id'))
+                                    ->options(Pembelian::latest()->with('mobil')->with('supplier')->get()->mapWithKeys(function ($item) {
+                                        return [$item->id => $item->no_spb . ' - Timbangan ' . $item->keterangan . ' - ' . $item->supplier->nama_supplier . ' - ' . $item->mobil->plat_polisi];
+                                    }))
                                     ->searchable()
                                     ->required()
                                     ->reactive()
@@ -102,7 +108,7 @@ class SortiranResource extends Resource
                                     ->afterStateUpdated(function ($state, $set, $get) {
                                         $netto = floatval($get('netto_pembelian') ?? 1); // Pastikan float
                                         $totalKarung = floatval($state ?: 1); // Jangan biarkan nol
-                                    
+
                                         // Jika total_karung kosong, reset semua tonase
                                         if (empty($state)) {
                                             foreach (range(1, 6) as $i) {
@@ -110,16 +116,17 @@ class SortiranResource extends Resource
                                             }
                                             return;
                                         }
-                                    
+
                                         // Hitung tonase dengan skala besar
                                         foreach (range(1, 6) as $i) {
                                             $jumlahKarung = floatval($get("jumlah_karung_$i") ?? 0);
-                                            $tonase = ($jumlahKarung * $netto) / $totalKarung * 1000; // Ubah skala
+                                            $tonase = ($jumlahKarung * $netto) / $totalKarung; // Ubah skala
                                             $set("tonase_$i", floatval($tonase));  // Simpan float asli dalam skala besar
+
                                         }
                                     }),
-                                    
-                                    
+
+
 
                             ])->columns(2),
                     ])
@@ -151,7 +158,7 @@ class SortiranResource extends Resource
                         Grid::make(3) // 3 Kolom
                             ->schema([
                                 // Kualitas Jagung 1
-                                Card::make()
+                                Card::make('Jagung ke-1')
                                     ->schema([
                                         Select::make('kualitas_jagung_1') // Gantilah 'tipe' dengan nama field di database
                                             ->label('Kualitas Jagung 1')
@@ -165,9 +172,9 @@ class SortiranResource extends Resource
                                             ->required(), // Opsional: Atur default value
                                         FileUpload::make('foto_jagung_1')
                                             ->image()
-                                            ->label('Foto Jagung 1'),
+                                            ->label('Foto Jagung'),
                                         Select::make('x1_x10_1')
-                                            ->label('X1-X10 1')
+                                            ->label('X1-X10')
                                             ->options([
                                                 'X0' => 'X0',
                                                 'X1' => 'X1',
@@ -186,7 +193,7 @@ class SortiranResource extends Resource
                                             ->required(), // Opsional: Atur default value
                                         TextInput::make('jumlah_karung_1')
                                             ->placeholder('Masukkan Jumlah Karung')
-                                            ->label('Jumlah Karung 1')
+                                            ->label('Jumlah Karung')
                                             ->numeric()
                                             ->reactive()
 
@@ -203,21 +210,18 @@ class SortiranResource extends Resource
                                                 )
                                             ),
 
-                                            TextInput::make('tonase_1')
-                                            ->label('Tonase 1')
-                                            ->numeric()
-                                            ->readOnly()
-                                            ->default(0)
-                                            ->formatStateUsing(fn ($state) => number_format((float) $state, 2, ',', '')),                                        
-                                        
+                                        TextInput::make('tonase_1')
+                                            ->placeholder('Otomatis Terisi Tonase')
+                                            ->label('Tonase')
+                                            ->readOnly(),
                                     ])
-                                    ->columnSpan(1), // Satu card per kolom
+                                    ->columnSpan(1)->collapsible(), // Satu card per kolom
 
                                 // Kualitas Jagung 2
-                                Card::make()
+                                Card::make('Jagung ke-2')
                                     ->schema([
                                         Select::make('kualitas_jagung_2') // Gantilah 'tipe' dengan nama field di database
-                                            ->label('Kualitas Jagung 2')
+                                            ->label('Kualitas Jagung')
                                             ->options([
                                                 'JG Kering' => 'Jagung Kering',
                                                 'JG Basah' => 'Jagung Basah',
@@ -228,9 +232,9 @@ class SortiranResource extends Resource
 
                                         FileUpload::make('foto_jagung_2')
                                             ->image()
-                                            ->label('Foto Jagung 2'),
+                                            ->label('Foto Jagung'),
                                         Select::make('x1_x10_2')
-                                            ->label('X1-X10 2')
+                                            ->label('X1-X10')
                                             ->options([
                                                 'X0' => 'X0',
                                                 'X1' => 'X1',
@@ -249,7 +253,7 @@ class SortiranResource extends Resource
 
                                         TextInput::make('jumlah_karung_2')
                                             ->placeholder('Masukkan Jumlah Karung')
-                                            ->label('Jumlah Karung 2')
+                                            ->label('Jumlah Karung')
                                             ->numeric()
 
                                             ->reactive()
@@ -268,17 +272,17 @@ class SortiranResource extends Resource
 
                                         TextInput::make('tonase_2')
                                             ->placeholder('Otomatis Terisi Tonase')
-                                            ->label('Tonase 2')
+                                            ->label('Tonase')
                                             ->readOnly(),
 
                                     ])
-                                    ->columnSpan(1),
+                                    ->columnSpan(1)->collapsible(),
 
                                 // Kualitas Jagung 3
-                                Card::make()
+                                Card::make('Jagung ke-3')
                                     ->schema([
                                         Select::make('kualitas_jagung_3') // Gantilah 'tipe' dengan nama field di database
-                                            ->label('Kualitas Jagung 3')
+                                            ->label('Kualitas Jagung')
                                             ->options([
                                                 'JG Kering' => 'Jagung Kering',
                                                 'JG Basah' => 'Jagung Basah',
@@ -289,9 +293,9 @@ class SortiranResource extends Resource
 
                                         FileUpload::make('foto_jagung_3')
                                             ->image()
-                                            ->label('Foto Jagung 3'),
+                                            ->label('Foto Jagung'),
                                         Select::make('x1_x10_3')
-                                            ->label('X1-X10 3')
+                                            ->label('X1-X10')
                                             ->options([
                                                 'X0' => 'X0',
                                                 'X1' => 'X1',
@@ -310,7 +314,7 @@ class SortiranResource extends Resource
 
                                         TextInput::make('jumlah_karung_3')
                                             ->placeholder('Masukkan Jumlah Karung')
-                                            ->label('Jumlah Karung 3')
+                                            ->label('Jumlah Karung')
                                             ->numeric()
 
                                             ->reactive()
@@ -329,16 +333,16 @@ class SortiranResource extends Resource
 
                                         TextInput::make('tonase_3')
                                             ->placeholder('Otomatis Terisi Tonase')
-                                            ->label('Tonase 3')
+                                            ->label('Tonase')
                                             ->readOnly(),
                                     ])
-                                    ->columnSpan(1),
+                                    ->columnSpan(1)->collapsible(),
 
                                 // Kualitas Jagung 4
-                                Card::make()
+                                Card::make('Jagung ke-4')
                                     ->schema([
                                         Select::make('kualitas_jagung_4') // Gantilah 'tipe' dengan nama field di database
-                                            ->label('Kualitas Jagung 4')
+                                            ->label('Kualitas Jagung')
                                             ->options([
                                                 'JG Kering' => 'Jagung Kering',
                                                 'JG Basah' => 'Jagung Basah',
@@ -349,9 +353,9 @@ class SortiranResource extends Resource
 
                                         FileUpload::make('foto_jagung_4')
                                             ->image()
-                                            ->label('Foto Jagung 4'),
+                                            ->label('Foto Jagung'),
                                         Select::make('x1_x10_4')
-                                            ->label('X1-X10 4')
+                                            ->label('X1-X10')
                                             ->options([
                                                 'X0' => 'X0',
                                                 'X1' => 'X1',
@@ -370,7 +374,7 @@ class SortiranResource extends Resource
 
                                         TextInput::make('jumlah_karung_4')
                                             ->placeholder('Masukkan Jumlah Karung')
-                                            ->label('Jumlah Karung 4')
+                                            ->label('Jumlah Karung')
                                             ->numeric()
 
                                             ->reactive()
@@ -389,16 +393,16 @@ class SortiranResource extends Resource
 
                                         TextInput::make('tonase_4')
                                             ->placeholder('Otomatis Terisi Tonase')
-                                            ->label('Tonase 4')
+                                            ->label('Tonase')
                                             ->readOnly(),
                                     ])
-                                    ->columnSpan(1),
+                                    ->columnSpan(1)->collapsed(),
 
                                 // Kualitas Jagung 5
-                                Card::make()
+                                Card::make('Jagung ke-5')
                                     ->schema([
                                         Select::make('kualitas_jagung_5') // Gantilah 'tipe' dengan nama field di database
-                                            ->label('Kualitas Jagung 5')
+                                            ->label('Kualitas Jagung')
                                             ->options([
                                                 'JG Kering' => 'Jagung Kering',
                                                 'JG Basah' => 'Jagung Basah',
@@ -409,9 +413,9 @@ class SortiranResource extends Resource
 
                                         FileUpload::make('foto_jagung_5')
                                             ->image()
-                                            ->label('Foto Jagung 5'),
+                                            ->label('Foto Jagung'),
                                         Select::make('x1_x10_5')
-                                            ->label('X1-X10 5')
+                                            ->label('X1-X10')
                                             ->options([
                                                 'X0' => 'X0',
                                                 'X1' => 'X1',
@@ -430,7 +434,7 @@ class SortiranResource extends Resource
 
                                         TextInput::make('jumlah_karung_5')
                                             ->placeholder('Masukkan Jumlah Karung')
-                                            ->label('Jumlah Karung 5')
+                                            ->label('Jumlah Karung')
                                             ->numeric()
 
                                             ->reactive()
@@ -449,17 +453,17 @@ class SortiranResource extends Resource
 
                                         TextInput::make('tonase_5')
                                             ->placeholder('Otomatis Terisi Tonase')
-                                            ->label('Tonase 5')
+                                            ->label('Tonase')
                                             ->readOnly(),
 
                                     ])
-                                    ->columnSpan(1),
+                                    ->columnSpan(1)->collapsed(),
 
                                 // Kualitas Jagung 6
-                                Card::make()
+                                Card::make('Jagung ke-6')
                                     ->schema([
                                         Select::make('kualitas_jagung_6') // Gantilah 'tipe' dengan nama field di database
-                                            ->label('Kualitas Jagung 6')
+                                            ->label('Kualitas Jagung')
                                             ->options([
                                                 'JG Kering' => 'Jagung Kering',
                                                 'JG Basah' => 'Jagung Basah',
@@ -470,9 +474,9 @@ class SortiranResource extends Resource
 
                                         FileUpload::make('foto_jagung_6')
                                             ->image()
-                                            ->label('Foto Jagung 6'),
+                                            ->label('Foto Jagung'),
                                         Select::make('x1_x10_6')
-                                            ->label('X1-X10 6')
+                                            ->label('X1-X10')
                                             ->options([
                                                 'X0' => 'X0',
                                                 'X1' => 'X1',
@@ -491,7 +495,7 @@ class SortiranResource extends Resource
 
                                         TextInput::make('jumlah_karung_6')
                                             ->placeholder('Masukkan Jumlah Karung')
-                                            ->label('Jumlah Karung 6')
+                                            ->label('Jumlah Karung')
                                             ->numeric()
 
                                             ->reactive()
@@ -509,11 +513,11 @@ class SortiranResource extends Resource
                                             ),
                                         TextInput::make('tonase_6')
                                             ->placeholder('Otomatis Terisi Tonase')
-                                            ->label('Tonase 6')
+                                            ->label('Tonase')
                                             ->readOnly(),
 
                                     ])
-                                    ->columnSpan(1),
+                                    ->columnSpan(1)->collapsed(),
                             ]),
                         Card::make()
                             ->schema([
@@ -534,10 +538,11 @@ class SortiranResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultPaginationPageOption(5)
             ->columns([
                 TextColumn::make('created_at')->label('Tanggal')
                     ->dateTime('d-m-Y'),
-                TextColumn::make('no_sortiran')->label('No Sortiran'),
+                TextColumn::make('no_sortiran')->label('No Sortiran')->alignCenter(),
                 TextColumn::make('pembelian.no_spb')->label('No SPB')
                     ->searchable(),
                 TextColumn::make('pembelian.netto')->label('Netto')
@@ -641,14 +646,25 @@ class SortiranResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
                 Tables\Actions\ViewAction::make(),
-            ])
+                Action::make('viewImage')
+                    ->label('Lihat Gambar')
+                    ->modalSubmitAction(false) // Menghilangkan tombol "Kirim"
+                    ->modalCancelAction(false) // Menghilangkan tombol "Batal"
+                    ->modalHeading('Pratinjau Gambar')
+                    ->modalContent(fn($record) => view('filament.components.image-modal', ['gambar' => asset('storage/' . $record->foto_jagung_1)])),
+            ], position: ActionsPosition::BeforeColumns)
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    // Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                Tables\Actions\DeleteBulkAction::make(),
+                // ]),
+            ])
+            ->filters([
+                Filter::make('Hari Ini')
+                    ->query(
+                        fn(Builder $query) =>
+                        $query->whereDate('created_at', Carbon::today())
+                    ),
             ]);
     }
 

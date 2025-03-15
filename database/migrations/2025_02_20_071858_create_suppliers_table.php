@@ -15,6 +15,14 @@ return new class extends Migration
             $table->bigIncrements('id'); // Primary key, auto increment
             $table->string('nama_supplier')->unique(); // Kolom nama supplier
             $table->string('jenis_supplier'); // Kolom jenis supplier
+
+            //Tambahan 15 Maret 2025
+            $table->integer('no_ktp');
+            $table->integer('npwp');
+            $table->integer('no_rek');
+            $table->string('nama_bank');
+            $table->string('atas_nama_bank');
+
             $table->timestamps();
         });
     }

@@ -17,10 +17,9 @@ use App\Filament\Resources\UserResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\UserResource\RelationManagers;
 use Filament\Forms\Components\Select;
-use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms\Components\Card;
 
-class UserResource extends Resource implements HasShieldPermissions
+class UserResource extends Resource 
 {
     // public static function getNavigationBadge(): ?string
     // {
@@ -44,41 +43,42 @@ class UserResource extends Resource implements HasShieldPermissions
         return $form
             ->schema([
                 Card::make()
-                ->schema([
-                    TextInput::make('name')
-                    ->label('Nama Lengkap')
-                    ->required()
-                    ->placeholder('Masukkan nama lengkap')
-                    ->maxLength(255),
+                    ->schema([
+                        TextInput::make('name')
+                            ->label('Nama Lengkap')
+                            ->required()
+                            ->placeholder('Masukkan nama lengkap')
+                            ->maxLength(255),
 
-                TextInput::make('email')
-                    ->label('Alamat Email')
-                    ->email()
-                    ->required()
-                    ->placeholder('Masukkan alamat email')
-                    ->maxLength(255),
+                        TextInput::make('email')
+                            ->label('Alamat Email')
+                            ->email()
+                            ->required()
+                            ->placeholder('Masukkan alamat email')
+                            ->maxLength(255),
 
-                TextInput::make('password')
-                    ->label('Kata Sandi')
-                    ->password()
-                    ->placeholder(fn($record) => $record ? 'Biarkan kosong jika tidak diubah' : 'Masukkan kata sandi')
-                    ->minLength(8)
-                    ->dehydrated(fn($state) => filled($state)) // Hanya kirim jika diisi
-                    ->required(fn($operation) => $operation === 'create'),
+                        TextInput::make('password')
+                            ->label('Kata Sandi')
+                            ->password()
+                            ->placeholder(fn($record) => $record ? 'Biarkan kosong jika tidak diubah' : 'Masukkan kata sandi')
+                            ->minLength(8)
+                            ->dehydrated(fn($state) => filled($state)) // Hanya kirim jika diisi
+                            ->required(fn($operation) => $operation === 'create'),
 
-                Select::make('roles')
-                    ->relationship('roles', 'name')
-                    // ->multiple() // bisa dua role
-                    ->placeholder('Pilih salah satu role')
-                    ->preload()
-                    ->searchable()
-                ])->columns(2)
+                        Select::make('roles')
+                            ->relationship('roles', 'name')
+                            // ->multiple() // bisa dua role
+                            ->placeholder('Pilih salah satu role')
+                            ->preload()
+                            ->searchable()
+                    ])->columns(2)
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultPaginationPageOption(5)
             ->columns([
                 TextColumn::make('id')->label('No'),
                 TextColumn::make('name')->label('Nama'),
@@ -121,13 +121,4 @@ class UserResource extends Resource implements HasShieldPermissions
         ];
     }
 
-    public static function getPermissionPrefixes(): array
-    {
-        return [
-            'view_any',
-            'create',
-            'update',
-            'delete',
-        ];
-    }
 }

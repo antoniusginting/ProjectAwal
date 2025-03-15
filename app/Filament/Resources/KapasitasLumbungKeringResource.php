@@ -18,6 +18,10 @@ use Filament\Forms\Components\Card;
 
 class KapasitasLumbungKeringResource extends Resource
 {
+    public static function canAccess(): bool
+    {
+        return false; // Menyembunyikan resource dari sidebar
+    }
     protected static ?string $model = KapasitasLumbungKering::class;
     protected static ?string $navigationGroup = 'Kapasitas';
     protected static ?string $navigationIcon = 'heroicon-o-archive-box-arrow-down';

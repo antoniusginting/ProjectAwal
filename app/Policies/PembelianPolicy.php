@@ -23,7 +23,7 @@ class PembelianPolicy
      */
     public function view(User $user, Pembelian $pembelian): bool
     {
-        return $user->can('{{ View }}');
+        return $user->can('view_pembelian');
     }
 
     /**
@@ -55,7 +55,7 @@ class PembelianPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('{{ DeleteAny }}');
+        return $user->can('delete_any_pembelian');
     }
 
     /**
@@ -63,7 +63,7 @@ class PembelianPolicy
      */
     public function forceDelete(User $user, Pembelian $pembelian): bool
     {
-        return $user->can('{{ ForceDelete }}');
+        return $user->can('force_delete_pembelian');
     }
 
     /**
@@ -71,7 +71,7 @@ class PembelianPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('{{ ForceDeleteAny }}');
+        return $user->can('force_delete_any_pembelian');
     }
 
     /**
@@ -79,7 +79,7 @@ class PembelianPolicy
      */
     public function restore(User $user, Pembelian $pembelian): bool
     {
-        return $user->can('{{ Restore }}');
+        return $user->can('restore_pembelian');
     }
 
     /**
@@ -87,7 +87,7 @@ class PembelianPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('{{ RestoreAny }}');
+        return $user->can('restore_any_pembelian');
     }
 
     /**
@@ -95,7 +95,7 @@ class PembelianPolicy
      */
     public function replicate(User $user, Pembelian $pembelian): bool
     {
-        return $user->can('{{ Replicate }}');
+        return $user->can('replicate_pembelian');
     }
 
     /**
@@ -103,6 +103,6 @@ class PembelianPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('{{ Reorder }}');
+        return $user->can('reorder_pembelian');
     }
 }

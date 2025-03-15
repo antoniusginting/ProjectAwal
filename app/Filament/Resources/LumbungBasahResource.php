@@ -25,7 +25,10 @@ use App\Filament\Resources\LumbungBasahResource\RelationManagers;
 
 class LumbungBasahResource extends Resource
 {
-
+    public static function canAccess(): bool
+    {
+        return false; // Menyembunyikan resource dari sidebar
+    }
     public static function getNavigationSort(): int
     {
         return 2; // Ini akan muncul di atas
@@ -719,6 +722,7 @@ class LumbungBasahResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultPaginationPageOption(5)
             ->columns([
                 TextColumn::make('created_at')->label('Tanggal')
                     ->dateTime('d-m-Y'),

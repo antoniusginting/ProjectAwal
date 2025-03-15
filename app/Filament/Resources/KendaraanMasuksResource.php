@@ -75,7 +75,7 @@ class KendaraanMasuksResource extends Resource
                                     ->placeholder('Kosongkan jika belum keluar')
                                     ->suffixIcon('heroicon-o-clock')
                                     ->required(false)
-                                    ->hidden(fn ($livewire, $state) => $livewire instanceof \Filament\Resources\Pages\ViewRecord && empty($state)) // Sembunyikan jika mode ViewRecord dan masih kosong
+                                    ->hidden(fn($livewire, $state) => $livewire instanceof \Filament\Resources\Pages\ViewRecord && empty($state)) // Sembunyikan jika mode ViewRecord dan masih kosong
                                     ->afterStateHydrated(function ($state, callable $set, $record) {
                                         if ($record && empty($state)) {
                                             $set('jam_keluar', now()->format('H:i:s'));
@@ -96,6 +96,7 @@ class KendaraanMasuksResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultPaginationPageOption(5)
             ->columns([
                 TextColumn::make('created_at')->label('Tanggal')
                     ->dateTime('d-m-Y'),
@@ -125,9 +126,9 @@ class KendaraanMasuksResource extends Resource
                 Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    // Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ]);
     }
 
