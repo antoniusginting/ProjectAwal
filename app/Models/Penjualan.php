@@ -15,7 +15,6 @@ class Penjualan extends Model
         'bruto',
         'tara',
         'netto',
-        'kepemilikan',
         'keterangan',
         'jam_masuk',
         'jam_keluar',

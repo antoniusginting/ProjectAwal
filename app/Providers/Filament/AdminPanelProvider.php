@@ -29,7 +29,7 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->colors([
                 'primary' => '#2424a4',
-    ])
+            ])
             ->brandLogo(asset('storage/logo_cv.png')) // Ganti dengan path logo kamu
             ->favicon(asset('storage/favicon.ico')) // Ambil dari storage
             ->brandLogoHeight('40px')

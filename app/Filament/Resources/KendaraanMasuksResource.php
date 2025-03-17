@@ -2,23 +2,25 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\KendaraanMasuksResource\Pages;
-use App\Filament\Resources\KendaraanMasuksResource\RelationManagers;
-use App\Models\KendaraanMasuks;
 use DateTime;
+use Carbon\Carbon;
 use Filament\Forms;
+use Filament\Tables;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use App\Models\KendaraanMasuks;
+use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
+use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\KendaraanMasuksResource\Pages;
+use App\Filament\Resources\KendaraanMasuksResource\RelationManagers;
 
 class KendaraanMasuksResource extends Resource
 {
@@ -127,8 +129,15 @@ class KendaraanMasuksResource extends Resource
             ])
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                Tables\Actions\DeleteBulkAction::make(),
                 // ]),
+            ])
+            ->filters([
+                Filter::make('Hari Ini')
+                    ->query(
+                        fn(Builder $query) =>
+                        $query->whereDate('created_at', Carbon::today())
+                    ),
             ]);
     }
 

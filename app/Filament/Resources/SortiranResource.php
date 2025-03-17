@@ -9,10 +9,10 @@ use App\Models\Sortiran;
 use Filament\Forms\Form;
 use App\Models\Pembelian;
 use Filament\Tables\Table;
-use Filament\Tables\Actions\Action;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\Log;
 use App\Models\KapasitasLumbungBasah;
@@ -29,6 +29,7 @@ use Filament\Tables\Enums\ActionsPosition;
 use App\Filament\Resources\SortiranResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\SortiranResource\RelationManagers;
+use App\Filament\Resources\SortiranResource\Pages\ViewSortiran;
 
 class SortiranResource extends Resource
 {
@@ -59,7 +60,7 @@ class SortiranResource extends Resource
                                     ->label('No SPB')
                                     ->placeholder('Pilih No SPB Pembelian')
                                     ->options(Pembelian::latest()->with('mobil')->with('supplier')->get()->mapWithKeys(function ($item) {
-                                        return [$item->id => $item->no_spb . ' - Timbangan ' . $item->keterangan . ' - ' . $item->supplier->nama_supplier . ' - ' . $item->mobil->plat_polisi];
+                                        return [$item->id => $item->no_spb . ' - Timbangan ' . $item->keterangan . ' - ' . $item->supplier->nama_supplier . ' - ' . $item->plat_polisi];
                                     }))
                                     ->searchable()
                                     ->required()
@@ -70,7 +71,7 @@ class SortiranResource extends Resource
                                             $pembelian = Pembelian::find($state);
                                             $set('netto_pembelian', $pembelian?->netto ?? 0);
                                             $set('nama_barang', $pembelian?->nama_barang ?? 'Barang tidak ditemukan');
-                                            $set('plat_polisi', $pembelian?->mobil?->plat_polisi ?? 'Plat tidak ditemukan');
+                                            $set('plat_polisi', $pembelian?->plat_polisi ?? 'Plat tidak ditemukan');
                                             $set('nama_supplier', $pembelian?->supplier->nama_supplier ?? 'Supplier tidak ditemukan');
                                         }
                                     })
@@ -78,7 +79,7 @@ class SortiranResource extends Resource
                                         $pembelian = Pembelian::find($state);
                                         $set('netto_pembelian', $pembelian?->netto ?? 0);
                                         $set('nama_barang', $pembelian?->nama_barang ?? 'Barang tidak ditemukan');
-                                        $set('plat_polisi', $pembelian?->mobil?->plat_polisi ?? 'Plat tidak ditemukan');
+                                        $set('plat_polisi', $pembelian?->plat_polisi ?? 'Plat tidak ditemukan');
                                         $set('nama_supplier', $pembelian?->supplier->nama_supplier ?? 'Supplier tidak ditemukan');
                                     }),
 
@@ -172,6 +173,8 @@ class SortiranResource extends Resource
                                             ->required(), // Opsional: Atur default value
                                         FileUpload::make('foto_jagung_1')
                                             ->image()
+                                            ->openable()
+                                            ->imagePreviewHeight(200)
                                             ->label('Foto Jagung'),
                                         Select::make('x1_x10_1')
                                             ->label('X1-X10')
@@ -196,7 +199,6 @@ class SortiranResource extends Resource
                                             ->label('Jumlah Karung')
                                             ->numeric()
                                             ->reactive()
-
                                             ->afterStateUpdated(
                                                 fn($state, $set, $get) =>
                                                 $set(
@@ -232,6 +234,8 @@ class SortiranResource extends Resource
 
                                         FileUpload::make('foto_jagung_2')
                                             ->image()
+                                            ->openable()
+                                            ->imagePreviewHeight(200)
                                             ->label('Foto Jagung'),
                                         Select::make('x1_x10_2')
                                             ->label('X1-X10')
@@ -255,7 +259,6 @@ class SortiranResource extends Resource
                                             ->placeholder('Masukkan Jumlah Karung')
                                             ->label('Jumlah Karung')
                                             ->numeric()
-
                                             ->reactive()
                                             ->afterStateUpdated(
                                                 fn($state, $set, $get) =>
@@ -293,6 +296,8 @@ class SortiranResource extends Resource
 
                                         FileUpload::make('foto_jagung_3')
                                             ->image()
+                                            ->openable()
+                                            ->imagePreviewHeight(200)
                                             ->label('Foto Jagung'),
                                         Select::make('x1_x10_3')
                                             ->label('X1-X10')
@@ -316,7 +321,6 @@ class SortiranResource extends Resource
                                             ->placeholder('Masukkan Jumlah Karung')
                                             ->label('Jumlah Karung')
                                             ->numeric()
-
                                             ->reactive()
                                             ->afterStateUpdated(
                                                 fn($state, $set, $get) =>
@@ -353,6 +357,8 @@ class SortiranResource extends Resource
 
                                         FileUpload::make('foto_jagung_4')
                                             ->image()
+                                            ->openable()
+                                            ->imagePreviewHeight(200)
                                             ->label('Foto Jagung'),
                                         Select::make('x1_x10_4')
                                             ->label('X1-X10')
@@ -376,7 +382,6 @@ class SortiranResource extends Resource
                                             ->placeholder('Masukkan Jumlah Karung')
                                             ->label('Jumlah Karung')
                                             ->numeric()
-
                                             ->reactive()
                                             ->afterStateUpdated(
                                                 fn($state, $set, $get) =>
@@ -396,7 +401,7 @@ class SortiranResource extends Resource
                                             ->label('Tonase')
                                             ->readOnly(),
                                     ])
-                                    ->columnSpan(1)->collapsed(),
+                                    ->columnSpan(1)->collapsible(),
 
                                 // Kualitas Jagung 5
                                 Card::make('Jagung ke-5')
@@ -413,6 +418,8 @@ class SortiranResource extends Resource
 
                                         FileUpload::make('foto_jagung_5')
                                             ->image()
+                                            ->openable()
+                                            ->imagePreviewHeight(200)
                                             ->label('Foto Jagung'),
                                         Select::make('x1_x10_5')
                                             ->label('X1-X10')
@@ -436,7 +443,6 @@ class SortiranResource extends Resource
                                             ->placeholder('Masukkan Jumlah Karung')
                                             ->label('Jumlah Karung')
                                             ->numeric()
-
                                             ->reactive()
                                             ->afterStateUpdated(
                                                 fn($state, $set, $get) =>
@@ -457,7 +463,7 @@ class SortiranResource extends Resource
                                             ->readOnly(),
 
                                     ])
-                                    ->columnSpan(1)->collapsed(),
+                                    ->columnSpan(1)->collapsible(),
 
                                 // Kualitas Jagung 6
                                 Card::make('Jagung ke-6')
@@ -474,6 +480,8 @@ class SortiranResource extends Resource
 
                                         FileUpload::make('foto_jagung_6')
                                             ->image()
+                                            ->openable()
+                                            ->imagePreviewHeight(200)
                                             ->label('Foto Jagung'),
                                         Select::make('x1_x10_6')
                                             ->label('X1-X10')
@@ -497,7 +505,6 @@ class SortiranResource extends Resource
                                             ->placeholder('Masukkan Jumlah Karung')
                                             ->label('Jumlah Karung')
                                             ->numeric()
-
                                             ->reactive()
                                             ->afterStateUpdated(
                                                 fn($state, $set, $get) =>
@@ -517,7 +524,7 @@ class SortiranResource extends Resource
                                             ->readOnly(),
 
                                     ])
-                                    ->columnSpan(1)->collapsed(),
+                                    ->columnSpan(1)->collapsible(),
                             ]),
                         Card::make()
                             ->schema([
@@ -542,7 +549,9 @@ class SortiranResource extends Resource
             ->columns([
                 TextColumn::make('created_at')->label('Tanggal')
                     ->dateTime('d-m-Y'),
-                TextColumn::make('no_sortiran')->label('No Sortiran')->alignCenter(),
+                TextColumn::make('no_sortiran')
+                    ->label('No Sortiran')
+                    ->alignCenter(),
                 TextColumn::make('pembelian.no_spb')->label('No SPB')
                     ->searchable(),
                 TextColumn::make('pembelian.netto')->label('Netto')
@@ -563,7 +572,9 @@ class SortiranResource extends Resource
                 TextColumn::make('kualitas_jagung_1')
                     ->label('Kualitas Jagung 1'),
                 ImageColumn::make('foto_jagung_1')
-                    ->label('Foto Jagung 1'),
+                    ->label('Foto Jagung 1')
+                    ->url(fn($record) => asset('storage/' . $record->foto_jagung_1))
+                    ->openUrlInNewTab(),
                 TextColumn::make('x1_x10_1')
                     ->label('X1 - X10 1')
                     ->alignCenter(),
@@ -577,7 +588,8 @@ class SortiranResource extends Resource
                 TextColumn::make('kualitas_jagung_2')
                     ->label('Kualitas Jagung 2'),
                 ImageColumn::make('foto_jagung_2')
-                    ->label('Foto Jagung 2'),
+                    ->url(fn($record) => asset('storage/' . $record->foto_jagung_2))
+                    ->openUrlInNewTab(),
                 TextColumn::make('x1_x10_2')
                     ->label('X1 - X10 2')
                     ->alignCenter(),
@@ -591,7 +603,8 @@ class SortiranResource extends Resource
                 TextColumn::make('kualitas_jagung_3')
                     ->label('Kualitas Jagung 3'),
                 ImageColumn::make('foto_jagung_3')
-                    ->label('Foto Jagung 3'),
+                    ->url(fn($record) => asset('storage/' . $record->foto_jagung_3))
+                    ->openUrlInNewTab(),
                 TextColumn::make('x1_x10_3')
                     ->label('X1 - X10 3')
                     ->alignCenter(),
@@ -604,7 +617,8 @@ class SortiranResource extends Resource
                 TextColumn::make('kualitas_jagung_4')
                     ->label('Kualitas Jagung 4'),
                 ImageColumn::make('foto_jagung_4')
-                    ->label('Foto Jagung 4'),
+                    ->url(fn($record) => asset('storage/' . $record->foto_jagung_4))
+                    ->openUrlInNewTab(),
                 TextColumn::make('x1_x10_4')
                     ->label('X1 - X10 4')
                     ->alignCenter(),
@@ -617,7 +631,8 @@ class SortiranResource extends Resource
                 TextColumn::make('kualitas_jagung_5')
                     ->label('Kualitas Jagung 5'),
                 ImageColumn::make('foto_jagung_5')
-                    ->label('Foto Jagung 5'),
+                    ->url(fn($record) => asset('storage/' . $record->foto_jagung_5))
+                    ->openUrlInNewTab(),
                 TextColumn::make('x1_x10_5')
                     ->label('X1 - X10 5')
                     ->alignCenter(),
@@ -630,7 +645,8 @@ class SortiranResource extends Resource
                 TextColumn::make('kualitas_jagung_6')
                     ->label('Kualitas Jagung 6'),
                 ImageColumn::make('foto_jagung_6')
-                    ->label('Foto Jagung 6'),
+                    ->url(fn($record) => asset('storage/' . $record->foto_jagung_6))
+                    ->openUrlInNewTab(),
                 TextColumn::make('x1_x10_6')
                     ->label('X1 - X10 6')
                     ->alignCenter(),
@@ -647,12 +663,6 @@ class SortiranResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Action::make('viewImage')
-                    ->label('Lihat Gambar')
-                    ->modalSubmitAction(false) // Menghilangkan tombol "Kirim"
-                    ->modalCancelAction(false) // Menghilangkan tombol "Batal"
-                    ->modalHeading('Pratinjau Gambar')
-                    ->modalContent(fn($record) => view('filament.components.image-modal', ['gambar' => asset('storage/' . $record->foto_jagung_1)])),
             ], position: ActionsPosition::BeforeColumns)
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([

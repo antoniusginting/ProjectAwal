@@ -8,13 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class Pembelian extends Model
 {
     protected $fillable = [
-        'id_mobil', // Foreing key ke mobils
+        // 'id_mobil', // Foreing key ke mobils
+        'plat_polisi',
         'id_supplier', // Forein key ke suppliers
         'nama_supir',
         'nama_barang',
         'no_container',
         'brondolan',
-        'kepemilikan',
         'bruto',
         'tara',
         'netto',

@@ -68,7 +68,6 @@ class SupplierResource extends Resource
         
                             TextInput::make('npwp')
                                 ->label('NPWP')
-                                ->required()
                                 ->numeric()
                                 ->placeholder('Masukkan NPWP'),
         

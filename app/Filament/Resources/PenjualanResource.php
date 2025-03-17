@@ -174,8 +174,6 @@ class PenjualanResource extends Resource
                     ->searchable(),
                 TextColumn::make('keterangan')
                     ->searchable(),
-                TextColumn::make('kepemilikan')
-                    ->searchable(),
                 TextColumn::make('brondolan'),
                 TextColumn::make('bruto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
@@ -183,8 +181,6 @@ class PenjualanResource extends Resource
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('netto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                TextColumn::make('kepemilikan')
-                    ->searchable(),
                 TextColumn::make('jam_masuk'),
                 TextColumn::make('jam_keluar'),
                 TextColumn::make('no_lumbung'),

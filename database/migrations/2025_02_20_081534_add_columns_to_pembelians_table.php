@@ -18,7 +18,6 @@ return new class extends Migration
             $table->integer('bruto');
             $table->integer('tara')->nullable();
             $table->integer('netto')->nullable();
-            $table->string('kepemilikan'); // Kolom untuk kepemilikan
             $table->string('keterangan')->nullable();
             $table->string('no_po');
             $table->time('jam_masuk');

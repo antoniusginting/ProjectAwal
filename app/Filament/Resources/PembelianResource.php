@@ -55,7 +55,6 @@ class PembelianResource extends Resource
                         //     }),
                         Placeholder::make('next_id')
                             ->label('No SPB')
-                            ->columnSpan(2)
                             ->content(function ($record) {
                                 // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
                                 if ($record) {
@@ -77,6 +76,8 @@ class PembelianResource extends Resource
                             ->placeholder(now()->format('d-m-Y')) // Tampilkan di input
                             ->disabled(), // Tidak bisa diedit
 
+                        TextInput::make('plat_polisi')
+                            ->placeholder('Masukkan plat polisi'),
                         TextInput::make('bruto')
                             ->label('Bruto')
                             ->numeric()
@@ -87,13 +88,14 @@ class PembelianResource extends Resource
                                 $tara = $get('tara') ?? 0;
                                 $set('netto', max(0, intval($state) - intval($tara))); // Hitung netto
                             }),
-
-                        Select::make('id_mobil')
-                            ->label('Plat Polisi')
-                            ->options(Mobil::pluck('plat_polisi', 'id')) // Ambil daftar mobil
-                            ->searchable() // Biar bisa cari
-                            ->required(), // Wajib diisi
-
+                        // Nanti dipakai
+                        // Select::make('id_mobil')
+                        //     ->label('Plat Polisi')
+                        //     ->options(Mobil::pluck('plat_polisi', 'id')) // Ambil daftar mobil
+                        //     ->searchable() // Biar bisa cari
+                        //     ->required(), // Wajib diisi
+                        TextInput::make('nama_supir')
+                            ->placeholder('Masukkan Nama Supir'),
                         TextInput::make('tara')
                             ->label('Tara')
                             ->placeholder('Masukkan Nilai Tara')
@@ -104,17 +106,21 @@ class PembelianResource extends Resource
                                 $set('netto', max(0, intval($bruto) - intval($state)));
                             }),
 
-                        TextInput::make('nama_supir')
-                            ->placeholder('Masukkan Nama Supir'),
+                        TextInput::make('nama_barang')
+                            ->placeholder('Masukkan Nama Barang'),
 
                         TextInput::make('netto')
                             ->label('Netto')
                             ->readOnly()
                             ->placeholder('Otomatis Terhitung')
                             ->numeric(),
+                        Select::make('id_supplier')
+                            ->label('Supplier')
+                            ->placeholder('Pilih Supplier')
+                            ->options(Supplier::pluck('nama_supplier', 'id')) // Ambil daftar mobil
+                            ->searchable() // Biar bisa cari
+                            ->required(), // Wajib diisi
 
-                        TextInput::make('nama_barang')
-                            ->placeholder('Masukkan Nama Barang'),
                         Select::make('keterangan') // Gantilah 'tipe' dengan nama field di database
                             ->label('Timbangan ke-')
                             ->options([
@@ -128,23 +134,18 @@ class PembelianResource extends Resource
                             // ->inlineLabel() // Membuat label sebelah kiri
                             ->native(false) // Mengunakan dropdown modern
                             ->required(), // Opsional: Atur default value
-                        Select::make('kepemilikan')
-                            ->label('Kepemilikan kendaraan')
-                            ->options([
-                                'Milik Sendiri' => 'Milik Sendiri',
-                                'Minjam' => 'Minjam',
-                            ])
-                            ->placeholder('Pilih Status Kepemilikan')
-                            // ->inlineLabel() // Membuat label sebelah kiri
-                            ->native(false) // Mengunakan dropdown modern
-                            ->required(), // Opsional: Atur default value,
+                        // Select::make('kepemilikan')
+                        //     ->label('Kepemilikan kendaraan')
+                        //     ->options([
+                        //         'Milik Sendiri' => 'Milik Sendiri',
+                        //         'Minjam' => 'Minjam',
+                        //     ])
+                        //     ->placeholder('Pilih Status Kepemilikan')
+                        //     // ->inlineLabel() // Membuat label sebelah kiri
+                        //     ->native(false) // Mengunakan dropdown modern
+                        //     ->required(), // Opsional: Atur default value,
 
-                        Select::make('id_supplier')
-                            ->label('Supplier')
-                            ->placeholder('Pilih Supplier')
-                            ->options(Supplier::pluck('nama_supplier', 'id')) // Ambil daftar mobil
-                            ->searchable() // Biar bisa cari
-                            ->required(), // Wajib diisi
+
 
                         //     Select::make('id_supplier')
                         //     ->label('Pilih Supplier')
@@ -196,7 +197,7 @@ class PembelianResource extends Resource
                     ->searchable()
                     ->copyable()
                     ->copyMessage('berhasil menyalin'),
-                TextColumn::make('mobil.plat_polisi')->label('Plat Polisi')
+                TextColumn::make('plat_polisi')->label('Plat Polisi')
                     ->searchable(),
                 TextColumn::make('nama_supir')
                     ->searchable(),
@@ -218,7 +219,6 @@ class PembelianResource extends Resource
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('netto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                TextColumn::make('kepemilikan'),
                 TextColumn::make('jam_masuk'),
                 TextColumn::make('jam_keluar'),
 
@@ -234,7 +234,7 @@ class PembelianResource extends Resource
             ])
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                Tables\Actions\DeleteBulkAction::make(),
                 // ]),
             ])
             ->filters([
@@ -261,5 +261,4 @@ class PembelianResource extends Resource
             'edit' => Pages\EditPembelian::route('/{record}/edit'),
         ];
     }
-
 }
