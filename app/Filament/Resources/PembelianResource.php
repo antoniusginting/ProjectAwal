@@ -73,7 +73,7 @@ class PembelianResource extends Resource
 
                         TextInput::make('created_at')
                             ->label('Tanggal')
-                            ->placeholder(now()->format('d-m-Y')) // Tampilkan di input
+                            ->formatStateUsing(fn($state) => \Carbon\Carbon::parse($state)->format('d-m-Y'))
                             ->disabled(), // Tidak bisa diedit
 
                         TextInput::make('plat_polisi')

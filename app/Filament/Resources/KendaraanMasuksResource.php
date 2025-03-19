@@ -41,58 +41,65 @@ class KendaraanMasuksResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                Card::make()
-                    ->schema([
-                        Grid::make()
-                            ->schema([
-                                Select::make('status')
-                                    ->label('Status')
-                                    ->options([
-                                        'Tamu' => 'Tamu',
-                                        'Supplier' => 'Supplier',
-                                    ])
-                                    ->placeholder('Pilih Status')
-                                    ->native(false)
-                                    ->required(),
-
-                                TextInput::make('nama_sup_per')
-                                    ->placeholder('Masukkan nama supplier atau perusahaan'),
-
-                                TextInput::make('plat_polisi')
-                                    ->placeholder('Masukkan plat polisi'),
-
-                                TextInput::make('nama_barang')
-                                    ->placeholder('Masukkan nama barang'),
-
-
-                                TextInput::make('jam_masuk')
-                                    ->readOnly()
-                                    ->suffixIcon('heroicon-o-clock')
-                                    ->default(now()->format('H:i')),
-
-                                TextInput::make('jam_keluar')
-                                    ->label('Jam Keluar')
-                                    ->readOnly()
-                                    ->placeholder('Kosongkan jika belum keluar')
-                                    ->suffixIcon('heroicon-o-clock')
-                                    ->required(false)
-                                    ->hidden(fn($livewire, $state) => $livewire instanceof \Filament\Resources\Pages\ViewRecord && empty($state)) // Sembunyikan jika mode ViewRecord dan masih kosong
-                                    ->afterStateHydrated(function ($state, callable $set, $record) {
-                                        if ($record && empty($state)) {
-                                            $set('jam_keluar', now()->format('H:i:s'));
-                                        }
-                                    }),
-
-                                Textarea::make('keterangan')
-                                    ->placeholder('Masukkan Keterangan')
-                                    ->columnSpan(2),
-                            ])
-                            ->columns([
-                                'sm' => 1,       // Mobile: 1 kolom
-                            ]),
-                    ]),
+        ->schema([
+            Card::make()
+                ->schema([
+                    Grid::make()
+                        ->schema([
+                            Select::make('status')
+                                ->label('Status')
+                                ->options([
+                                    'Tamu' => 'Tamu',
+                                    'Supplier' => 'Supplier',
+                                ])
+                                ->placeholder('Pilih Status')
+                                ->native(false)
+                                ->required()
+                                ->columnSpan(1),
+        
+                            TextInput::make('nama_sup_per')
+                                ->placeholder('Masukkan nama supplier atau perusahaan')
+                                ->columnSpan(1),
+        
+                            TextInput::make('plat_polisi')
+                                ->placeholder('Masukkan plat polisi')
+                                ->columnSpan(1),
+        
+                            TextInput::make('nama_barang')
+                                ->placeholder('Masukkan nama barang')
+                                ->columnSpan(1),
+        
+                            TextInput::make('jam_masuk')
+                                ->readOnly()
+                                ->suffixIcon('heroicon-o-clock')
+                                ->default(now()->format('H:i'))
+                                ->columnSpan(1),
+        
+                            TextInput::make('jam_keluar')
+                                ->label('Jam Keluar')
+                                ->readOnly()
+                                ->placeholder('Kosongkan jika belum keluar')
+                                ->suffixIcon('heroicon-o-clock')
+                                ->required(false)
+                                ->hidden(fn($livewire, $state) => $livewire instanceof \Filament\Resources\Pages\ViewRecord && empty($state))
+                                ->afterStateHydrated(function ($state, callable $set, $record) {
+                                    if ($record && empty($state)) {
+                                        $set('jam_keluar', now()->format('H:i:s'));
+                                    }
+                                })
+                                ->columnSpan(1),
+        
+                            Textarea::make('keterangan')
+                                ->placeholder('Masukkan Keterangan')
+                                ->columnSpanFull(), // Tetap 1 kolom penuh di semua ukuran layar
+                        ])
+                        ->columns([
+                            'sm' => 1,  // Mobile: 1 kolom
+                            'md' => 2,  // Tablet & Desktop: 2 kolom
+                        ]),
+                ]),
             ]);
+        
     }
 
     public static function table(Table $table): Table

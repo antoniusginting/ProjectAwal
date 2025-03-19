@@ -107,10 +107,10 @@ class SortiranResource extends Resource
                                     ->placeholder('Masukkan Total Karung')
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, $set, $get) {
-                                        $netto = floatval($get('netto_pembelian') ?? 1); // Pastikan float
-                                        $totalKarung = floatval($state ?: 1); // Jangan biarkan nol
+                                        $netto = floatval($get('netto_pembelian') ?? 1); // Pastikan dalam float
+                                        $totalKarung = floatval($state ?: 1); // Jangan biarkan nol untuk menghindari pembagian dengan nol
 
-                                        // Jika total_karung kosong, reset semua tonase
+                                        // Jika total_karung kosong, reset semua nilai tonase
                                         if (empty($state)) {
                                             foreach (range(1, 6) as $i) {
                                                 $set("tonase_$i", null);
@@ -118,17 +118,20 @@ class SortiranResource extends Resource
                                             return;
                                         }
 
-                                        // Hitung tonase dengan skala besar
                                         foreach (range(1, 6) as $i) {
                                             $jumlahKarung = floatval($get("jumlah_karung_$i") ?? 0);
-                                            $tonase = ($jumlahKarung * $netto) / $totalKarung; // Ubah skala
-                                            $set("tonase_$i", floatval($tonase));  // Simpan float asli dalam skala besar
-
+                                            $tonase = (($jumlahKarung * $netto) / $totalKarung) * 1000; // Hitung nilai dalam kilogram
+                                            // Tentukan jumlah angka desimal yang diinginkan, misalnya 3
+                                            $precision = 3;
+                                            // Bulatkan tonase ke presisi yang diinginkan
+                                            $roundedTonase = round($tonase, $precision);
+                                            // Format tonase yang sudah dibulatkan: menggunakan koma sebagai desimal dan titik sebagai pemisah ribuan
+                                            $formattedTonase = number_format($roundedTonase, $precision, ',', '.');
+                                            $set("tonase_$i", $formattedTonase);
                                         }
+                                        
+                                        
                                     }),
-
-
-
                             ])->columns(2),
                     ])
                     ->collapsible(),
@@ -662,7 +665,11 @@ class SortiranResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                // Tables\Actions\ViewAction::make(),
+                Tables\Actions\Action::make('View')
+                    ->label(__("Lihat"))
+                    ->icon('heroicon-o-eye')
+                    ->url(fn($record)=>self::getUrl("view-sortiran",['record' => $record->id])),
             ], position: ActionsPosition::BeforeColumns)
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([
@@ -691,6 +698,7 @@ class SortiranResource extends Resource
             'index' => Pages\ListSortirans::route('/'),
             'create' => Pages\CreateSortiran::route('/create'),
             'edit' => Pages\EditSortiran::route('/{record}/edit'),
+            'view-sortiran' => Pages\ViewSortiran::route('/{record}/view-sortiran'),
         ];
     }
 }
