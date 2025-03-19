@@ -26,7 +26,11 @@ class ViewSortiran extends Page
             Action::make('print')
             ->label(__("print"))
             ->icon('heroicon-o-printer')
-            ->requiresConfirmation()
+            ->url(route("PRINT.SORTIRAN",['id'=>$this->record]))
+            ->extraAttributes([
+                'onclick' => "if(confirm('Apakah Anda yakin ingin mencetak?')) { window.open('" . route("PRINT.SORTIRAN", ['id' => $this->record]) . "', '_blank'); }"
+            ])
+            ->openUrlInNewTab()
         ];
     }
 

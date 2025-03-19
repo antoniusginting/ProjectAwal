@@ -129,8 +129,6 @@ class SortiranResource extends Resource
                                             $formattedTonase = number_format($roundedTonase, $precision, ',', '.');
                                             $set("tonase_$i", $formattedTonase);
                                         }
-                                        
-                                        
                                     }),
                             ])->columns(2),
                     ])
@@ -214,6 +212,9 @@ class SortiranResource extends Resource
                                                         (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
+                                        TextInput::make('total_karung')
+                                            ->label('Total Karung sekarang')
+                                            ->disabled(),
 
                                         TextInput::make('tonase_1')
                                             ->placeholder('Otomatis Terisi Tonase')
@@ -275,7 +276,9 @@ class SortiranResource extends Resource
                                                         (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
-
+                                            TextInput::make('total_karung')
+                                            ->label('Total Karung sekarang')
+                                            ->disabled(),
                                         TextInput::make('tonase_2')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')
@@ -337,6 +340,9 @@ class SortiranResource extends Resource
                                                         (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
+                                            TextInput::make('total_karung')
+                                            ->label('Total Karung sekarang')
+                                            ->disabled(),
 
                                         TextInput::make('tonase_3')
                                             ->placeholder('Otomatis Terisi Tonase')
@@ -398,6 +404,9 @@ class SortiranResource extends Resource
                                                         (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
+                                            TextInput::make('total_karung')
+                                            ->label('Total Karung sekarang')
+                                            ->disabled(),
 
                                         TextInput::make('tonase_4')
                                             ->placeholder('Otomatis Terisi Tonase')
@@ -460,11 +469,13 @@ class SortiranResource extends Resource
                                                 )
                                             ),
 
+                                            TextInput::make('total_karung')
+                                            ->label('Total Karung sekarang')
+                                            ->disabled(),
                                         TextInput::make('tonase_5')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')
                                             ->readOnly(),
-
                                     ])
                                     ->columnSpan(1)->collapsible(),
 
@@ -521,11 +532,13 @@ class SortiranResource extends Resource
                                                         (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
+                                            TextInput::make('total_karung')
+                                                ->label('Total Karung sekarang')
+                                                ->disabled(),
                                         TextInput::make('tonase_6')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')
                                             ->readOnly(),
-
                                     ])
                                     ->columnSpan(1)->collapsible(),
                             ]),
@@ -669,7 +682,7 @@ class SortiranResource extends Resource
                 Tables\Actions\Action::make('View')
                     ->label(__("Lihat"))
                     ->icon('heroicon-o-eye')
-                    ->url(fn($record)=>self::getUrl("view-sortiran",['record' => $record->id])),
+                    ->url(fn($record) => self::getUrl("view-sortiran", ['record' => $record->id])),
             ], position: ActionsPosition::BeforeColumns)
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([

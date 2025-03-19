@@ -1,5 +1,6 @@
 <x-filament-panels::page>
     <div class="p-6 bg-white max-w-4xl mx-auto shadow rounded-lg">
+       
         <!-- Responsive Card Using Tailwind CSS -->
         <div class="max-w-4xl mx-auto px-4 py-6">
             <div class="bg-white shadow-lg rounded-xl overflow-hidden">
@@ -98,7 +99,7 @@
                         @endphp
                         <tr>
                             <td class="border px-4 py-2 text-center">{{ $i }}</td>
-                            <td class="border px-4 py-2">{{ $sortiran["jenis_jagung_$i"] ?? '-' }}</td>
+                            <td class="border px-4 py-2">{{ $sortiran["kualitas_jagung_$i"] ?? '-' }}</td>
                             <td class="border px-4 py-2">{{ $sortiran["x1_x10_$i"] ?? '-' }}</td>
                             <td class="border px-4 py-2 text-center">{{ $jumlah_karung }}</td>
                             <td class="border px-4 py-2 text-center"> {{ number_format($tonase, 3, ',', '.') }}</td>
