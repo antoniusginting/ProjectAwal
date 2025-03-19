@@ -104,6 +104,7 @@ class SortiranResource extends Resource
                                 TextInput::make('total_karung')
                                     ->label('Total Karung')
                                     ->numeric()
+                                    ->helperText('Keterangan : Ketik ulang total karung hanya pada menu ubah Sortiran')
                                     ->placeholder('Masukkan Total Karung')
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, $set, $get) {
@@ -212,9 +213,7 @@ class SortiranResource extends Resource
                                                         (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
-                                        TextInput::make('total_karung')
-                                            ->label('Total Karung sekarang')
-                                            ->disabled(),
+                                        
 
                                         TextInput::make('tonase_1')
                                             ->placeholder('Otomatis Terisi Tonase')
@@ -276,9 +275,7 @@ class SortiranResource extends Resource
                                                         (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
-                                            TextInput::make('total_karung')
-                                            ->label('Total Karung sekarang')
-                                            ->disabled(),
+                                            
                                         TextInput::make('tonase_2')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')
@@ -340,9 +337,7 @@ class SortiranResource extends Resource
                                                         (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
-                                            TextInput::make('total_karung')
-                                            ->label('Total Karung sekarang')
-                                            ->disabled(),
+                                            
 
                                         TextInput::make('tonase_3')
                                             ->placeholder('Otomatis Terisi Tonase')
@@ -404,9 +399,7 @@ class SortiranResource extends Resource
                                                         (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
-                                            TextInput::make('total_karung')
-                                            ->label('Total Karung sekarang')
-                                            ->disabled(),
+                                            
 
                                         TextInput::make('tonase_4')
                                             ->placeholder('Otomatis Terisi Tonase')
@@ -469,9 +462,7 @@ class SortiranResource extends Resource
                                                 )
                                             ),
 
-                                            TextInput::make('total_karung')
-                                            ->label('Total Karung sekarang')
-                                            ->disabled(),
+                                            
                                         TextInput::make('tonase_5')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')
@@ -532,9 +523,6 @@ class SortiranResource extends Resource
                                                         (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
-                                            TextInput::make('total_karung')
-                                                ->label('Total Karung sekarang')
-                                                ->disabled(),
                                         TextInput::make('tonase_6')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')
@@ -678,7 +666,7 @@ class SortiranResource extends Resource
                 //
             ])
             ->actions([
-                // Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('View')
                     ->label(__("Lihat"))
                     ->icon('heroicon-o-eye')
