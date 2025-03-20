@@ -9,6 +9,8 @@ class Sortiran extends Model
     protected $fillable = [
         'id_pembelian',
         'no_lumbung',
+        'berat_tungkul',
+        'netto_bersih',
         'kualitas_jagung_1',
         'foto_jagung_1',
         'x1_x10_1',

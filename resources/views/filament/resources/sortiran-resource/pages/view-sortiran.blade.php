@@ -1,58 +1,66 @@
 <x-filament-panels::page>
-    <div class="p-6 bg-white max-w-4xl mx-auto shadow rounded-lg">
+    <div class="p-6 bg-white dark:bg-gray-800 max-w-4xl mx-auto shadow rounded-lg">
        
         <!-- Responsive Card Using Tailwind CSS -->
         <div class="max-w-4xl mx-auto px-4 py-6">
-            <div class="bg-white shadow-lg rounded-xl overflow-hidden">
+            <div class="bg-white dark:bg-gray-900 shadow-lg rounded-xl overflow-hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
                     <!-- Kolom Kiri -->
                     <div class="space-y-4">
                         <div class="flex items-center">
-                            <p class="w-32 font-semibold text-gray-800">No SPB</p>
-                            <p class="text-gray-600">: {{ $sortiran->pembelian->no_spb }}</p>
+                            <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">No SPB</p>
+                            <p class="text-gray-600 dark:text-gray-400">: {{ $sortiran->pembelian->no_spb }}</p>
                         </div>
                         <div class="flex items-center">
-                            <p class="w-32 font-semibold text-gray-800">Supplier</p>
-                            <p class="text-gray-600">: {{ $sortiran->pembelian->supplier->nama_supplier }}</p>
+                            <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Supplier</p>
+                            <p class="text-gray-600 dark:text-gray-400">: {{ $sortiran->pembelian->supplier->nama_supplier }}</p>
                         </div>
                         <div class="flex items-center">
-                            <p class="w-32 font-semibold text-gray-800">Plat Polisi</p>
-                            <p class="text-gray-600">
+                            <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Plat Polisi</p>
+                            <p class="text-gray-600 dark:text-gray-400">
                                 <a href="#" class="text-blue-500 hover:underline">
                                     : {{ $sortiran->pembelian->plat_polisi }}
                                 </a>
                             </p>
                         </div>
                         <div class="flex items-center">
-                            <p class="w-32 font-semibold text-gray-800">Kadar Air</p>
-                            <p class="text-gray-600">: {{ $sortiran->kadar_air }}%</p>
+                            <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Kadar Air</p>
+                            <p class="text-gray-600 dark:text-gray-400">: {{ $sortiran->kadar_air }}%</p>
                         </div>
                         <div class="flex items-center">
-                            <p class="w-32 font-semibold text-gray-800">Tanggal</p>
-                            <p class="text-gray-600">: {{ $sortiran->created_at }}</p>
+                            <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Tanggal</p>
+                            <p class="text-gray-600 dark:text-gray-400">: {{ $sortiran->created_at }}</p>
+                        </div>
+                        <div class="flex items-center">
+                            <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Berat Tungkul</p>
+                            <p class="text-gray-600 dark:text-gray-400">: {{ $sortiran->berat_tungkul }}</p>
                         </div>
                     </div>
                     <!-- Kolom Kanan -->
                     <div class="space-y-4">
                         <div class="flex items-center">
-                            <p class="w-32 font-semibold text-gray-800">Bruto</p>
-                            <p class="text-gray-600">: {{ number_format($sortiran->bruto ?? 19000, 0, ',', '.') }}</p>
+                            <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Bruto</p>
+                            <p class="text-gray-600 dark:text-gray-400">: {{ number_format($sortiran->pembelian->bruto, 0, ',', '.') }}</p>
                         </div>
                         <div class="flex items-center">
-                            <p class="w-32 font-semibold text-gray-800">Tara</p>
-                            <p class="text-gray-600">: {{ number_format($sortiran->tara ?? 4000, 0, ',', '.') }}</p>
+                            <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Tara</p>
+                            <p class="text-gray-600 dark:text-gray-400">: {{ number_format($sortiran->pembelian->tara, 0, ',', '.') }}</p>
                         </div>
                         <div class="flex items-center">
-                            <p class="w-32 font-semibold text-gray-800">Netto</p>
-                            <p class="text-gray-600">: {{ number_format($sortiran->netto ?? 15000, 0, ',', '.') }}</p>
+                            <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Netto</p>
+                            <p class="text-gray-600 dark:text-gray-400">: {{ number_format($sortiran->pembelian->netto, 0, ',', '.') }}</p>
                         </div>
                         <div class="flex items-center">
-                            <p class="w-32 font-semibold text-gray-800">Timbangan</p>
-                            <p class="text-gray-600">: ke - {{ $sortiran->pembelian->keterangan }}</p>
+                            <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Timbangan</p>
+                            <p class="text-gray-600 dark:text-gray-400">: ke - {{ $sortiran->pembelian->keterangan }}</p>
                         </div>
                         <div class="flex items-center">
-                            <p class="w-32 font-semibold text-gray-800">Lumbung Basah</p>
-                            <p class="text-gray-600">: {{ $sortiran->no_lumbung }}</p>
+                            <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Lumbung Basah</p>
+                            <p class="text-gray-600 dark:text-gray-400">: {{ $sortiran->no_lumbung }}</p>
+                        </div>
+                        <div class="flex items-center">
+                            <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Netto Bersih</p>
+                            <p class="text-gray-600 dark:text-gray-400">: {{ $sortiran->netto_bersih }}</p>
                         </div>
                     </div>
                 </div>
@@ -62,7 +70,7 @@
         <div class="mt-2 mb-2 border-t pt-2">
             <table class="w-full border-collapse border mt-2">
                 <thead>
-                    <tr class="bg-gray-100">
+                    <tr class="bg-gray-100 dark:bg-gray-700">
                         <th class="border px-4 py-2">No</th>
                         <th class="border px-4 py-2">Jenis Kualitas Jagung</th>
                         <th class="border px-4 py-2">Silang Jagung</th>
@@ -71,7 +79,6 @@
                     </tr>
                 </thead>
                 <tbody>
-
                     @php
                         $total_karung = 0;
                         $total_tonase = 0;
@@ -82,7 +89,7 @@
                             $tonase =
                                 $jumlah_karung > 0
                                     ? floatval(
-                                        str_replace(',', '.', str_replace('.', '', $sortiran["tonase_$i"] ?? '0')),
+                                        str_replace(',', '.', str_replace('.', '', $sortiran["tonase_$i"] ?? '0'))
                                     )
                                     : 0;
                         @endphp
@@ -102,12 +109,12 @@
                             <td class="border px-4 py-2">{{ $sortiran["kualitas_jagung_$i"] ?? '-' }}</td>
                             <td class="border px-4 py-2">{{ $sortiran["x1_x10_$i"] ?? '-' }}</td>
                             <td class="border px-4 py-2 text-center">{{ $jumlah_karung }}</td>
-                            <td class="border px-4 py-2 text-center"> {{ number_format($tonase, 3, ',', '.') }}</td>
+                            <td class="border px-4 py-2 text-center">{{ number_format($tonase, 0, ',', '.') }}</td>
                         </tr>
                     @endfor
 
                     {{-- Baris Total --}}
-                    <tr class="bg-gray-200 font-semibold">
+                    <tr class="bg-gray-200 dark:bg-gray-600 font-semibold">
                         <td colspan="3" class="border px-4 py-2 text-center">Total</td>
                         <td class="border px-4 py-2 text-center">{{ $total_karung }}</td>
                         <td class="border px-4 py-2 text-center">{{ number_format($total_tonase, 0, ',', '.') }}</td>

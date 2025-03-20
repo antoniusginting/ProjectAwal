@@ -22,6 +22,8 @@ return new class extends Migration
 
             $table->integer('no_lumbung');
             $table->integer('total_karung');
+            $table->integer('berat_tungkul');
+            $table->integer('berat_bersih');
             // Data kualitas jagung 1
             $table->string('kualitas_jagung_1');
             $table->string('foto_jagung_1')->nullable();

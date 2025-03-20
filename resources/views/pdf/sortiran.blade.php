@@ -107,19 +107,19 @@ tr.total {
                     <td>No SPB</td>
                     <td>: {{ $sortiran->pembelian->no_spb }}</td>
                     <td>Bruto</td>
-                    <td>: {{ number_format($sortiran->bruto ?? 19000, 0, ',', '.') }}</td>
+                    <td>: {{ number_format($sortiran->pembelian->bruto, 0, ',', '.') }}</td>
                 </tr>
                 <tr>
                     <td>Supplier</td>
                     <td>: {{ $sortiran->pembelian->supplier->nama_supplier }}</td>
                     <td>Tara</td>
-                    <td>: {{ number_format($sortiran->tara ?? 4000, 0, ',', '.') }}</td>
+                    <td>: {{ number_format($sortiran->pembelian->tara, 0, ',', '.') }}</td>
                 </tr>
                 <tr>
                     <td>Plat Polisi</td>
                     <td>: {{ $sortiran->pembelian->plat_polisi }}</td>
                     <td>Netto</td>
-                    <td>: {{ number_format($sortiran->netto ?? 15000, 0, ',', '.') }}</td>
+                    <td>: {{ number_format($sortiran->pembelian->netto, 0, ',', '.') }}</td>
                 </tr>
                 <tr>
                     <td>Kadar Air</td>
@@ -132,6 +132,12 @@ tr.total {
                     <td>: {{ $sortiran->created_at }}</td>
                     <td>Lumbung Basah</td>
                     <td>: {{ $sortiran->no_lumbung }}</td>
+                </tr>
+                <tr>
+                    <td>Berat Tungkul</td>
+                    <td>: {{ $sortiran->berat_tungkul }}</td>
+                    <td>Netto Bersih</td>
+                    <td>: {{ $sortiran->netto_bersih }}</td>
                 </tr>
             </tbody>
         </table>
