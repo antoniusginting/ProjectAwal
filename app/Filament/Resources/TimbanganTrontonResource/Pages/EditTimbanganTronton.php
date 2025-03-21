@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Filament\Resources\SupplierResource\Pages;
+namespace App\Filament\Resources\TimbanganTrontonResource\Pages;
 
-use App\Filament\Resources\SupplierResource;
 use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
+use App\Filament\Resources\TimbanganTrontonResource;
 
-class EditSupplier extends EditRecord
+class EditTimbanganTronton extends EditRecord
 {
-    protected static string $resource = SupplierResource::class;
+    protected static string $resource = TimbanganTrontonResource::class;
 
     protected function getHeaderActions(): array
     {

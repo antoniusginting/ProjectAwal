@@ -261,8 +261,6 @@ class SortiranResource extends Resource
                                                         (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
-
-
                                         TextInput::make('tonase_1')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')

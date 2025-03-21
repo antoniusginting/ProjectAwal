@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Penjualan extends Model
 {
     protected $fillable = [
-        'id_mobil', // Foreing key ke mobils
+        //'id_mobil', // Foreing key ke mobils
+        'no_container',
+        'plat_polisi',
         'id_supplier', // Forein key ke suppliers
         'nama_supir',
         'nama_barang',

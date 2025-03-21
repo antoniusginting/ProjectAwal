@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use App\Filament\Resources\PenjualanResource\Pages;
 
-class PenjualanResource extends Resource 
+class PenjualanResource extends Resource
 {
     // public static function getNavigationBadge(): ?string
     // {
@@ -73,12 +73,16 @@ class PenjualanResource extends Resource
                         TextInput::make('nama_lumbung')
                             ->placeholder('Masukkan Nama Lumbung')
                             ->required(),
-                        Select::make('id_mobil')
-                            ->label('Plat Polisi')
-                            ->placeholder('Pilih Plat Polisi')
-                            ->options(Mobil::pluck('plat_polisi', 'id')) // Ambil daftar mobil
-                            ->searchable() // Biar bisa cari
-                            ->required(), // Wajib diisi
+
+                        TextInput::make('plat_polisi')
+                            ->suffixIcon('heroicon-o-truck')
+                            ->placeholder('Masukkan plat polisi'),
+                        // Select::make('id_mobil')
+                        //     ->label('Plat Polisi')
+                        //     ->placeholder('Pilih Plat Polisi')
+                        //     ->options(Mobil::pluck('plat_polisi', 'id')) // Ambil daftar mobil
+                        //     ->searchable() // Biar bisa cari
+                        //     ->required(), // Wajib diisi
                         TextInput::make('no_lumbung')
                             ->placeholder('Masukkan No Lumbung')
                             ->required(),
@@ -129,8 +133,19 @@ class PenjualanResource extends Resource
                                     $set('jam_keluar', now()->format('H:i:s'));
                                 }
                             }),
-                        TextInput::make('keterangan')
-                            ->placeholder('Masukkan Keterangan'),
+                        Select::make('keterangan') // Gantilah 'tipe' dengan nama field di database
+                            ->label('Timbangan ke-')
+                            ->options([
+                                '1' => 'Timbangan ke-1',
+                                '2' => 'Timbangan ke-2',
+                                '3' => 'Timbangan ke-3',
+                                '4' => 'Timbangan ke-4',
+                                '5' => 'Timbangan ke-5',
+                            ])
+                            ->placeholder('Pilih timbangan ke-')
+                            // ->inlineLabel() // Membuat label sebelah kiri
+                            ->native(false) // Mengunakan dropdown modern
+                            ->required(), // Opsional: Atur default value
                         Select::make('id_supplier')
                             ->label('Supplier')
                             ->placeholder('Pilih Supplier')
@@ -146,7 +161,9 @@ class PenjualanResource extends Resource
                             ->placeholder('Pilih Status Kepemilikan')
                             ->native(false) // Mengunakan dropdown modern
                             ->required(), // Opsional: Atur default value,
-
+                                TextInput::make('no_container')
+                                ->label('No Container')
+                                ->placeholder('Masukkan no container'),
                     ])->columns(2)
             ]);
     }
@@ -162,7 +179,7 @@ class PenjualanResource extends Resource
                     ->searchable()
                     ->copyable()
                     ->copyMessage('berhasil menyalin'),
-                TextColumn::make('mobil.plat_polisi')->label('Plat Polisi')
+                TextColumn::make('plat_polisi')->label('Plat Polisi')
                     ->searchable(),
                 TextColumn::make('nama_supir')
                     ->searchable(),
@@ -173,6 +190,7 @@ class PenjualanResource extends Resource
                 TextColumn::make('supplier.jenis_supplier')->label('Jenis')
                     ->searchable(),
                 TextColumn::make('keterangan')
+                ->prefix('Timbangan ke-')
                     ->searchable(),
                 TextColumn::make('brondolan'),
                 TextColumn::make('bruto')
@@ -197,7 +215,7 @@ class PenjualanResource extends Resource
             ])
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                Tables\Actions\DeleteBulkAction::make(),
                 // ]),
             ])
             ->filters([
