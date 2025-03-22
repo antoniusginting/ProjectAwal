@@ -23,7 +23,10 @@ class AlamatKontrakResource extends Resource
 {
     protected static ?string $model = AlamatKontrak::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-map';
+    protected static ?string $navigationLabel = 'Alamat';
+    protected static ?string $navigationGroup = 'Kontrak';
+    public static ?string $label = 'Daftar Alamat Kontrak ';
 
     public static function form(Form $form): Form
     {
@@ -38,8 +41,8 @@ class AlamatKontrakResource extends Resource
                             ->required(), // Wajib diisi
 
                         Textarea::make('alamat')
-                        ->label('Alamat')
-                        ->placeholder('Masukkan alamat')
+                            ->label('Alamat')
+                            ->placeholder('Masukkan alamat')
                     ])
             ]);
     }
@@ -49,14 +52,14 @@ class AlamatKontrakResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('id')
-                ->label('No')
-                ->alignCenter(),
+                    ->label('No')
+                    ->alignCenter(),
                 TextColumn::make('kontrak.nama')
-                ->label('Nama')
-                ->searchable(),
+                    ->label('Nama')
+                    ->searchable(),
                 TextColumn::make('alamat')
-                ->label('Alamat')
-                ->searchable(),
+                    ->label('Alamat')
+                    ->searchable(),
             ])
             ->filters([
                 //

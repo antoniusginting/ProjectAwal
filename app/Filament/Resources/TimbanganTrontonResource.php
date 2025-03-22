@@ -22,6 +22,7 @@ use Filament\Forms\Components\Placeholder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TimbanganTrontonResource\Pages;
 use App\Filament\Resources\TimbanganTrontonResource\RelationManagers;
+use Dom\Text;
 
 class TimbanganTrontonResource extends Resource
 {
@@ -70,8 +71,8 @@ class TimbanganTrontonResource extends Resource
                                         Select::make('id_timbangan_jual_1')
                                             ->label('No SPB')
                                             ->placeholder('Pilih No SPB Pembelian')
-                                            ->options(Penjualan::latest()->with('supplier')->get()->mapWithKeys(function ($item) {
-                                                return [$item->id => $item->no_spb . ' - Timbangan ' . $item->keterangan . ' - ' . $item->supplier->nama_supplier . ' - ' . $item->plat_polisi];
+                                            ->options(Penjualan::latest()->get()->mapWithKeys(function ($item) {
+                                                return [$item->id => $item->no_spb . ' - Timbangan ke-' . $item->keterangan . ' - ' . $item->plat_polisi];
                                             }))
                                             ->searchable()
                                             ->required()
@@ -126,8 +127,8 @@ class TimbanganTrontonResource extends Resource
                                         Select::make('id_timbangan_jual_2')
                                             ->label('No SPB')
                                             ->placeholder('Pilih No SPB Pembelian')
-                                            ->options(Penjualan::latest()->with('supplier')->get()->mapWithKeys(function ($item) {
-                                                return [$item->id => $item->no_spb . ' - Timbangan ' . $item->keterangan . ' - ' . $item->supplier->nama_supplier . ' - ' . $item->plat_polisi];
+                                            ->options(Penjualan::latest()->get()->mapWithKeys(function ($item) {
+                                                return [$item->id => $item->no_spb . ' - Timbangan ke-' . $item->keterangan . ' - ' . $item->plat_polisi];
                                             }))
                                             ->searchable()
                                             ->reactive()
@@ -181,8 +182,8 @@ class TimbanganTrontonResource extends Resource
                                         Select::make('id_timbangan_jual_3')
                                             ->label('No SPB')
                                             ->placeholder('Pilih No SPB Pembelian')
-                                            ->options(Penjualan::latest()->with('supplier')->get()->mapWithKeys(function ($item) {
-                                                return [$item->id => $item->no_spb . ' - Timbangan ' . $item->keterangan . ' - ' . $item->supplier->nama_supplier . ' - ' . $item->plat_polisi];
+                                            ->options(Penjualan::latest()->get()->mapWithKeys(function ($item) {
+                                                return [$item->id => $item->no_spb . ' - Timbangan ke-' . $item->keterangan . ' - ' . $item->plat_polisi];
                                             }))
                                             ->searchable()
                                             ->reactive()
@@ -236,8 +237,8 @@ class TimbanganTrontonResource extends Resource
                                         Select::make('id_timbangan_jual_4')
                                             ->label('No SPB')
                                             ->placeholder('Pilih No SPB Pembelian')
-                                            ->options(Penjualan::latest()->with('supplier')->get()->mapWithKeys(function ($item) {
-                                                return [$item->id => $item->no_spb . ' - Timbangan ' . $item->keterangan . ' - ' . $item->supplier->nama_supplier . ' - ' . $item->plat_polisi];
+                                            ->options(Penjualan::latest()->get()->mapWithKeys(function ($item) {
+                                                return [$item->id => $item->no_spb . ' - Timbangan ke-' . $item->keterangan . ' - ' . $item->plat_polisi];
                                             }))
                                             ->searchable()
                                             ->reactive()
@@ -291,8 +292,8 @@ class TimbanganTrontonResource extends Resource
                                         Select::make('id_timbangan_jual_5')
                                             ->label('No SPB')
                                             ->placeholder('Pilih No SPB Pembelian')
-                                            ->options(Penjualan::latest()->with('supplier')->get()->mapWithKeys(function ($item) {
-                                                return [$item->id => $item->no_spb . ' - Timbangan ' . $item->keterangan . ' - ' . $item->supplier->nama_supplier . ' - ' . $item->plat_polisi];
+                                            ->options(Penjualan::latest()->get()->mapWithKeys(function ($item) {
+                                                return [$item->id => $item->no_spb . ' - Timbangan ke-' . $item->keterangan . ' - ' . $item->plat_polisi];
                                             }))
                                             ->searchable()
                                             ->reactive()
@@ -346,8 +347,8 @@ class TimbanganTrontonResource extends Resource
                                         Select::make('id_timbangan_jual_6')
                                             ->label('No SPB')
                                             ->placeholder('Pilih No SPB Pembelian')
-                                            ->options(Penjualan::latest()->with('supplier')->get()->mapWithKeys(function ($item) {
-                                                return [$item->id => $item->no_spb . ' - Timbangan ' . $item->keterangan . ' - ' . $item->supplier->nama_supplier . ' - ' . $item->plat_polisi];
+                                            ->options(Penjualan::latest()->get()->mapWithKeys(function ($item) {
+                                                return [$item->id => $item->no_spb . ' - Timbangan ke-' . $item->keterangan . ' - ' . $item->plat_polisi];
                                             }))
                                             ->searchable()
                                             ->reactive()
@@ -416,6 +417,8 @@ class TimbanganTrontonResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('id')
+                ->label('ID'),
                 TextColumn::make('created_at')->label('Tanggal')
                     ->dateTime('d-m-Y')
                     ->color('success'),

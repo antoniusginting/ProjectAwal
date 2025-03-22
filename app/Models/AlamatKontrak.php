@@ -11,9 +11,9 @@ class AlamatKontrak extends Model
         'alamat',
     ];
 
-     // Relasi ke Kontrak
-     public function kontrak()
-     {
-         return $this->belongsTo(Kontrak::class, 'id_kontrak', 'id');
-     }
+    // Relasi ke Kontrak
+    public function kontrak()
+    {
+        return $this->belongsTo(Kontrak::class, 'id_kontrak', 'id');
+    }
 }

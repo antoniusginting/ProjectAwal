@@ -21,7 +21,7 @@ class TimbanganTronton extends Model
 
     public function penjualan1()
     {
-        return $this->belongsTo(Penjualan::class, 'id_timbangan_jual_1');
+        return $this->belongsTo(Penjualan::class, 'id_timbangan_jual_1','id');
     }
 
     public function penjualan2()
