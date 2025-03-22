@@ -39,8 +39,9 @@ return new class extends Migration
             $table->foreign('id_timbangan_jual_6')->references('id')->on('penjualans')->onDelete('cascade');
 
             $table->integer('total_bruto');
+            $table->integer('tambah_berat');
+            $table->integer('berat_final');
             $table->string('keterangan');
-            $table->string('nama_barang');
 
             $table->timestamps();
         });

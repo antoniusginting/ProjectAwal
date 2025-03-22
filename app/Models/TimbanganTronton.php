@@ -14,6 +14,8 @@ class TimbanganTronton extends Model
         'id_timbangan_jual_5',
         'id_timbangan_jual_6',
         'total_bruto',
+        'tambah_berat',
+        'bruto_final',
         'keterangan',
     ];
 

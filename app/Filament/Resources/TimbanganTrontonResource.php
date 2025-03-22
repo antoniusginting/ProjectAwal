@@ -38,16 +38,32 @@ class TimbanganTrontonResource extends Resource
             ->schema([
                 Card::make()
                     ->schema([
-                        TextInput::make('total_bruto')
-                            ->label('Total Bruto')
-                            ->readOnly()
-                            ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.'))
-                            ->placeholder('Otomatis terjumlahkan berdasarkan bruto timbangan'),
-                        TextInput::make('nama_barang')
-                            ->label('Nama Barang')
-                            ->placeholder('Masukkan nama barang'),
                         Grid::make(3)
                             ->schema([
+                                Card::make()
+                                    ->schema([
+                                        TextInput::make('total_bruto')
+                                            ->label('Total Bruto')
+                                            ->readOnly()
+                                            ->placeholder('Otomatis terjumlahkan'),
+                                        TextInput::make('tambah_berat')
+                                            ->label('Tambah Berat')
+                                            ->numeric()
+                                            ->default(300)
+                                            ->placeholder('Masukkan tambah berat')
+                                            ->reactive() // Menjadikan field ini responsif
+                                            ->afterStateUpdated(
+                                                fn($state, callable $set, callable $get) =>
+                                                $set('bruto_final', ($get('total_bruto') ?? 0) + ($state ?? 0))
+                                            ),
+
+                                            TextInput::make('bruto_final')
+                                            ->label('Bruto Final')
+                                            ->readOnly()
+                                            ->placeholder('Otomatis terjumlahkan')
+                                            ->numeric()
+                                            ->formatStateUsing(fn ($state) => number_format($state, 0, ',', '.')), // Format ribuan                                
+                                    ])->columns(3),
                                 //Timbangan Jual 1
                                 Card::make('Timbangan jual 1')
                                     ->schema([
@@ -268,7 +284,7 @@ class TimbanganTrontonResource extends Resource
                                             ->reactive()
                                             ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '')
                                             ->disabled(),
-                                    ])->columnSpan(1)->collapsible(),
+                                    ])->columnSpan(1)->collapsed(),
                                 //Timbangan Jual 5
                                 Card::make('Timbangan jual 5')
                                     ->schema([
@@ -323,7 +339,7 @@ class TimbanganTrontonResource extends Resource
                                             ->reactive()
                                             ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '')
                                             ->disabled(),
-                                    ])->columnSpan(1)->collapsible(),
+                                    ])->columnSpan(1)->collapsed(),
                                 //Timbangan Jual 6
                                 Card::make('Timbangan jual 6')
                                     ->schema([
@@ -378,12 +394,12 @@ class TimbanganTrontonResource extends Resource
                                             ->reactive()
                                             ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '')
                                             ->disabled(),
-                                    ])->columnSpan(1)->collapsible(),
+                                    ])->columnSpan(1)->collapsed(),
                                 Textarea::make('keterangan')
                                     ->placeholder('Masukkan Keterangan')
                                     ->columnSpanFull(), // Tetap 1 kolom penuh di semua ukuran layar
                             ])
-                    ])->columns(2)
+                    ])
             ]);
     }
 
@@ -403,8 +419,16 @@ class TimbanganTrontonResource extends Resource
                 TextColumn::make('created_at')->label('Tanggal')
                     ->dateTime('d-m-Y')
                     ->color('success'),
+                TextColumn::make('tambah_berat')
+                    ->label('Berat Tambah')
+                    ->alignCenter()
+                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('total_bruto')
                     ->label('Total Bruto')
+                    ->alignCenter()
+                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                TextColumn::make('bruto_final')
+                    ->label('Bruto Final')
                     ->alignCenter()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 //Penjualan 1
