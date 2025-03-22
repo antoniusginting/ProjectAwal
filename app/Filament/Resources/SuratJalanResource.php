@@ -180,8 +180,8 @@ class SuratJalanResource extends Resource
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('View')
                     ->label(__("Lihat"))
-                    ->icon('heroicon-o-eye'),
-                    // ->url(fn($record) => self::getUrl("view-sortiran", ['record' => $record->id])),
+                    ->icon('heroicon-o-eye')
+                    ->url(fn($record) => self::getUrl("view-surat-jalan", ['record' => $record->id])),
             ], position: ActionsPosition::BeforeColumns)
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -203,6 +203,7 @@ class SuratJalanResource extends Resource
             'index' => Pages\ListSuratJalans::route('/'),
             'create' => Pages\CreateSuratJalan::route('/create'),
             'edit' => Pages\EditSuratJalan::route('/{record}/edit'),
+            'view-surat-jalan' => Pages\ViewSuratJalan::route('/{record}/view-surat-jalan'),
         ];
     }
 }
