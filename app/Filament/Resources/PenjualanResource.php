@@ -68,7 +68,7 @@ class PenjualanResource extends Resource
                             ->placeholder('Masukkan Brondolan'),
                         TextInput::make('created_at')
                             ->label('Tanggal Sekarang')
-                            ->placeholder(now()->format('d-m-Y')) // Tampilkan di input
+                            ->formatStateUsing(fn($state) => \Carbon\Carbon::parse($state)->format('d-m-Y'))
                             ->disabled(), // Tidak bisa diedit
                         TextInput::make('nama_lumbung')
                             ->placeholder('Masukkan Nama Lumbung')
@@ -152,18 +152,9 @@ class PenjualanResource extends Resource
                             ->options(Supplier::pluck('nama_supplier', 'id')) // Ambil daftar mobil
                             ->searchable() // Biar bisa cari
                             ->required(), // Wajib diisi
-                        Select::make('kepemilikan')
-                            ->label('Kepemilikan')
-                            ->options([
-                                'Milik Sendiri' => 'Milik Sendiri',
-                                'Minjam' => 'Minjam',
-                            ])
-                            ->placeholder('Pilih Status Kepemilikan')
-                            ->native(false) // Mengunakan dropdown modern
-                            ->required(), // Opsional: Atur default value,
-                                TextInput::make('no_container')
-                                ->label('No Container')
-                                ->placeholder('Masukkan no container'),
+                        TextInput::make('no_container')
+                            ->label('No Container')
+                            ->placeholder('Masukkan no container'),
                     ])->columns(2)
             ]);
     }
@@ -190,7 +181,7 @@ class PenjualanResource extends Resource
                 TextColumn::make('supplier.jenis_supplier')->label('Jenis')
                     ->searchable(),
                 TextColumn::make('keterangan')
-                ->prefix('Timbangan ke-')
+                    ->prefix('Timbangan ke-')
                     ->searchable(),
                 TextColumn::make('brondolan'),
                 TextColumn::make('bruto')

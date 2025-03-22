@@ -35,6 +35,7 @@ class KontrakResource extends Resource
                     ->label('Nama')
                     ->placeholder('Masukkan nama kontrak'),
                     TextInput::make('npwp')
+                    ->required()
                     ->label('NPWP')
                     ->placeholder('Masukkan NPWP')
                     ->rule('digits:16') // Pastikan harus tepat 16 digit

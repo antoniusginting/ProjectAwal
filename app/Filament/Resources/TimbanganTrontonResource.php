@@ -77,7 +77,6 @@ class TimbanganTrontonResource extends Resource
                                             ->searchable()
                                             ->required()
                                             ->reactive()
-                                            ->disabled(fn($record) => $record !== null)
                                             ->afterStateHydrated(function ($state, callable $set) {
                                                 if ($state) {
                                                     $penjualan = Penjualan::find($state);
@@ -132,7 +131,6 @@ class TimbanganTrontonResource extends Resource
                                             }))
                                             ->searchable()
                                             ->reactive()
-                                            ->disabled(fn($record) => $record !== null)
                                             ->afterStateHydrated(function ($state, callable $set) {
                                                 if ($state) {
                                                     $penjualan = Penjualan::find($state);
@@ -187,7 +185,6 @@ class TimbanganTrontonResource extends Resource
                                             }))
                                             ->searchable()
                                             ->reactive()
-                                            ->disabled(fn($record) => $record !== null)
                                             ->afterStateHydrated(function ($state, callable $set) {
                                                 if ($state) {
                                                     $penjualan = Penjualan::find($state);
@@ -242,7 +239,6 @@ class TimbanganTrontonResource extends Resource
                                             }))
                                             ->searchable()
                                             ->reactive()
-                                            ->disabled(fn($record) => $record !== null)
                                             ->afterStateHydrated(function ($state, callable $set) {
                                                 if ($state) {
                                                     $penjualan = Penjualan::find($state);
@@ -297,7 +293,6 @@ class TimbanganTrontonResource extends Resource
                                             }))
                                             ->searchable()
                                             ->reactive()
-                                            ->disabled(fn($record) => $record !== null)
                                             ->afterStateHydrated(function ($state, callable $set) {
                                                 if ($state) {
                                                     $penjualan = Penjualan::find($state);
@@ -352,7 +347,6 @@ class TimbanganTrontonResource extends Resource
                                             }))
                                             ->searchable()
                                             ->reactive()
-                                            ->disabled(fn($record) => $record !== null)
                                             ->afterStateHydrated(function ($state, callable $set) {
                                                 if ($state) {
                                                     $penjualan = Penjualan::find($state);

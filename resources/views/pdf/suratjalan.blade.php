@@ -34,7 +34,7 @@
     .info-kota-tanggal {
         display: flex;
         justify-content: space-between;
-        font-size: 14px;
+        font-size: 16px;
     }
 
     .info-kota-tanggal .kota-tanggal span {
@@ -139,12 +139,23 @@
             <!-- Tempat untuk informasi tambahan bila diperlukan -->
         </div>
     </div>
-
-    <!-- Tujuan Pengiriman -->
-    <div class="tujuan-pengiriman">
-        <p>Kepada Yth: <strong>{{ $suratjalan->kontrak->nama }}</strong></p>
-        <p>Alamat: {{ $suratjalan->alamat->alamat }}</p>
-        <p>No PO: {{ $suratjalan->po }}</p>
+    <div>
+        <table>
+            <tbody>
+                <tr>
+                    <td>Kepada Yth</td>
+                    <td>: {{ $suratjalan->kontrak->nama }}</td>
+                </tr>
+                <tr>
+                    <td>Alamat</td>
+                    <td>: {{ $suratjalan->alamat->alamat }}</td>
+                </tr>
+                <tr>
+                    <td>No PO</td>
+                    <td>: {{ $suratjalan->po }}</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
     <!-- Pembatas antara judul dan tabel -->

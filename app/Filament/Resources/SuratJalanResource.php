@@ -40,6 +40,7 @@ class SuratJalanResource extends Resource
                             ->schema([
                                 Select::make('id_kontrak2')
                                     ->label('Nama Kontrak')
+                                    ->required()
                                     ->options(Kontrak::all()->pluck('nama', 'id'))
                                     ->searchable()
                                     ->reactive(), // Agar saat memilih kontrak, alamat terfilter
@@ -49,6 +50,7 @@ class SuratJalanResource extends Resource
                                     ->disabled(), // Tidak bisa diedit
                                 Select::make('id_kontrak')
                                     ->label('Kepada Yth.')
+                                    ->required()
                                     ->options(Kontrak::all()->pluck('nama', 'id'))
                                     ->searchable()
                                     ->reactive(), // Agar saat memilih kontrak, alamat terfilter
@@ -82,6 +84,7 @@ class SuratJalanResource extends Resource
                                         ];
                                     }))
                                     ->searchable()
+                                    ->required()
                                     ->reactive()
                                     ->afterStateUpdated(function (callable $set, callable $get) {
                                         // Ambil data timbangan berdasarkan id yang dipilih
