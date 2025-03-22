@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Filament\Resources\KendaraanMasuksResource\Pages;
+namespace App\Filament\Resources\KontrakResource\Pages;
 
-use App\Filament\Resources\KendaraanMasuksResource;
 use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
+use App\Filament\Resources\KontrakResource;
 
-class EditKendaraanMasuks extends EditRecord
+class EditKontrak extends EditRecord
 {
-    protected static string $resource = KendaraanMasuksResource::class;
+    protected static string $resource = KontrakResource::class;
 
     protected function getHeaderActions(): array
     {
@@ -17,7 +17,6 @@ class EditKendaraanMasuks extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
-
     protected function getFormActions(): array
     {
         return [
@@ -27,7 +26,7 @@ class EditKendaraanMasuks extends EditRecord
             Action::make('cancel')
                 ->label('Batal')
                 ->color('gray')
-                ->url(KendaraanMasuksResource::getUrl('index')),
+                ->url(KontrakResource::getUrl('index')),
         ];
     }
     protected function getRedirectUrl(): string
