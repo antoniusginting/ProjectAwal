@@ -1,20 +1,20 @@
 <?php
 
-namespace App\Filament\Resources\DryerResource\Pages;
+namespace App\Filament\Resources\AlamatKontrakResource\Pages;
 
 use Filament\Actions;
 use Filament\Actions\Action;
-use App\Filament\Resources\DryerResource;
 use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Resources\AlamatKontrakResource;
 
-class CreateDryer extends CreateRecord
+class CreateAlamatKontrak extends CreateRecord
 {
-    protected static string $resource = DryerResource::class;
+    protected static string $resource = AlamatKontrakResource::class;
 
     // Ubah judul halaman "Create Kapasitas lumbung basah" menjadi "Tambah Kapasitas lumbung basah"
     function getTitle(): string
     {
-        return 'Tambah Kapasitas Dryer';
+        return 'Tambah Alamat Kontrak';
     }
 
     protected function getFormActions(): array
@@ -26,7 +26,7 @@ class CreateDryer extends CreateRecord
             Action::make('cancel')
                 ->label('Batal')
                 ->color('gray')
-                ->url(DryerResource::getUrl('index')), // Redirect ke tabel utama
+                ->url(AlamatKontrakResource::getUrl('index')), // Redirect ke tabel utama
         ];
     }
 
