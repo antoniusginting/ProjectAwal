@@ -25,7 +25,10 @@ class SuratJalanResource extends Resource
 {
     protected static ?string $model = SuratJalan::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-envelope-open';
+    protected static ?string $navigationLabel = 'Surat Jalan';
+    protected static ?string $navigationGroup = 'Timbangan';
+    public static ?string $label = 'Daftar Surat Jalan ';
 
     public static function form(Form $form): Form
     {
@@ -74,7 +77,8 @@ class SuratJalanResource extends Resource
                                     ->label('ID Timbangan Tronton')
                                     ->options(TimbanganTronton::latest()->with('penjualan1')->get()->mapWithKeys(function ($item) {
                                         return [
-                                            $item->id => $item->id . ' - ' . $item->penjualan1->nama_supir . ' - ' . $item->penjualan1->plat_polisi
+                                            $item->id => $item->id . ' - ' . $item->penjualan1->nama_supir . ' - ' .
+                                                ($item->penjualan1->plat_polisi ?? $item->penjualan1->no_container)
                                         ];
                                     }))
                                     ->searchable()
@@ -172,7 +176,7 @@ class SuratJalanResource extends Resource
                 TextColumn::make('tronton.penjualan1.nama_supir')
                     ->label('Nama Supir')
                     ->searchable(),
-            ])
+            ])->defaultSort('id', 'desc')
             ->filters([
                 //
             ])
