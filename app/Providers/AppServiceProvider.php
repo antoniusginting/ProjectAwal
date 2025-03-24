@@ -24,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
             'Dashboard',
             'Timbangan',
             'Kapasitas',
+            'Kontrak',
             'Satpam',
         ]);
     }

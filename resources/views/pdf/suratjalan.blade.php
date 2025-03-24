@@ -140,23 +140,24 @@
         </div>
     </div>
     <div>
-        <table>
+        <table style="width: 100%;">
             <tbody>
                 <tr>
-                    <td>Kepada Yth</td>
-                    <td>: {{ $suratjalan->kontrak->nama }}</td>
+                    <td style="width: 20%; font-weight: bold;">Kepada Yth.</td>
+                    <td style="width: 80%;">: {{ $suratjalan->kontrak->nama }}</td>
                 </tr>
                 <tr>
-                    <td>Alamat</td>
-                    <td>: {{ $suratjalan->alamat->alamat }}</td>
+                    <td style="width: 20%; font-weight: bold;">Alamat</td>
+                    <td style="width: 80%;">: {{ $suratjalan->alamat->alamat }}</td>
                 </tr>
                 <tr>
-                    <td>No PO</td>
-                    <td>: {{ $suratjalan->po }}</td>
+                    <td style="width: 20%; font-weight: bold;">No PO</td>
+                    <td style="width: 80%;">: {{ $suratjalan->po }}</td>
                 </tr>
             </tbody>
         </table>
     </div>
+    
 
     <!-- Pembatas antara judul dan tabel -->
     <div class="divider"></div>

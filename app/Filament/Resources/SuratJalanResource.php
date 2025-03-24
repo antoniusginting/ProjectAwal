@@ -28,6 +28,7 @@ class SuratJalanResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-envelope-open';
     protected static ?string $navigationLabel = 'Surat Jalan';
     protected static ?string $navigationGroup = 'Timbangan';
+    protected static ?int $navigationSort = 4;
     public static ?string $label = 'Daftar Surat Jalan ';
 
     public static function form(Form $form): Form
@@ -105,7 +106,7 @@ class SuratJalanResource extends Resource
                                         $set('netto', max(0, (float) $brutoFinal - (float) $taranya));
                                     })->columnSpan(2),
                                 TextInput::make('brondolan')
-                                    ->label('Brondolan')
+                                    ->label('Satuan Muatan')
                                     ->disabled() // Hanya untuk menampilkan, tidak bisa diubah
                                     ->dehydrated(false), // Tidak tersimpan ke database
                                 TextInput::make('bruto_final')
@@ -173,7 +174,7 @@ class SuratJalanResource extends Resource
                     ->searchable()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('tronton.penjualan1.brondolan')
-                    ->label('Brondolan')
+                    ->label('Satuan Muatan')
                     ->alignCenter()
                     ->searchable(),
                 TextColumn::make('tronton.penjualan1.nama_supir')

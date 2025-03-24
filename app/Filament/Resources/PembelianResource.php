@@ -35,7 +35,7 @@ class PembelianResource extends Resource
 
 
     protected static ?string $navigationGroup = 'Timbangan';
-
+    protected static ?int $navigationSort = 1;
     public static ?string $label = 'Daftar Pembelian ';
 
     public static function form(Form $form): Form
@@ -180,7 +180,8 @@ class PembelianResource extends Resource
                         TextInput::make('no_container')
                             ->placeholder('Masukkan No Container'),
                         TextInput::make('brondolan')
-                            ->placeholder('Masukkan Brondolan')
+                        ->label('Satuan Muatan')
+                            ->placeholder('Masukkan satuan muatan')
                             ->extraAttributes(['style' => 'margin-bottom: 20px;']),
                     ])->columns(2)
             ]);
@@ -212,7 +213,7 @@ class PembelianResource extends Resource
                     ->searchable(),
                 TextColumn::make('no_container')
                     ->searchable(),
-                TextColumn::make('brondolan'),
+                TextColumn::make('brondolan')->label('Satuan Muatan'),
                 TextColumn::make('bruto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('tara')

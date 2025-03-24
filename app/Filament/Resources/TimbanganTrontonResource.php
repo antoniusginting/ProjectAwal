@@ -31,6 +31,7 @@ class TimbanganTrontonResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-truck';
     protected static ?string $navigationLabel = 'Tronton';
     protected static ?string $navigationGroup = 'Timbangan';
+    protected static ?int $navigationSort = 3;
     public static ?string $label = 'Daftar Tronton ';
 
     public static function form(Form $form): Form
@@ -414,8 +415,9 @@ class TimbanganTrontonResource extends Resource
                 TextColumn::make('id')
                 ->label('ID'),
                 TextColumn::make('created_at')->label('Tanggal')
-                    ->dateTime('d-m-Y')
-                    ->color('success'),
+                    ->dateTime('d-m-Y'),
+                    TextColumn::make('penjualan1.nama_supir')
+                    ->label('Nama Supir'),
                 TextColumn::make('tambah_berat')
                     ->label('Berat Tambah')
                     ->alignCenter()

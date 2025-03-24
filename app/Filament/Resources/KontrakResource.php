@@ -30,18 +30,17 @@ class KontrakResource extends Resource
         return $form
             ->schema([
                 Card::make()
-                ->schema([
-                    TextInput::make('nama')
-                    ->label('Nama')
-                    ->placeholder('Masukkan nama kontrak'),
-                    TextInput::make('npwp')
-                    ->required()
-                    ->label('NPWP')
-                    ->placeholder('Masukkan NPWP')
-                    ->rule('digits:16') // Pastikan harus tepat 16 digit
-                    ->mask('9999999999999999') // Tambahkan format input
-                    ->numeric(),
-                ])->columns(2)
+                    ->schema([
+                        TextInput::make('nama')
+                            ->label('Nama')
+                            ->placeholder('Masukkan nama kontrak'),
+                        TextInput::make('npwp')
+                            ->label('NPWP')
+                            ->placeholder('Masukkan NPWP')
+                            ->rule('digits:16') // Pastikan harus tepat 16 digit
+                            ->mask('9999999999999999') // Tambahkan format input
+                            ->numeric(),
+                    ])->columns(2)
             ]);
     }
 
@@ -49,13 +48,18 @@ class KontrakResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')
-                ->label('No'),
+                TextColumn::make('no')
+                    ->label('No')
+                    ->state(
+                        fn($record, $livewire) =>
+                        $livewire->getTableRecords()->search($record) + 1
+                    ),
                 TextColumn::make('nama')
-                ->searchable(),
+                    ->copyable()
+                    ->searchable(),
                 TextColumn::make('npwp')
-                ->label('NPWP')
-                ->searchable(),
+                    ->label('NPWP')
+                    ->searchable(),
 
             ])
             ->filters([

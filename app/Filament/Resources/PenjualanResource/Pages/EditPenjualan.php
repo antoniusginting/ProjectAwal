@@ -23,6 +23,10 @@ class EditPenjualan extends EditRecord
             Action::make('save')
                 ->label('Ubah')
                 ->action(fn () => $this->save()), // Menggunakan fungsi simpan manual
+                Action::make('cancel')
+                ->label('Batal')
+                ->color('gray')
+                ->url(PenjualanResource::getUrl('index')),
         ];
     }
 

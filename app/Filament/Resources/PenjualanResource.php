@@ -31,7 +31,7 @@ class PenjualanResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-bolt';
 
     protected static ?string $navigationLabel = 'Penjualan';
-
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $navigationGroup = 'Timbangan';
 
@@ -65,7 +65,8 @@ class PenjualanResource extends Resource
                                 return 'J' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
                             }),
                         TextInput::make('brondolan')
-                            ->placeholder('Masukkan Brondolan'),
+                            ->label('Satuan Muatan')
+                            ->placeholder('Masukkan satuan muatan'),
                         TextInput::make('created_at')
                             ->label('Tanggal Sekarang')
                             ->formatStateUsing(fn($state) => \Carbon\Carbon::parse($state)->format('d-m-Y'))
@@ -183,7 +184,7 @@ class PenjualanResource extends Resource
                 TextColumn::make('keterangan')
                     ->prefix('Timbangan ke-')
                     ->searchable(),
-                TextColumn::make('brondolan'),
+                TextColumn::make('brondolan')->label('Satuan Muatan'),
                 TextColumn::make('bruto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('tara')

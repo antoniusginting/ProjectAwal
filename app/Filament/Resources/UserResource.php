@@ -25,14 +25,10 @@ class UserResource extends Resource
     // {
     //     return static::getModel()::count();
     // }
-    public static function getNavigationSort(): int
-    {
-        return 8; // Ini akan muncul di atas
-    }
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
-
+    protected static ?string $navigationGroup = 'Pelindung';
     protected static ?string $navigationLabel = 'User';
 
 
