@@ -80,12 +80,19 @@ class SuratJalanResource extends Resource
                             ->schema([
                                 Select::make('id_timbangan_tronton')
                                     ->label('ID Timbangan Tronton')
-                                    ->options(TimbanganTronton::latest()->with('penjualan1')->get()->mapWithKeys(function ($item) {
-                                        return [
-                                            $item->id => $item->id . ' - ' . $item->penjualan1->nama_supir . ' - ' .
+                                    
+                                    ->options(
+                                        TimbanganTronton::whereNotIn('id', SuratJalan::pluck('id_timbangan_tronton')) // Exclude yang sudah ada
+                                            ->latest()
+                                            ->with(['penjualan1'])
+                                            ->get()
+                                            ->mapWithKeys(function ($item) {
+                                                return [
+                                                    $item->id => $item->id . ' - ' . $item->penjualan1->nama_supir . ' - ' .
                                                 ($item->penjualan1->plat_polisi ?? $item->penjualan1->no_container)
-                                        ];
-                                    }))
+                                                ];
+                                            })
+                                    )
                                     ->searchable()
                                     ->required()
                                     ->reactive()

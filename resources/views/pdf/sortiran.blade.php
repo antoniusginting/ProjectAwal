@@ -52,6 +52,11 @@ tr.total {
     background-color: #e5e7eb;
     font-weight: 600;
 }
+/* Menghilangkan border untuk tabel atas */
+table.caca, table.caca th, table.caca td {
+    border: none;
+}
+
 
 /* Responsif untuk layar kecil */
 @media (max-width: 768px) {
@@ -101,7 +106,7 @@ tr.total {
 
 <div class="container">
     <div class="table-container">
-        <table>
+        <table class="caca">
             <tbody>
                 <tr>
                     <td>No SPB</td>

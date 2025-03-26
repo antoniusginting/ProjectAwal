@@ -161,8 +161,8 @@ class SortiranResource extends Resource
                                 TextInput::make('total_karung')
                                     ->label('Total Karung')
                                     ->numeric()
-                                    ->helperText('Keterangan: Ketik ulang total karung hanya pada menu ubah Sortiran')
-                                    ->placeholder('Masukkan Total Karung')
+                                    ->helperText('Keterangan: Ketik ulang total karung untuk mengetahui tonase')
+                                    ->placeholder('Otomatis terhitung')
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, $set, $get) {
                                         // Ambil nilai dasar netto: gunakan 'netto_pembelian' sebagai basis

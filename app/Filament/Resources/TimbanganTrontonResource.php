@@ -72,14 +72,45 @@ class TimbanganTrontonResource extends Resource
                                 Card::make('Timbangan jual 1')
                                     ->schema([
                                         Select::make('id_timbangan_jual_1')
-                                            ->label('No SPB')
-                                            ->placeholder('Pilih No SPB Pembelian')
-                                            ->options(Penjualan::latest()->get()->mapWithKeys(function ($item) {
-                                                return [$item->id => $item->no_spb . ' - Timbangan ke-' . $item->keterangan . ' - ' . ($item->plat_polisi ?? $item->no_container)];
-                                            }))
+                                            ->label('No SPB (Timbangan 1)')
+                                            ->placeholder('Pilih No SPB Penjualan')
+                                            ->options(function () {
+                                                // Ambil semua field timbangan jual (dari 1 sampai 6)
+                                                $usedSpbIds = TimbanganTronton::query()
+                                                    ->get()
+                                                    ->flatMap(function ($record) {
+                                                        return [
+                                                            $record->id_timbangan_jual_1,
+                                                            $record->id_timbangan_jual_2,
+                                                            $record->id_timbangan_jual_3,
+                                                            $record->id_timbangan_jual_4,
+                                                            $record->id_timbangan_jual_5,
+                                                            $record->id_timbangan_jual_6,
+                                                        ];
+                                                    })
+                                                    ->filter()   // Hilangkan nilai null
+                                                    ->unique()   // Pastikan tidak ada duplikasi
+                                                    ->toArray();
+
+                                                return Penjualan::query()
+                                                    ->whereNotIn('id', $usedSpbIds)
+                                                    ->latest()
+                                                    ->with(['mobil', 'supplier'])
+                                                    ->get()
+                                                    ->mapWithKeys(function ($item) {
+                                                        return [
+                                                            $item->id => $item->no_spb .
+                                                                ' - Timbangan ke-' . $item->keterangan .
+                                                                ' - ' . $item->supplier->nama_supplier .
+                                                                ' - ' . ($item->plat_polisi ?? $item->no_container)
+                                                        ];
+                                                    })
+                                                    ->toArray();
+                                            })
                                             ->searchable()
                                             ->required()
                                             ->reactive()
+
                                             ->afterStateHydrated(function ($state, callable $set) {
                                                 if ($state) {
                                                     $penjualan = Penjualan::find($state);
@@ -127,12 +158,43 @@ class TimbanganTrontonResource extends Resource
                                 Card::make('Timbangan jual 2')
                                     ->schema([
                                         Select::make('id_timbangan_jual_2')
-                                            ->label('No SPB')
-                                            ->placeholder('Pilih No SPB Pembelian')
-                                            ->options(Penjualan::latest()->get()->mapWithKeys(function ($item) {
-                                                return [$item->id => $item->no_spb . ' - Timbangan ke-' . $item->keterangan . ' - ' . ($item->plat_polisi ?? $item->no_container)];
-                                            }))
+                                            ->label('No SPB (Timbangan 2)')
+                                            ->placeholder('Pilih No SPB Penjualan')
+                                            ->options(function () {
+                                                // Ambil semua field timbangan jual (dari 1 sampai 6)
+                                                $usedSpbIds = TimbanganTronton::query()
+                                                    ->get()
+                                                    ->flatMap(function ($record) {
+                                                        return [
+                                                            $record->id_timbangan_jual_1,
+                                                            $record->id_timbangan_jual_2,
+                                                            $record->id_timbangan_jual_3,
+                                                            $record->id_timbangan_jual_4,
+                                                            $record->id_timbangan_jual_5,
+                                                            $record->id_timbangan_jual_6,
+                                                        ];
+                                                    })
+                                                    ->filter()   // Hilangkan nilai null
+                                                    ->unique()   // Pastikan tidak ada duplikasi
+                                                    ->toArray();
+
+                                                return Penjualan::query()
+                                                    ->whereNotIn('id', $usedSpbIds)
+                                                    ->latest()
+                                                    ->with(['mobil', 'supplier'])
+                                                    ->get()
+                                                    ->mapWithKeys(function ($item) {
+                                                        return [
+                                                            $item->id => $item->no_spb .
+                                                                ' - Timbangan ke-' . $item->keterangan .
+                                                                ' - ' . $item->supplier->nama_supplier .
+                                                                ' - ' . ($item->plat_polisi ?? $item->no_container)
+                                                        ];
+                                                    })
+                                                    ->toArray();
+                                            })
                                             ->searchable()
+                                            ->required()
                                             ->reactive()
                                             ->afterStateHydrated(function ($state, callable $set) {
                                                 if ($state) {
@@ -181,12 +243,43 @@ class TimbanganTrontonResource extends Resource
                                 Card::make('Timbangan jual 3')
                                     ->schema([
                                         Select::make('id_timbangan_jual_3')
-                                            ->label('No SPB')
-                                            ->placeholder('Pilih No SPB Pembelian')
-                                            ->options(Penjualan::latest()->get()->mapWithKeys(function ($item) {
-                                                return [$item->id => $item->no_spb . ' - Timbangan ke-' . $item->keterangan . ' - ' . ($item->plat_polisi ?? $item->no_container)];
-                                            }))
+                                            ->label('No SPB (Timbangan 3)')
+                                            ->placeholder('Pilih No SPB Penjualan')
+                                            ->options(function () {
+                                                // Ambil semua field timbangan jual (dari 1 sampai 6)
+                                                $usedSpbIds = TimbanganTronton::query()
+                                                    ->get()
+                                                    ->flatMap(function ($record) {
+                                                        return [
+                                                            $record->id_timbangan_jual_1,
+                                                            $record->id_timbangan_jual_2,
+                                                            $record->id_timbangan_jual_3,
+                                                            $record->id_timbangan_jual_4,
+                                                            $record->id_timbangan_jual_5,
+                                                            $record->id_timbangan_jual_6,
+                                                        ];
+                                                    })
+                                                    ->filter()   // Hilangkan nilai null
+                                                    ->unique()   // Pastikan tidak ada duplikasi
+                                                    ->toArray();
+
+                                                return Penjualan::query()
+                                                    ->whereNotIn('id', $usedSpbIds)
+                                                    ->latest()
+                                                    ->with(['mobil', 'supplier'])
+                                                    ->get()
+                                                    ->mapWithKeys(function ($item) {
+                                                        return [
+                                                            $item->id => $item->no_spb .
+                                                                ' - Timbangan ke-' . $item->keterangan .
+                                                                ' - ' . $item->supplier->nama_supplier .
+                                                                ' - ' . ($item->plat_polisi ?? $item->no_container)
+                                                        ];
+                                                    })
+                                                    ->toArray();
+                                            })
                                             ->searchable()
+                                            ->required()
                                             ->reactive()
                                             ->afterStateHydrated(function ($state, callable $set) {
                                                 if ($state) {
@@ -235,12 +328,43 @@ class TimbanganTrontonResource extends Resource
                                 Card::make('Timbangan jual 4')
                                     ->schema([
                                         Select::make('id_timbangan_jual_4')
-                                            ->label('No SPB')
-                                            ->placeholder('Pilih No SPB Pembelian')
-                                            ->options(Penjualan::latest()->get()->mapWithKeys(function ($item) {
-                                                return [$item->id => $item->no_spb . ' - Timbangan ke-' . $item->keterangan . ' - ' . ($item->plat_polisi ?? $item->no_container)];
-                                            }))
+                                            ->label('No SPB (Timbangan 4)')
+                                            ->placeholder('Pilih No SPB Penjualan')
+                                            ->options(function () {
+                                                // Ambil semua field timbangan jual (dari 1 sampai 6)
+                                                $usedSpbIds = TimbanganTronton::query()
+                                                    ->get()
+                                                    ->flatMap(function ($record) {
+                                                        return [
+                                                            $record->id_timbangan_jual_1,
+                                                            $record->id_timbangan_jual_2,
+                                                            $record->id_timbangan_jual_3,
+                                                            $record->id_timbangan_jual_4,
+                                                            $record->id_timbangan_jual_5,
+                                                            $record->id_timbangan_jual_6,
+                                                        ];
+                                                    })
+                                                    ->filter()   // Hilangkan nilai null
+                                                    ->unique()   // Pastikan tidak ada duplikasi
+                                                    ->toArray();
+
+                                                return Penjualan::query()
+                                                    ->whereNotIn('id', $usedSpbIds)
+                                                    ->latest()
+                                                    ->with(['mobil', 'supplier'])
+                                                    ->get()
+                                                    ->mapWithKeys(function ($item) {
+                                                        return [
+                                                            $item->id => $item->no_spb .
+                                                                ' - Timbangan ke-' . $item->keterangan .
+                                                                ' - ' . $item->supplier->nama_supplier .
+                                                                ' - ' . ($item->plat_polisi ?? $item->no_container)
+                                                        ];
+                                                    })
+                                                    ->toArray();
+                                            })
                                             ->searchable()
+                                            ->required()
                                             ->reactive()
                                             ->afterStateHydrated(function ($state, callable $set) {
                                                 if ($state) {
@@ -289,12 +413,43 @@ class TimbanganTrontonResource extends Resource
                                 Card::make('Timbangan jual 5')
                                     ->schema([
                                         Select::make('id_timbangan_jual_5')
-                                            ->label('No SPB')
-                                            ->placeholder('Pilih No SPB Pembelian')
-                                            ->options(Penjualan::latest()->get()->mapWithKeys(function ($item) {
-                                                return [$item->id => $item->no_spb . ' - Timbangan ke-' . $item->keterangan . ' - ' . ($item->plat_polisi ?? $item->no_container)];
-                                            }))
+                                            ->label('No SPB (Timbangan 5)')
+                                            ->placeholder('Pilih No SPB Penjualan')
+                                            ->options(function () {
+                                                // Ambil semua field timbangan jual (dari 1 sampai 6)
+                                                $usedSpbIds = TimbanganTronton::query()
+                                                    ->get()
+                                                    ->flatMap(function ($record) {
+                                                        return [
+                                                            $record->id_timbangan_jual_1,
+                                                            $record->id_timbangan_jual_2,
+                                                            $record->id_timbangan_jual_3,
+                                                            $record->id_timbangan_jual_4,
+                                                            $record->id_timbangan_jual_5,
+                                                            $record->id_timbangan_jual_6,
+                                                        ];
+                                                    })
+                                                    ->filter()   // Hilangkan nilai null
+                                                    ->unique()   // Pastikan tidak ada duplikasi
+                                                    ->toArray();
+
+                                                return Penjualan::query()
+                                                    ->whereNotIn('id', $usedSpbIds)
+                                                    ->latest()
+                                                    ->with(['mobil', 'supplier'])
+                                                    ->get()
+                                                    ->mapWithKeys(function ($item) {
+                                                        return [
+                                                            $item->id => $item->no_spb .
+                                                                ' - Timbangan ke-' . $item->keterangan .
+                                                                ' - ' . $item->supplier->nama_supplier .
+                                                                ' - ' . ($item->plat_polisi ?? $item->no_container)
+                                                        ];
+                                                    })
+                                                    ->toArray();
+                                            })
                                             ->searchable()
+                                            ->required()
                                             ->reactive()
                                             ->afterStateHydrated(function ($state, callable $set) {
                                                 if ($state) {
@@ -343,12 +498,43 @@ class TimbanganTrontonResource extends Resource
                                 Card::make('Timbangan jual 6')
                                     ->schema([
                                         Select::make('id_timbangan_jual_6')
-                                            ->label('No SPB')
-                                            ->placeholder('Pilih No SPB Pembelian')
-                                            ->options(Penjualan::latest()->get()->mapWithKeys(function ($item) {
-                                                return [$item->id => $item->no_spb . ' - Timbangan ke-' . $item->keterangan . ' - ' . ($item->plat_polisi ?? $item->no_container)];
-                                            }))
+                                            ->label('No SPB (Timbangan 6)')
+                                            ->placeholder('Pilih No SPB Penjualan')
+                                            ->options(function () {
+                                                // Ambil semua field timbangan jual (dari 1 sampai 6)
+                                                $usedSpbIds = TimbanganTronton::query()
+                                                    ->get()
+                                                    ->flatMap(function ($record) {
+                                                        return [
+                                                            $record->id_timbangan_jual_1,
+                                                            $record->id_timbangan_jual_2,
+                                                            $record->id_timbangan_jual_3,
+                                                            $record->id_timbangan_jual_4,
+                                                            $record->id_timbangan_jual_5,
+                                                            $record->id_timbangan_jual_6,
+                                                        ];
+                                                    })
+                                                    ->filter()   // Hilangkan nilai null
+                                                    ->unique()   // Pastikan tidak ada duplikasi
+                                                    ->toArray();
+
+                                                return Penjualan::query()
+                                                    ->whereNotIn('id', $usedSpbIds)
+                                                    ->latest()
+                                                    ->with(['mobil', 'supplier'])
+                                                    ->get()
+                                                    ->mapWithKeys(function ($item) {
+                                                        return [
+                                                            $item->id => $item->no_spb .
+                                                                ' - Timbangan ke-' . $item->keterangan .
+                                                                ' - ' . $item->supplier->nama_supplier .
+                                                                ' - ' . ($item->plat_polisi ?? $item->no_container)
+                                                        ];
+                                                    })
+                                                    ->toArray();
+                                            })
                                             ->searchable()
+                                            ->required()
                                             ->reactive()
                                             ->afterStateHydrated(function ($state, callable $set) {
                                                 if ($state) {
