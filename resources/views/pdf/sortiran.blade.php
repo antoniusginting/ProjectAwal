@@ -178,7 +178,7 @@ tr.total {
                         <td>{{ $sortiran["kualitas_jagung_$i"] ?? '-' }}</td>
                         <td>{{ $sortiran["x1_x10_$i"] ?? '-' }}</td>
                         <td class="text-center">{{ $jumlah_karung }}</td>
-                        <td class="text-center">{{ number_format($tonase, 3, ',', '.') }}</td>
+                        <td class="text-center">{{ number_format($tonase, 0, ',', '.') }}</td>
                     </tr>
                 @endfor
                 <tr class="total">

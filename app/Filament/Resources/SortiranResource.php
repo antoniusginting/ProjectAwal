@@ -100,7 +100,6 @@ class SortiranResource extends Resource
                                     ->reactive()
                                     ->afterStateHydrated(fn($state, $set) => $set('netto_pembelian', number_format($state, 0, ',', '.')))
                                     ->disabled(),
-
                                 TextInput::make('nama_supplier')
                                     ->label('Nama Supplier')
                                     ->placeholder('Otomatis terisi saat memilih no SPB')
@@ -183,7 +182,6 @@ class SortiranResource extends Resource
                                             }
                                             return;
                                         }
-
                                         // Hitung nilai tonase untuk tiap unit karung
                                         foreach (range(1, 6) as $i) {
                                             $jumlahKarung = floatval($get("jumlah_karung_$i") ?? 0);

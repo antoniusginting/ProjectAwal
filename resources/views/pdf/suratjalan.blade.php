@@ -133,7 +133,7 @@
     <!-- Info Kota dan Tanggal -->
     <div class="info-kota-tanggal">
         <div class="kota-tanggal">
-            <span>{{ $suratjalan->kota }}, {{ $suratjalan->created_at->format('d-m-Y') }}</span>
+            <span></span>
         </div>
         <div class="empty">
             <!-- Tempat untuk informasi tambahan bila diperlukan -->
@@ -142,6 +142,10 @@
     <div>
         <table style="width: 100%;">
             <tbody>
+                <tr>
+                    <td style="width: 20%;">{{ $suratjalan->kota }}, {{ $suratjalan->created_at->format('d-m-Y') }}</td>
+                    <td></td>
+                </tr>
                 <tr>
                     <td style="width: 20%; font-weight: bold;">Kepada Yth.</td>
                     <td style="width: 80%;">: {{ $suratjalan->kontrak->nama }}</td>
