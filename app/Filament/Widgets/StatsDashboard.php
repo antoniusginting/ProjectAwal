@@ -3,8 +3,8 @@
 namespace App\Filament\Widgets;
 
 use Carbon\Carbon;
-use App\Models\Pembelian;
 use App\Models\Penjualan;
+use App\Models\Sortiran;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 
@@ -13,13 +13,13 @@ class StatsDashboard extends BaseWidget
     protected function getStats(): array
     {
         return [
-            Stat::make('Pembelian Hari Ini', Pembelian::whereDate('created_at', Carbon::today())->count())
-                ->description('Total pembelian pada hari ini')
-                ->color('success'),
-
-            Stat::make('Penjualan Hari Ini', Penjualan::whereDate('created_at', Carbon::today())->count())
-                ->description('Total penjualan pada hari ini')
+            Stat::make('Total Berat Bersih Sortiran Hari Ini', Sortiran::whereDate('created_at', Carbon::today())->sum('netto_bersih'))
+                ->description('Total berat bersih dari sortiran hari ini')
                 ->color('info'),
+
+            // Stat::make('Penjualan Hari Ini', Penjualan::whereDate('created_at', Carbon::today())->count())
+            //     ->description('Total penjualan pada hari ini')
+            //     ->color('info'),
         ];
     }
 
@@ -29,6 +29,6 @@ class StatsDashboard extends BaseWidget
     }
     protected function getColumns(): int
     {
-        return 2; // Membagi menjadi 2 kolom untuk menengahkan
+        return 1; // Membagi menjadi 2 kolom untuk menengahkan
     }
 }

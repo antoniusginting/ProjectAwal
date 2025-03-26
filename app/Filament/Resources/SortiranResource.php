@@ -61,9 +61,18 @@ class SortiranResource extends Resource
                                 Select::make('id_pembelian')
                                     ->label('No SPB')
                                     ->placeholder('Pilih No SPB Pembelian')
-                                    ->options(Pembelian::latest()->with('mobil')->with('supplier')->get()->mapWithKeys(function ($item) {
-                                        return [$item->id => $item->no_spb . ' - Timbangan ' . $item->keterangan . ' - ' . $item->supplier->nama_supplier . ' - ' . $item->plat_polisi];
-                                    }))
+                                    ->options(
+                                        Pembelian::whereNotIn('id', Sortiran::pluck('id_pembelian')) // Exclude yang sudah ada
+                                            ->latest()
+                                            ->with(['mobil', 'supplier'])
+                                            ->get()
+                                            ->mapWithKeys(function ($item) {
+                                                return [
+                                                    $item->id => $item->no_spb . ' - Timbangan ' . $item->keterangan . ' - ' .
+                                                        $item->supplier->nama_supplier . ' - ' . $item->plat_polisi
+                                                ];
+                                            })
+                                    )
                                     ->searchable()
                                     ->required()
                                     ->reactive()
