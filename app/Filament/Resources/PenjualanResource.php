@@ -13,6 +13,8 @@ use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
 
 use Filament\Tables\Filters\Filter;
+use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
@@ -156,6 +158,9 @@ class PenjualanResource extends Resource
                         TextInput::make('no_container')
                             ->label('No Container')
                             ->placeholder('Masukkan no container'),
+                        Hidden::make('user_id')
+                            ->label('User ID')
+                            ->default(Auth::id()) // Set nilai default user yang sedang login,
                     ])->columns(2)
             ]);
     }
@@ -195,6 +200,8 @@ class PenjualanResource extends Resource
                 TextColumn::make('jam_keluar'),
                 TextColumn::make('no_lumbung'),
                 TextColumn::make('nama_lumbung'),
+                TextColumn::make('user.name')
+                    ->label('User')
             ])
             ->defaultSort('no_spb', 'desc') // Megurutkan no_spb terakhir menjadi pertama pada tabel
             ->filters([

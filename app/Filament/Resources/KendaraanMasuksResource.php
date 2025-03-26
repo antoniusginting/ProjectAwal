@@ -128,7 +128,7 @@ class KendaraanMasuksResource extends Resource
                     ->searchable(),
                 TextColumn::make('jam_keluar')
                     ->searchable(),
-                    TextColumn::make('user.name')
+                TextColumn::make('user.name')
                     ->label('User')
             ])
             ->defaultSort('id', 'desc')

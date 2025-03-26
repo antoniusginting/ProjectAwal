@@ -14,8 +14,13 @@ class SuratJalan extends Model
         'kota',
         'po',
         'netto',
+        'user_id',
     ];
 
+    // Relasi ke User
+    public function user(){
+        return $this->belongsTo(User::class, 'user_id');
+    }
     // Relasi ke Kontrak
     public function kontrak()
     {

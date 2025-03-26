@@ -15,7 +15,9 @@ use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use App\Models\KapasitasLumbungBasah;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
@@ -188,7 +190,9 @@ class SortiranResource extends Resource
                                         // Opsi: Jika Anda ingin secara visual juga mengupdate field netto_bersih
                                         $set('netto_bersih', number_format($updatedNettoBersih, 0, ',', '.'));
                                     }),
-
+                                Hidden::make('user_id')
+                                    ->label('User ID')
+                                    ->default(Auth::id()) // Set nilai default user yang sedang login,
                             ])->columns(2),
                     ])
                     ->collapsible(),
@@ -717,6 +721,8 @@ class SortiranResource extends Resource
                     ->label('Tonase 6'),
                 TextColumn::make('kadar_air')
                     ->suffix('%'),
+                TextColumn::make('user.name')
+                    ->label('User')
             ])->defaultSort('no_sortiran', 'desc')
             ->filters([
                 //

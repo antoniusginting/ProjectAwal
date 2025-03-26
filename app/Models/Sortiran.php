@@ -43,8 +43,13 @@ class Sortiran extends Model
         'tonase_6',
         'kadar_air',
         'total_karung',
+        'user_id',
     ];
-
+    // Relasi ke User
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
     // Relasi ke tabel pembelian
     public function pembelian()
     {

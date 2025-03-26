@@ -22,8 +22,13 @@ class Penjualan extends Model
         'jam_keluar',
         'no_lumbung',
         'nama_lumbung',
+        'user_id'
     ];
 
+    // Relasi ke User
+    public function user(){
+        return $this->belongsTo(User::class, 'user_id');
+    }
     // Relasi ke Mobil
     public function mobil()
     {

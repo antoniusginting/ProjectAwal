@@ -12,6 +12,8 @@ use App\Models\AlamatKontrak;
 use App\Models\TimbanganTronton;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
+use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
@@ -143,6 +145,9 @@ class SuratJalanResource extends Resource
                                     ->label('Netto')
                                     ->default(0)
                                     ->readOnly(),
+                                Hidden::make('user_id')
+                                    ->label('User ID')
+                                    ->default(Auth::id()) // Set nilai default user yang sedang login,
                             ])->columns(2),
                     ])->columns(2)
             ]);
@@ -180,6 +185,8 @@ class SuratJalanResource extends Resource
                 TextColumn::make('tronton.penjualan1.nama_supir')
                     ->label('Nama Supir')
                     ->searchable(),
+                TextColumn::make('user.name')
+                    ->label('User')
             ])->defaultSort('id', 'desc')
             ->filters([
                 //

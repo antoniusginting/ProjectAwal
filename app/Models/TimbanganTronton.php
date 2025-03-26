@@ -17,8 +17,14 @@ class TimbanganTronton extends Model
         'tambah_berat',
         'bruto_final',
         'keterangan',
+        'user_id',
     ];
 
+
+    // Relasi ke User
+    public function user(){
+        return $this->belongsTo(User::class, 'user_id');
+    }
     public function penjualan1()
     {
         return $this->belongsTo(Penjualan::class, 'id_timbangan_jual_1','id');

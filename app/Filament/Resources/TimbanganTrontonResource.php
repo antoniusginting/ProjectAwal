@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use Dom\Text;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
@@ -11,18 +12,19 @@ use App\Models\TimbanganTronton;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
+use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use function Laravel\Prompts\textarea;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
+
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
-
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TimbanganTrontonResource\Pages;
 use App\Filament\Resources\TimbanganTrontonResource\RelationManagers;
-use Dom\Text;
 
 class TimbanganTrontonResource extends Resource
 {
@@ -59,12 +61,12 @@ class TimbanganTrontonResource extends Resource
                                                 $set('bruto_final', ($get('total_bruto') ?? 0) + ($state ?? 0))
                                             ),
 
-                                            TextInput::make('bruto_final')
+                                        TextInput::make('bruto_final')
                                             ->label('Bruto Final')
                                             ->readOnly()
                                             ->placeholder('Otomatis terjumlahkan')
                                             ->numeric()
-                                            ->formatStateUsing(fn ($state) => number_format($state, 0, ',', '.')), // Format ribuan                                
+                                            ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')), // Format ribuan                                
                                     ])->columns(3),
                                 //Timbangan Jual 1
                                 Card::make('Timbangan jual 1')
@@ -394,6 +396,9 @@ class TimbanganTrontonResource extends Resource
                                 Textarea::make('keterangan')
                                     ->placeholder('Masukkan Keterangan')
                                     ->columnSpanFull(), // Tetap 1 kolom penuh di semua ukuran layar
+                                Hidden::make('user_id')
+                                    ->label('User ID')
+                                    ->default(Auth::id()) // Set nilai default user yang sedang login,
                             ])
                     ])
             ]);
@@ -413,10 +418,10 @@ class TimbanganTrontonResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('id')
-                ->label('ID'),
+                    ->label('ID'),
                 TextColumn::make('created_at')->label('Tanggal')
                     ->dateTime('d-m-Y'),
-                    TextColumn::make('penjualan1.nama_supir')
+                TextColumn::make('penjualan1.nama_supir')
                     ->label('Nama Supir'),
                 TextColumn::make('tambah_berat')
                     ->label('Berat Tambah')
@@ -516,6 +521,8 @@ class TimbanganTrontonResource extends Resource
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('nama_barang'),
                 TextColumn::make('keterangan'),
+                TextColumn::make('user.name')
+                    ->label('User')
             ])->defaultSort('id', 'desc')
             ->filters([
                 //
