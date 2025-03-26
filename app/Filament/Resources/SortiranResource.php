@@ -94,7 +94,7 @@ class SortiranResource extends Resource
                                     ->label('Nama Supplier')
                                     ->placeholder('Otomatis terisi saat memilih no SPB')
                                     ->disabled(),
-                                    TextInput::make('netto_bersih')
+                                TextInput::make('netto_bersih')
                                     ->label('Netto Bersih')
                                     ->placeholder('Otomatis terisi')
                                     ->afterStateHydrated(function ($state, callable $set, callable $get, $record) {
@@ -106,7 +106,7 @@ class SortiranResource extends Resource
                                             // Jika tidak ada di database, ambil dari netto_pembelian
                                             $value = $get('netto_pembelian');
                                         }
-                                
+
                                         // Format angka dengan ribuan menggunakan titik dan desimal menggunakan koma
                                         $set('netto_bersih', number_format($value, 0, ',', '.'));
                                     })
@@ -114,10 +114,10 @@ class SortiranResource extends Resource
                                         // Hilangkan format sebelum melakukan operasi matematis
                                         $cleanState = (float) str_replace(['.', ','], ['', '.'], $state);
                                         $cleanTungkul = (float) str_replace(['.', ','], ['', '.'], $get('berat_tungkul') ?? 0);
-                                
+
                                         // Lakukan pengurangan
                                         $nettoBersih = max(0, ($cleanState - $cleanTungkul));
-                                
+
                                         // Format kembali hasilnya
                                         $set('netto_bersih', number_format($nettoBersih, 0, ',', '.'));
                                     })
@@ -134,15 +134,15 @@ class SortiranResource extends Resource
                                     ->numeric()
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                        // Ambil netto bersih dari database jika ada, jika tidak ambil netto pembelian
-                                        $nettoBersihSebelumnya = (float) str_replace(['.', ','], ['', '.'], $get('netto_bersih') ?? $get('netto_pembelian'));
+                                        // Ambil nilai dasar dari netto_pembelian jika ada, agar tidak terjadi double subtraction
+                                        $nettoPembelian = (float) str_replace(['.', ','], ['', '.'], $get('netto_pembelian') ?? 1);
                                         $beratTungkul = (float) str_replace(['.', ','], ['', '.'], $state);
 
-                                        // Pastikan nilai tidak negatif
-                                        $nettoBersihBaru = max(0, $nettoBersihSebelumnya - $beratTungkul);
+                                        // Hitung updated netto bersih
+                                        $updatedNettoBersih = max(0, $nettoPembelian - $beratTungkul);
 
-                                        // Set nilai baru dengan format ribuan
-                                        $set('netto_bersih', number_format($nettoBersihBaru, 0, ',', '.'));
+                                        // Perbaharui tampilan atau nilai netto_bersih dengan format ribuan
+                                        $set('netto_bersih', number_format($updatedNettoBersih, 0, ',', '.'));
                                     }),
                                 TextInput::make('nama_barang')
                                     ->label('Nama Barang')
@@ -151,14 +151,21 @@ class SortiranResource extends Resource
                                 TextInput::make('total_karung')
                                     ->label('Total Karung')
                                     ->numeric()
-                                    ->helperText('Keterangan : Ketik ulang total karung hanya pada menu ubah Sortiran')
+                                    ->helperText('Keterangan: Ketik ulang total karung hanya pada menu ubah Sortiran')
                                     ->placeholder('Masukkan Total Karung')
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, $set, $get) {
-                                        $nettoBersih = floatval($get('netto_bersih') ?? 1); // Pastikan dalam float
-                                        $totalKarung = floatval($state ?: 1); // Jangan biarkan nol untuk menghindari pembagian dengan nol
+                                        // Ambil nilai dasar netto: gunakan 'netto_pembelian' sebagai basis
+                                        $nettoPembelian = floatval(str_replace(['.', ','], ['', '.'], $get('netto_pembelian') ?? 1));
+                                        // Ambil berat tungkul, default 0 jika tidak ada
+                                        $beratTungkul = floatval(str_replace(['.', ','], ['', '.'], $get('berat_tungkul') ?? 0));
 
-                                        // Jika total_karung kosong, reset semua nilai tonase
+                                        // Hitung netto bersih yang up to date
+                                        $updatedNettoBersih = max(0, $nettoPembelian - $beratTungkul);
+
+                                        $totalKarung = floatval($state ?: 1); // Menghindari pembagian dengan nol
+
+                                        // Jika field total_karung kosong, reset tonase
                                         if (empty($state)) {
                                             foreach (range(1, 6) as $i) {
                                                 $set("tonase_$i", null);
@@ -166,17 +173,20 @@ class SortiranResource extends Resource
                                             return;
                                         }
 
+                                        // Hitung nilai tonase untuk tiap unit karung
                                         foreach (range(1, 6) as $i) {
                                             $jumlahKarung = floatval($get("jumlah_karung_$i") ?? 0);
-                                            $tonase = (($jumlahKarung * $nettoBersih) / $totalKarung) * 1000; // Hitung nilai dalam kilogram
-                                            // Tentukan jumlah angka desimal yang diinginkan, misalnya 3
+                                            $tonase = (($jumlahKarung * $updatedNettoBersih) / $totalKarung);
+
+                                            // Tentukan presisi desimal, misalnya 0 (bulat)
                                             $precision = 0;
-                                            // Bulatkan tonase ke presisi yang diinginkan
                                             $roundedTonase = round($tonase, $precision);
-                                            // Format tonase yang sudah dibulatkan: menggunakan koma sebagai desimal dan titik sebagai pemisah ribuan
                                             $formattedTonase = number_format($roundedTonase, $precision, ',', '.');
                                             $set("tonase_$i", $formattedTonase);
                                         }
+
+                                        // Opsi: Jika Anda ingin secara visual juga mengupdate field netto_bersih
+                                        $set('netto_bersih', number_format($updatedNettoBersih, 0, ',', '.'));
                                     }),
 
                             ])->columns(2),

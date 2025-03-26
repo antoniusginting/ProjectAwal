@@ -168,7 +168,7 @@ class SuratJalanResource extends Resource
                     ->label('Alamat')
                     ->wrap()
                     ->searchable()
-                    ->extraAttributes(['style' => 'max-width: 250px;']),
+                    ->extraAttributes(['style' => 'width: 250px;']),
                 TextColumn::make('netto')
                     ->label('Netto')
                     ->searchable()

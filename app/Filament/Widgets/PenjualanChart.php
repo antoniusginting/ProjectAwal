@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Models\Penjualan;
 use Filament\Widgets\ChartWidget;
+use Illuminate\Support\Facades\Gate;
 
 class PenjualanChart extends ChartWidget
 {
@@ -42,5 +43,9 @@ class PenjualanChart extends ChartWidget
     protected function getType(): string
     {
         return 'bar';
+    }
+    public static function canView(): bool
+    {
+        return Gate::allows('view_statistik_widget'); // Sesuaikan dengan permission yang Anda buat
     }
 }
