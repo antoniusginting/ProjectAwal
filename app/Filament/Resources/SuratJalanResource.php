@@ -113,7 +113,21 @@ class SuratJalanResource extends Resource
 
                                         // Hitung netto secara langsung: netto = bruto_final - tara
                                         $set('netto', max(0, (float) $brutoFinal - (float) $taranya));
-                                    })->columnSpan(2),
+                                    })
+                                    ->afterStateHydrated(function (callable $set, callable $get, $state) {
+                                        // Pastikan hanya berjalan saat edit data
+                                        if ($state) {
+                                            $timbangan = TimbanganTronton::where('id', $state)->first();
+                                
+                                            $set('brondolan', $timbangan?->penjualan1?->brondolan ?? '');
+                                            $set('nama_supir', $timbangan?->penjualan1?->nama_supir ?? '');
+                                            $set('nama_barang', $timbangan?->penjualan1?->nama_barang ?? '');
+                                            $set('tara', $timbangan?->penjualan1?->tara ?? 0);
+                                            $set('bruto_final', $timbangan?->bruto_final ?? 0);
+                                            $set('netto', max(0, (float) ($timbangan?->bruto_final ?? 0) - (float) ($timbangan?->penjualan1?->tara ?? 0)));
+                                        }
+                                    })
+                                    ->columnSpan(2),
                                 TextInput::make('brondolan')
                                     ->label('Satuan Muatan')
                                     ->disabled() // Hanya untuk menampilkan, tidak bisa diubah
