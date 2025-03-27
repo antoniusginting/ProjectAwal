@@ -46,6 +46,11 @@ class TimbanganTrontonResource extends Resource
                             ->schema([
                                 Card::make()
                                     ->schema([
+                                        TextInput::make('bruto_final')
+                                            ->placeholder('Otomatis terisi')
+                                            ->label('Bruto Final')
+                                            ->disabled(), // supaya tidak bisa diubah manual oleh user
+
                                         TextInput::make('total_bruto')
                                             ->label('Total Bruto')
                                             ->readOnly()
@@ -115,18 +120,20 @@ class TimbanganTrontonResource extends Resource
                                                 if ($state) {
                                                     $penjualan = Penjualan::find($state);
                                                     $set('plat_polisi1', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                    $set('bruto1', $penjualan?->bruto ?? 0);
-                                                    $set('tara1', $penjualan?->tara ?? 0);
-                                                    $set('netto1', $penjualan?->netto ?? 0);
+                                                    $set('bruto1', $penjualan?->bruto);
+                                                    $set('tara1', $penjualan?->tara);
+                                                    $set('netto1', $penjualan?->netto);
                                                 }
                                             })
                                             ->afterStateUpdated(function ($state, callable $set, $get) {
                                                 $penjualan = Penjualan::find($state);
                                                 $set('plat_polisi1', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                $set('bruto1', $penjualan?->bruto ?? 0);
-                                                $set('tara1', $penjualan?->tara ?? 0);
-                                                $set('netto1', $penjualan?->netto ?? 0);
-                                                $set('total_bruto', self::hitungTotalBruto($get)); // Update total_bruto
+                                                $set('bruto1', $penjualan?->bruto);
+                                                $set('tara1', $penjualan?->tara);
+                                                $set('netto1', $penjualan?->netto);
+                                                //$set('total_bruto', self::hitungTotalBruto($get)); // Update total_bruto
+                                                // Update bruto_final berdasarkan helper
+                                                $set('bruto_final', self::getBrutoFinal($get));
                                             }),
 
                                         TextInput::make('plat_polisi1')
@@ -200,18 +207,20 @@ class TimbanganTrontonResource extends Resource
                                                 if ($state) {
                                                     $penjualan = Penjualan::find($state);
                                                     $set('plat_polisi2', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                    $set('bruto2', $penjualan?->bruto ?? 0);
-                                                    $set('tara2', $penjualan?->tara ?? 0);
-                                                    $set('netto2', $penjualan?->netto ?? 0);
+                                                    $set('bruto2', $penjualan?->bruto);
+                                                    $set('tara2', $penjualan?->tara);
+                                                    $set('netto2', $penjualan?->netto);
                                                 }
                                             })
                                             ->afterStateUpdated(function ($state, callable $set, $get) {
                                                 $penjualan = Penjualan::find($state);
                                                 $set('plat_polisi2', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                $set('bruto2', $penjualan?->bruto ?? 0);
-                                                $set('tara2', $penjualan?->tara ?? 0);
-                                                $set('netto2', $penjualan?->netto ?? 0);
-                                                $set('total_bruto', self::hitungTotalBruto($get)); // Update total_bruto
+                                                $set('bruto2', $penjualan?->bruto);
+                                                $set('tara2', $penjualan?->tara);
+                                                $set('netto2', $penjualan?->netto);
+                                                //$set('total_bruto', self::hitungTotalBruto($get)); // Update total_bruto
+                                                // Update bruto_final berdasarkan helper
+                                                $set('bruto_final', self::getBrutoFinal($get));
                                             }),
 
                                         TextInput::make('plat_polisi2')
@@ -285,18 +294,20 @@ class TimbanganTrontonResource extends Resource
                                                 if ($state) {
                                                     $penjualan = Penjualan::find($state);
                                                     $set('plat_polisi3', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                    $set('bruto3', $penjualan?->bruto ?? 0);
-                                                    $set('tara3', $penjualan?->tara ?? 0);
-                                                    $set('netto3', $penjualan?->netto ?? 0);
+                                                    $set('bruto3', $penjualan?->bruto);
+                                                    $set('tara3', $penjualan?->tara);
+                                                    $set('netto3', $penjualan?->netto);
                                                 }
                                             })
                                             ->afterStateUpdated(function ($state, callable $set, $get) {
                                                 $penjualan = Penjualan::find($state);
                                                 $set('plat_polisi3', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                $set('bruto3', $penjualan?->bruto ?? 0);
-                                                $set('tara3', $penjualan?->tara ?? 0);
-                                                $set('netto3', $penjualan?->netto ?? 0);
-                                                $set('total_bruto', self::hitungTotalBruto($get)); // Update total_bruto
+                                                $set('bruto3', $penjualan?->bruto);
+                                                $set('tara3', $penjualan?->tara);
+                                                $set('netto3', $penjualan?->netto);
+                                                //$set('total_bruto', self::hitungTotalBruto($get)); // Update total_bruto
+                                                // Update bruto_final berdasarkan helper
+                                                $set('bruto_final', self::getBrutoFinal($get));
                                             }),
 
                                         TextInput::make('plat_polisi3')
@@ -364,24 +375,26 @@ class TimbanganTrontonResource extends Resource
                                                     ->toArray();
                                             })
                                             ->searchable()
-                                            ->required()
+
                                             ->reactive()
                                             ->afterStateHydrated(function ($state, callable $set) {
                                                 if ($state) {
                                                     $penjualan = Penjualan::find($state);
                                                     $set('plat_polisi4', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                    $set('bruto4', $penjualan?->bruto ?? 0);
-                                                    $set('tara4', $penjualan?->tara ?? 0);
-                                                    $set('netto4', $penjualan?->netto ?? 0);
+                                                    $set('bruto4', $penjualan?->bruto);
+                                                    $set('tara4', $penjualan?->tara);
+                                                    $set('netto4', $penjualan?->netto);
                                                 }
                                             })
                                             ->afterStateUpdated(function ($state, callable $set, $get) {
                                                 $penjualan = Penjualan::find($state);
                                                 $set('plat_polisi4', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                $set('bruto4', $penjualan?->bruto ?? 0);
-                                                $set('tara4', $penjualan?->tara ?? 0);
-                                                $set('netto4', $penjualan?->netto ?? 0);
-                                                $set('total_bruto', self::hitungTotalBruto($get)); // Update total_bruto
+                                                $set('bruto4', $penjualan?->bruto);
+                                                $set('tara4', $penjualan?->tara);
+                                                $set('netto4', $penjualan?->netto);
+                                                //$set('total_bruto', self::hitungTotalBruto($get)); // Update total_bruto
+                                                // Update bruto_final berdasarkan helper
+                                                $set('bruto_final', self::getBrutoFinal($get));
                                             }),
 
                                         TextInput::make('plat_polisi4')
@@ -449,24 +462,26 @@ class TimbanganTrontonResource extends Resource
                                                     ->toArray();
                                             })
                                             ->searchable()
-                                            ->required()
+
                                             ->reactive()
                                             ->afterStateHydrated(function ($state, callable $set) {
                                                 if ($state) {
                                                     $penjualan = Penjualan::find($state);
                                                     $set('plat_polisi5', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                    $set('bruto5', $penjualan?->bruto ?? 0);
-                                                    $set('tara5', $penjualan?->tara ?? 0);
-                                                    $set('netto5', $penjualan?->netto ?? 0);
+                                                    $set('bruto5', $penjualan?->bruto);
+                                                    $set('tara5', $penjualan?->tara);
+                                                    $set('netto5', $penjualan?->netto);
                                                 }
                                             })
                                             ->afterStateUpdated(function ($state, callable $set, $get) {
                                                 $penjualan = Penjualan::find($state);
                                                 $set('plat_polisi5', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                $set('bruto5', $penjualan?->bruto ?? 0);
-                                                $set('tara5', $penjualan?->tara ?? 0);
-                                                $set('netto5', $penjualan?->netto ?? 0);
-                                                $set('total_bruto', self::hitungTotalBruto($get)); // Update total_bruto
+                                                $set('bruto5', $penjualan?->bruto);
+                                                $set('tara5', $penjualan?->tara);
+                                                $set('netto5', $penjualan?->netto);
+                                                //$set('total_bruto', self::hitungTotalBruto($get)); // Update total_bruto
+                                                // Update bruto_final berdasarkan helper
+                                                $set('bruto_final', self::getBrutoFinal($get));
                                             }),
 
                                         TextInput::make('plat_polisi5')
@@ -534,24 +549,26 @@ class TimbanganTrontonResource extends Resource
                                                     ->toArray();
                                             })
                                             ->searchable()
-                                            ->required()
+
                                             ->reactive()
                                             ->afterStateHydrated(function ($state, callable $set) {
                                                 if ($state) {
                                                     $penjualan = Penjualan::find($state);
                                                     $set('plat_polisi6', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                    $set('bruto6', $penjualan?->bruto ?? 0);
-                                                    $set('tara6', $penjualan?->tara ?? 0);
-                                                    $set('netto6', $penjualan?->netto ?? 0);
+                                                    $set('bruto6', $penjualan?->bruto);
+                                                    $set('tara6', $penjualan?->tara);
+                                                    $set('netto6', $penjualan?->netto);
                                                 }
                                             })
                                             ->afterStateUpdated(function ($state, callable $set, $get) {
                                                 $penjualan = Penjualan::find($state);
                                                 $set('plat_polisi6', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                $set('bruto6', $penjualan?->bruto ?? 0);
-                                                $set('tara6', $penjualan?->tara ?? 0);
-                                                $set('netto6', $penjualan?->netto ?? 0);
-                                                $set('total_bruto', self::hitungTotalBruto($get)); // Update total_bruto
+                                                $set('bruto6', $penjualan?->bruto);
+                                                $set('tara6', $penjualan?->tara);
+                                                $set('netto6', $penjualan?->netto);
+                                                //$set('total_bruto', self::hitungTotalBruto($get)); // Update total_bruto
+                                                // Update bruto_final berdasarkan helper
+                                                $set('bruto_final', self::getBrutoFinal($get));
                                             }),
 
                                         TextInput::make('plat_polisi6')
@@ -589,7 +606,15 @@ class TimbanganTrontonResource extends Resource
                     ])
             ]);
     }
-
+    protected static function getBrutoFinal($get)
+    {
+        return $get('bruto6')
+            ?? $get('bruto5')
+            ?? $get('bruto4')
+            ?? $get('bruto3')
+            ?? $get('bruto2')
+            ?? $get('bruto1');
+    }
     public static function hitungTotalBruto($get)
     {
         return (int) ($get('bruto1') ?? 0) +
