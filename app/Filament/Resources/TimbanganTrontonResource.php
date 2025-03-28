@@ -44,558 +44,569 @@ class TimbanganTrontonResource extends Resource
                     ->schema([
                         Grid::make(3)
                             ->schema([
+                                Card::make('Informasi Berat')
+                                    ->schema([
+                                        Card::make()
+                                            ->schema([
+                                                TextInput::make('bruto_akhir')
+                                                    ->placeholder('Otomatis terisi')
+                                                    ->label('Bruto Akhir')
+                                                    ->readOnly(),
+                                                TextInput::make('total_netto')
+                                                    ->placeholder('Otomatis terisi')
+                                                    ->label('Total Netto')
+                                                    ->readOnly(),
+                                                TextInput::make('tambah_berat')
+                                                    ->label('Tambah Berat')
+                                                    ->numeric()
+                                                    ->default(300)
+                                                    ->placeholder('Masukkan tambah berat')
+                                                    ->reactive() // Menjadikan field ini responsif
+                                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                                        $set('bruto_final', ($get('bruto_akhir') ?? 0) + ($state ?? 0));
+                                                        $set('netto_final', ($get('total_netto') ?? 0) + ($state ?? 0));
+                                                    }),
+                                            ])->columns(3),
+                                        Card::make()
+                                            ->schema([
+                                                TextInput::make('bruto_final')
+                                                    ->label('Bruto Final')
+                                                    ->readOnly()
+                                                    ->placeholder('Otomatis terjumlahkan'),
+                                                TextInput::make('tara_awal')
+                                                    ->label('Tara Final')
+                                                    ->readOnly()
+                                                    ->placeholder('Otomatis terjumlahkan'),
+                                                TextInput::make('netto_final')
+                                                    ->label('Netto Final')
+                                                    ->readOnly()
+                                                    ->placeholder('Otomatis terjumlahkan'),
+                                            ])->columns(3)
+                                    ])->collapsible(),
                                 Card::make()
                                     ->schema([
-                                        TextInput::make('bruto_final')
-                                            ->placeholder('Otomatis terisi')
-                                            ->label('Bruto Final')
-                                            ->disabled(), // supaya tidak bisa diubah manual oleh user
+                                        //Timbangan Jual 1
+                                        Card::make('Timbangan jual 1')
+                                            ->schema([
+                                                Select::make('id_timbangan_jual_1')
+                                                    ->label('No SPB (Timbangan 1)')
+                                                    ->placeholder('Pilih No SPB Penjualan')
+                                                    ->options(function () {
+                                                        // Ambil semua field timbangan jual (dari 1 sampai 6)
+                                                        $usedSpbIds = TimbanganTronton::query()
+                                                            ->get()
+                                                            ->flatMap(function ($record) {
+                                                                return [
+                                                                    $record->id_timbangan_jual_1,
+                                                                    $record->id_timbangan_jual_2,
+                                                                    $record->id_timbangan_jual_3,
+                                                                    $record->id_timbangan_jual_4,
+                                                                    $record->id_timbangan_jual_5,
+                                                                    $record->id_timbangan_jual_6,
+                                                                ];
+                                                            })
+                                                            ->filter()   // Hilangkan nilai null
+                                                            ->unique()   // Pastikan tidak ada duplikasi
+                                                            ->toArray();
 
-                                        TextInput::make('total_bruto')
-                                            ->label('Total Bruto')
-                                            ->readOnly()
-                                            ->placeholder('Otomatis terjumlahkan'),
-                                        TextInput::make('tambah_berat')
-                                            ->label('Tambah Berat')
-                                            ->numeric()
-                                            ->default(300)
-                                            ->placeholder('Masukkan tambah berat')
-                                            ->reactive() // Menjadikan field ini responsif
-                                            ->afterStateUpdated(
-                                                fn($state, callable $set, callable $get) =>
-                                                $set('bruto_final', ($get('total_bruto') ?? 0) + ($state ?? 0))
-                                            ),
+                                                        return Penjualan::query()
+                                                            ->whereNotIn('id', $usedSpbIds)
+                                                            ->latest()
+                                                            ->with(['mobil', 'supplier'])
+                                                            ->get()
+                                                            ->mapWithKeys(function ($item) {
+                                                                return [
+                                                                    $item->id => $item->no_spb .
+                                                                        ' - Timbangan ke-' . $item->keterangan .
+                                                                        ' - ' . $item->supplier->nama_supplier .
+                                                                        ' - ' . ($item->plat_polisi ?? $item->no_container)
+                                                                ];
+                                                            })
+                                                            ->toArray();
+                                                    })
+                                                    ->searchable()
+                                                    ->required()
+                                                    ->reactive()
 
-                                        TextInput::make('bruto_final')
-                                            ->label('Bruto Final')
-                                            ->readOnly()
-                                            ->placeholder('Otomatis terjumlahkan')
-                                            ->numeric()
-                                            ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')), // Format ribuan                                
+                                                    ->afterStateHydrated(function ($state, callable $set) {
+                                                        if ($state) {
+                                                            $penjualan = Penjualan::find($state);
+                                                            $set('plat_polisi1', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
+                                                            $set('bruto1', $penjualan?->bruto);
+                                                            $set('tara1', $penjualan?->tara);
+                                                            $set('netto1', $penjualan?->netto);
+                                                        }
+                                                    })
+                                                    ->afterStateUpdated(function ($state, callable $set, $get) {
+                                                        $penjualan = Penjualan::find($state);
+                                                        $set('plat_polisi1', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
+                                                        $set('bruto1', $penjualan?->bruto);
+                                                        $set('tara1', $penjualan?->tara);
+                                                        $set('netto1', $penjualan?->netto);
+                                                        $set('total_netto', self::hitungTotalNetto($get)); // Update total_total_netto
+                                                        // Update bruto_final berdasarkan helper
+                                                        $set('bruto_akhir', self::getBrutoAkhir($get));
+                                                        $set('tara_awal', self::getTaraAwal($get));
+                                                    }),
+
+                                                TextInput::make('plat_polisi1')
+                                                    ->label('Plat Polisi')
+                                                    ->reactive()
+                                                    ->disabled(),
+
+                                                TextInput::make('bruto1')
+                                                    ->placeholder('Otomatis terisi')
+                                                    ->label('Bruto 1')
+                                                    ->readOnly()
+                                                    ->numeric()
+                                                    ->reactive()
+                                                    ->afterStateUpdated(fn($state, $set, $get) => $set('total_bruto', self::hitungTotalBruto($get))),
+
+                                                TextInput::make('tara1')
+                                                    ->label('Tara 1')
+                                                    ->reactive()
+                                                    ->afterStateHydrated(fn($state, $set) => $set('tara1', number_format($state, 0, ',', '.')))
+                                                    ->disabled(),
+
+                                                TextInput::make('netto1')
+                                                    ->label('Netto 1')
+                                                    ->reactive()
+                                                    ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '')
+                                                    ->disabled(),
+                                            ])->columnSpan(1)->collapsible(),
+                                        //Timbangan Jual 2
+                                        Card::make('Timbangan jual 2')
+                                            ->schema([
+                                                Select::make('id_timbangan_jual_2')
+                                                    ->label('No SPB (Timbangan 2)')
+                                                    ->placeholder('Pilih No SPB Penjualan')
+                                                    ->options(function () {
+                                                        // Ambil semua field timbangan jual (dari 1 sampai 6)
+                                                        $usedSpbIds = TimbanganTronton::query()
+                                                            ->get()
+                                                            ->flatMap(function ($record) {
+                                                                return [
+                                                                    $record->id_timbangan_jual_1,
+                                                                    $record->id_timbangan_jual_2,
+                                                                    $record->id_timbangan_jual_3,
+                                                                    $record->id_timbangan_jual_4,
+                                                                    $record->id_timbangan_jual_5,
+                                                                    $record->id_timbangan_jual_6,
+                                                                ];
+                                                            })
+                                                            ->filter()   // Hilangkan nilai null
+                                                            ->unique()   // Pastikan tidak ada duplikasi
+                                                            ->toArray();
+
+                                                        return Penjualan::query()
+                                                            ->whereNotIn('id', $usedSpbIds)
+                                                            ->latest()
+                                                            ->with(['mobil', 'supplier'])
+                                                            ->get()
+                                                            ->mapWithKeys(function ($item) {
+                                                                return [
+                                                                    $item->id => $item->no_spb .
+                                                                        ' - Timbangan ke-' . $item->keterangan .
+                                                                        ' - ' . $item->supplier->nama_supplier .
+                                                                        ' - ' . ($item->plat_polisi ?? $item->no_container)
+                                                                ];
+                                                            })
+                                                            ->toArray();
+                                                    })
+                                                    ->searchable()
+                                                    ->reactive()
+                                                    ->afterStateHydrated(function ($state, callable $set) {
+                                                        if ($state) {
+                                                            $penjualan = Penjualan::find($state);
+                                                            $set('plat_polisi2', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
+                                                            $set('bruto2', $penjualan?->bruto);
+                                                            $set('tara2', $penjualan?->tara);
+                                                            $set('netto2', $penjualan?->netto);
+                                                        }
+                                                    })
+                                                    ->afterStateUpdated(function ($state, callable $set, $get) {
+                                                        $penjualan = Penjualan::find($state);
+                                                        $set('plat_polisi2', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
+                                                        $set('bruto2', $penjualan?->bruto);
+                                                        $set('tara2', $penjualan?->tara);
+                                                        $set('netto2', $penjualan?->netto);
+                                                        $set('total_netto', self::hitungTotalNetto($get)); // Update total_total_netto
+                                                        // Update bruto_final berdasarkan helper
+                                                        $set('bruto_akhir', self::getBrutoAkhir($get));
+                                                    }),
+
+                                                TextInput::make('plat_polisi2')
+                                                    ->label('Plat Polisi')
+                                                    ->reactive()
+                                                    ->disabled(),
+
+                                                TextInput::make('bruto2')
+                                                    ->placeholder('Otomatis terisi')
+                                                    ->label('Bruto')
+                                                    ->numeric()
+                                                    ->readOnly()
+                                                    ->reactive()
+                                                    ->afterStateUpdated(fn($state, $set, $get) => $set('total_bruto', self::hitungTotalBruto($get))),
+
+                                                TextInput::make('tara2')
+                                                    ->label('Tara')
+                                                    ->reactive()
+                                                    ->afterStateHydrated(fn($state, $set) => $set('tara2', number_format($state, 0, ',', '.')))
+                                                    ->disabled(),
+
+                                                TextInput::make('netto2')
+                                                    ->label('Netto')
+                                                    ->reactive()
+                                                    ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '')
+                                                    ->disabled(),
+                                            ])->columnSpan(1)->collapsible(),
+                                        //Timbangan Jual 3
+                                        Card::make('Timbangan jual 3')
+                                            ->schema([
+                                                Select::make('id_timbangan_jual_3')
+                                                    ->label('No SPB (Timbangan 3)')
+                                                    ->placeholder('Pilih No SPB Penjualan')
+                                                    ->options(function () {
+                                                        // Ambil semua field timbangan jual (dari 1 sampai 6)
+                                                        $usedSpbIds = TimbanganTronton::query()
+                                                            ->get()
+                                                            ->flatMap(function ($record) {
+                                                                return [
+                                                                    $record->id_timbangan_jual_1,
+                                                                    $record->id_timbangan_jual_2,
+                                                                    $record->id_timbangan_jual_3,
+                                                                    $record->id_timbangan_jual_4,
+                                                                    $record->id_timbangan_jual_5,
+                                                                    $record->id_timbangan_jual_6,
+                                                                ];
+                                                            })
+                                                            ->filter()   // Hilangkan nilai null
+                                                            ->unique()   // Pastikan tidak ada duplikasi
+                                                            ->toArray();
+
+                                                        return Penjualan::query()
+                                                            ->whereNotIn('id', $usedSpbIds)
+                                                            ->latest()
+                                                            ->with(['mobil', 'supplier'])
+                                                            ->get()
+                                                            ->mapWithKeys(function ($item) {
+                                                                return [
+                                                                    $item->id => $item->no_spb .
+                                                                        ' - Timbangan ke-' . $item->keterangan .
+                                                                        ' - ' . $item->supplier->nama_supplier .
+                                                                        ' - ' . ($item->plat_polisi ?? $item->no_container)
+                                                                ];
+                                                            })
+                                                            ->toArray();
+                                                    })
+                                                    ->searchable()
+                                                    ->reactive()
+                                                    ->afterStateHydrated(function ($state, callable $set) {
+                                                        if ($state) {
+                                                            $penjualan = Penjualan::find($state);
+                                                            $set('plat_polisi3', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
+                                                            $set('bruto3', $penjualan?->bruto);
+                                                            $set('tara3', $penjualan?->tara);
+                                                            $set('netto3', $penjualan?->netto);
+                                                        }
+                                                    })
+                                                    ->afterStateUpdated(function ($state, callable $set, $get) {
+                                                        $penjualan = Penjualan::find($state);
+                                                        $set('plat_polisi3', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
+                                                        $set('bruto3', $penjualan?->bruto);
+                                                        $set('tara3', $penjualan?->tara);
+                                                        $set('netto3', $penjualan?->netto);
+                                                        $set('total_netto', self::hitungTotalNetto($get)); // Update total_total_netto
+                                                        // Update bruto_final berdasarkan helper
+                                                        $set('bruto_akhir', self::getBrutoAkhir($get));
+                                                    }),
+
+                                                TextInput::make('plat_polisi3')
+                                                    ->label('Plat Polisi')
+                                                    ->reactive()
+                                                    ->disabled(),
+
+                                                TextInput::make('bruto3')
+                                                    ->placeholder('Otomatis terisi')
+                                                    ->label('Bruto')
+                                                    ->numeric()
+                                                    ->readOnly()
+                                                    ->reactive()
+                                                    ->afterStateUpdated(fn($state, $set, $get) => $set('total_bruto', self::hitungTotalBruto($get))),
+
+                                                TextInput::make('tara3')
+                                                    ->label('Tara')
+                                                    ->reactive()
+                                                    ->afterStateHydrated(fn($state, $set) => $set('tara3', number_format($state, 0, ',', '.')))
+                                                    ->disabled(),
+
+                                                TextInput::make('netto3')
+                                                    ->label('Netto')
+                                                    ->reactive()
+                                                    ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '')
+                                                    ->disabled(),
+                                            ])->columnSpan(1)->collapsible(),
+                                        //Timbangan Jual 4
+                                        Card::make('Timbangan jual 4')
+                                            ->schema([
+                                                Select::make('id_timbangan_jual_4')
+                                                    ->label('No SPB (Timbangan 4)')
+                                                    ->placeholder('Pilih No SPB Penjualan')
+                                                    ->options(function () {
+                                                        // Ambil semua field timbangan jual (dari 1 sampai 6)
+                                                        $usedSpbIds = TimbanganTronton::query()
+                                                            ->get()
+                                                            ->flatMap(function ($record) {
+                                                                return [
+                                                                    $record->id_timbangan_jual_1,
+                                                                    $record->id_timbangan_jual_2,
+                                                                    $record->id_timbangan_jual_3,
+                                                                    $record->id_timbangan_jual_4,
+                                                                    $record->id_timbangan_jual_5,
+                                                                    $record->id_timbangan_jual_6,
+                                                                ];
+                                                            })
+                                                            ->filter()   // Hilangkan nilai null
+                                                            ->unique()   // Pastikan tidak ada duplikasi
+                                                            ->toArray();
+
+                                                        return Penjualan::query()
+                                                            ->whereNotIn('id', $usedSpbIds)
+                                                            ->latest()
+                                                            ->with(['mobil', 'supplier'])
+                                                            ->get()
+                                                            ->mapWithKeys(function ($item) {
+                                                                return [
+                                                                    $item->id => $item->no_spb .
+                                                                        ' - Timbangan ke-' . $item->keterangan .
+                                                                        ' - ' . $item->supplier->nama_supplier .
+                                                                        ' - ' . ($item->plat_polisi ?? $item->no_container)
+                                                                ];
+                                                            })
+                                                            ->toArray();
+                                                    })
+                                                    ->searchable()
+
+                                                    ->reactive()
+                                                    ->afterStateHydrated(function ($state, callable $set) {
+                                                        if ($state) {
+                                                            $penjualan = Penjualan::find($state);
+                                                            $set('plat_polisi4', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
+                                                            $set('bruto4', $penjualan?->bruto);
+                                                            $set('tara4', $penjualan?->tara);
+                                                            $set('netto4', $penjualan?->netto);
+                                                        }
+                                                    })
+                                                    ->afterStateUpdated(function ($state, callable $set, $get) {
+                                                        $penjualan = Penjualan::find($state);
+                                                        $set('plat_polisi4', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
+                                                        $set('bruto4', $penjualan?->bruto);
+                                                        $set('tara4', $penjualan?->tara);
+                                                        $set('netto4', $penjualan?->netto);
+                                                        $set('total_netto', self::hitungTotalNetto($get)); // Update total_total_netto
+                                                        // Update bruto_final berdasarkan helper
+                                                        $set('bruto_akhir', self::getBrutoAkhir($get));
+                                                    }),
+
+                                                TextInput::make('plat_polisi4')
+                                                    ->label('Plat Polisi')
+                                                    ->reactive()
+                                                    ->disabled(),
+
+                                                TextInput::make('bruto4')
+                                                    ->placeholder('Otomatis terisi')
+                                                    ->label('Bruto')
+                                                    ->numeric()
+                                                    ->readOnly()
+                                                    ->reactive()
+                                                    ->afterStateUpdated(fn($state, $set, $get) => $set('total_bruto', self::hitungTotalBruto($get))),
+
+                                                TextInput::make('tara4')
+                                                    ->label('Tara')
+                                                    ->reactive()
+                                                    ->afterStateHydrated(fn($state, $set) => $set('tara4', number_format($state, 0, ',', '.')))
+                                                    ->disabled(),
+
+                                                TextInput::make('netto4')
+                                                    ->label('Netto')
+                                                    ->reactive()
+                                                    ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '')
+                                                    ->disabled(),
+                                            ])->columnSpan(1)->collapsed(),
+                                        //Timbangan Jual 5
+                                        Card::make('Timbangan jual 5')
+                                            ->schema([
+                                                Select::make('id_timbangan_jual_5')
+                                                    ->label('No SPB (Timbangan 5)')
+                                                    ->placeholder('Pilih No SPB Penjualan')
+                                                    ->options(function () {
+                                                        // Ambil semua field timbangan jual (dari 1 sampai 6)
+                                                        $usedSpbIds = TimbanganTronton::query()
+                                                            ->get()
+                                                            ->flatMap(function ($record) {
+                                                                return [
+                                                                    $record->id_timbangan_jual_1,
+                                                                    $record->id_timbangan_jual_2,
+                                                                    $record->id_timbangan_jual_3,
+                                                                    $record->id_timbangan_jual_4,
+                                                                    $record->id_timbangan_jual_5,
+                                                                    $record->id_timbangan_jual_6,
+                                                                ];
+                                                            })
+                                                            ->filter()   // Hilangkan nilai null
+                                                            ->unique()   // Pastikan tidak ada duplikasi
+                                                            ->toArray();
+
+                                                        return Penjualan::query()
+                                                            ->whereNotIn('id', $usedSpbIds)
+                                                            ->latest()
+                                                            ->with(['mobil', 'supplier'])
+                                                            ->get()
+                                                            ->mapWithKeys(function ($item) {
+                                                                return [
+                                                                    $item->id => $item->no_spb .
+                                                                        ' - Timbangan ke-' . $item->keterangan .
+                                                                        ' - ' . $item->supplier->nama_supplier .
+                                                                        ' - ' . ($item->plat_polisi ?? $item->no_container)
+                                                                ];
+                                                            })
+                                                            ->toArray();
+                                                    })
+                                                    ->searchable()
+
+                                                    ->reactive()
+                                                    ->afterStateHydrated(function ($state, callable $set) {
+                                                        if ($state) {
+                                                            $penjualan = Penjualan::find($state);
+                                                            $set('plat_polisi5', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
+                                                            $set('bruto5', $penjualan?->bruto);
+                                                            $set('tara5', $penjualan?->tara);
+                                                            $set('netto5', $penjualan?->netto);
+                                                        }
+                                                    })
+                                                    ->afterStateUpdated(function ($state, callable $set, $get) {
+                                                        $penjualan = Penjualan::find($state);
+                                                        $set('plat_polisi5', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
+                                                        $set('bruto5', $penjualan?->bruto);
+                                                        $set('tara5', $penjualan?->tara);
+                                                        $set('netto5', $penjualan?->netto);
+                                                        $set('total_netto', self::hitungTotalNetto($get)); // Update total_total_netto
+                                                        // Update bruto_final berdasarkan helper
+                                                        $set('bruto_akhir', self::getBrutoAkhir($get));
+                                                    }),
+
+                                                TextInput::make('plat_polisi5')
+                                                    ->label('Plat Polisi')
+                                                    ->reactive()
+                                                    ->disabled(),
+
+                                                TextInput::make('bruto5')
+                                                    ->placeholder('Otomatis terisi')
+                                                    ->label('Bruto')
+                                                    ->numeric()
+                                                    ->readOnly()
+                                                    ->reactive()
+                                                    ->afterStateUpdated(fn($state, $set, $get) => $set('total_bruto', self::hitungTotalBruto($get))),
+
+                                                TextInput::make('tara5')
+                                                    ->label('Tara')
+                                                    ->reactive()
+                                                    ->afterStateHydrated(fn($state, $set) => $set('tara5', number_format($state, 0, ',', '.')))
+                                                    ->disabled(),
+
+                                                TextInput::make('netto5')
+                                                    ->label('Netto')
+                                                    ->reactive()
+                                                    ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '')
+                                                    ->disabled(),
+                                            ])->columnSpan(1)->collapsed(),
+                                        //Timbangan Jual 6
+                                        Card::make('Timbangan jual 6')
+                                            ->schema([
+                                                Select::make('id_timbangan_jual_6')
+                                                    ->label('No SPB (Timbangan 6)')
+                                                    ->placeholder('Pilih No SPB Penjualan')
+                                                    ->options(function () {
+                                                        // Ambil semua field timbangan jual (dari 1 sampai 6)
+                                                        $usedSpbIds = TimbanganTronton::query()
+                                                            ->get()
+                                                            ->flatMap(function ($record) {
+                                                                return [
+                                                                    $record->id_timbangan_jual_1,
+                                                                    $record->id_timbangan_jual_2,
+                                                                    $record->id_timbangan_jual_3,
+                                                                    $record->id_timbangan_jual_4,
+                                                                    $record->id_timbangan_jual_5,
+                                                                    $record->id_timbangan_jual_6,
+                                                                ];
+                                                            })
+                                                            ->filter()   // Hilangkan nilai null
+                                                            ->unique()   // Pastikan tidak ada duplikasi
+                                                            ->toArray();
+
+                                                        return Penjualan::query()
+                                                            ->whereNotIn('id', $usedSpbIds)
+                                                            ->latest()
+                                                            ->with(['mobil', 'supplier'])
+                                                            ->get()
+                                                            ->mapWithKeys(function ($item) {
+                                                                return [
+                                                                    $item->id => $item->no_spb .
+                                                                        ' - Timbangan ke-' . $item->keterangan .
+                                                                        ' - ' . $item->supplier->nama_supplier .
+                                                                        ' - ' . ($item->plat_polisi ?? $item->no_container)
+                                                                ];
+                                                            })
+                                                            ->toArray();
+                                                    })
+                                                    ->searchable()
+                                                    ->reactive()
+                                                    ->afterStateHydrated(function ($state, callable $set) {
+                                                        if ($state) {
+                                                            $penjualan = Penjualan::find($state);
+                                                            $set('plat_polisi6', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
+                                                            $set('bruto6', $penjualan?->bruto);
+                                                            $set('tara6', $penjualan?->tara);
+                                                            $set('netto6', $penjualan?->netto);
+                                                        }
+                                                    })
+                                                    ->afterStateUpdated(function ($state, callable $set, $get) {
+                                                        $penjualan = Penjualan::find($state);
+                                                        $set('plat_polisi6', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
+                                                        $set('bruto6', $penjualan?->bruto);
+                                                        $set('tara6', $penjualan?->tara);
+                                                        $set('netto6', $penjualan?->netto);
+                                                        $set('total_netto', self::hitungTotalNetto($get)); // Update total_total_netto
+                                                        // Update bruto_final berdasarkan helper
+                                                        $set('bruto_akhir', self::getBrutoAkhir($get));
+                                                    }),
+
+                                                TextInput::make('plat_polisi6')
+                                                    ->label('Plat Polisi')
+                                                    ->reactive()
+                                                    ->disabled(),
+
+                                                TextInput::make('bruto6')
+                                                    ->placeholder('Otomatis terisi')
+                                                    ->label('Bruto')
+                                                    ->numeric()
+                                                    ->reactive()
+                                                    ->readOnly()
+                                                    ->afterStateUpdated(fn($state, $set, $get) => $set('total_bruto', self::hitungTotalBruto($get))),
+
+                                                TextInput::make('tara6')
+                                                    ->label('Tara')
+                                                    ->reactive()
+                                                    ->afterStateHydrated(fn($state, $set) => $set('tara6', number_format($state, 0, ',', '.')))
+                                                    ->disabled(),
+
+                                                TextInput::make('netto6')
+                                                    ->label('Netto')
+                                                    ->reactive()
+                                                    ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '')
+                                                    ->disabled(),
+                                            ])->columnSpan(1)->collapsed(),
                                     ])->columns(3),
-                                //Timbangan Jual 1
-                                Card::make('Timbangan jual 1')
-                                    ->schema([
-                                        Select::make('id_timbangan_jual_1')
-                                            ->label('No SPB (Timbangan 1)')
-                                            ->placeholder('Pilih No SPB Penjualan')
-                                            ->options(function () {
-                                                // Ambil semua field timbangan jual (dari 1 sampai 6)
-                                                $usedSpbIds = TimbanganTronton::query()
-                                                    ->get()
-                                                    ->flatMap(function ($record) {
-                                                        return [
-                                                            $record->id_timbangan_jual_1,
-                                                            $record->id_timbangan_jual_2,
-                                                            $record->id_timbangan_jual_3,
-                                                            $record->id_timbangan_jual_4,
-                                                            $record->id_timbangan_jual_5,
-                                                            $record->id_timbangan_jual_6,
-                                                        ];
-                                                    })
-                                                    ->filter()   // Hilangkan nilai null
-                                                    ->unique()   // Pastikan tidak ada duplikasi
-                                                    ->toArray();
-
-                                                return Penjualan::query()
-                                                    ->whereNotIn('id', $usedSpbIds)
-                                                    ->latest()
-                                                    ->with(['mobil', 'supplier'])
-                                                    ->get()
-                                                    ->mapWithKeys(function ($item) {
-                                                        return [
-                                                            $item->id => $item->no_spb .
-                                                                ' - Timbangan ke-' . $item->keterangan .
-                                                                ' - ' . $item->supplier->nama_supplier .
-                                                                ' - ' . ($item->plat_polisi ?? $item->no_container)
-                                                        ];
-                                                    })
-                                                    ->toArray();
-                                            })
-                                            ->searchable()
-                                            ->required()
-                                            ->reactive()
-
-                                            ->afterStateHydrated(function ($state, callable $set) {
-                                                if ($state) {
-                                                    $penjualan = Penjualan::find($state);
-                                                    $set('plat_polisi1', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                    $set('bruto1', $penjualan?->bruto);
-                                                    $set('tara1', $penjualan?->tara);
-                                                    $set('netto1', $penjualan?->netto);
-                                                }
-                                            })
-                                            ->afterStateUpdated(function ($state, callable $set, $get) {
-                                                $penjualan = Penjualan::find($state);
-                                                $set('plat_polisi1', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                $set('bruto1', $penjualan?->bruto);
-                                                $set('tara1', $penjualan?->tara);
-                                                $set('netto1', $penjualan?->netto);
-                                                //$set('total_bruto', self::hitungTotalBruto($get)); // Update total_bruto
-                                                // Update bruto_final berdasarkan helper
-                                                $set('bruto_final', self::getBrutoFinal($get));
-                                            }),
-
-                                        TextInput::make('plat_polisi1')
-                                            ->label('Plat Polisi')
-                                            ->reactive()
-                                            ->disabled(),
-
-                                        TextInput::make('bruto1')
-                                            ->placeholder('Otomatis terisi')
-                                            ->label('Bruto 1')
-                                            ->readOnly()
-                                            ->numeric()
-                                            ->reactive()
-                                            ->afterStateUpdated(fn($state, $set, $get) => $set('total_bruto', self::hitungTotalBruto($get))),
-
-                                        TextInput::make('tara1')
-                                            ->label('Tara 1')
-                                            ->reactive()
-                                            ->afterStateHydrated(fn($state, $set) => $set('tara1', number_format($state, 0, ',', '.')))
-                                            ->disabled(),
-
-                                        TextInput::make('netto1')
-                                            ->label('Netto 1')
-                                            ->reactive()
-                                            ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '')
-                                            ->disabled(),
-                                    ])->columnSpan(1)->collapsible(),
-                                //Timbangan Jual 2
-                                Card::make('Timbangan jual 2')
-                                    ->schema([
-                                        Select::make('id_timbangan_jual_2')
-                                            ->label('No SPB (Timbangan 2)')
-                                            ->placeholder('Pilih No SPB Penjualan')
-                                            ->options(function () {
-                                                // Ambil semua field timbangan jual (dari 1 sampai 6)
-                                                $usedSpbIds = TimbanganTronton::query()
-                                                    ->get()
-                                                    ->flatMap(function ($record) {
-                                                        return [
-                                                            $record->id_timbangan_jual_1,
-                                                            $record->id_timbangan_jual_2,
-                                                            $record->id_timbangan_jual_3,
-                                                            $record->id_timbangan_jual_4,
-                                                            $record->id_timbangan_jual_5,
-                                                            $record->id_timbangan_jual_6,
-                                                        ];
-                                                    })
-                                                    ->filter()   // Hilangkan nilai null
-                                                    ->unique()   // Pastikan tidak ada duplikasi
-                                                    ->toArray();
-
-                                                return Penjualan::query()
-                                                    ->whereNotIn('id', $usedSpbIds)
-                                                    ->latest()
-                                                    ->with(['mobil', 'supplier'])
-                                                    ->get()
-                                                    ->mapWithKeys(function ($item) {
-                                                        return [
-                                                            $item->id => $item->no_spb .
-                                                                ' - Timbangan ke-' . $item->keterangan .
-                                                                ' - ' . $item->supplier->nama_supplier .
-                                                                ' - ' . ($item->plat_polisi ?? $item->no_container)
-                                                        ];
-                                                    })
-                                                    ->toArray();
-                                            })
-                                            ->searchable()
-                                            ->required()
-                                            ->reactive()
-                                            ->afterStateHydrated(function ($state, callable $set) {
-                                                if ($state) {
-                                                    $penjualan = Penjualan::find($state);
-                                                    $set('plat_polisi2', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                    $set('bruto2', $penjualan?->bruto);
-                                                    $set('tara2', $penjualan?->tara);
-                                                    $set('netto2', $penjualan?->netto);
-                                                }
-                                            })
-                                            ->afterStateUpdated(function ($state, callable $set, $get) {
-                                                $penjualan = Penjualan::find($state);
-                                                $set('plat_polisi2', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                $set('bruto2', $penjualan?->bruto);
-                                                $set('tara2', $penjualan?->tara);
-                                                $set('netto2', $penjualan?->netto);
-                                                //$set('total_bruto', self::hitungTotalBruto($get)); // Update total_bruto
-                                                // Update bruto_final berdasarkan helper
-                                                $set('bruto_final', self::getBrutoFinal($get));
-                                            }),
-
-                                        TextInput::make('plat_polisi2')
-                                            ->label('Plat Polisi')
-                                            ->reactive()
-                                            ->disabled(),
-
-                                        TextInput::make('bruto2')
-                                            ->placeholder('Otomatis terisi')
-                                            ->label('Bruto')
-                                            ->numeric()
-                                            ->readOnly()
-                                            ->reactive()
-                                            ->afterStateUpdated(fn($state, $set, $get) => $set('total_bruto', self::hitungTotalBruto($get))),
-
-                                        TextInput::make('tara2')
-                                            ->label('Tara')
-                                            ->reactive()
-                                            ->afterStateHydrated(fn($state, $set) => $set('tara2', number_format($state, 0, ',', '.')))
-                                            ->disabled(),
-
-                                        TextInput::make('netto2')
-                                            ->label('Netto')
-                                            ->reactive()
-                                            ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '')
-                                            ->disabled(),
-                                    ])->columnSpan(1)->collapsible(),
-                                //Timbangan Jual 3
-                                Card::make('Timbangan jual 3')
-                                    ->schema([
-                                        Select::make('id_timbangan_jual_3')
-                                            ->label('No SPB (Timbangan 3)')
-                                            ->placeholder('Pilih No SPB Penjualan')
-                                            ->options(function () {
-                                                // Ambil semua field timbangan jual (dari 1 sampai 6)
-                                                $usedSpbIds = TimbanganTronton::query()
-                                                    ->get()
-                                                    ->flatMap(function ($record) {
-                                                        return [
-                                                            $record->id_timbangan_jual_1,
-                                                            $record->id_timbangan_jual_2,
-                                                            $record->id_timbangan_jual_3,
-                                                            $record->id_timbangan_jual_4,
-                                                            $record->id_timbangan_jual_5,
-                                                            $record->id_timbangan_jual_6,
-                                                        ];
-                                                    })
-                                                    ->filter()   // Hilangkan nilai null
-                                                    ->unique()   // Pastikan tidak ada duplikasi
-                                                    ->toArray();
-
-                                                return Penjualan::query()
-                                                    ->whereNotIn('id', $usedSpbIds)
-                                                    ->latest()
-                                                    ->with(['mobil', 'supplier'])
-                                                    ->get()
-                                                    ->mapWithKeys(function ($item) {
-                                                        return [
-                                                            $item->id => $item->no_spb .
-                                                                ' - Timbangan ke-' . $item->keterangan .
-                                                                ' - ' . $item->supplier->nama_supplier .
-                                                                ' - ' . ($item->plat_polisi ?? $item->no_container)
-                                                        ];
-                                                    })
-                                                    ->toArray();
-                                            })
-                                            ->searchable()
-                                            ->required()
-                                            ->reactive()
-                                            ->afterStateHydrated(function ($state, callable $set) {
-                                                if ($state) {
-                                                    $penjualan = Penjualan::find($state);
-                                                    $set('plat_polisi3', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                    $set('bruto3', $penjualan?->bruto);
-                                                    $set('tara3', $penjualan?->tara);
-                                                    $set('netto3', $penjualan?->netto);
-                                                }
-                                            })
-                                            ->afterStateUpdated(function ($state, callable $set, $get) {
-                                                $penjualan = Penjualan::find($state);
-                                                $set('plat_polisi3', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                $set('bruto3', $penjualan?->bruto);
-                                                $set('tara3', $penjualan?->tara);
-                                                $set('netto3', $penjualan?->netto);
-                                                //$set('total_bruto', self::hitungTotalBruto($get)); // Update total_bruto
-                                                // Update bruto_final berdasarkan helper
-                                                $set('bruto_final', self::getBrutoFinal($get));
-                                            }),
-
-                                        TextInput::make('plat_polisi3')
-                                            ->label('Plat Polisi')
-                                            ->reactive()
-                                            ->disabled(),
-
-                                        TextInput::make('bruto3')
-                                            ->placeholder('Otomatis terisi')
-                                            ->label('Bruto')
-                                            ->numeric()
-                                            ->readOnly()
-                                            ->reactive()
-                                            ->afterStateUpdated(fn($state, $set, $get) => $set('total_bruto', self::hitungTotalBruto($get))),
-
-                                        TextInput::make('tara3')
-                                            ->label('Tara')
-                                            ->reactive()
-                                            ->afterStateHydrated(fn($state, $set) => $set('tara3', number_format($state, 0, ',', '.')))
-                                            ->disabled(),
-
-                                        TextInput::make('netto3')
-                                            ->label('Netto')
-                                            ->reactive()
-                                            ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '')
-                                            ->disabled(),
-                                    ])->columnSpan(1)->collapsible(),
-                                //Timbangan Jual 4
-                                Card::make('Timbangan jual 4')
-                                    ->schema([
-                                        Select::make('id_timbangan_jual_4')
-                                            ->label('No SPB (Timbangan 4)')
-                                            ->placeholder('Pilih No SPB Penjualan')
-                                            ->options(function () {
-                                                // Ambil semua field timbangan jual (dari 1 sampai 6)
-                                                $usedSpbIds = TimbanganTronton::query()
-                                                    ->get()
-                                                    ->flatMap(function ($record) {
-                                                        return [
-                                                            $record->id_timbangan_jual_1,
-                                                            $record->id_timbangan_jual_2,
-                                                            $record->id_timbangan_jual_3,
-                                                            $record->id_timbangan_jual_4,
-                                                            $record->id_timbangan_jual_5,
-                                                            $record->id_timbangan_jual_6,
-                                                        ];
-                                                    })
-                                                    ->filter()   // Hilangkan nilai null
-                                                    ->unique()   // Pastikan tidak ada duplikasi
-                                                    ->toArray();
-
-                                                return Penjualan::query()
-                                                    ->whereNotIn('id', $usedSpbIds)
-                                                    ->latest()
-                                                    ->with(['mobil', 'supplier'])
-                                                    ->get()
-                                                    ->mapWithKeys(function ($item) {
-                                                        return [
-                                                            $item->id => $item->no_spb .
-                                                                ' - Timbangan ke-' . $item->keterangan .
-                                                                ' - ' . $item->supplier->nama_supplier .
-                                                                ' - ' . ($item->plat_polisi ?? $item->no_container)
-                                                        ];
-                                                    })
-                                                    ->toArray();
-                                            })
-                                            ->searchable()
-
-                                            ->reactive()
-                                            ->afterStateHydrated(function ($state, callable $set) {
-                                                if ($state) {
-                                                    $penjualan = Penjualan::find($state);
-                                                    $set('plat_polisi4', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                    $set('bruto4', $penjualan?->bruto);
-                                                    $set('tara4', $penjualan?->tara);
-                                                    $set('netto4', $penjualan?->netto);
-                                                }
-                                            })
-                                            ->afterStateUpdated(function ($state, callable $set, $get) {
-                                                $penjualan = Penjualan::find($state);
-                                                $set('plat_polisi4', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                $set('bruto4', $penjualan?->bruto);
-                                                $set('tara4', $penjualan?->tara);
-                                                $set('netto4', $penjualan?->netto);
-                                                //$set('total_bruto', self::hitungTotalBruto($get)); // Update total_bruto
-                                                // Update bruto_final berdasarkan helper
-                                                $set('bruto_final', self::getBrutoFinal($get));
-                                            }),
-
-                                        TextInput::make('plat_polisi4')
-                                            ->label('Plat Polisi')
-                                            ->reactive()
-                                            ->disabled(),
-
-                                        TextInput::make('bruto4')
-                                            ->placeholder('Otomatis terisi')
-                                            ->label('Bruto')
-                                            ->numeric()
-                                            ->readOnly()
-                                            ->reactive()
-                                            ->afterStateUpdated(fn($state, $set, $get) => $set('total_bruto', self::hitungTotalBruto($get))),
-
-                                        TextInput::make('tara4')
-                                            ->label('Tara')
-                                            ->reactive()
-                                            ->afterStateHydrated(fn($state, $set) => $set('tara4', number_format($state, 0, ',', '.')))
-                                            ->disabled(),
-
-                                        TextInput::make('netto4')
-                                            ->label('Netto')
-                                            ->reactive()
-                                            ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '')
-                                            ->disabled(),
-                                    ])->columnSpan(1)->collapsed(),
-                                //Timbangan Jual 5
-                                Card::make('Timbangan jual 5')
-                                    ->schema([
-                                        Select::make('id_timbangan_jual_5')
-                                            ->label('No SPB (Timbangan 5)')
-                                            ->placeholder('Pilih No SPB Penjualan')
-                                            ->options(function () {
-                                                // Ambil semua field timbangan jual (dari 1 sampai 6)
-                                                $usedSpbIds = TimbanganTronton::query()
-                                                    ->get()
-                                                    ->flatMap(function ($record) {
-                                                        return [
-                                                            $record->id_timbangan_jual_1,
-                                                            $record->id_timbangan_jual_2,
-                                                            $record->id_timbangan_jual_3,
-                                                            $record->id_timbangan_jual_4,
-                                                            $record->id_timbangan_jual_5,
-                                                            $record->id_timbangan_jual_6,
-                                                        ];
-                                                    })
-                                                    ->filter()   // Hilangkan nilai null
-                                                    ->unique()   // Pastikan tidak ada duplikasi
-                                                    ->toArray();
-
-                                                return Penjualan::query()
-                                                    ->whereNotIn('id', $usedSpbIds)
-                                                    ->latest()
-                                                    ->with(['mobil', 'supplier'])
-                                                    ->get()
-                                                    ->mapWithKeys(function ($item) {
-                                                        return [
-                                                            $item->id => $item->no_spb .
-                                                                ' - Timbangan ke-' . $item->keterangan .
-                                                                ' - ' . $item->supplier->nama_supplier .
-                                                                ' - ' . ($item->plat_polisi ?? $item->no_container)
-                                                        ];
-                                                    })
-                                                    ->toArray();
-                                            })
-                                            ->searchable()
-
-                                            ->reactive()
-                                            ->afterStateHydrated(function ($state, callable $set) {
-                                                if ($state) {
-                                                    $penjualan = Penjualan::find($state);
-                                                    $set('plat_polisi5', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                    $set('bruto5', $penjualan?->bruto);
-                                                    $set('tara5', $penjualan?->tara);
-                                                    $set('netto5', $penjualan?->netto);
-                                                }
-                                            })
-                                            ->afterStateUpdated(function ($state, callable $set, $get) {
-                                                $penjualan = Penjualan::find($state);
-                                                $set('plat_polisi5', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                $set('bruto5', $penjualan?->bruto);
-                                                $set('tara5', $penjualan?->tara);
-                                                $set('netto5', $penjualan?->netto);
-                                                //$set('total_bruto', self::hitungTotalBruto($get)); // Update total_bruto
-                                                // Update bruto_final berdasarkan helper
-                                                $set('bruto_final', self::getBrutoFinal($get));
-                                            }),
-
-                                        TextInput::make('plat_polisi5')
-                                            ->label('Plat Polisi')
-                                            ->reactive()
-                                            ->disabled(),
-
-                                        TextInput::make('bruto5')
-                                            ->placeholder('Otomatis terisi')
-                                            ->label('Bruto')
-                                            ->numeric()
-                                            ->readOnly()
-                                            ->reactive()
-                                            ->afterStateUpdated(fn($state, $set, $get) => $set('total_bruto', self::hitungTotalBruto($get))),
-
-                                        TextInput::make('tara5')
-                                            ->label('Tara')
-                                            ->reactive()
-                                            ->afterStateHydrated(fn($state, $set) => $set('tara5', number_format($state, 0, ',', '.')))
-                                            ->disabled(),
-
-                                        TextInput::make('netto5')
-                                            ->label('Netto')
-                                            ->reactive()
-                                            ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '')
-                                            ->disabled(),
-                                    ])->columnSpan(1)->collapsed(),
-                                //Timbangan Jual 6
-                                Card::make('Timbangan jual 6')
-                                    ->schema([
-                                        Select::make('id_timbangan_jual_6')
-                                            ->label('No SPB (Timbangan 6)')
-                                            ->placeholder('Pilih No SPB Penjualan')
-                                            ->options(function () {
-                                                // Ambil semua field timbangan jual (dari 1 sampai 6)
-                                                $usedSpbIds = TimbanganTronton::query()
-                                                    ->get()
-                                                    ->flatMap(function ($record) {
-                                                        return [
-                                                            $record->id_timbangan_jual_1,
-                                                            $record->id_timbangan_jual_2,
-                                                            $record->id_timbangan_jual_3,
-                                                            $record->id_timbangan_jual_4,
-                                                            $record->id_timbangan_jual_5,
-                                                            $record->id_timbangan_jual_6,
-                                                        ];
-                                                    })
-                                                    ->filter()   // Hilangkan nilai null
-                                                    ->unique()   // Pastikan tidak ada duplikasi
-                                                    ->toArray();
-
-                                                return Penjualan::query()
-                                                    ->whereNotIn('id', $usedSpbIds)
-                                                    ->latest()
-                                                    ->with(['mobil', 'supplier'])
-                                                    ->get()
-                                                    ->mapWithKeys(function ($item) {
-                                                        return [
-                                                            $item->id => $item->no_spb .
-                                                                ' - Timbangan ke-' . $item->keterangan .
-                                                                ' - ' . $item->supplier->nama_supplier .
-                                                                ' - ' . ($item->plat_polisi ?? $item->no_container)
-                                                        ];
-                                                    })
-                                                    ->toArray();
-                                            })
-                                            ->searchable()
-
-                                            ->reactive()
-                                            ->afterStateHydrated(function ($state, callable $set) {
-                                                if ($state) {
-                                                    $penjualan = Penjualan::find($state);
-                                                    $set('plat_polisi6', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                    $set('bruto6', $penjualan?->bruto);
-                                                    $set('tara6', $penjualan?->tara);
-                                                    $set('netto6', $penjualan?->netto);
-                                                }
-                                            })
-                                            ->afterStateUpdated(function ($state, callable $set, $get) {
-                                                $penjualan = Penjualan::find($state);
-                                                $set('plat_polisi6', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                $set('bruto6', $penjualan?->bruto);
-                                                $set('tara6', $penjualan?->tara);
-                                                $set('netto6', $penjualan?->netto);
-                                                //$set('total_bruto', self::hitungTotalBruto($get)); // Update total_bruto
-                                                // Update bruto_final berdasarkan helper
-                                                $set('bruto_final', self::getBrutoFinal($get));
-                                            }),
-
-                                        TextInput::make('plat_polisi6')
-                                            ->label('Plat Polisi')
-                                            ->reactive()
-                                            ->disabled(),
-
-                                        TextInput::make('bruto6')
-                                            ->placeholder('Otomatis terisi')
-                                            ->label('Bruto')
-                                            ->numeric()
-                                            ->reactive()
-                                            ->readOnly()
-                                            ->afterStateUpdated(fn($state, $set, $get) => $set('total_bruto', self::hitungTotalBruto($get))),
-
-                                        TextInput::make('tara6')
-                                            ->label('Tara')
-                                            ->reactive()
-                                            ->afterStateHydrated(fn($state, $set) => $set('tara6', number_format($state, 0, ',', '.')))
-                                            ->disabled(),
-
-                                        TextInput::make('netto6')
-                                            ->label('Netto')
-                                            ->reactive()
-                                            ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '')
-                                            ->disabled(),
-                                    ])->columnSpan(1)->collapsed(),
                                 Textarea::make('keterangan')
                                     ->placeholder('Masukkan Keterangan')
                                     ->columnSpanFull(), // Tetap 1 kolom penuh di semua ukuran layar
@@ -606,7 +617,12 @@ class TimbanganTrontonResource extends Resource
                     ])
             ]);
     }
-    protected static function getBrutoFinal($get)
+    protected static function getTaraAwal($get)
+    {
+        return $get('tara1');
+    }
+
+    protected static function getBrutoAkhir($get)
     {
         return $get('bruto6')
             ?? $get('bruto5')
@@ -615,14 +631,14 @@ class TimbanganTrontonResource extends Resource
             ?? $get('bruto2')
             ?? $get('bruto1');
     }
-    public static function hitungTotalBruto($get)
+    public static function hitungTotalNetto($get)
     {
-        return (int) ($get('bruto1') ?? 0) +
-            (int) ($get('bruto2') ?? 0) +
-            (int) ($get('bruto3') ?? 0) +
-            (int) ($get('bruto4') ?? 0) +
-            (int) ($get('bruto5') ?? 0) +
-            (int) ($get('bruto6') ?? 0);
+        return (int) ($get('netto1') ?? 0) +
+            (int) ($get('netto2') ?? 0) +
+            (int) ($get('netto3') ?? 0) +
+            (int) ($get('netto4') ?? 0) +
+            (int) ($get('netto5') ?? 0) +
+            (int) ($get('netto6') ?? 0);
     }
     public static function table(Table $table): Table
     {
@@ -638,12 +654,16 @@ class TimbanganTrontonResource extends Resource
                     ->label('Berat Tambah')
                     ->alignCenter()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                TextColumn::make('total_bruto')
-                    ->label('Total Bruto')
-                    ->alignCenter()
-                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('bruto_final')
                     ->label('Bruto Final')
+                    ->alignCenter()
+                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                TextColumn::make('tara_awal')
+                    ->label('Tara Awal')
+                    ->alignCenter()
+                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                TextColumn::make('netto_final')
+                    ->label('Netto Final')
                     ->alignCenter()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 //Penjualan 1
