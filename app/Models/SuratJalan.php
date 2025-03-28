@@ -13,7 +13,6 @@ class SuratJalan extends Model
         'id_timbangan_tronton',
         'kota',
         'po',
-        'netto',
         'user_id',
     ];
 

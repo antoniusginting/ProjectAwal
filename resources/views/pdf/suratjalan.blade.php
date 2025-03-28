@@ -143,8 +143,8 @@
         <table style="width: 100%;">
             <tbody>
                 <tr>
-                    <td style="width: 20%;">{{ $suratjalan->kota }}, {{ $suratjalan->created_at->format('d-m-Y') }}</td>
-                    <td></td>
+                    <td colspan="2" style="width: 20%;">{{ $suratjalan->kota }}, {{ $suratjalan->created_at->format('d-m-Y') }}</td>
+                    
                 </tr>
                 <tr>
                     <td style="width: 20%; font-weight: bold;">Kepada Yth.</td>
@@ -201,11 +201,11 @@
                 </tr>
                 <tr>
                     <td>Tara</td>
-                    <td>{{ number_format($suratjalan->tronton->penjualan1->tara, 0, ',', '.') }}</td>
+                    <td>{{ number_format($suratjalan->tronton->tara_awal, 0, ',', '.') }}</td>
                 </tr>
                 <tr>
                     <td>Netto</td>
-                    <td>{{ number_format($suratjalan->netto, 0, ',', '.') }}</td>
+                    <td>{{ number_format($suratjalan->tronton->netto_final, 0, ',', '.') }}</td>
                 </tr>
             </tbody>
         </table>

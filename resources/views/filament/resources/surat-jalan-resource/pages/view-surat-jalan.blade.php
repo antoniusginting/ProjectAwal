@@ -25,7 +25,7 @@
             <table class="w-full">
                 <tbody>
                     <tr>
-                        <td class="font-semibold text-left align-top">Kepada Yth</td>
+                        <td class="font-semibold text-left align-top">Kepada Yth.</td>
                         <td>: {{ $suratjalan->kontrak->nama }}</td>
                     </tr>
                     <tr>
@@ -87,13 +87,13 @@
                     <tr>
                         <td class="border p-2 border-gray-300 dark:border-gray-700">Tara</td>
                         <td class="border p-2 border-gray-300 dark:border-gray-700">
-                            {{ number_format($suratjalan->tronton->penjualan1->tara, 0, ',', '.') }}
+                            {{ number_format($suratjalan->tronton->tara_awal, 0, ',', '.') }}
                         </td>
                     </tr>
                     <tr>
                         <td class="border p-2 border-gray-300 dark:border-gray-700">Netto</td>
                         <td class="border p-2 border-gray-300 dark:border-gray-700">
-                            {{ number_format($suratjalan->netto, 0, ',', '.') }}
+                            {{ number_format($suratjalan->tronton->netto_final, 0, ',', '.') }}
                         </td>
                     </tr>
                 </tbody>

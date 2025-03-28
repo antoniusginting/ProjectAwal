@@ -104,15 +104,9 @@ class SuratJalanResource extends Resource
                                         $set('brondolan', $timbangan?->penjualan1?->brondolan ?? '');
                                         $set('nama_supir', $timbangan?->penjualan1?->nama_supir ?? '');
                                         $set('nama_barang', $timbangan?->penjualan1?->nama_barang ?? '');
-                                        // Pastikan nilai taranya default ke 0 bila tidak ada (untuk perhitungan)
-                                        $taranya = $timbangan?->penjualan1?->tara ?? 0;
-                                        $set('tara', $taranya);
-                                        // Pastikan bruto_final juga default ke 0 bila null
-                                        $brutoFinal = $timbangan?->bruto_final ?? 0;
-                                        $set('bruto_final', $brutoFinal);
-
-                                        // Hitung netto secara langsung: netto = bruto_final - tara
-                                        $set('netto', max(0, (float) $brutoFinal - (float) $taranya));
+                                        $set('tara_awal', $timbangan?->tara_awal ?? '');
+                                        $set('bruto_final', $timbangan?->bruto_final ?? '');
+                                        $set('netto_final', $timbangan?->netto_final ?? '');
                                     })
                                     ->afterStateHydrated(function (callable $set, callable $get, $state) {
                                         // Pastikan hanya berjalan saat edit data
@@ -122,9 +116,9 @@ class SuratJalanResource extends Resource
                                             $set('brondolan', $timbangan?->penjualan1?->brondolan ?? '');
                                             $set('nama_supir', $timbangan?->penjualan1?->nama_supir ?? '');
                                             $set('nama_barang', $timbangan?->penjualan1?->nama_barang ?? '');
-                                            $set('tara', $timbangan?->penjualan1?->tara ?? 0);
+                                            $set('tara_awal', $timbangan?->tara_awal ?? 0);
                                             $set('bruto_final', $timbangan?->bruto_final ?? 0);
-                                            $set('netto', max(0, (float) ($timbangan?->bruto_final ?? 0) - (float) ($timbangan?->penjualan1?->tara ?? 0)));
+                                            $set('netto_final', $timbangan?->netto_final ?? 0);
                                         }
                                     })
                                     ->columnSpan(2),
@@ -133,39 +127,26 @@ class SuratJalanResource extends Resource
                                     ->disabled() // Hanya untuk menampilkan, tidak bisa diubah
                                     ->dehydrated(false), // Tidak tersimpan ke database
                                 TextInput::make('bruto_final')
-                                    ->label('Bruto Final')
+                                    ->label('Bruto')
                                     ->disabled() // Field ini tidak bisa diubah langsung oleh user
-                                    ->default(0)
-                                    ->reactive()
-                                    ->live() // Agar update secara langsung jika diubah (jika ada mekanisme update nilai)
-                                    ->afterStateUpdated(
-                                        fn(callable $set, callable $get) =>
-                                        $set('netto', max(0, (float) $get('bruto_final') - (float) $get('tara')))
-                                    )
                                     ->dehydrated(false),
                                 TextInput::make('nama_barang')
                                     ->label('Nama Barang')
                                     ->disabled()
                                     ->dehydrated(false),
-                                TextInput::make('tara')
+                                TextInput::make('tara_awal')
                                     ->label('Tara')
                                     ->disabled() // Field ini hanya ditampilkan sebagai hasil dari database
-                                    ->default(0)
-                                    ->reactive()
-                                    ->live()
-                                    ->afterStateUpdated(
-                                        fn(callable $set, callable $get) =>
-                                        $set('netto', max(0, (float) $get('bruto_final') - (float) $get('tara')))
-                                    )
                                     ->dehydrated(false),
                                 TextInput::make('nama_supir')
                                     ->label('Nama Supir')
                                     ->disabled()
                                     ->dehydrated(false),
-                                TextInput::make('netto')
+                                TextInput::make('netto_final')
                                     ->label('Netto')
                                     ->default(0)
-                                    ->readOnly(),
+                                    ->readOnly()
+                                    ->dehydrated(false),
                                 Hidden::make('user_id')
                                     ->label('User ID')
                                     ->default(Auth::id()) // Set nilai default user yang sedang login,
