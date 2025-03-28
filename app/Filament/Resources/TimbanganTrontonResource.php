@@ -59,7 +59,6 @@ class TimbanganTrontonResource extends Resource
                                                 TextInput::make('tambah_berat')
                                                     ->label('Tambah Berat')
                                                     ->numeric()
-                                                    ->default(300)
                                                     ->placeholder('Masukkan tambah berat')
                                                     ->reactive() // Menjadikan field ini responsif
                                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
@@ -156,20 +155,20 @@ class TimbanganTrontonResource extends Resource
 
                                                 TextInput::make('bruto1')
                                                     ->placeholder('Otomatis terisi')
-                                                    ->label('Bruto 1')
+                                                    ->label('Bruto')
                                                     ->readOnly()
                                                     ->numeric()
                                                     ->reactive()
                                                     ->afterStateUpdated(fn($state, $set, $get) => $set('total_bruto', self::hitungTotalBruto($get))),
 
                                                 TextInput::make('tara1')
-                                                    ->label('Tara 1')
+                                                    ->label('Tara')
                                                     ->reactive()
                                                     ->afterStateHydrated(fn($state, $set) => $set('tara1', number_format($state, 0, ',', '.')))
                                                     ->disabled(),
 
                                                 TextInput::make('netto1')
-                                                    ->label('Netto 1')
+                                                    ->label('Netto')
                                                     ->reactive()
                                                     ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '')
                                                     ->disabled(),

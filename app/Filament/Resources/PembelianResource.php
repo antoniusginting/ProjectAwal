@@ -85,7 +85,7 @@ class PembelianResource extends Resource
                             ->numeric()
                             ->placeholder('Masukkan Nilai Bruto')
                             ->required()
-                            ->live(debounce: 300) // Tunggu 500ms setelah user berhenti mengetik
+                            ->live(debounce: 600) // Tunggu 500ms setelah user berhenti mengetik
                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                 $tara = $get('tara') ?? 0;
                                 $set('netto', max(0, intval($state) - intval($tara))); // Hitung netto
@@ -102,7 +102,7 @@ class PembelianResource extends Resource
                             ->label('Tara')
                             ->placeholder('Masukkan Nilai Tara')
                             ->numeric()
-                            ->live(debounce: 500) // Tambahkan debounce juga di sini
+                            ->live(debounce: 600) // Tambahkan debounce juga di sini
                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                 $bruto = $get('bruto') ?? 0;
                                 $set('netto', max(0, intval($bruto) - intval($state)));
@@ -120,8 +120,7 @@ class PembelianResource extends Resource
                             ->label('Supplier')
                             ->placeholder('Pilih Supplier')
                             ->options(Supplier::pluck('nama_supplier', 'id')) // Ambil daftar mobil
-                            ->searchable() // Biar bisa cari
-                            ->required(), // Wajib diisi
+                            ->searchable(), // Biar bisa cari
 
                         Select::make('keterangan') // Gantilah 'tipe' dengan nama field di database
                             ->label('Timbangan ke-')

@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Penjualan;
 use App\Models\Sortiran;
 use App\Models\SuratJalan;
+use App\Models\TimbanganTronton;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 
@@ -20,7 +21,7 @@ class StatsDashboard extends BaseWidget
                 ->chart([7, 2, 10, 3, 15, 4, 17])
                 ->color('success'),
 
-            Stat::make('Total netto penjualan Hari Ini', number_format(SuratJalan::whereDate('created_at', Carbon::today())->sum('netto'), 0, ',', '.'))
+            Stat::make('Total netto penjualan Hari Ini', number_format(TimbanganTronton::whereDate('created_at', Carbon::today())->sum('netto_final'), 0, ',', '.'))
                 ->description('Total netto penjualan hari ini')
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->chart([7, 2, 10, 3, 15, 4, 17])

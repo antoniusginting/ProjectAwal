@@ -176,7 +176,7 @@ class SuratJalanResource extends Resource
                     ->wrap()
                     ->searchable()
                     ->extraAttributes(['style' => 'width: 250px;']),
-                TextColumn::make('netto')
+                TextColumn::make('tronton.netto_final')
                     ->label('Netto')
                     ->searchable()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
