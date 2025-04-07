@@ -282,6 +282,11 @@ class SortiranResource extends Resource
                                                         (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
+                                        TextInput::make('total_karung')
+                                            ->label('Jumlah Karung Saat Ini')
+                                            ->reactive()
+                                            ->readOnly()
+                                            ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
                                         TextInput::make('tonase_1')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')
@@ -342,7 +347,11 @@ class SortiranResource extends Resource
                                                         (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
-
+                                        TextInput::make('total_karung')
+                                            ->label('Jumlah Karung Saat Ini')
+                                            ->reactive()
+                                            ->readOnly()
+                                            ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
                                         TextInput::make('tonase_2')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')
@@ -404,8 +413,11 @@ class SortiranResource extends Resource
                                                         (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
-
-
+                                        TextInput::make('total_karung')
+                                            ->label('Jumlah Karung Saat Ini')
+                                            ->reactive()
+                                            ->readOnly()
+                                            ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
                                         TextInput::make('tonase_3')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')
@@ -466,8 +478,11 @@ class SortiranResource extends Resource
                                                         (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
-
-
+                                        TextInput::make('total_karung')
+                                            ->label('Jumlah Karung Saat Ini')
+                                            ->reactive()
+                                            ->readOnly()
+                                            ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
                                         TextInput::make('tonase_4')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')
@@ -528,8 +543,11 @@ class SortiranResource extends Resource
                                                         (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
-
-
+                                        TextInput::make('total_karung')
+                                            ->label('Jumlah Karung Saat Ini')
+                                            ->reactive()
+                                            ->readOnly()
+                                            ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
                                         TextInput::make('tonase_5')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')
@@ -590,6 +608,11 @@ class SortiranResource extends Resource
                                                         (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
+                                        TextInput::make('total_karung')
+                                            ->label('Jumlah Karung Saat Ini')
+                                            ->reactive()
+                                            ->readOnly()
+                                            ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
                                         TextInput::make('tonase_6')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')
