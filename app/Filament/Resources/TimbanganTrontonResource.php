@@ -60,6 +60,7 @@ class TimbanganTrontonResource extends Resource
                                                     ->label('Tambah Berat')
                                                     ->numeric()
                                                     ->placeholder('Masukkan tambah berat')
+                                                    ->live(debounce: 600)
                                                     ->reactive() // Menjadikan field ini responsif
                                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                                         $set('bruto_final', ($get('bruto_akhir') ?? 0) + ($state ?? 0));
@@ -117,7 +118,7 @@ class TimbanganTrontonResource extends Resource
                                                                 return [
                                                                     $item->id => $item->no_spb .
                                                                         ' - Timbangan ke-' . $item->keterangan .
-                                                                        ' - ' . $item->supplier->nama_supplier .
+                                                                        ' - ' . (optional ($item->supplier)->nama_supplier ?? '').
                                                                         ' - ' . ($item->plat_polisi ?? $item->no_container)
                                                                 ];
                                                             })
@@ -206,7 +207,7 @@ class TimbanganTrontonResource extends Resource
                                                                 return [
                                                                     $item->id => $item->no_spb .
                                                                         ' - Timbangan ke-' . $item->keterangan .
-                                                                        ' - ' . $item->supplier->nama_supplier .
+                                                                        ' - ' . (optional ($item->supplier)->nama_supplier ?? 'tidak ada').
                                                                         ' - ' . ($item->plat_polisi ?? $item->no_container)
                                                                 ];
                                                             })
@@ -292,7 +293,7 @@ class TimbanganTrontonResource extends Resource
                                                                 return [
                                                                     $item->id => $item->no_spb .
                                                                         ' - Timbangan ke-' . $item->keterangan .
-                                                                        ' - ' . $item->supplier->nama_supplier .
+                                                                        ' - ' . (optional ($item->supplier)->nama_supplier ?? 'tidak ada').
                                                                         ' - ' . ($item->plat_polisi ?? $item->no_container)
                                                                 ];
                                                             })
@@ -378,7 +379,7 @@ class TimbanganTrontonResource extends Resource
                                                                 return [
                                                                     $item->id => $item->no_spb .
                                                                         ' - Timbangan ke-' . $item->keterangan .
-                                                                        ' - ' . $item->supplier->nama_supplier .
+                                                                        ' - ' . (optional ($item->supplier)->nama_supplier ?? 'tidak ada').
                                                                         ' - ' . ($item->plat_polisi ?? $item->no_container)
                                                                 ];
                                                             })
@@ -465,7 +466,7 @@ class TimbanganTrontonResource extends Resource
                                                                 return [
                                                                     $item->id => $item->no_spb .
                                                                         ' - Timbangan ke-' . $item->keterangan .
-                                                                        ' - ' . $item->supplier->nama_supplier .
+                                                                        ' - ' . (optional ($item->supplier)->nama_supplier ?? 'tidak ada').
                                                                         ' - ' . ($item->plat_polisi ?? $item->no_container)
                                                                 ];
                                                             })
@@ -552,7 +553,7 @@ class TimbanganTrontonResource extends Resource
                                                                 return [
                                                                     $item->id => $item->no_spb .
                                                                         ' - Timbangan ke-' . $item->keterangan .
-                                                                        ' - ' . $item->supplier->nama_supplier .
+                                                                        ' - ' . (optional ($item->supplier)->nama_supplier ?? 'tidak ada').
                                                                         ' - ' . ($item->plat_polisi ?? $item->no_container)
                                                                 ];
                                                             })
