@@ -44,46 +44,8 @@ class TimbanganTrontonResource extends Resource
                     ->schema([
                         Grid::make(3)
                             ->schema([
-                                Card::make('Informasi Berat')
-                                    ->schema([
-                                        Card::make()
-                                            ->schema([
-                                                TextInput::make('bruto_akhir')
-                                                    ->placeholder('Otomatis terisi')
-                                                    ->label('Bruto Akhir')
-                                                    ->readOnly(),
-                                                TextInput::make('total_netto')
-                                                    ->placeholder('Otomatis terisi')
-                                                    ->label('Total Netto')
-                                                    ->readOnly(),
-                                                TextInput::make('tambah_berat')
-                                                    ->label('Tambah Berat')
-                                                    ->numeric()
-                                                    ->placeholder('Masukkan tambah berat')
-                                                    ->live(debounce: 600)
-                                                    ->reactive() // Menjadikan field ini responsif
-                                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                                        $set('bruto_final', ($get('bruto_akhir') ?? 0) + ($state ?? 0));
-                                                        $set('netto_final', ($get('total_netto') ?? 0) + ($state ?? 0));
-                                                    }),
-                                            ])->columns(3),
-                                        Card::make()
-                                            ->schema([
-                                                TextInput::make('bruto_final')
-                                                    ->label('Bruto Final')
-                                                    ->readOnly()
-                                                    ->placeholder('Otomatis terjumlahkan'),
-                                                TextInput::make('tara_awal')
-                                                    ->label('Tara Final')
-                                                    ->readOnly()
-                                                    ->placeholder('Otomatis terjumlahkan'),
-                                                TextInput::make('netto_final')
-                                                    ->label('Netto Final')
-                                                    ->readOnly()
-                                                    ->placeholder('Otomatis terjumlahkan'),
-                                            ])->columns(3)
-                                    ])->collapsible(),
-                                Card::make()
+
+                                Card::make('Timbangan Jual')
                                     ->schema([
                                         //Timbangan Jual 1
                                         Card::make('Timbangan jual 1')
@@ -91,8 +53,9 @@ class TimbanganTrontonResource extends Resource
                                                 Select::make('id_timbangan_jual_1')
                                                     ->label('No SPB (Timbangan 1)')
                                                     ->placeholder('Pilih No SPB Penjualan')
-                                                    ->options(function () {
-                                                        // Ambil semua field timbangan jual (dari 1 sampai 6)
+                                                    ->options(function (callable $get) {
+                                                        $currentId = $get('id_timbangan_jual_1'); // nilai yang dipilih (jika ada)
+
                                                         $usedSpbIds = TimbanganTronton::query()
                                                             ->get()
                                                             ->flatMap(function ($record) {
@@ -109,8 +72,18 @@ class TimbanganTrontonResource extends Resource
                                                             ->unique()   // Pastikan tidak ada duplikasi
                                                             ->toArray();
 
-                                                        return Penjualan::query()
-                                                            ->whereNotIn('id', $usedSpbIds)
+                                                        // Jika ada nilai yang tersimpan, kita ingin menyertakannya walaupun termasuk dalam usedSpbIds.
+                                                        $penjualanQuery = Penjualan::query();
+                                                        if ($currentId) {
+                                                            $penjualanQuery->where(function ($query) use ($currentId, $usedSpbIds) {
+                                                                $query->where('id', $currentId)
+                                                                    ->orWhereNotIn('id', $usedSpbIds);
+                                                            });
+                                                        } else {
+                                                            $penjualanQuery->whereNotIn('id', $usedSpbIds);
+                                                        }
+
+                                                        return $penjualanQuery
                                                             ->latest()
                                                             ->with(['mobil', 'supplier'])
                                                             ->get()
@@ -118,7 +91,7 @@ class TimbanganTrontonResource extends Resource
                                                                 return [
                                                                     $item->id => $item->no_spb .
                                                                         ' - Timbangan ke-' . $item->keterangan .
-                                                                        ' - ' . (optional ($item->supplier)->nama_supplier ?? '').
+                                                                        ' - ' . $item->nama_supir .
                                                                         ' - ' . ($item->plat_polisi ?? $item->no_container)
                                                                 ];
                                                             })
@@ -127,7 +100,7 @@ class TimbanganTrontonResource extends Resource
                                                     ->searchable()
                                                     ->required()
                                                     ->reactive()
-
+                                                    // Callback lain tetap sama
                                                     ->afterStateHydrated(function ($state, callable $set) {
                                                         if ($state) {
                                                             $penjualan = Penjualan::find($state);
@@ -143,12 +116,10 @@ class TimbanganTrontonResource extends Resource
                                                         $set('bruto1', $penjualan?->bruto);
                                                         $set('tara1', $penjualan?->tara);
                                                         $set('netto1', $penjualan?->netto);
-                                                        $set('total_netto', self::hitungTotalNetto($get)); // Update total_total_netto
-                                                        // Update bruto_final berdasarkan helper
+                                                        $set('total_netto', self::hitungTotalNetto($get)); // Update total_netto
                                                         $set('bruto_akhir', self::getBrutoAkhir($get));
                                                         $set('tara_awal', self::getTaraAwal($get));
                                                     }),
-
                                                 TextInput::make('plat_polisi1')
                                                     ->label('Plat Polisi')
                                                     ->reactive()
@@ -180,7 +151,9 @@ class TimbanganTrontonResource extends Resource
                                                 Select::make('id_timbangan_jual_2')
                                                     ->label('No SPB (Timbangan 2)')
                                                     ->placeholder('Pilih No SPB Penjualan')
-                                                    ->options(function () {
+                                                    ->options(function (callable $get) {
+                                                        $currentId = $get('id_timbangan_jual_2'); // nilai yang dipilih (jika ada)
+
                                                         // Ambil semua field timbangan jual (dari 1 sampai 6)
                                                         $usedSpbIds = TimbanganTronton::query()
                                                             ->get()
@@ -198,8 +171,18 @@ class TimbanganTrontonResource extends Resource
                                                             ->unique()   // Pastikan tidak ada duplikasi
                                                             ->toArray();
 
-                                                        return Penjualan::query()
-                                                            ->whereNotIn('id', $usedSpbIds)
+                                                        // Jika ada nilai yang tersimpan, kita ingin menyertakannya walaupun termasuk dalam usedSpbIds.
+                                                        $penjualanQuery = Penjualan::query();
+                                                        if ($currentId) {
+                                                            $penjualanQuery->where(function ($query) use ($currentId, $usedSpbIds) {
+                                                                $query->where('id', $currentId)
+                                                                    ->orWhereNotIn('id', $usedSpbIds);
+                                                            });
+                                                        } else {
+                                                            $penjualanQuery->whereNotIn('id', $usedSpbIds);
+                                                        }
+
+                                                        return $penjualanQuery
                                                             ->latest()
                                                             ->with(['mobil', 'supplier'])
                                                             ->get()
@@ -207,7 +190,7 @@ class TimbanganTrontonResource extends Resource
                                                                 return [
                                                                     $item->id => $item->no_spb .
                                                                         ' - Timbangan ke-' . $item->keterangan .
-                                                                        ' - ' . (optional ($item->supplier)->nama_supplier ?? 'tidak ada').
+                                                                        ' - ' . $item->nama_supir .
                                                                         ' - ' . ($item->plat_polisi ?? $item->no_container)
                                                                 ];
                                                             })
@@ -266,7 +249,9 @@ class TimbanganTrontonResource extends Resource
                                                 Select::make('id_timbangan_jual_3')
                                                     ->label('No SPB (Timbangan 3)')
                                                     ->placeholder('Pilih No SPB Penjualan')
-                                                    ->options(function () {
+                                                    ->options(function (callable $get) {
+                                                        $currentId = $get('id_timbangan_jual_3'); // nilai yang dipilih (jika ada)
+
                                                         // Ambil semua field timbangan jual (dari 1 sampai 6)
                                                         $usedSpbIds = TimbanganTronton::query()
                                                             ->get()
@@ -284,8 +269,18 @@ class TimbanganTrontonResource extends Resource
                                                             ->unique()   // Pastikan tidak ada duplikasi
                                                             ->toArray();
 
-                                                        return Penjualan::query()
-                                                            ->whereNotIn('id', $usedSpbIds)
+                                                        // Jika ada nilai yang tersimpan, kita ingin menyertakannya walaupun termasuk dalam usedSpbIds.
+                                                        $penjualanQuery = Penjualan::query();
+                                                        if ($currentId) {
+                                                            $penjualanQuery->where(function ($query) use ($currentId, $usedSpbIds) {
+                                                                $query->where('id', $currentId)
+                                                                    ->orWhereNotIn('id', $usedSpbIds);
+                                                            });
+                                                        } else {
+                                                            $penjualanQuery->whereNotIn('id', $usedSpbIds);
+                                                        }
+
+                                                        return $penjualanQuery
                                                             ->latest()
                                                             ->with(['mobil', 'supplier'])
                                                             ->get()
@@ -293,7 +288,7 @@ class TimbanganTrontonResource extends Resource
                                                                 return [
                                                                     $item->id => $item->no_spb .
                                                                         ' - Timbangan ke-' . $item->keterangan .
-                                                                        ' - ' . (optional ($item->supplier)->nama_supplier ?? 'tidak ada').
+                                                                        ' - ' . $item->nama_supir .
                                                                         ' - ' . ($item->plat_polisi ?? $item->no_container)
                                                                 ];
                                                             })
@@ -352,7 +347,9 @@ class TimbanganTrontonResource extends Resource
                                                 Select::make('id_timbangan_jual_4')
                                                     ->label('No SPB (Timbangan 4)')
                                                     ->placeholder('Pilih No SPB Penjualan')
-                                                    ->options(function () {
+                                                    ->options(function (callable $get) {
+                                                        $currentId = $get('id_timbangan_jual_4'); // nilai yang dipilih (jika ada)
+
                                                         // Ambil semua field timbangan jual (dari 1 sampai 6)
                                                         $usedSpbIds = TimbanganTronton::query()
                                                             ->get()
@@ -370,8 +367,18 @@ class TimbanganTrontonResource extends Resource
                                                             ->unique()   // Pastikan tidak ada duplikasi
                                                             ->toArray();
 
-                                                        return Penjualan::query()
-                                                            ->whereNotIn('id', $usedSpbIds)
+                                                        // Jika ada nilai yang tersimpan, kita ingin menyertakannya walaupun termasuk dalam usedSpbIds.
+                                                        $penjualanQuery = Penjualan::query();
+                                                        if ($currentId) {
+                                                            $penjualanQuery->where(function ($query) use ($currentId, $usedSpbIds) {
+                                                                $query->where('id', $currentId)
+                                                                    ->orWhereNotIn('id', $usedSpbIds);
+                                                            });
+                                                        } else {
+                                                            $penjualanQuery->whereNotIn('id', $usedSpbIds);
+                                                        }
+
+                                                        return $penjualanQuery
                                                             ->latest()
                                                             ->with(['mobil', 'supplier'])
                                                             ->get()
@@ -379,7 +386,7 @@ class TimbanganTrontonResource extends Resource
                                                                 return [
                                                                     $item->id => $item->no_spb .
                                                                         ' - Timbangan ke-' . $item->keterangan .
-                                                                        ' - ' . (optional ($item->supplier)->nama_supplier ?? 'tidak ada').
+                                                                        ' - ' . $item->nama_supir .
                                                                         ' - ' . ($item->plat_polisi ?? $item->no_container)
                                                                 ];
                                                             })
@@ -439,7 +446,9 @@ class TimbanganTrontonResource extends Resource
                                                 Select::make('id_timbangan_jual_5')
                                                     ->label('No SPB (Timbangan 5)')
                                                     ->placeholder('Pilih No SPB Penjualan')
-                                                    ->options(function () {
+                                                    ->options(function (callable $get) {
+                                                        $currentId = $get('id_timbangan_jual_5'); // nilai yang dipilih (jika ada)
+
                                                         // Ambil semua field timbangan jual (dari 1 sampai 6)
                                                         $usedSpbIds = TimbanganTronton::query()
                                                             ->get()
@@ -457,8 +466,18 @@ class TimbanganTrontonResource extends Resource
                                                             ->unique()   // Pastikan tidak ada duplikasi
                                                             ->toArray();
 
-                                                        return Penjualan::query()
-                                                            ->whereNotIn('id', $usedSpbIds)
+                                                        // Jika ada nilai yang tersimpan, kita ingin menyertakannya walaupun termasuk dalam usedSpbIds.
+                                                        $penjualanQuery = Penjualan::query();
+                                                        if ($currentId) {
+                                                            $penjualanQuery->where(function ($query) use ($currentId, $usedSpbIds) {
+                                                                $query->where('id', $currentId)
+                                                                    ->orWhereNotIn('id', $usedSpbIds);
+                                                            });
+                                                        } else {
+                                                            $penjualanQuery->whereNotIn('id', $usedSpbIds);
+                                                        }
+
+                                                        return $penjualanQuery
                                                             ->latest()
                                                             ->with(['mobil', 'supplier'])
                                                             ->get()
@@ -466,7 +485,7 @@ class TimbanganTrontonResource extends Resource
                                                                 return [
                                                                     $item->id => $item->no_spb .
                                                                         ' - Timbangan ke-' . $item->keterangan .
-                                                                        ' - ' . (optional ($item->supplier)->nama_supplier ?? 'tidak ada').
+                                                                        ' - ' . $item->nama_supir .
                                                                         ' - ' . ($item->plat_polisi ?? $item->no_container)
                                                                 ];
                                                             })
@@ -526,7 +545,9 @@ class TimbanganTrontonResource extends Resource
                                                 Select::make('id_timbangan_jual_6')
                                                     ->label('No SPB (Timbangan 6)')
                                                     ->placeholder('Pilih No SPB Penjualan')
-                                                    ->options(function () {
+                                                    ->options(function (callable $get) {
+                                                        $currentId = $get('id_timbangan_jual_6'); // nilai yang dipilih (jika ada)
+
                                                         // Ambil semua field timbangan jual (dari 1 sampai 6)
                                                         $usedSpbIds = TimbanganTronton::query()
                                                             ->get()
@@ -544,8 +565,18 @@ class TimbanganTrontonResource extends Resource
                                                             ->unique()   // Pastikan tidak ada duplikasi
                                                             ->toArray();
 
-                                                        return Penjualan::query()
-                                                            ->whereNotIn('id', $usedSpbIds)
+                                                        // Jika ada nilai yang tersimpan, kita ingin menyertakannya walaupun termasuk dalam usedSpbIds.
+                                                        $penjualanQuery = Penjualan::query();
+                                                        if ($currentId) {
+                                                            $penjualanQuery->where(function ($query) use ($currentId, $usedSpbIds) {
+                                                                $query->where('id', $currentId)
+                                                                    ->orWhereNotIn('id', $usedSpbIds);
+                                                            });
+                                                        } else {
+                                                            $penjualanQuery->whereNotIn('id', $usedSpbIds);
+                                                        }
+
+                                                        return $penjualanQuery
                                                             ->latest()
                                                             ->with(['mobil', 'supplier'])
                                                             ->get()
@@ -553,7 +584,7 @@ class TimbanganTrontonResource extends Resource
                                                                 return [
                                                                     $item->id => $item->no_spb .
                                                                         ' - Timbangan ke-' . $item->keterangan .
-                                                                        ' - ' . (optional ($item->supplier)->nama_supplier ?? 'tidak ada').
+                                                                        ' - ' . $item->nama_supir .
                                                                         ' - ' . ($item->plat_polisi ?? $item->no_container)
                                                                 ];
                                                             })
@@ -606,7 +637,48 @@ class TimbanganTrontonResource extends Resource
                                                     ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '')
                                                     ->disabled(),
                                             ])->columnSpan(1)->collapsed(),
-                                    ])->columns(3),
+                                    ])->columns(3)->collapsible(),
+                                Card::make('Informasi Berat')
+                                    ->schema([
+                                        // Card::make()
+                                        //     ->schema([
+                                        //         TextInput::make('bruto_akhir')
+                                        //             ->placeholder('Otomatis terisi')
+                                        //             ->label('Bruto Akhir')
+                                        //             ->visible(false),
+                                        //         TextInput::make('total_netto')
+                                        //             ->placeholder('Otomatis terisi')
+                                        //             ->label('Total Netto')
+                                        //             ->readOnly()
+                                        //             ->visible(false),
+
+                                        //     ])->columns(3),
+                                        Card::make()
+                                            ->schema([
+                                                TextInput::make('tambah_berat')
+                                                    ->label('Tambah Berat')
+                                                    ->numeric()
+                                                    ->placeholder('Masukkan tambah berat')
+                                                    ->live(debounce: 600)
+                                                    ->reactive() // Menjadikan field ini responsif
+                                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                                        $set('bruto_final', ($get('bruto_akhir') ?? 0) + ($state ?? 0));
+                                                        $set('netto_final', ($get('total_netto') ?? 0) + ($state ?? 0));
+                                                    }),
+                                                TextInput::make('bruto_final')
+                                                    ->label('Bruto Final')
+                                                    ->readOnly()
+                                                    ->placeholder('Otomatis terjumlahkan'),
+                                                TextInput::make('tara_awal')
+                                                    ->label('Tara Final')
+                                                    ->readOnly()
+                                                    ->placeholder('Otomatis terjumlahkan'),
+                                                TextInput::make('netto_final')
+                                                    ->label('Netto Final')
+                                                    ->readOnly()
+                                                    ->placeholder('Otomatis terjumlahkan'),
+                                            ])->columns(4)
+                                    ])->collapsible(),
                                 Textarea::make('keterangan')
                                     ->placeholder('Masukkan Keterangan')
                                     ->columnSpanFull(), // Tetap 1 kolom penuh di semua ukuran layar
@@ -650,16 +722,13 @@ class TimbanganTrontonResource extends Resource
                     ->dateTime('d-m-Y'),
                 TextColumn::make('penjualan1.nama_supir')
                     ->label('Nama Supir'),
-                TextColumn::make('tambah_berat')
-                    ->label('Berat Tambah')
-                    ->alignCenter()
-                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+
                 TextColumn::make('bruto_final')
                     ->label('Bruto Final')
                     ->alignCenter()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('tara_awal')
-                    ->label('Tara Awal')
+                    ->label('Tara Final')
                     ->alignCenter()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('netto_final')
@@ -671,12 +740,12 @@ class TimbanganTrontonResource extends Resource
                     ->label('No SPB 1')
                     ->color('info')
                     ->searchable(),
-                TextColumn::make('penjualan1.bruto')
-                    ->label('Bruto 1')
-                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                TextColumn::make('penjualan1.tara')
-                    ->label('Tara 1')
-                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                TextColumn::make('penjualan1.nama_lumbung')
+                    ->label('Lumbung')
+                    ->alignCenter(),
+                TextColumn::make('penjualan1.no_lumbung')
+                    ->label('No Lumbung')
+                    ->alignCenter(),
                 TextColumn::make('penjualan1.netto')
                     ->label('Netto 1')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
@@ -685,12 +754,12 @@ class TimbanganTrontonResource extends Resource
                     ->label('No SPB 2')
                     ->color('info')
                     ->searchable(),
-                TextColumn::make('penjualan2.bruto')
-                    ->label('Bruto 2')
-                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                TextColumn::make('penjualan2.tara')
-                    ->label('Tara 2')
-                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                TextColumn::make('penjualan2.nama_lumbung')
+                    ->label('Lumbung')
+                    ->alignCenter(),
+                TextColumn::make('penjualan2.no_lumbung')
+                    ->label('No Lumbung')
+                    ->alignCenter(),
                 TextColumn::make('penjualan2.netto')
                     ->label('Netto 2')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
@@ -699,12 +768,12 @@ class TimbanganTrontonResource extends Resource
                     ->label('No SPB 3')
                     ->color('info')
                     ->searchable(),
-                TextColumn::make('penjualan3.bruto')
-                    ->label('Bruto 3')
-                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                TextColumn::make('penjualan3.tara')
-                    ->label('Tara 3')
-                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                TextColumn::make('penjualan3.nama_lumbung')
+                    ->label('Lumbung')
+                    ->alignCenter(),
+                TextColumn::make('penjualan3.no_lumbung')
+                    ->label('No Lumbung')
+                    ->alignCenter(),
                 TextColumn::make('penjualan3.netto')
                     ->label('Netto 3')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
@@ -713,12 +782,12 @@ class TimbanganTrontonResource extends Resource
                     ->label('No SPB 4')
                     ->color('info')
                     ->searchable(),
-                TextColumn::make('penjualan4.bruto')
-                    ->label('Bruto 4')
-                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                TextColumn::make('penjualan4.tara')
-                    ->label('Tara 4')
-                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                TextColumn::make('penjualan4.nama_lumbung')
+                    ->label('Lumbung')
+                    ->alignCenter(),
+                TextColumn::make('penjualan4.no_lumbung')
+                    ->label('No Lumbung')
+                    ->alignCenter(),
                 TextColumn::make('penjualan4.netto')
                     ->label('Netto 4')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
@@ -727,12 +796,12 @@ class TimbanganTrontonResource extends Resource
                     ->label('No SPB 5')
                     ->color('info')
                     ->searchable(),
-                TextColumn::make('penjualan5.bruto')
-                    ->label('Bruto 5')
-                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                TextColumn::make('penjualan5.tara')
-                    ->label('Tara 5')
-                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                TextColumn::make('penjualan5.nama_lumbung')
+                    ->label('Lumbung')
+                    ->alignCenter(),
+                TextColumn::make('penjualan5.no_lumbung')
+                    ->label('No Lumbung')
+                    ->alignCenter(),
                 TextColumn::make('penjualan5.netto')
                     ->label('Netto 5')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
@@ -741,17 +810,21 @@ class TimbanganTrontonResource extends Resource
                     ->label('No SPB 6')
                     ->color('info')
                     ->searchable(),
-                TextColumn::make('penjualan6.bruto')
-                    ->label('Bruto 6')
-                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                TextColumn::make('penjualan6.tara')
-                    ->label('Tara 6')
-                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                TextColumn::make('penjualan6.nama_lumbung')
+                    ->label('Lumbung')
+                    ->alignCenter(),
+                TextColumn::make('penjualan6.no_lumbung')
+                    ->label('No Lumbung')
+                    ->alignCenter(),
                 TextColumn::make('penjualan6.netto')
                     ->label('Netto 6')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('nama_barang'),
                 TextColumn::make('keterangan'),
+                TextColumn::make('tambah_berat')
+                    ->label('Berat Tambah')
+                    ->alignCenter()
+                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('user.name')
                     ->label('User')
             ])->defaultSort('id', 'desc')

@@ -179,7 +179,7 @@
                         @endif
                     </th>
                     <th>Nama Supir</th>
-                    <th>Brondolan</th>
+                    <th>Satuan Muatan</th>
                     <th>Nama Barang</th>
                     <th colspan="2">Total</th>
                 </tr>

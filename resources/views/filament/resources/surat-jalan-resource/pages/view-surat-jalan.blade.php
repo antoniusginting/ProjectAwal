@@ -56,7 +56,7 @@
                             @endif
                         </th>
                         <th class="border p-2 border-gray-300 dark:border-gray-700">Nama Supir</th>
-                        <th class="border p-2 border-gray-300 dark:border-gray-700">Brondolan</th>
+                        <th class="border p-2 border-gray-300 dark:border-gray-700">Satuan Muatan</th>
                         <th class="border p-2 border-gray-300 dark:border-gray-700">Nama Barang</th>
                         <th class="border p-2 border-gray-300 dark:border-gray-700" colspan="2">Total</th>
                     </tr>

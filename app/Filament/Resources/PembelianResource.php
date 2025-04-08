@@ -46,39 +46,62 @@ class PembelianResource extends Resource
             ->schema([
                 Card::make()
                     ->schema([
-                        // TextInput::make('no_spb')
-                        //     ->label('No SPB')
-                        //     ->disabled()
-                        //     ->extraAttributes(['readonly' => true])
-                        //     ->dehydrated(false)
-                        //     ->afterStateUpdated(function (callable $set, $get) {
-                        //         $nextId = Pembelian::max('id') + 1; // Ambil ID terakhir + 1
-                        //         $set('no_spb', $get('jenis') . '-' . $nextId);
-                        //     }),
-                        Placeholder::make('next_id')
-                            ->label('No SPB')
-                            ->content(function ($record) {
-                                // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
-                                if ($record) {
-                                    return $record->no_spb;
-                                }
+                        Card::make()
+                            ->schema([
+                                // TextInput::make('no_spb')
+                                //     ->label('No SPB')
+                                //     ->disabled()
+                                //     ->extraAttributes(['readonly' => true])
+                                //     ->dehydrated(false)
+                                //     ->afterStateUpdated(function (callable $set, $get) {
+                                //         $nextId = Pembelian::max('id') + 1; // Ambil ID terakhir + 1
+                                //         $set('no_spb', $get('jenis') . '-' . $nextId);
+                                //     }),
+                                Placeholder::make('next_id')
+                                    ->label('No SPB')
+                                    ->content(function ($record) {
+                                        // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
+                                        if ($record) {
+                                            return $record->no_spb;
+                                        }
 
-                                // Jika sedang membuat data baru, hitung kode berikutnya
-                                $nextId = (Pembelian::max('id') ?? 0) + 1;
-                                return 'B' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
-                            }),
+                                        // Jika sedang membuat data baru, hitung kode berikutnya
+                                        $nextId = (Pembelian::max('id') ?? 0) + 1;
+                                        return 'B' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+                                    }),
+                                TextInput::make('jam_masuk')
+                                    ->readOnly()
+                                    ->suffixIcon('heroicon-o-clock')
+                                    ->default(now()->format('H:i')),
+                                TextInput::make('jam_keluar')
+                                    ->label('Jam Keluar')
+                                    ->readOnly()
+                                    ->placeholder('Kosongkan jika belum keluar')
+                                    ->suffixIcon('heroicon-o-clock')
+                                    ->required(false) // Bisa kosong saat tambah data
+                                    ->afterStateHydrated(function ($state, callable $set, $record) {
+                                        // Jika sedang edit dan jam_keluar kosong, isi waktu sekarang
+                                        if ($record && empty($state)) {
+                                            $set('jam_keluar', now()->format('H:i:s'));
+                                        }
+                                    }),
+                                TextInput::make('created_at')
+                                    ->label('Tanggal')
+                                    ->formatStateUsing(fn($state) => \Carbon\Carbon::parse($state)->format('d-m-Y'))
+                                    ->disabled(), // Tidak bisa diedit
+                            ])->columns(4)->collapsed(),
+
                         // TextInput::make('no_po')
                         //     ->label('Nomor PO') // Memberikan label deskriptif
                         //     ->placeholder('Masukkan Nomor PO'), // Placeholder
                         // Menambahkan note
                         // ->helperText('Catatan: Pastikan Nomor PO diisi dengan format yang benar.'), 
 
-                        TextInput::make('created_at')
-                            ->label('Tanggal')
-                            ->formatStateUsing(fn($state) => \Carbon\Carbon::parse($state)->format('d-m-Y'))
-                            ->disabled(), // Tidak bisa diedit
 
-                        TextInput::make('plat_polisi')
+
+                        Card::make()
+                        ->schema([
+                            TextInput::make('plat_polisi')
                             ->placeholder('Masukkan plat polisi'),
                         TextInput::make('bruto')
                             ->label('Bruto')
@@ -162,31 +185,23 @@ class PembelianResource extends Resource
                         // Placeholder::make('jenis_supplier')
                         //     ->label('Jenis Supplier')
                         //     ->content(fn($get) => $get('jenis_supplier') ?? 'Pilih Nama Supplier terlebih dahulu'),
-                        TextInput::make('jam_masuk')
-                            ->readOnly()
-                            ->suffixIcon('heroicon-o-clock')
-                            ->default(now()->format('H:i')),
-                        TextInput::make('jam_keluar')
-                            ->label('Jam Keluar')
-                            ->readOnly()
-                            ->placeholder('Kosongkan jika belum keluar')
-                            ->suffixIcon('heroicon-o-clock')
-                            ->required(false) // Bisa kosong saat tambah data
-                            ->afterStateHydrated(function ($state, callable $set, $record) {
-                                // Jika sedang edit dan jam_keluar kosong, isi waktu sekarang
-                                if ($record && empty($state)) {
-                                    $set('jam_keluar', now()->format('H:i:s'));
-                                }
-                            }),
+
                         TextInput::make('no_container')
                             ->placeholder('Masukkan No Container'),
-                        TextInput::make('brondolan')
+
+                        Select::make('brondolan') // Gantilah 'tipe' dengan nama field di database
                             ->label('Satuan Muatan')
-                            ->placeholder('Masukkan satuan muatan')
-                            ->extraAttributes(['style' => 'margin-bottom: 20px;']),
+                            ->options([
+                                'GONI' => 'GONI',
+                                'CURAH' => 'CURAH',
+                            ])
+                            ->placeholder('Pilih Satuan Timbangan')
+                            ->native(false) // Mengunakan dropdown modern
+                            ->required(), // Opsional: Atur default value
                         Hidden::make('user_id')
                             ->label('User ID')
                             ->default(Auth::id()) // Set nilai default user yang sedang login,
+                        ])->columns(2)
                     ])->columns(2)
             ]);
     }
