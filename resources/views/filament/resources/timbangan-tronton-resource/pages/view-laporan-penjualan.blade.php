@@ -3,7 +3,7 @@
 
         <!-- Header Surat -->
         <div class="text-center space-y-1">
-            <h1 class="text-3xl font-bold">Bonar Jaya Adi Perkasa Nusantara</h1>
+            <h1 class="text-3xl font-bold">Bonar Jaya AdiPerkasa Nusantara</h1>
             <h2 class="text-lg">Laporan Penjualan</h2>
         </div>
 
@@ -67,13 +67,13 @@
                                 <td class="border p-2 text-center border-gray-300 dark:border-gray-700">
                                     {{ $i }}
                                 </td>
-                                <td class="border p-2 text-center border-gray-300 dark:border-gray-700">
+                                <td class="border p-2  border-gray-300 dark:border-gray-700">
                                     {{ $penjualan->no_spb }}
                                 </td>
-                                <td class="border p-2 text-center border-gray-300 dark:border-gray-700">
+                                <td class="border p-2  border-gray-300 dark:border-gray-700">
                                     {{ $penjualan->nama_barang }}
                                 </td>
-                                <td class="border p-2 text-center border-gray-300 dark:border-gray-700">
+                                <td class="border p-2  border-gray-300 dark:border-gray-700">
                                     {{ $penjualan->brondolan }}
                                 </td>
                                 <td class="border p-2 border-gray-300 dark:border-gray-700">

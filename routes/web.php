@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LaporanPenjualanController;
 use App\Http\Controllers\SortiranController;
 use App\Http\Controllers\SuratJalanController;
 use Illuminate\Support\Facades\Route;
@@ -13,3 +14,6 @@ Route::get('/print-sortiran/{id}',[SortiranController::class,'printSortiranRecor
 
 //Print SuratJalan
 Route::get('/print-suratjalan/{id}',[SuratJalanController::class,'printSuratJalanRecord'])->name('PRINT.SURATJALAN');
+
+//Print Laporan Penjualan
+Route::get('/print-laporanpenjualan/{id}',[LaporanPenjualanController::class,'printLaporanPenjualanRecord'])->name('PRINT.LAPORANPENJUALAN');

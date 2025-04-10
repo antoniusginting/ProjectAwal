@@ -28,7 +28,7 @@ class ViewSuratJalan extends Page
             ->icon('heroicon-o-printer')
             ->url(route("PRINT.SURATJALAN",['id'=>$this->record]))
             ->extraAttributes([
-                'onclick' => "if(confirm('Apakah Anda yakin ingin mencetak?')) { window.open('" . route("PRINT.SORTIRAN", ['id' => $this->record]) . "', '_blank'); }"
+                'onclick' => "if(confirm('Apakah Anda yakin ingin mencetak?')) { window.open('" . route("PRINT.SURATJALAN", ['id' => $this->record]) . "', '_blank'); }"
             ])
             ->openUrlInNewTab()
         ];
