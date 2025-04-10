@@ -22,6 +22,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
+use Filament\Tables\Enums\ActionsPosition;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TimbanganTrontonResource\Pages;
 use App\Filament\Resources\TimbanganTrontonResource\RelationManagers;
@@ -31,10 +32,10 @@ class TimbanganTrontonResource extends Resource
     protected static ?string $model = TimbanganTronton::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-truck';
-    protected static ?string $navigationLabel = 'Tronton';
+    protected static ?string $navigationLabel = 'Laporan Penjualan';
     protected static ?string $navigationGroup = 'Timbangan';
     protected static ?int $navigationSort = 3;
-    public static ?string $label = 'Daftar Tronton ';
+    public static ?string $label = 'Daftar Laporan Penjualan ';
 
     public static function form(Form $form): Form
     {
@@ -716,13 +717,13 @@ class TimbanganTrontonResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')
-                    ->label('ID'),
+                TextColumn::make('kode')
+                    ->label('No Penjualan')
+                    ->alignCenter(),
                 TextColumn::make('created_at')->label('Tanggal')
                     ->dateTime('d-m-Y'),
                 TextColumn::make('penjualan1.nama_supir')
                     ->label('Nama Supir'),
-
                 TextColumn::make('bruto_final')
                     ->label('Bruto Final')
                     ->alignCenter()
@@ -832,9 +833,11 @@ class TimbanganTrontonResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-            ])
+                Tables\Actions\Action::make('View')
+                    ->label(__("Lihat"))
+                    ->icon('heroicon-o-eye')
+                    ->url(fn($record) => self::getUrl("view-laporan-penjualan", ['record' => $record->id])),
+            ], position: ActionsPosition::BeforeColumns)
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
@@ -855,6 +858,7 @@ class TimbanganTrontonResource extends Resource
             'index' => Pages\ListTimbanganTrontons::route('/'),
             'create' => Pages\CreateTimbanganTronton::route('/create'),
             'edit' => Pages\EditTimbanganTronton::route('/{record}/edit'),
+            'view-laporan-penjualan' => Pages\ViewLaporanPenjualan::route('/{record}/view-laporan-penjualan'),
         ];
     }
 }

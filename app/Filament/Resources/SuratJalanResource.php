@@ -194,7 +194,6 @@ class SuratJalanResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('View')
                     ->label(__("Lihat"))
                     ->icon('heroicon-o-eye')

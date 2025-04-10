@@ -57,12 +57,10 @@ class SupplierResource extends Resource
                                     'Agen Purchasing' => 'Agen Purchasing',
                                 ])
                                 ->placeholder('Pilih Jenis Supplier')
-                                ->native(false)
-                                ->required(),
+                                ->native(false),
         
                             TextInput::make('no_ktp')
-                                ->label('Nomor KTP')
-                                ->required()
+                                ->label('Nomor KTP')    
                                 ->numeric()
                                 ->placeholder('Masukkan nomor KTP'),
         
@@ -73,7 +71,6 @@ class SupplierResource extends Resource
         
                             TextInput::make('no_rek')
                                 ->label('Nomor rekening')
-                                ->required()
                                 ->numeric()
                                 ->placeholder('Masukkan nomor rekening'),
         
@@ -85,12 +82,10 @@ class SupplierResource extends Resource
                                     'Mandiri' => 'Mandiri',
                                 ])
                                 ->placeholder('Pilih nama bank')
-                                ->native(false)
-                                ->required(),
+                                ->native(false),
         
                             TextInput::make('atas_nama_bank')
                                 ->label('Atas nama bank')
-                                ->required()
                                 ->placeholder('Masukkan atas nama bank'),
                         ])->columns(2) // 2 kolom di layar besar
                 ]),
