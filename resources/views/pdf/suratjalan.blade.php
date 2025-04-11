@@ -194,10 +194,10 @@
                         @endif
                     </td>
                     <td rowspan="3">{{ $suratjalan->tronton->penjualan1->nama_supir }}</td>
-                    <td rowspan="3">{{ $suratjalan->tronton->penjualan1->brondolan }}</td>
+                    <td rowspan="3">JAGUNG KERING SUPER</td>
                     <td rowspan="3">{{ $suratjalan->tronton->penjualan1->nama_barang }}</td>
                     <td>Bruto</td>
-                    <td>{{ number_format($suratjalan->tronton->bruto_final, 0, ',', '.') }}</td>
+                    <td>{{ number_format($suratjalan->bruto_final, 0, ',', '.') }}</td>
                 </tr>
                 <tr>
                     <td>Tara</td>
@@ -205,7 +205,7 @@
                 </tr>
                 <tr>
                     <td>Netto</td>
-                    <td>{{ number_format($suratjalan->tronton->netto_final, 0, ',', '.') }}</td>
+                    <td>{{ number_format($suratjalan->netto_final, 0, ',', '.') }}</td>
                 </tr>
             </tbody>
         </table>

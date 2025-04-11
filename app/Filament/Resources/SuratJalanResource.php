@@ -79,8 +79,8 @@ class SuratJalanResource extends Resource
                         Card::make('Informasi Timbangan')
                             ->schema([
                                 Select::make('id_timbangan_tronton')
-                                    ->label('ID Timbangan Tronton')
-                                    
+                                    ->label('ID Laporan Penjualan')
+
                                     ->options(
                                         TimbanganTronton::whereNotIn('id', SuratJalan::pluck('id_timbangan_tronton')) // Exclude yang sudah ada
                                             ->latest()
@@ -88,8 +88,8 @@ class SuratJalanResource extends Resource
                                             ->get()
                                             ->mapWithKeys(function ($item) {
                                                 return [
-                                                    $item->id => $item->id . ' - ' . $item->penjualan1->nama_supir . ' - ' .
-                                                ($item->penjualan1->plat_polisi ?? $item->penjualan1->no_container)
+                                                    $item->id => $item->kode . ' - ' . $item->penjualan1->nama_supir . ' - ' .
+                                                        ($item->penjualan1->plat_polisi ?? $item->penjualan1->no_container)
                                                 ];
                                             })
                                     )
@@ -105,31 +105,49 @@ class SuratJalanResource extends Resource
                                         $set('nama_supir', $timbangan?->penjualan1?->nama_supir ?? '');
                                         $set('nama_barang', $timbangan?->penjualan1?->nama_barang ?? '');
                                         $set('tara_awal', $timbangan?->tara_awal ?? '');
-                                        $set('bruto_final', $timbangan?->bruto_final ?? '');
-                                        $set('netto_final', $timbangan?->netto_final ?? '');
+                                        $set('bruto_akhir', $timbangan?->bruto_akhir ?? '');
+                                        $set('total_netto', $timbangan?->total_netto ?? '');
                                     })
                                     ->afterStateHydrated(function (callable $set, callable $get, $state) {
                                         // Pastikan hanya berjalan saat edit data
                                         if ($state) {
                                             $timbangan = TimbanganTronton::where('id', $state)->first();
-                                
+
                                             $set('brondolan', $timbangan?->penjualan1?->brondolan ?? '');
                                             $set('nama_supir', $timbangan?->penjualan1?->nama_supir ?? '');
                                             $set('nama_barang', $timbangan?->penjualan1?->nama_barang ?? '');
                                             $set('tara_awal', $timbangan?->tara_awal ?? 0);
-                                            $set('bruto_final', $timbangan?->bruto_final ?? 0);
-                                            $set('netto_final', $timbangan?->netto_final ?? 0);
+                                            $set('bruto_akhir', $timbangan?->bruto_akhir ?? 0);
+                                            $set('total_netto', $timbangan?->total_netto ?? 0);
                                         }
-                                    })
-                                    ->columnSpan(2),
+                                    }),
+                                TextInput::make('bruto_akhir')
+                                    ->label('Bruto Awal')
+                                    ->readOnly()
+                                    ->reactive()
+                                    ->hidden(),
+                                TextInput::make('total_netto')
+                                    ->label('Netto Awal')
+                                    ->readOnly()
+                                    ->reactive()
+                                    ->hidden(),
+                                TextInput::make('tambah_berat')
+                                    ->label('Tambah Berat')
+                                    ->numeric()
+                                    ->placeholder('Masukkan berat yang ingin ditambah')
+                                    ->live(debounce: 600)
+                                    ->reactive() // Menjadikan field ini responsif
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        $set('bruto_final', ($get('bruto_akhir') ?? 0) + ($state ?? 0));
+                                        $set('netto_final', ($get('total_netto') ?? 0) + ($state ?? 0));
+                                    }),
                                 TextInput::make('brondolan')
                                     ->label('Satuan Muatan')
                                     ->disabled() // Hanya untuk menampilkan, tidak bisa diubah
                                     ->dehydrated(false), // Tidak tersimpan ke database
                                 TextInput::make('bruto_final')
                                     ->label('Bruto')
-                                    ->disabled() // Field ini tidak bisa diubah langsung oleh user
-                                    ->dehydrated(false),
+                                    ->readOnly(), // Field ini tidak bisa diubah langsung oleh user
                                 TextInput::make('nama_barang')
                                     ->label('Nama Barang')
                                     ->disabled()
@@ -144,9 +162,7 @@ class SuratJalanResource extends Resource
                                     ->dehydrated(false),
                                 TextInput::make('netto_final')
                                     ->label('Netto')
-                                    ->default(0)
-                                    ->readOnly()
-                                    ->dehydrated(false),
+                                    ->readOnly(),
                                 Hidden::make('user_id')
                                     ->label('User ID')
                                     ->default(Auth::id()) // Set nilai default user yang sedang login,

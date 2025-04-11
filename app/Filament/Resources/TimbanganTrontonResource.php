@@ -15,6 +15,8 @@ use Filament\Forms\Components\Grid;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+
+use function Laravel\Prompts\text;
 use function Laravel\Prompts\textarea;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
@@ -45,7 +47,52 @@ class TimbanganTrontonResource extends Resource
                     ->schema([
                         Grid::make(3)
                             ->schema([
+                                Card::make('Informasi Berat')
+                                    ->schema([
+                                        // Card::make()
+                                        //     ->schema([
+                                        // TextInput::make('total_netto')
+                                        //     ->placeholder('Otomatis terisi')
+                                        //     ->label('Total Netto')
+                                        //     ->readOnly()
+                                        //     ->visible(false),
 
+                                        //     ])->columns(3),
+                                        Card::make()
+                                            ->schema([
+                                                // TextInput::make('tambah_berat')
+                                                //     ->label('Tambah Berat')
+                                                //     ->numeric()
+                                                //     ->placeholder('Masukkan tambah berat')
+                                                //     ->live(debounce: 600)
+                                                //     ->reactive() // Menjadikan field ini responsif
+                                                //     ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                                //         $set('bruto_final', ($get('bruto_akhir') ?? 0) + ($state ?? 0));
+                                                //         $set('netto_final', ($get('total_netto') ?? 0) + ($state ?? 0));
+                                                //     }),
+                                                // TextInput::make('bruto_final')
+                                                //     ->label('Bruto Final')
+                                                //     ->readOnly()
+                                                //     ->placeholder('Otomatis terjumlahkan'),
+
+                                                TextInput::make('bruto_akhir')
+                                                    ->label('Bruto Akhir')
+                                                    ->readOnly()
+                                                    ->placeholder('Otomatis terjumlahkan'),
+                                                TextInput::make('tara_awal')
+                                                    ->label('Tara Awal')
+                                                    ->readOnly()
+                                                    ->placeholder('Otomatis terjumlahkan'),
+                                                TextInput::make('total_netto')
+                                                    ->placeholder('Otomatis terisi')
+                                                    ->label('Total Netto')
+                                                    ->readOnly(),
+                                                // TextInput::make('netto_final')
+                                                //     ->label('Netto Final')
+                                                //     ->readOnly()
+                                                //     ->placeholder('Otomatis terjumlahkan'),
+                                            ])->columns(3)
+                                    ])->collapsed(),
                                 Card::make('Timbangan Jual')
                                     ->schema([
                                         //Timbangan Jual 1
@@ -639,47 +686,7 @@ class TimbanganTrontonResource extends Resource
                                                     ->disabled(),
                                             ])->columnSpan(1)->collapsed(),
                                     ])->columns(3)->collapsible(),
-                                Card::make('Informasi Berat')
-                                    ->schema([
-                                        // Card::make()
-                                        //     ->schema([
-                                        //         TextInput::make('bruto_akhir')
-                                        //             ->placeholder('Otomatis terisi')
-                                        //             ->label('Bruto Akhir')
-                                        //             ->visible(false),
-                                        //         TextInput::make('total_netto')
-                                        //             ->placeholder('Otomatis terisi')
-                                        //             ->label('Total Netto')
-                                        //             ->readOnly()
-                                        //             ->visible(false),
 
-                                        //     ])->columns(3),
-                                        Card::make()
-                                            ->schema([
-                                                TextInput::make('tambah_berat')
-                                                    ->label('Tambah Berat')
-                                                    ->numeric()
-                                                    ->placeholder('Masukkan tambah berat')
-                                                    ->live(debounce: 600)
-                                                    ->reactive() // Menjadikan field ini responsif
-                                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                                        $set('bruto_final', ($get('bruto_akhir') ?? 0) + ($state ?? 0));
-                                                        $set('netto_final', ($get('total_netto') ?? 0) + ($state ?? 0));
-                                                    }),
-                                                TextInput::make('bruto_final')
-                                                    ->label('Bruto Final')
-                                                    ->readOnly()
-                                                    ->placeholder('Otomatis terjumlahkan'),
-                                                TextInput::make('tara_awal')
-                                                    ->label('Tara Final')
-                                                    ->readOnly()
-                                                    ->placeholder('Otomatis terjumlahkan'),
-                                                TextInput::make('netto_final')
-                                                    ->label('Netto Final')
-                                                    ->readOnly()
-                                                    ->placeholder('Otomatis terjumlahkan'),
-                                            ])->columns(4)
-                                    ])->collapsible(),
                                 Textarea::make('keterangan')
                                     ->placeholder('Masukkan Keterangan')
                                     ->columnSpanFull(), // Tetap 1 kolom penuh di semua ukuran layar
@@ -724,16 +731,16 @@ class TimbanganTrontonResource extends Resource
                     ->dateTime('d-m-Y'),
                 TextColumn::make('penjualan1.nama_supir')
                     ->label('Nama Supir'),
-                TextColumn::make('bruto_final')
-                    ->label('Bruto Final')
+                TextColumn::make('bruto_akhir')
+                    ->label('Bruto Akhir')
                     ->alignCenter()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('tara_awal')
-                    ->label('Tara Final')
+                    ->label('Tara Awal')
                     ->alignCenter()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                TextColumn::make('netto_final')
-                    ->label('Netto Final')
+                TextColumn::make('total_netto')
+                    ->label('Total Netto')
                     ->alignCenter()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 //Penjualan 1

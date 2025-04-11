@@ -162,7 +162,7 @@
         </tr>
         <tr>
           <td class="label">Operator</td>
-          <td>: {{ $laporanpenjualan->penjualan1->user->name }}</td>
+          <td>: {{ $laporanpenjualan->user->name }}</td>
           <td class="label">Plat Polisi</td>
           <td>: {{ $laporanpenjualan->penjualan1->plat_polisi }}</td>
         </tr>
@@ -193,11 +193,11 @@
               @if ($penjualan)
                 <tr>
                   <td class="text-center">{{ $i }}</td>
-                  <td>{{ $penjualan->no_spb }}</td>
+                  <td class="text-center">{{ $penjualan->no_spb }}</td>
                   <td class="text-center">{{ $penjualan->nama_barang }}</td>
                   <td class="text-center">{{ $penjualan->brondolan }}</td>
-                  <td>{{ $penjualan->nama_lumbung }}</td>
-                  <td>{{ $penjualan->no_lumbung }}</td>
+                  <td class="text-center">{{ $penjualan->nama_lumbung }}</td>
+                  <td class="text-center">{{ $penjualan->no_lumbung }}</td>
                   <td class="text-right">{{ number_format($penjualan->netto, 0, ',', '.') }}</td>
                 </tr>
                 @php $totalNetto += $penjualan->netto; @endphp
@@ -205,7 +205,7 @@
             @endfor
             <!-- Baris total keseluruhan -->
             <tr class="total-row">
-              <td colspan="6" class="text-center">Total Netto</td>
+              <td colspan="6" class="text-center">Total Berat</td>
               <td class="text-right">{{ number_format($totalNetto, 0, ',', '.') }}</td>
             </tr>
           </tbody>

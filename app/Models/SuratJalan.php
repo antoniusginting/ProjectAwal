@@ -14,6 +14,9 @@ class SuratJalan extends Model
         'kota',
         'po',
         'user_id',
+        'bruto_final',
+        'netto_final',
+        'tambah_berat',
     ];
 
     // Relasi ke User
