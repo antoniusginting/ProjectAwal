@@ -2,6 +2,7 @@
 
 use App\Filament\Resources\PenjualanResource;
 use App\Http\Controllers\LaporanPenjualanController;
+use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\SortiranController;
 use App\Http\Controllers\SuratJalanController;
@@ -22,3 +23,6 @@ Route::get('/print-laporanpenjualan/{id}',[LaporanPenjualanController::class,'pr
 
 //Print Timbangan Penjualan
 Route::get('/print-penjualan/{id}',[PenjualanController::class,'printPenjualanRecord'])->name('PRINT.PENJUALAN');
+
+//Print Timbangan Pembelian
+Route::get('/print-pembelian/{id}',[PembelianController::class,'printPembelianRecord'])->name('PRINT.PEMBELIAN');

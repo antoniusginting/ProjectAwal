@@ -1,10 +1,9 @@
-<!DOCTYPE html>
 <html lang="id">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Print | Penjualan</title>
+    <title>Print | Pembelian</title>
     <style>
         /* Definisi variabel untuk konsistensi warna */
         :root {
@@ -161,7 +160,7 @@
         <!-- Header Surat -->
         <header class="header">
             <h1>Bonar Jaya AdiPerkasa Nusantara</h1>
-            <h2>Laporan Penjualan</h2>
+            <h2>Laporan Pembelian</h2>
         </header>
 
         <div class="divider"></div>
@@ -171,19 +170,15 @@
             <table class="info-table">
                 <tr>
                     <td class="label">Tanggal</td>
-                    <td>: {{ $penjualan->created_at->format('d-m-Y') }}</td>
+                    <td>: {{ $pembelian->created_at->format('d-m-Y') }}</td>
                     <td class="label">Jam</td>
-                    <td>: {{ $penjualan->created_at->format('H:i:s') }}</td>
-                    <td class="label">Nama Lumbung</td>
-                    <td>: {{ $penjualan->nama_lumbung }}</td>
+                    <td>: {{ $pembelian->created_at->format('H:i:s') }}</td>
                 </tr>
                 <tr>
                     <td class="label">Operator</td>
-                    <td>: {{ $penjualan->user->name }}</td>
+                    <td>: {{ $pembelian->user->name }}</td>
                     <td class="label">Container</td>
-                    <td>: {{ $penjualan->no_container }}</td>
-                    <td class="label">No Lumbung</td>
-                    <td>: {{ $penjualan->no_lumbung }}</td>
+                    <td>: {{ $pembelian->no_container }}</td>
                 </tr>
             </table>
         </section>
@@ -198,29 +193,29 @@
                         <tr>
                             <th>No_SPB</th>
                             <th>Plat Polisi</th>
+                            <th>Nama Supplier</th>
                             <th>Nama Supir</th>
                             <th>Satuan Muatan</th>
-                            <th>Nama Barang</th>
                             <th colspan="2">Berat</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td rowspan="3" class="text-center">{{ $penjualan->no_spb }}</td>
-                            <td rowspan="3" class="text-center">{{ $penjualan->plat_polisi }}</td>
-                            <td rowspan="3" class="text-center">{{ $penjualan->nama_supir }}</td>
-                            <td rowspan="3" class="text-center">{{ $penjualan->brondolan }}</td>
-                            <td rowspan="3" class="text-center">{{ $penjualan->nama_barang }}</td>
+                            <td rowspan="3" class="text-center">{{ $pembelian->no_spb }}</td>
+                            <td rowspan="3" class="text-center">{{ $pembelian->plat_polisi }}</td>
+                            <td rowspan="3" class="text-center">{{ $pembelian->nama_supir }}</td>
+                            <td rowspan="3" class="text-center">{{ $pembelian->brondolan }}</td>
+                            <td rowspan="3" class="text-center">{{ $pembelian->nama_barang }}</td>
                             <td>Bruto</td>
-                            <td class="text-right">{{ number_format($penjualan->bruto, 0, ',', '.') }}</td>
+                            <td class="text-right">{{ number_format($pembelian->bruto, 0, ',', '.') }}</td>
                         </tr>
                         <tr>
                             <td>Tara</td>
-                            <td class="text-right">{{ number_format($penjualan->tara, 0, ',', '.') }}</td>
+                            <td class="text-right">{{ number_format($pembelian->tara, 0, ',', '.') }}</td>
                         </tr>
                         <tr>
                             <td>Netto</td>
-                            <td class="text-right">{{ number_format($penjualan->netto, 0, ',', '.') }}</td>
+                            <td class="text-right">{{ number_format($pembelian->netto, 0, ',', '.') }}</td>
                         </tr>
                     </tbody>
                 </table>
