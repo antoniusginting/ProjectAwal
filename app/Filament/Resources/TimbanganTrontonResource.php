@@ -86,7 +86,11 @@ class TimbanganTrontonResource extends Resource
                                                 TextInput::make('total_netto')
                                                     ->placeholder('Otomatis terisi')
                                                     ->label('Total Netto')
-                                                    ->readOnly(),
+                                                    ->readOnly()
+                                                    ->afterStateHydrated(function ($state, callable $set) {
+                                                        // Saat edit, simpan nilai total netto yang tersimpan sebagai initial_total_netto
+                                                        $set('initial_total_netto', $state);
+                                                    }),
                                                 // TextInput::make('netto_final')
                                                 //     ->label('Netto Final')
                                                 //     ->readOnly()
@@ -100,6 +104,7 @@ class TimbanganTrontonResource extends Resource
                                             ->schema([
                                                 Select::make('id_timbangan_jual_1')
                                                     ->label('No SPB (Timbangan 1)')
+                                                    ->disabled(fn($state) => !is_null($state)) // Jika sudah terisi, maka field tidak bisa diedit
                                                     ->placeholder('Pilih No SPB Penjualan')
                                                     ->options(function (callable $get) {
                                                         $currentId = $get('id_timbangan_jual_1'); // nilai yang dipilih (jika ada)
@@ -252,7 +257,10 @@ class TimbanganTrontonResource extends Resource
                                                             $set('plat_polisi2', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
                                                             $set('bruto2', $penjualan?->bruto);
                                                             $set('tara2', $penjualan?->tara);
-                                                            $set('netto2', $penjualan?->netto);
+                                                            $netto2 = $penjualan?->netto ?? 0;
+                                                            $set('netto2', $netto2);
+                                                            // Simpan nilai awal untuk perhitungan selanjutnya
+                                                            $set('prev_netto2', $netto2);
                                                         }
                                                     })
                                                     ->afterStateUpdated(function ($state, callable $set, $get) {
@@ -260,9 +268,24 @@ class TimbanganTrontonResource extends Resource
                                                         $set('plat_polisi2', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
                                                         $set('bruto2', $penjualan?->bruto);
                                                         $set('tara2', $penjualan?->tara);
-                                                        $set('netto2', $penjualan?->netto);
-                                                        $set('total_netto', self::hitungTotalNetto($get)); // Update total_total_netto
-                                                        // Update bruto_final berdasarkan helper
+                                                        $newNetto = $penjualan?->netto ?? 0;
+                                                        // Ambil nilai netto sebelumnya, jika belum ada asumsikan 0
+                                                        $prevNetto = $get('prev_netto2') ?? 0;
+
+                                                        // Hitung perbedaan antara nilai baru dan sebelumnya
+                                                        $diff = $newNetto - $prevNetto;
+
+                                                        // Update penyimpanan nilai netto sebelumnya
+                                                        $set('prev_netto2', $newNetto);
+
+                                                        // Ambil total netto saat ini. Jika belum ter-update, gunakan nilai awal (initial_total_netto)
+                                                        $currentTotal = $get('total_netto') ?? ($get('initial_total_netto') ?? 0);
+
+                                                        // Update total netto dengan menambahkan selisih
+                                                        $set('total_netto', $currentTotal + $diff);
+
+                                                        // Jika perlu, juga set field netto2 agar tampil (misalnya untuk format)
+                                                        $set('netto2', $newNetto);
                                                         $set('bruto_akhir', self::getBrutoAkhir($get));
                                                     }),
 
@@ -350,7 +373,10 @@ class TimbanganTrontonResource extends Resource
                                                             $set('plat_polisi3', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
                                                             $set('bruto3', $penjualan?->bruto);
                                                             $set('tara3', $penjualan?->tara);
-                                                            $set('netto3', $penjualan?->netto);
+                                                            $netto3 = $penjualan?->netto ?? 0;
+                                                            $set('netto3', $netto3);
+                                                            // Simpan nilai awal untuk perhitungan selanjutnya
+                                                            $set('prev_netto3', $netto3);
                                                         }
                                                     })
                                                     ->afterStateUpdated(function ($state, callable $set, $get) {
@@ -358,9 +384,24 @@ class TimbanganTrontonResource extends Resource
                                                         $set('plat_polisi3', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
                                                         $set('bruto3', $penjualan?->bruto);
                                                         $set('tara3', $penjualan?->tara);
-                                                        $set('netto3', $penjualan?->netto);
-                                                        $set('total_netto', self::hitungTotalNetto($get)); // Update total_total_netto
-                                                        // Update bruto_final berdasarkan helper
+                                                        $newNetto = $penjualan?->netto ?? 0;
+                                                        // Ambil nilai netto sebelumnya, jika belum ada asumsikan 0
+                                                        $prevNetto = $get('prev_netto3') ?? 0;
+
+                                                        // Hitung perbedaan antara nilai baru dan sebelumnya
+                                                        $diff = $newNetto - $prevNetto;
+
+                                                        // Update penyimpanan nilai netto sebelumnya
+                                                        $set('prev_netto3', $newNetto);
+
+                                                        // Ambil total netto saat ini. Jika belum ter-update, gunakan nilai awal (initial_total_netto)
+                                                        $currentTotal = $get('total_netto') ?? ($get('initial_total_netto') ?? 0);
+
+                                                        // Update total netto dengan menambahkan selisih
+                                                        $set('total_netto', $currentTotal + $diff);
+
+                                                        // Jika perlu, juga set field netto3 agar tampil (misalnya untuk format)
+                                                        $set('netto3', $newNetto);
                                                         $set('bruto_akhir', self::getBrutoAkhir($get));
                                                     }),
 
@@ -449,7 +490,10 @@ class TimbanganTrontonResource extends Resource
                                                             $set('plat_polisi4', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
                                                             $set('bruto4', $penjualan?->bruto);
                                                             $set('tara4', $penjualan?->tara);
-                                                            $set('netto4', $penjualan?->netto);
+                                                            $netto4 = $penjualan?->netto ?? 0;
+                                                            $set('netto4', $netto4);
+                                                            // Simpan nilai awal untuk perhitungan selanjutnya
+                                                            $set('prev_netto4', $netto4);
                                                         }
                                                     })
                                                     ->afterStateUpdated(function ($state, callable $set, $get) {
@@ -457,12 +501,26 @@ class TimbanganTrontonResource extends Resource
                                                         $set('plat_polisi4', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
                                                         $set('bruto4', $penjualan?->bruto);
                                                         $set('tara4', $penjualan?->tara);
-                                                        $set('netto4', $penjualan?->netto);
-                                                        $set('total_netto', self::hitungTotalNetto($get)); // Update total_total_netto
-                                                        // Update bruto_final berdasarkan helper
+                                                        $newNetto = $penjualan?->netto ?? 0;
+                                                        // Ambil nilai netto sebelumnya, jika belum ada asumsikan 0
+                                                        $prevNetto = $get('prev_netto4') ?? 0;
+
+                                                        // Hitung perbedaan antara nilai baru dan sebelumnya
+                                                        $diff = $newNetto - $prevNetto;
+
+                                                        // Update penyimpanan nilai netto sebelumnya
+                                                        $set('prev_netto4', $newNetto);
+
+                                                        // Ambil total netto saat ini. Jika belum ter-update, gunakan nilai awal (initial_total_netto)
+                                                        $currentTotal = $get('total_netto') ?? ($get('initial_total_netto') ?? 0);
+
+                                                        // Update total netto dengan menambahkan selisih
+                                                        $set('total_netto', $currentTotal + $diff);
+
+                                                        // Jika perlu, juga set field netto4 agar tampil (misalnya untuk format)
+                                                        $set('netto4', $newNetto);
                                                         $set('bruto_akhir', self::getBrutoAkhir($get));
                                                     }),
-
                                                 TextInput::make('plat_polisi4')
                                                     ->label('Plat Polisi')
                                                     ->reactive()
@@ -548,7 +606,10 @@ class TimbanganTrontonResource extends Resource
                                                             $set('plat_polisi5', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
                                                             $set('bruto5', $penjualan?->bruto);
                                                             $set('tara5', $penjualan?->tara);
-                                                            $set('netto5', $penjualan?->netto);
+                                                            $netto5 = $penjualan?->netto ?? 0;
+                                                            $set('netto5', $netto5);
+                                                            // Simpan nilai awal untuk perhitungan selanjutnya
+                                                            $set('prev_netto5', $netto5);
                                                         }
                                                     })
                                                     ->afterStateUpdated(function ($state, callable $set, $get) {
@@ -556,9 +617,24 @@ class TimbanganTrontonResource extends Resource
                                                         $set('plat_polisi5', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
                                                         $set('bruto5', $penjualan?->bruto);
                                                         $set('tara5', $penjualan?->tara);
-                                                        $set('netto5', $penjualan?->netto);
-                                                        $set('total_netto', self::hitungTotalNetto($get)); // Update total_total_netto
-                                                        // Update bruto_final berdasarkan helper
+                                                        $newNetto = $penjualan?->netto ?? 0;
+                                                        // Ambil nilai netto sebelumnya, jika belum ada asumsikan 0
+                                                        $prevNetto = $get('prev_netto5') ?? 0;
+
+                                                        // Hitung perbedaan antara nilai baru dan sebelumnya
+                                                        $diff = $newNetto - $prevNetto;
+
+                                                        // Update penyimpanan nilai netto sebelumnya
+                                                        $set('prev_netto5', $newNetto);
+
+                                                        // Ambil total netto saat ini. Jika belum ter-update, gunakan nilai awal (initial_total_netto)
+                                                        $currentTotal = $get('total_netto') ?? ($get('initial_total_netto') ?? 0);
+
+                                                        // Update total netto dengan menambahkan selisih
+                                                        $set('total_netto', $currentTotal + $diff);
+
+                                                        // Jika perlu, juga set field netto5 agar tampil (misalnya untuk format)
+                                                        $set('netto5', $newNetto);
                                                         $set('bruto_akhir', self::getBrutoAkhir($get));
                                                     }),
 
@@ -646,7 +722,10 @@ class TimbanganTrontonResource extends Resource
                                                             $set('plat_polisi6', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
                                                             $set('bruto6', $penjualan?->bruto);
                                                             $set('tara6', $penjualan?->tara);
-                                                            $set('netto6', $penjualan?->netto);
+                                                            $netto6 = $penjualan?->netto ?? 0;
+                                                            $set('netto6', $netto6);
+                                                            // Simpan nilai awal untuk perhitungan selanjutnya
+                                                            $set('prev_netto6', $netto6);
                                                         }
                                                     })
                                                     ->afterStateUpdated(function ($state, callable $set, $get) {
@@ -654,9 +733,24 @@ class TimbanganTrontonResource extends Resource
                                                         $set('plat_polisi6', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
                                                         $set('bruto6', $penjualan?->bruto);
                                                         $set('tara6', $penjualan?->tara);
-                                                        $set('netto6', $penjualan?->netto);
-                                                        $set('total_netto', self::hitungTotalNetto($get)); // Update total_total_netto
-                                                        // Update bruto_final berdasarkan helper
+                                                        $newNetto = $penjualan?->netto ?? 0;
+                                                        // Ambil nilai netto sebelumnya, jika belum ada asumsikan 0
+                                                        $prevNetto = $get('prev_netto6') ?? 0;
+
+                                                        // Hitung perbedaan antara nilai baru dan sebelumnya
+                                                        $diff = $newNetto - $prevNetto;
+
+                                                        // Update penyimpanan nilai netto sebelumnya
+                                                        $set('prev_netto6', $newNetto);
+
+                                                        // Ambil total netto saat ini. Jika belum ter-update, gunakan nilai awal (initial_total_netto)
+                                                        $currentTotal = $get('total_netto') ?? ($get('initial_total_netto') ?? 0);
+
+                                                        // Update total netto dengan menambahkan selisih
+                                                        $set('total_netto', $currentTotal + $diff);
+
+                                                        // Jika perlu, juga set field netto6 agar tampil (misalnya untuk format)
+                                                        $set('netto6', $newNetto);
                                                         $set('bruto_akhir', self::getBrutoAkhir($get));
                                                     }),
 

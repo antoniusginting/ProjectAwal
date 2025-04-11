@@ -49,7 +49,7 @@ class SuratJalanResource extends Resource
                                     ->reactive(), // Agar saat memilih kontrak, alamat terfilter
                                 TextInput::make('created_at')
                                     ->label('Tanggal Sekarang')
-                                    ->placeholder(now()->format('d-m-Y')) // Tampilkan di input
+                                    ->formatStateUsing(fn($state) => \Carbon\Carbon::parse($state)->format('d-m-Y'))
                                     ->disabled(), // Tidak bisa diedit
                                 Select::make('id_kontrak')
                                     ->label('Kepada Yth.')

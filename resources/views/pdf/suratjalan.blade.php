@@ -1,150 +1,180 @@
-<style>
-    .container {
-        padding: 24px;
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
-        max-width: 800px;
-        margin: 20px auto;
-    }
+<!DOCTYPE html>
+<html lang="id">
 
-    /* Header Surat */
-    .header-surat {
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Print | Surat Jalan</title>
+    <style>
+        /* Definisi variabel untuk konsistensi warna */
+        :root {
+            --primary-color: #1a202c;
+            --secondary-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --light-bg: #f7fafc;
+        }
 
-    .header-surat h1 {
-        font-size: 24px;
-        font-weight: bold;
-        margin: 0;
-    }
+        /* Gaya dasar halaman dengan ukuran font lebih kecil */
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 0.875rem;
+            /* Sekitar 14px */
+            background-color: var(--secondary-bg);
+            color: var(--primary-color);
+            margin: 20px;
+        }
 
-    .header-surat h2 {
-        font-size: 16px;
-        margin: 0;
-    }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
 
-    /* Info Kota dan Tanggal */
-    .info-kota-tanggal {
-        display: flex;
-        justify-content: space-between;
-        font-size: 16px;
-    }
+        /* Header surat dengan ukuran font lebih kecil */
+        header.header {
+            text-align: center;
+            margin-bottom: 12px;
+        }
 
-    .info-kota-tanggal .kota-tanggal span {
-        display: block;
-    }
+        header.header h1 {
+            font-size: 1.4rem;
+            margin: 0;
+        }
 
-    /* Tujuan Pengiriman */
-    .tujuan-pengiriman p {
-        margin: 0 0 0px;
-        line-height: 1.4;
-    }
+        .caca{
+            text-align: right;
+            margin-bottom: 7px;
+        }
+        header.header h2 {
+            font-size: 1rem;
+            margin: 0;
+        }
 
-    .tujuan-pengiriman strong {
-        font-weight: bold;
-    }
+        /* Divider */
+        .divider {
+            border-bottom: 1px solid var(--border-color);
+            margin: 12px 0;
+        }
 
-    /* Divider untuk memisahkan judul dan tabel */
-    .divider {
-        border: none;
-        border-top: 1px solid #ccc;
-        margin: 16px 0;
-    }
+        /* Tabel informasi dengan padding dikurangi */
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 12px;
+        }
 
-    /* Tabel Detail Pengiriman */
-    .table-container {
-        overflow-x: auto;
-    }
+        .info-table td {
+            padding: 2px;
+            vertical-align: top;
+        }
 
-    .detail-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 14px;
-    }
+        .info-table .label {
+            font-weight: bold;
+        }
 
-    .detail-table th,
-    .detail-table td {
-        border: 1px solid #ddd;
-        padding: 8px;
-        text-align: center;
-    }
+        /* Tabel detail pengiriman dengan padding di dalam sel yang lebih kecil */
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 12px;
+        }
 
-    .detail-table thead tr {
-        background-color: #f3f3f3;
-    }
+        .detail-table th,
+        .detail-table td {
+            border: 1px solid var(--border-color);
+            padding: 4px;
+        }
 
-    /* Tanda Tangan */
-    .tanda-tangan {
-        display: flex;
-        justify-content: flex-end;
-        margin-top: 40px;
-    }
+        .detail-table th {
+            background-color: var(--light-bg);
+            text-align: center;
+        }
 
-    .signature-wrapper {
-        text-align: right;
-    }
+        .detail-table td.text-center {
+            text-align: center;
+        }
 
-    .signature-wrapper p {
-        font-size: 18px;
-        font-weight: bold;
-        margin: 0;
-    }
+        .detail-table td.text-right {
+            text-align: right;
+        }
 
-    .signature-box {
-        margin-top: 16px;
-        height: 66px;
-        width: 256px;
-        /* Border dihilangkan sesuai permintaan */
-        /* border: 1px solid #444; */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 4px;
-    }
+        .total-row {
+            background-color: var(--light-bg);
+            font-weight: bold;
+        }
 
-    .signature-box span {
-        color: #000;
-    }
+        /* Tanda tangan */
+        .signature-container {
+            text-align: right;
+            /* Pastikan seluruh konten berada di sisi kanan */
+            margin-top: 20px;
+        }
 
-    .signature-line {
-        margin-top: 16px;
-        border-bottom: 2px solid #444;
-        width: 224px;
-        margin-left: auto;
-    }
-</style>
+        .signature {
+            display: inline-block;
+            text-align: center;
+            font-size: 0.875rem;
+        }
 
-<div class="container">
+        .signature p {
+            margin: 0;
+        }
 
-    <!-- Header Surat -->
-    <div class="header-surat">
-        <h1>{{ $suratjalan->kontrak2->nama }}</h1>
-        <h2>Surat Jalan Pengiriman</h2>
-    </div>
-    <div class="divider"></div>
+        .sign-box {
+            margin-top: 8px;
+            height: 64px;
+            width: 200px;
+            background-color: var(--light-bg);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #718096;
+            font-size: 0.75rem;
+        }
 
-    <!-- Info Kota dan Tanggal -->
-    <div class="info-kota-tanggal">
-        <div class="kota-tanggal">
-            <span></span>
-        </div>
-        <div class="empty">
-            <!-- Tempat untuk informasi tambahan bila diperlukan -->
-        </div>
-    </div>
-    <div>
-        <table style="width: 100%;">
-            <tbody>
+        .sign-line {
+            margin-top: 8px;
+            border-bottom: 1px solid var(--border-color);
+            width: 180px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Styles khusus untuk cetak */
+        @media print {
+            body {
+                margin: 0;
+                background-color: var(--secondary-bg);
+            }
+
+            .container {
+                width: 100%;
+                margin: 0;
+                padding: 20px;
+            }
+
+            .sign-box {
+                background-color: #fff;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header Surat -->
+        <header class="header">
+            <h1>{{ $suratjalan->kontrak2->nama }}</h1>
+            <h2>Surat Jalan Pengiriman</h2>
+        </header>
+
+        <div class="divider"></div>
+        
+        <!-- Informasi Pengiriman -->
+        <section>
+            <table class="info-table">
                 <tr>
                     <td colspan="2" style="width: 20%;">{{ $suratjalan->kota }}, {{ $suratjalan->created_at->format('d-m-Y') }}</td>
-                    
                 </tr>
                 <tr>
                     <td style="width: 20%; font-weight: bold;">Kepada Yth.</td>
@@ -158,67 +188,68 @@
                     <td style="width: 20%; font-weight: bold;">No PO</td>
                     <td style="width: 80%;">: {{ $suratjalan->po }}</td>
                 </tr>
-            </tbody>
-        </table>
-    </div>
-    
+            </table>
+        </section>
 
-    <!-- Pembatas antara judul dan tabel -->
-    <div class="divider"></div>
-
-    <!-- Tabel Detail Pengiriman -->
-    <div class="table-container">
-        <table class="detail-table">
-            <thead>
-                <tr>
-                    <th class="border p-2">
-                        @if(!empty($suratjalan->tronton->penjualan1->plat_polisi))
-                            Plat Polisi
-                        @else
-                            No Container
-                        @endif
-                    </th>
-                    <th>Nama Supir</th>
-                    <th>Satuan Muatan</th>
-                    <th>Nama Barang</th>
-                    <th colspan="2">Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td rowspan="3">
-                        @if (!empty($suratjalan->tronton->penjualan1->plat_polisi))
-                            {{ $suratjalan->tronton->penjualan1->plat_polisi }}
-                        @else
-                            {{ $suratjalan->tronton->penjualan1->no_container }}
-                        @endif
-                    </td>
-                    <td rowspan="3">{{ $suratjalan->tronton->penjualan1->nama_supir }}</td>
-                    <td rowspan="3">JAGUNG KERING SUPER</td>
-                    <td rowspan="3">{{ $suratjalan->tronton->penjualan1->nama_barang }}</td>
-                    <td>Bruto</td>
-                    <td>{{ number_format($suratjalan->bruto_final, 0, ',', '.') }}</td>
-                </tr>
-                <tr>
-                    <td>Tara</td>
-                    <td>{{ number_format($suratjalan->tronton->tara_awal, 0, ',', '.') }}</td>
-                </tr>
-                <tr>
-                    <td>Netto</td>
-                    <td>{{ number_format($suratjalan->netto_final, 0, ',', '.') }}</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Tanda Tangan -->
-    <div class="tanda-tangan">
-        <div class="signature-wrapper">
-            <p>Diterima Oleh</p>
-            <div class="signature-box">
+        <div class="divider"></div>
+        <!-- Detail Pengiriman -->
+        <section>
+            <div style="overflow-x: auto;">
+                <table class="detail-table">
+                    <thead>
+                        <tr>
+                            <th class="border p-2">
+                                @if(!empty($suratjalan->tronton->penjualan1->plat_polisi))
+                                    Plat Polisi
+                                @else
+                                    No Container
+                                @endif
+                            </th>
+                            <th>Nama Supir</th>
+                            <th>Satuan Muatan</th>
+                            <th>Nama Barang</th>
+                            <th colspan="2">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td rowspan="3" class="text-center">
+                                @if (!empty($suratjalan->tronton->penjualan1->plat_polisi))
+                                    {{ $suratjalan->tronton->penjualan1->plat_polisi }}
+                                @else
+                                    {{ $suratjalan->tronton->penjualan1->no_container }}
+                                @endif
+                            </td>
+                            <td rowspan="3" class="text-center">{{ $suratjalan->tronton->penjualan1->nama_supir }}</td>
+                            <td rowspan="3" class="text-center">JAGUNG KERING SUPER</td>
+                            <td rowspan="3" class="text-center">{{ $suratjalan->tronton->penjualan1->nama_barang }}</td>
+                            <td>Bruto</td>
+                            <td class="caca" >{{ number_format($suratjalan->bruto_final, 0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td>Tara</td>
+                            <td class="caca">{{ number_format($suratjalan->tronton->tara_awal, 0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td>Netto</td>
+                            <td class="caca">{{ number_format($suratjalan->netto_final, 0, ',', '.') }}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-            <div class="signature-line"></div>
-        </div>
-    </div>
+        </section>
 
-</div>
+        <!-- Tanda Tangan (Rata Kanan) -->
+        <footer class="signature-container">
+            <div class="signature">
+                <p>Diterima Oleh</p>
+                <div class="sign-box">
+                    <span></span>
+                </div>
+                <div class="sign-line"></div>
+            </div>
+        </footer>
+    </div>
+</body>
+
+</html>

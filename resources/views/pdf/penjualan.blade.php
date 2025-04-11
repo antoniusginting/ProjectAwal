@@ -40,6 +40,10 @@
             margin: 0;
         }
 
+        .caca{
+            text-align: right;
+            margin-bottom: 7px;
+        }
         header.header h2 {
             font-size: 1rem;
             margin: 0;
@@ -165,7 +169,7 @@
         </header>
 
         <div class="divider"></div>
-
+        
         <!-- Informasi Pengiriman -->
         <section>
             <table class="info-table">
@@ -189,7 +193,7 @@
         </section>
 
         <div class="divider"></div>
-
+        <div class="caca">Print Date : {{ now()->format('d-m-Y H:i:s') }}</div>
         <!-- Detail Pengiriman -->
         <section>
             <div style="overflow-x: auto;">

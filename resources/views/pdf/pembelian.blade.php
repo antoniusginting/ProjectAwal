@@ -62,6 +62,10 @@
             vertical-align: top;
         }
 
+        .caca{
+            text-align: right;
+            margin-bottom: 7px;
+        }
         .info-table .label {
             font-weight: bold;
         }
@@ -184,7 +188,7 @@
         </section>
 
         <div class="divider"></div>
-
+        <div class="caca">Print Date : {{ now()->format('d-m-Y H:i:s') }}</div>
         <!-- Detail Pengiriman -->
         <section>
             <div style="overflow-x: auto;">

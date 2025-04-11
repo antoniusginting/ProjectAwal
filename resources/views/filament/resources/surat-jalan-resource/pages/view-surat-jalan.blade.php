@@ -80,19 +80,19 @@
                             {{ $suratjalan->tronton->penjualan1->nama_barang }}
                         </td>
                         <td class="border p-2 border-gray-300 dark:border-gray-700">Bruto</td>
-                        <td class="border p-2 border-gray-300 dark:border-gray-700">
+                        <td class="border text-right p-2 border-gray-300 dark:border-gray-700">
                             {{ number_format($suratjalan->bruto_final, 0, ',', '.') }}
                         </td>
                     </tr>
                     <tr>
                         <td class="border p-2 border-gray-300 dark:border-gray-700">Tara</td>
-                        <td class="border p-2 border-gray-300 dark:border-gray-700">
+                        <td class="border text-right p-2 border-gray-300 dark:border-gray-700">
                             {{ number_format($suratjalan->tronton->tara_awal, 0, ',', '.') }}
                         </td>
                     </tr>
                     <tr>
                         <td class="border p-2 border-gray-300 dark:border-gray-700">Netto</td>
-                        <td class="border p-2 border-gray-300 dark:border-gray-700">
+                        <td class="border text-right p-2 border-gray-300 dark:border-gray-700">
                             {{ number_format($suratjalan->netto_final, 0, ',', '.') }}
                         </td>
                     </tr>
