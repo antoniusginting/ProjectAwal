@@ -21,6 +21,7 @@ use Filament\Resources\Pages\EditRecord;
 use Filament\Forms\Components\TimePicker;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
+use Filament\Tables\Enums\ActionsPosition;
 use App\Filament\Resources\PembelianResource\Pages;
 
 class PembelianResource extends Resource
@@ -100,108 +101,108 @@ class PembelianResource extends Resource
 
 
                         Card::make()
-                        ->schema([
-                            TextInput::make('plat_polisi')
-                            ->placeholder('Masukkan plat polisi'),
-                        TextInput::make('bruto')
-                            ->label('Bruto')
-                            ->numeric()
-                            ->placeholder('Masukkan Nilai Bruto')
-                            ->required()
-                            ->live(debounce: 600) // Tunggu 500ms setelah user berhenti mengetik
-                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                $tara = $get('tara') ?? 0;
-                                $set('netto', max(0, intval($state) - intval($tara))); // Hitung netto
-                            }),
-                        // Nanti dipakai
-                        // Select::make('id_mobil')
-                        //     ->label('Plat Polisi')
-                        //     ->options(Mobil::pluck('plat_polisi', 'id')) // Ambil daftar mobil
-                        //     ->searchable() // Biar bisa cari
-                        //     ->required(), // Wajib diisi
-                        TextInput::make('nama_supir')
-                            ->placeholder('Masukkan Nama Supir'),
-                        TextInput::make('tara')
-                            ->label('Tara')
-                            ->placeholder('Masukkan Nilai Tara')
-                            ->numeric()
-                            ->live(debounce: 600) // Tambahkan debounce juga di sini
-                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                $bruto = $get('bruto') ?? 0;
-                                $set('netto', max(0, intval($bruto) - intval($state)));
-                            }),
+                            ->schema([
+                                TextInput::make('plat_polisi')
+                                    ->placeholder('Masukkan plat polisi'),
+                                TextInput::make('bruto')
+                                    ->label('Bruto')
+                                    ->numeric()
+                                    ->placeholder('Masukkan Nilai Bruto')
+                                    ->required()
+                                    ->live(debounce: 600) // Tunggu 500ms setelah user berhenti mengetik
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        $tara = $get('tara') ?? 0;
+                                        $set('netto', max(0, intval($state) - intval($tara))); // Hitung netto
+                                    }),
+                                // Nanti dipakai
+                                // Select::make('id_mobil')
+                                //     ->label('Plat Polisi')
+                                //     ->options(Mobil::pluck('plat_polisi', 'id')) // Ambil daftar mobil
+                                //     ->searchable() // Biar bisa cari
+                                //     ->required(), // Wajib diisi
+                                TextInput::make('nama_supir')
+                                    ->placeholder('Masukkan Nama Supir'),
+                                TextInput::make('tara')
+                                    ->label('Tara')
+                                    ->placeholder('Masukkan Nilai Tara')
+                                    ->numeric()
+                                    ->live(debounce: 600) // Tambahkan debounce juga di sini
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        $bruto = $get('bruto') ?? 0;
+                                        $set('netto', max(0, intval($bruto) - intval($state)));
+                                    }),
 
-                        TextInput::make('nama_barang')
-                            ->placeholder('Masukkan Nama Barang'),
+                                TextInput::make('nama_barang')
+                                    ->placeholder('Masukkan Nama Barang'),
 
-                        TextInput::make('netto')
-                            ->label('Netto')
-                            ->readOnly()
-                            ->placeholder('Otomatis Terhitung')
-                            ->numeric(),
-                        Select::make('id_supplier')
-                            ->label('Supplier')
-                            ->placeholder('Pilih Supplier')
-                            ->options(Supplier::pluck('nama_supplier', 'id')) // Ambil daftar mobil
-                            ->searchable(), // Biar bisa cari
+                                TextInput::make('netto')
+                                    ->label('Netto')
+                                    ->readOnly()
+                                    ->placeholder('Otomatis Terhitung')
+                                    ->numeric(),
+                                Select::make('id_supplier')
+                                    ->label('Supplier')
+                                    ->placeholder('Pilih Supplier')
+                                    ->options(Supplier::pluck('nama_supplier', 'id')) // Ambil daftar mobil
+                                    ->searchable(), // Biar bisa cari
 
-                        Select::make('keterangan') // Gantilah 'tipe' dengan nama field di database
-                            ->label('Timbangan ke-')
-                            ->options([
-                                '1' => 'Timbangan ke-1',
-                                '2' => 'Timbangan ke-2',
-                                '3' => 'Timbangan ke-3',
-                                '4' => 'Timbangan ke-4',
-                                '5' => 'Timbangan ke-5',
-                            ])
-                            ->placeholder('Pilih timbangan ke-')
-                            // ->inlineLabel() // Membuat label sebelah kiri
-                            ->native(false) // Mengunakan dropdown modern
-                            ->required(), // Opsional: Atur default value
-                        // Select::make('kepemilikan')
-                        //     ->label('Kepemilikan kendaraan')
-                        //     ->options([
-                        //         'Milik Sendiri' => 'Milik Sendiri',
-                        //         'Minjam' => 'Minjam',
-                        //     ])
-                        //     ->placeholder('Pilih Status Kepemilikan')
-                        //     // ->inlineLabel() // Membuat label sebelah kiri
-                        //     ->native(false) // Mengunakan dropdown modern
-                        //     ->required(), // Opsional: Atur default value,
+                                Select::make('keterangan') // Gantilah 'tipe' dengan nama field di database
+                                    ->label('Timbangan ke-')
+                                    ->options([
+                                        '1' => 'Timbangan ke-1',
+                                        '2' => 'Timbangan ke-2',
+                                        '3' => 'Timbangan ke-3',
+                                        '4' => 'Timbangan ke-4',
+                                        '5' => 'Timbangan ke-5',
+                                    ])
+                                    ->placeholder('Pilih timbangan ke-')
+                                    // ->inlineLabel() // Membuat label sebelah kiri
+                                    ->native(false) // Mengunakan dropdown modern
+                                    ->required(), // Opsional: Atur default value
+                                // Select::make('kepemilikan')
+                                //     ->label('Kepemilikan kendaraan')
+                                //     ->options([
+                                //         'Milik Sendiri' => 'Milik Sendiri',
+                                //         'Minjam' => 'Minjam',
+                                //     ])
+                                //     ->placeholder('Pilih Status Kepemilikan')
+                                //     // ->inlineLabel() // Membuat label sebelah kiri
+                                //     ->native(false) // Mengunakan dropdown modern
+                                //     ->required(), // Opsional: Atur default value,
 
 
 
-                        //     Select::make('id_supplier')
-                        //     ->label('Pilih Supplier')
-                        //     ->searchable()
-                        //     ->options(Supplier::pluck('nama_supplier', 'id'))
-                        //     ->reactive() // Reaktif agar memantau perubahan
-                        //     ->afterStateUpdated(function ($state, callable $set) {
-                        //         $supplier = Supplier::find($state);
-                        //         $set('nama_supplier', $supplier?->nama_supplier);
-                        //         $set('jenis_supplier', $supplier?->jenis_supplier);
-                        //     }),
+                                //     Select::make('id_supplier')
+                                //     ->label('Pilih Supplier')
+                                //     ->searchable()
+                                //     ->options(Supplier::pluck('nama_supplier', 'id'))
+                                //     ->reactive() // Reaktif agar memantau perubahan
+                                //     ->afterStateUpdated(function ($state, callable $set) {
+                                //         $supplier = Supplier::find($state);
+                                //         $set('nama_supplier', $supplier?->nama_supplier);
+                                //         $set('jenis_supplier', $supplier?->jenis_supplier);
+                                //     }),
 
-                        // Placeholder::make('jenis_supplier')
-                        //     ->label('Jenis Supplier')
-                        //     ->content(fn($get) => $get('jenis_supplier') ?? 'Pilih Nama Supplier terlebih dahulu'),
+                                // Placeholder::make('jenis_supplier')
+                                //     ->label('Jenis Supplier')
+                                //     ->content(fn($get) => $get('jenis_supplier') ?? 'Pilih Nama Supplier terlebih dahulu'),
 
-                        TextInput::make('no_container')
-                            ->placeholder('Masukkan No Container'),
+                                TextInput::make('no_container')
+                                    ->placeholder('Masukkan No Container'),
 
-                        Select::make('brondolan') // Gantilah 'tipe' dengan nama field di database
-                            ->label('Satuan Muatan')
-                            ->options([
-                                'GONI' => 'GONI',
-                                'CURAH' => 'CURAH',
-                            ])
-                            ->placeholder('Pilih Satuan Timbangan')
-                            ->native(false) // Mengunakan dropdown modern
-                            ->required(), // Opsional: Atur default value
-                        Hidden::make('user_id')
-                            ->label('User ID')
-                            ->default(Auth::id()) // Set nilai default user yang sedang login,
-                        ])->columns(2)
+                                Select::make('brondolan') // Gantilah 'tipe' dengan nama field di database
+                                    ->label('Satuan Muatan')
+                                    ->options([
+                                        'GONI' => 'GONI',
+                                        'CURAH' => 'CURAH',
+                                    ])
+                                    ->placeholder('Pilih Satuan Timbangan')
+                                    ->native(false) // Mengunakan dropdown modern
+                                    ->required(), // Opsional: Atur default value
+                                Hidden::make('user_id')
+                                    ->label('User ID')
+                                    ->default(Auth::id()) // Set nilai default user yang sedang login,
+                            ])->columns(2)
                     ])->columns(2)
             ]);
     }
@@ -250,10 +251,11 @@ class PembelianResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-                Tables\Actions\ViewAction::make(),
-            ])
+                Tables\Actions\Action::make('view-pembelian')
+                    ->label(__("Lihat"))
+                    ->icon('heroicon-o-eye')
+                    ->url(fn($record) => self::getUrl("view-pembelian", ['record' => $record->id])),
+            ], position: ActionsPosition::BeforeColumns)
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([
                 Tables\Actions\DeleteBulkAction::make(),
@@ -281,6 +283,7 @@ class PembelianResource extends Resource
             'index' => Pages\ListPembelians::route('/'),
             'create' => Pages\CreatePembelian::route('/create'),
             'edit' => Pages\EditPembelian::route('/{record}/edit'),
+            'view-pembelian' => Pages\ViewPembelian::route('/{record}/view-pembelian'),
         ];
     }
 }

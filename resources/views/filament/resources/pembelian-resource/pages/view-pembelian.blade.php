@@ -4,7 +4,7 @@
         <!-- Header Surat -->
         <div class="text-left space-y-1">
             <h1 class="text-3xl font-bold">Bonar Jaya AdiPerkasa Nusantara</h1>
-            <h2 class="text-lg">Surat Timbangan penjualan</h2>
+            <h2 class="text-lg">Surat Timbangan Pembelian</h2>
         </div>
 
         <!-- Divider -->
@@ -14,28 +14,24 @@
 
         <!-- Info Pengiriman -->
         <div class="overflow-x-auto">
-            
-            <table class="w-full">
+            <table class="w-full mx-auto">
                 <tbody class="text-base">
                     <tr>
-                        <td class="px-6 font-semibold text-left align-top whitespace-nowrap">Tanggal</td>
-                        <td class="px-6 whitespace-nowrap">: {{ $penjualan->created_at->format('d-m-Y') }}</td>
-                        <td class="px-6 font-semibold whitespace-nowrap">Jam</td>
-                        <td class="px-6 whitespace-nowrap">: {{ $penjualan->created_at->format('H:i') }}</td>
-                        <td class="px-6 font-semibold whitespace-nowrap">Nama Lumbung</td>
-                        <td class="px-6 whitespace-nowrap">: {{ $penjualan->nama_lumbung}}</td>
+                        <td class="font-semibold text-left align-top whitespace-nowrap px-6">Tanggal</td>
+                        <td class="whitespace-nowrap px-6">: {{ $pembelian->created_at->format('d-m-Y') }}</td>
+                        <td class="font-semibold whitespace-nowrap px-6">Jam</td>
+                        <td class="whitespace-nowrap px-6">: {{ $pembelian->created_at->format('H:i') }}</td>
                     </tr>
                     <tr>
-                        <td class="px-6 font-semibold whitespace-nowrap">Operator</td>
-                        <td class="px-6 whitespace-nowrap">: {{ $penjualan->user->name }}</td>
-                        <td class="px-6 font-semibold text-left align-top whitespace-nowrap">Container</td>
-                        <td class="px-6 whitespace-nowrap">: {{ $penjualan->no_container }}</td>
-                        <td class="px-6 font-semibold text-left align-top whitespace-nowrap">No Lumbung</td>
-                        <td class="px-6 whitespace-nowrap">: {{ $penjualan->no_lumbung }}</td>
+                        <td class="font-semibold whitespace-nowrap px-6">Operator</td>
+                        <td class="whitespace-nowrap px-6">: {{ $pembelian->user->name }}</td>
+                        <td class="font-semibold text-left align-top whitespace-nowrap px-6">Container</td>
+                        <td class="whitespace-nowrap px-6">: {{ $pembelian->no_container }}</td>
                     </tr>
                 </tbody>
             </table>
         </div>
+        
 
         <!-- Divider -->
         <div class="border-b border-gray-300 dark:border-gray-700"></div>
@@ -48,44 +44,44 @@
                     <tr class="bg-gray-100 dark:bg-gray-800">
                         <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">No SPB</th>
                         <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Plat Polisi</th>
+                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Nama Supplier</th>
                         <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Nama Supir</th>
                         <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Satuan Muatan</th>
-                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Nama Barang</th>
                         <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm" colspan="2">Berat</th>
                     </tr>
                 </thead>
                 <tbody class="text-sm">
                     <tr>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap" rowspan="3">
-                            {{ $penjualan->no_spb }}
+                            {{ $pembelian->no_spb }}
                         </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap" rowspan="3">
-                            {{ $penjualan->plat_polisi }}
+                            {{ $pembelian->plat_polisi }}
                         </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap" rowspan="3">
-                            {{ $penjualan->nama_supir }}
+                            {{ $pembelian->supplier->nama_supplier }}
                         </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap" rowspan="3">
-                            {{ $penjualan->brondolan }}
+                            {{ $pembelian->nama_supir }}
                         </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap" rowspan="3">
-                            {{ $penjualan->nama_barang }}
+                            {{ $pembelian->brondolan }}
                         </td>
                         <td class="border p-2 border-gray-300 dark:border-gray-700 whitespace-nowrap">Bruto</td>
                         <td class="border p-2 border-gray-300 dark:border-gray-700 text-right whitespace-nowrap">
-                            {{ number_format($penjualan->bruto, 0, ',', '.') }}
+                            {{ number_format($pembelian->bruto, 0, ',', '.') }}
                         </td>
                     </tr>
                     <tr>
                         <td class="border p-2 border-gray-300 dark:border-gray-700 whitespace-nowrap">Tara</td>
                         <td class="border p-2 border-gray-300 dark:border-gray-700 text-right whitespace-nowrap">
-                            {{ number_format($penjualan->tara, 0, ',', '.') }}
+                            {{ number_format($pembelian->tara, 0, ',', '.') }}
                         </td>
                     </tr>
                     <tr>
                         <td class="border p-2 border-gray-300 dark:border-gray-700 whitespace-nowrap">Netto</td>
                         <td class="border p-2 border-gray-300 dark:border-gray-700 text-right whitespace-nowrap">
-                            {{ number_format($penjualan->netto, 0, ',', '.') }}
+                            {{ number_format($pembelian->netto, 0, ',', '.') }}
                         </td>
                     </tr>
                 </tbody>
