@@ -91,7 +91,7 @@
         <!-- Tanda Tangan -->
         <div class="flex justify-end mt-10">
             <div class="text-center">
-                <p class="text-lg font-semibold">Diterima Oleh</p>
+                <p class="text-lg font-semibold">TTD OPERATOR</p>
                 <div class="mt-4 h-24 w-64 flex items-center justify-center bg-gray-50 dark:bg-gray-800 rounded-md">
                     <span class="text-gray-500 dark:text-gray-400">Tanda Tangan</span>
                 </div>
