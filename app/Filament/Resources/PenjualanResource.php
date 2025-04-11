@@ -20,6 +20,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
+use Filament\Tables\Enums\ActionsPosition;
 use App\Filament\Resources\PenjualanResource\Pages;
 
 class PenjualanResource extends Resource
@@ -220,10 +221,12 @@ class PenjualanResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-                Tables\Actions\ViewAction::make(),
-            ])
+                
+                Tables\Actions\Action::make('view-penjualan')
+                    ->label(__("Lihat"))
+                    ->icon('heroicon-o-eye')
+                    ->url(fn($record) => self::getUrl("view-penjualan", ['record' => $record->id])),
+            ], position: ActionsPosition::BeforeColumns)
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([
                 Tables\Actions\DeleteBulkAction::make(),
@@ -251,6 +254,7 @@ class PenjualanResource extends Resource
             'index' => Pages\ListPenjualans::route('/'),
             'create' => Pages\CreatePenjualan::route('/create'),
             'edit' => Pages\EditPenjualan::route('/{record}/edit'),
+            'view-penjualan' => Pages\ViewPenjualan::route('/{record}/view-penjualan'),
         ];
     }
 }
