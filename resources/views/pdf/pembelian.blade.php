@@ -52,7 +52,7 @@
 
         /* Tabel informasi dengan padding dikurangi */
         .info-table {
-            width: 100%;
+            width: 65%;
             border-collapse: collapse;
             margin-bottom: 12px;
         }

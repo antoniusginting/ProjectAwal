@@ -14,7 +14,7 @@ class CreateTimbanganTronton extends CreateRecord
     // Ubah judul halaman "Create Mobil" menjadi "Tambah Mobil"
     function getTitle(): string
     {
-        return 'Tambah Tronton';
+        return 'Tambah Laporan Penjualan';
     }
 
     protected function getFormActions(): array

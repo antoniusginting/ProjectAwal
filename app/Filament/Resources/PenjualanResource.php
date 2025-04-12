@@ -92,33 +92,15 @@ class PenjualanResource extends Resource
                                 //         $nextId = Pembelian::max('id') + 1; // Ambil ID terakhir + 1
                                 //         $set('no_spb', $get('jenis') . '-' . $nextId);
                                 //     }),
-
-                                TextInput::make('brondolan')
-                                    ->label('Satuan Muatan')
-                                    ->placeholder('Masukkan satuan muatan'),
-
-                                TextInput::make('nama_lumbung')
-                                    ->placeholder('Masukkan Nama Lumbung')
-                                    ->required(),
-
                                 TextInput::make('plat_polisi')
                                     ->suffixIcon('heroicon-o-truck')
                                     ->placeholder('Masukkan plat polisi'),
-                                // Select::make('id_mobil')
-                                //     ->label('Plat Polisi')
-                                //     ->placeholder('Pilih Plat Polisi')
-                                //     ->options(Mobil::pluck('plat_polisi', 'id')) // Ambil daftar mobil
-                                //     ->searchable() // Biar bisa cari
-                                //     ->required(), // Wajib diisi
-                                TextInput::make('no_lumbung')
-                                    ->placeholder('Masukkan No Lumbung')
-                                    ->required(),
-                                TextInput::make('nama_supir')
-                                    ->placeholder('Masukkan Nama Supir')
-                                    ->required(),
                                 TextInput::make('bruto')
                                     ->label('Bruto')
                                     ->numeric()
+                                    ->disabled(function ($state, $record) {
+                                        return $record && !is_null($state);
+                                    })
                                     ->placeholder('Masukkan Nilai Bruto')
                                     ->required()
                                     ->live(debounce: 600) // Tunggu 500ms setelah user berhenti mengetik
@@ -126,11 +108,9 @@ class PenjualanResource extends Resource
                                         $tara = $get('tara') ?? 0;
                                         $set('netto', max(0, intval($state) - intval($tara))); // Hitung netto
                                     }),
-
-                                TextInput::make('nama_barang')
-                                    ->default('JAGUNG KERING SUPER')
-                                    ->required()
-                                    ->readOnly(),
+                                TextInput::make('nama_supir')
+                                    ->placeholder('Masukkan Nama Supir')
+                                    ->required(),
                                 TextInput::make('tara')
                                     ->label('Tara')
                                     ->placeholder('Masukkan Nilai Tara')
@@ -140,8 +120,24 @@ class PenjualanResource extends Resource
                                         $bruto = $get('bruto') ?? 0;
                                         $set('netto', max(0, intval($bruto) - intval($state)));
                                     }),
-
-
+                                // Select::make('id_mobil')
+                                //     ->label('Plat Polisi')
+                                //     ->placeholder('Pilih Plat Polisi')
+                                //     ->options(Mobil::pluck('plat_polisi', 'id')) // Ambil daftar mobil
+                                //     ->searchable() // Biar bisa cari
+                                //     ->required(), // Wajib diisi
+                                TextInput::make('nama_barang')
+                                    ->default('JAGUNG KERING SUPER')
+                                    ->required()
+                                    ->readOnly(),
+                                TextInput::make('netto')
+                                    ->label('Netto')
+                                    ->readOnly()
+                                    ->placeholder('Otomatis Terhitung')
+                                    ->numeric(),
+                                TextInput::make('nama_lumbung')
+                                    ->placeholder('Masukkan Nama Lumbung')
+                                    ->required(),
                                 Select::make('keterangan') // Gantilah 'tipe' dengan nama field di database
                                     ->label('Timbangan ke-')
                                     ->options([
@@ -155,11 +151,12 @@ class PenjualanResource extends Resource
                                     // ->inlineLabel() // Membuat label sebelah kiri
                                     ->native(false) // Mengunakan dropdown modern
                                     ->required(), // Opsional: Atur default value
-                                TextInput::make('netto')
-                                    ->label('Netto')
-                                    ->readOnly()
-                                    ->placeholder('Otomatis Terhitung')
-                                    ->numeric(),
+                                TextInput::make('no_lumbung')
+                                    ->placeholder('Masukkan No Lumbung')
+                                    ->required(),
+                                TextInput::make('brondolan')
+                                    ->label('Satuan Muatan')
+                                    ->placeholder('Masukkan satuan muatan'),
                                 Select::make('id_supplier')
                                     ->label('Supplier')
                                     ->placeholder('Pilih Supplier')
@@ -221,7 +218,7 @@ class PenjualanResource extends Resource
                 //
             ])
             ->actions([
-                
+
                 Tables\Actions\Action::make('view-penjualan')
                     ->label(__("Lihat"))
                     ->icon('heroicon-o-eye')

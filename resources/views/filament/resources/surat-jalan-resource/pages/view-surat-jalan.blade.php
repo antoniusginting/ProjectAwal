@@ -26,15 +26,15 @@
                 <tbody>
                     <tr>
                         <td class="font-semibold text-left align-top">Kepada Yth.</td>
-                        <td>: {{ $suratjalan->kontrak->nama }}</td>
+                        <td class="text-left align-top">: {{ $suratjalan->kontrak->nama }}</td>
                     </tr>
                     <tr>
-                        <td class="font-semibold">Alamat</td>
-                        <td>: {{ $suratjalan->alamat->alamat }}</td>
+                        <td class="font-semibold text-left align-top">Alamat</td>
+                        <td class="text-left align-top">: {{ $suratjalan->alamat->alamat }}</td>
                     </tr>
                     <tr>
-                        <td class="font-semibold">No PO</td>
-                        <td>: {{ $suratjalan->po }}</td>
+                        <td class="font-semibold text-left align-top">No PO</td>
+                        <td class="text-left align-top">: {{ $suratjalan->po }}</td>
                     </tr>
                 </tbody>
             </table>

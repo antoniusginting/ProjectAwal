@@ -104,7 +104,6 @@ class TimbanganTrontonResource extends Resource
                                             ->schema([
                                                 Select::make('id_timbangan_jual_1')
                                                     ->label('No SPB (Timbangan 1)')
-                                                    ->disabled(fn($state) => !is_null($state)) // Jika sudah terisi, maka field tidak bisa diedit
                                                     ->placeholder('Pilih No SPB Penjualan')
                                                     ->options(function (callable $get) {
                                                         $currentId = $get('id_timbangan_jual_1'); // nilai yang dipilih (jika ada)

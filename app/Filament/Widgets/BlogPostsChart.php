@@ -8,7 +8,7 @@ use Filament\Widgets\ChartWidget;
 
 class BlogPostsChart extends ChartWidget
 {
-    protected static ?string $heading = 'Jumlah Pembelian & Penjualan Per Bulan';
+    protected static ?string $heading = 'Jumlah Timbangan Pembelian & Penjualan Per Bulan';
 
     protected static ?string $maxHeight = '300px';
     protected int | string | array $columnSpan = 'full';

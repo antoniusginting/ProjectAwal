@@ -6,6 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Sortiran extends Model
 {
+    protected $casts = [
+        'foto_jagung_1' => 'array',
+        'foto_jagung_2' => 'array',
+        'foto_jagung_3' => 'array',
+        'foto_jagung_4' => 'array',
+        'foto_jagung_5' => 'array',
+        'foto_jagung_6' => 'array',
+    ];
     protected $fillable = [
         'id_pembelian',
         'no_lumbung',

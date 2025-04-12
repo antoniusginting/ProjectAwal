@@ -14,19 +14,19 @@
 
         <!-- Info Pengiriman -->
         <div class="overflow-x-auto">
-            <table class="w-full mx-auto">
+            <table class="w-1/2 align-left">
                 <tbody class="text-base">
                     <tr>
-                        <td class="font-semibold text-left align-top whitespace-nowrap px-6">Tanggal</td>
-                        <td class="whitespace-nowrap px-6">: {{ $pembelian->created_at->format('d-m-Y') }}</td>
-                        <td class="font-semibold whitespace-nowrap px-6">Jam</td>
-                        <td class="whitespace-nowrap px-6">: {{ $pembelian->created_at->format('H:i') }}</td>
+                        <td class="font-semibold text-left whitespace-nowrap">Tanggal</td>
+                        <td class="whitespace-nowrap">: {{ $pembelian->created_at->format('d-m-Y') }}</td>
+                        <td class="font-semibold whitespace-nowrap">Jam</td>
+                        <td class="whitespace-nowrap">: {{ $pembelian->created_at->format('H:i') }}</td>
                     </tr>
                     <tr>
-                        <td class="font-semibold whitespace-nowrap px-6">Operator</td>
-                        <td class="whitespace-nowrap px-6">: {{ $pembelian->user->name }}</td>
-                        <td class="font-semibold text-left align-top whitespace-nowrap px-6">Container</td>
-                        <td class="whitespace-nowrap px-6">: {{ $pembelian->no_container }}</td>
+                        <td class="font-semibold whitespace-nowrap">Operator</td>
+                        <td class="whitespace-nowrap">: {{ $pembelian->user->name }}</td>
+                        <td class="font-semibold text-left align-top whitespace-nowrap">Container</td>
+                        <td class="whitespace-nowrap">: {{ $pembelian->no_container }}</td>
                     </tr>
                 </tbody>
             </table>

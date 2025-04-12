@@ -18,20 +18,20 @@
             <table class="w-full">
                 <tbody class="text-base">
                     <tr>
-                        <td class="px-6 font-semibold text-left align-top whitespace-nowrap">Tanggal</td>
-                        <td class="px-6 whitespace-nowrap">: {{ $penjualan->created_at->format('d-m-Y') }}</td>
-                        <td class="px-6 font-semibold whitespace-nowrap">Jam</td>
-                        <td class="px-6 whitespace-nowrap">: {{ $penjualan->created_at->format('H:i') }}</td>
-                        <td class="px-6 font-semibold whitespace-nowrap">Nama Lumbung</td>
-                        <td class="px-6 whitespace-nowrap">: {{ $penjualan->nama_lumbung}}</td>
+                        <td class="font-semibold text-left align-top whitespace-nowrap">Tanggal</td>
+                        <td class="whitespace-nowrap">: {{ $penjualan->created_at->format('d-m-Y') }}</td>
+                        <td class="font-semibold whitespace-nowrap">Jam</td>
+                        <td class="whitespace-nowrap">: {{ $penjualan->created_at->format('H:i') }}</td>
+                        <td class="font-semibold whitespace-nowrap">Nama Lumbung</td>
+                        <td class="whitespace-nowrap">: {{ $penjualan->nama_lumbung}}</td>
                     </tr>
                     <tr>
-                        <td class="px-6 font-semibold whitespace-nowrap">Operator</td>
-                        <td class="px-6 whitespace-nowrap">: {{ $penjualan->user->name }}</td>
-                        <td class="px-6 font-semibold text-left align-top whitespace-nowrap">Container</td>
-                        <td class="px-6 whitespace-nowrap">: {{ $penjualan->no_container }}</td>
-                        <td class="px-6 font-semibold text-left align-top whitespace-nowrap">No Lumbung</td>
-                        <td class="px-6 whitespace-nowrap">: {{ $penjualan->no_lumbung }}</td>
+                        <td class="font-semibold whitespace-nowrap">Operator</td>
+                        <td class="whitespace-nowrap">: {{ $penjualan->user->name }}</td>
+                        <td class="font-semibold text-left align-top whitespace-nowrap">Container</td>
+                        <td class="whitespace-nowrap">: {{ $penjualan->no_container }}</td>
+                        <td class="font-semibold text-left align-top whitespace-nowrap">No Lumbung</td>
+                        <td class="whitespace-nowrap">: {{ $penjualan->no_lumbung }}</td>
                     </tr>
                 </tbody>
             </table>
