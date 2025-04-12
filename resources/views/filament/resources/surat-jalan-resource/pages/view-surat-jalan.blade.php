@@ -74,10 +74,10 @@
                             {{ $suratjalan->tronton->penjualan1->nama_supir }}
                         </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700" rowspan="3">
-                            JAGUNG KERING SUPER
+                        {{ $suratjalan->satuan_muatan}}
                         </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700" rowspan="3">
-                            {{ $suratjalan->tronton->penjualan1->nama_barang }}
+                            JAGUNG KERING SUPER
                         </td>
                         <td class="border p-2 border-gray-300 dark:border-gray-700">Bruto</td>
                         <td class="border text-right p-2 border-gray-300 dark:border-gray-700">

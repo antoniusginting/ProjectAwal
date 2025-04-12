@@ -101,7 +101,6 @@ class SuratJalanResource extends Resource
                                         $timbangan = TimbanganTronton::where('id', $get('id_timbangan_tronton'))->first();
 
                                         // Set field-field lain berdasarkan data yang didapat
-                                        $set('brondolan', $timbangan?->penjualan1?->brondolan ?? '');
                                         $set('nama_supir', $timbangan?->penjualan1?->nama_supir ?? '');
                                         $set('nama_barang', $timbangan?->penjualan1?->nama_barang ?? '');
                                         $set('tara_awal', $timbangan?->tara_awal ?? '');
@@ -113,7 +112,6 @@ class SuratJalanResource extends Resource
                                         if ($state) {
                                             $timbangan = TimbanganTronton::where('id', $state)->first();
 
-                                            $set('brondolan', $timbangan?->penjualan1?->brondolan ?? '');
                                             $set('nama_supir', $timbangan?->penjualan1?->nama_supir ?? '');
                                             $set('nama_barang', $timbangan?->penjualan1?->nama_barang ?? '');
                                             $set('tara_awal', $timbangan?->tara_awal ?? 0);
@@ -141,10 +139,9 @@ class SuratJalanResource extends Resource
                                         $set('bruto_final', ($get('bruto_akhir') ?? 0) + ($state ?? 0));
                                         $set('netto_final', ($get('total_netto') ?? 0) + ($state ?? 0));
                                     }),
-                                TextInput::make('brondolan')
+                                TextInput::make('satuan_muatan')
                                     ->label('Satuan Muatan')
-                                    ->disabled() // Hanya untuk menampilkan, tidak bisa diubah
-                                    ->dehydrated(false), // Tidak tersimpan ke database
+                                    ->placeholder('Masukkan satuan muatan'),
                                 TextInput::make('bruto_final')
                                     ->label('Bruto')
                                     ->readOnly(), // Field ini tidak bisa diubah langsung oleh user
