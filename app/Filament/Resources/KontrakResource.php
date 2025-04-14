@@ -20,7 +20,7 @@ class KontrakResource extends Resource
 {
     protected static ?string $model = Kontrak::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-identification';
+    protected static ?string $navigationIcon = 'heroicon-o-newspaper';
     protected static ?string $navigationLabel = 'Kontrak';
     protected static ?string $navigationGroup = 'Kontrak';
     public static ?string $label = 'Daftar Kontrak ';

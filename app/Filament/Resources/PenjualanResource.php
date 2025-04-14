@@ -31,7 +31,7 @@ class PenjualanResource extends Resource
     // }
     protected static ?string $model = Penjualan::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-bolt';
+    protected static ?string $navigationIcon = 'heroicon-o-document-currency-dollar';
 
     protected static ?string $navigationLabel = 'Penjualan';
     protected static ?int $navigationSort = 2;

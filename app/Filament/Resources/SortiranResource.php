@@ -69,7 +69,7 @@ class SortiranResource extends Resource
                                             ->mapWithKeys(function ($item) {
                                                 return [
                                                     $item->id => $item->no_spb . ' - Timbangan ' . $item->keterangan . ' - ' .
-                                                        $item->supplier->nama_supplier . ' - ' . $item->plat_polisi
+                                                        $item->supplier->nama_supplier . ' - ' . $item->plat_polisi . ' - Tara ' . $item->tara
                                                 ];
                                             })
                                     )
@@ -291,6 +291,7 @@ class SortiranResource extends Resource
                                         TextInput::make('tonase_1')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')
+                                            ->helperText('Terisi otomatis pada saat total karung diketik ulang')
                                             ->readOnly(),
                                     ])
                                     ->columnSpan(1)->collapsible(), // Satu card per kolom
@@ -357,6 +358,7 @@ class SortiranResource extends Resource
                                         TextInput::make('tonase_2')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')
+                                            ->helperText('Terisi otomatis pada saat total karung diketik ulang')
                                             ->readOnly(),
 
                                     ])
@@ -424,6 +426,7 @@ class SortiranResource extends Resource
                                         TextInput::make('tonase_3')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')
+                                            ->helperText('Terisi otomatis pada saat total karung diketik ulang')
                                             ->readOnly(),
                                     ])
                                     ->columnSpan(1)->collapsible(),
@@ -490,6 +493,7 @@ class SortiranResource extends Resource
                                         TextInput::make('tonase_4')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')
+                                            ->helperText('Terisi otomatis pada saat total karung diketik ulang')
                                             ->readOnly(),
                                     ])
                                     ->columnSpan(1)->collapsed(),
@@ -556,6 +560,7 @@ class SortiranResource extends Resource
                                         TextInput::make('tonase_5')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')
+                                            ->helperText('Terisi otomatis pada saat total karung diketik ulang')
                                             ->readOnly(),
                                     ])
                                     ->columnSpan(1)->collapsed(),
@@ -622,6 +627,7 @@ class SortiranResource extends Resource
                                         TextInput::make('tonase_6')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')
+                                            ->helperText('Terisi otomatis pada saat total karung diketik ulang')
                                             ->readOnly(),
                                     ])
                                     ->columnSpan(1)->collapsed(),

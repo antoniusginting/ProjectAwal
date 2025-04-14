@@ -10,21 +10,24 @@ use App\Models\Penjualan;
 use Filament\Tables\Table;
 use App\Models\TimbanganTronton;
 use Filament\Resources\Resource;
+use function Laravel\Prompts\text;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
 
-use function Laravel\Prompts\text;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use function Laravel\Prompts\textarea;
 use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
 
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
+use Filament\Tables\Columns\CheckboxColumn;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TimbanganTrontonResource\Pages;
 use App\Filament\Resources\TimbanganTrontonResource\RelationManagers;
@@ -779,7 +782,16 @@ class TimbanganTrontonResource extends Resource
                                                     ->disabled(),
                                             ])->columnSpan(1)->collapsed(),
                                     ])->columns(3)->collapsible(),
-
+                                Toggle::make('status')
+                                    ->disabled(function ($state, $record) {
+                                        return $record && !in_array((int) $state, [0]);
+                                    })
+                                    ->helperText('Klik jika sudah diaudit')
+                                    ->onIcon('heroicon-m-bolt')
+                                    ->offIcon('heroicon-m-user')
+                                    ->dehydrated(true)
+                                    ->columns(1)
+                                    ->hidden(fn () => !Auth::user()?->hasAnyRole(['admin', 'super_admin'])),
                                 Textarea::make('keterangan')
                                     ->placeholder('Masukkan Keterangan')
                                     ->columnSpanFull(), // Tetap 1 kolom penuh di semua ukuran layar
@@ -817,9 +829,11 @@ class TimbanganTrontonResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('kode')
-                    ->label('No Penjualan')
+                IconColumn::make('status')
+                    ->boolean()
                     ->alignCenter(),
+                TextColumn::make('kode')
+                    ->label('No Penjualan'),
                 TextColumn::make('created_at')->label('Tanggal')
                     ->dateTime('d-m-Y'),
                 TextColumn::make('penjualan1.nama_supir')
@@ -937,12 +951,12 @@ class TimbanganTrontonResource extends Resource
                     ->label(__("Lihat"))
                     ->icon('heroicon-o-eye')
                     ->url(fn($record) => self::getUrl("view-laporan-penjualan", ['record' => $record->id])),
-            ], position: ActionsPosition::BeforeColumns)
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ], position: ActionsPosition::BeforeColumns);
+        // ->bulkActions([
+        //     Tables\Actions\BulkActionGroup::make([
+        //         Tables\Actions\DeleteBulkAction::make(),
+        //     ]),
+        // ]);
     }
 
     public static function getRelations(): array

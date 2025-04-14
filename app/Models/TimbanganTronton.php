@@ -21,6 +21,7 @@ class TimbanganTronton extends Model
         'netto_final',
         'keterangan',
         'user_id',
+        'status',
     ];
 
 

@@ -180,20 +180,22 @@ class SuratJalanResource extends Resource
                     ->searchable(),
                 TextColumn::make('kontrak2.nama')
                     ->label('Nama Kontrak')
+                    ->wrap()
                     ->searchable(),
                 TextColumn::make('kontrak.nama')
                     ->label('Kepada Yth.')
+                    ->wrap()
                     ->searchable(),
                 TextColumn::make('alamat.alamat')
                     ->label('Alamat')
                     ->wrap()
                     ->searchable()
                     ->extraAttributes(['style' => 'width: 250px;']),
-                TextColumn::make('tronton.netto_final')
+                TextColumn::make('netto_final')
                     ->label('Netto')
                     ->searchable()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                TextColumn::make('tronton.penjualan1.brondolan')
+                TextColumn::make('satuan_muatan')
                     ->label('Satuan Muatan')
                     ->alignCenter()
                     ->searchable(),

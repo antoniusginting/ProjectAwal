@@ -221,8 +221,8 @@
                                 @endif
                             </td>
                             <td rowspan="3" class="text-center">{{ $suratjalan->tronton->penjualan1->nama_supir }}</td>
+                            <td rowspan="3" class="text-center">{{$suratjalan->satuan_muatan}}</td>
                             <td rowspan="3" class="text-center">JAGUNG KERING SUPER</td>
-                            <td rowspan="3" class="text-center">{{ $suratjalan->tronton->penjualan1->nama_barang }}</td>
                             <td>Bruto</td>
                             <td class="caca" >{{ number_format($suratjalan->bruto_final, 0, ',', '.') }}</td>
                         </tr>

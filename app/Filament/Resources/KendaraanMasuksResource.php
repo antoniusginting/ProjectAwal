@@ -34,7 +34,7 @@ class KendaraanMasuksResource extends Resource
     protected static ?string $model = KendaraanMasuks::class;
 
     protected static ?string $navigationGroup = 'Satpam';
-    protected static ?string $navigationIcon = 'heroicon-o-forward';
+    protected static ?string $navigationIcon = 'heroicon-o-truck';
 
     protected static ?string $navigationLabel = 'Kendaraan Masuk';
 
