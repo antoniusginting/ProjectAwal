@@ -1,6 +1,6 @@
 <x-filament-panels::page>
     <div class="p-6 bg-white dark:bg-gray-900 rounded-md shadow-md space-y-6 text-gray-900 dark:text-gray-200">
-        
+
         <!-- Header Surat -->
         <div class="text-center space-y-1">
             <h1 class="text-2xl font-bold">{{ $suratjalan->kontrak2->nama }}</h1>
@@ -32,24 +32,27 @@
                         <td class="font-semibold text-left align-top">Alamat</td>
                         <td class="text-left align-top">: {{ $suratjalan->alamat->alamat }}</td>
                     </tr>
-                    <tr>
-                        <td class="font-semibold text-left align-top">No PO</td>
-                        <td class="text-left align-top">: {{ $suratjalan->po }}</td>
-                    </tr>
+                    @if (!empty($suratjalan->po))
+                        <tr>
+                            <td class="font-semibold text-left align-top">No PO</td>
+                            <td class="text-left align-top">: {{ $suratjalan->po }}</td>
+                        </tr>
+                    @endif
+
                 </tbody>
             </table>
         </div>
 
         <!-- Divider -->
         <div class="border-b border-gray-300 dark:border-gray-700"></div>
-
+        <div class="text-right text-sm">Print Date : {{ now()->format('d-m-Y H:i:s') }}</div>
         <!-- Tabel Detail Pengiriman -->
         <div class="overflow-x-auto">
             <table class="w-full border border-collapse border-gray-300 dark:border-gray-700">
                 <thead>
                     <tr class="bg-gray-100 dark:bg-gray-800">
                         <th class="border p-2 border-gray-300 dark:border-gray-700">
-                            @if(!empty($suratjalan->tronton->penjualan1->plat_polisi))
+                            @if (!empty($suratjalan->tronton->penjualan1->plat_polisi))
                                 Plat Polisi
                             @else
                                 No Container
@@ -64,7 +67,7 @@
                 <tbody>
                     <tr>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700" rowspan="3">
-                            @if(!empty($suratjalan->tronton->penjualan1->plat_polisi))
+                            @if (!empty($suratjalan->tronton->penjualan1->plat_polisi))
                                 {{ $suratjalan->tronton->penjualan1->plat_polisi }}
                             @else
                                 {{ $suratjalan->tronton->penjualan1->no_container }}
@@ -74,7 +77,7 @@
                             {{ $suratjalan->tronton->penjualan1->nama_supir }}
                         </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700" rowspan="3">
-                        {{ $suratjalan->satuan_muatan}}
+                            {{ $suratjalan->satuan_muatan }}
                         </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700" rowspan="3">
                             JAGUNG KERING SUPER

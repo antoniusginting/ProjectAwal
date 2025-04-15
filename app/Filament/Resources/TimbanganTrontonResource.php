@@ -36,7 +36,7 @@ class TimbanganTrontonResource extends Resource
 {
     protected static ?string $model = TimbanganTronton::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-truck';
+    protected static ?string $navigationIcon = 'heroicon-o-book-open';
     protected static ?string $navigationLabel = 'Laporan Penjualan';
     protected static ?string $navigationGroup = 'Timbangan';
     protected static ?int $navigationSort = 3;
@@ -52,32 +52,8 @@ class TimbanganTrontonResource extends Resource
                             ->schema([
                                 Card::make('Informasi Berat')
                                     ->schema([
-                                        // Card::make()
-                                        //     ->schema([
-                                        // TextInput::make('total_netto')
-                                        //     ->placeholder('Otomatis terisi')
-                                        //     ->label('Total Netto')
-                                        //     ->readOnly()
-                                        //     ->visible(false),
-
-                                        //     ])->columns(3),
                                         Card::make()
                                             ->schema([
-                                                // TextInput::make('tambah_berat')
-                                                //     ->label('Tambah Berat')
-                                                //     ->numeric()
-                                                //     ->placeholder('Masukkan tambah berat')
-                                                //     ->live(debounce: 600)
-                                                //     ->reactive() // Menjadikan field ini responsif
-                                                //     ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                                //         $set('bruto_final', ($get('bruto_akhir') ?? 0) + ($state ?? 0));
-                                                //         $set('netto_final', ($get('total_netto') ?? 0) + ($state ?? 0));
-                                                //     }),
-                                                // TextInput::make('bruto_final')
-                                                //     ->label('Bruto Final')
-                                                //     ->readOnly()
-                                                //     ->placeholder('Otomatis terjumlahkan'),
-
                                                 TextInput::make('bruto_akhir')
                                                     ->label('Bruto Akhir')
                                                     ->readOnly()
@@ -94,10 +70,6 @@ class TimbanganTrontonResource extends Resource
                                                         // Saat edit, simpan nilai total netto yang tersimpan sebagai initial_total_netto
                                                         $set('initial_total_netto', $state);
                                                     }),
-                                                // TextInput::make('netto_final')
-                                                //     ->label('Netto Final')
-                                                //     ->readOnly()
-                                                //     ->placeholder('Otomatis terjumlahkan'),
                                             ])->columns(3)
                                     ])->collapsed(),
                                 Card::make('Timbangan Jual')

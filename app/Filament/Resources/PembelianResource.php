@@ -103,8 +103,10 @@ class PembelianResource extends Resource
                         Card::make()
                             ->schema([
                                 TextInput::make('plat_polisi')
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan plat polisi'),
                                 TextInput::make('bruto')
+                                    ->placeholder('Masukkan nilai bruto')
                                     ->label('Bruto')
                                     ->numeric()
                                     ->disabled(function ($state, $record) {
@@ -123,6 +125,7 @@ class PembelianResource extends Resource
                                 //     ->searchable() // Biar bisa cari
                                 //     ->required(), // Wajib diisi
                                 TextInput::make('nama_supir')
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan Nama Supir'),
                                 TextInput::make('tara')
                                     ->label('Tara')
@@ -135,6 +138,7 @@ class PembelianResource extends Resource
                                     }),
 
                                 TextInput::make('nama_barang')
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan Nama Barang'),
 
                                 TextInput::make('netto')
@@ -190,6 +194,7 @@ class PembelianResource extends Resource
                                 //     ->content(fn($get) => $get('jenis_supplier') ?? 'Pilih Nama Supplier terlebih dahulu'),
 
                                 TextInput::make('no_container')
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan No Container'),
 
                                 Select::make('brondolan') // Gantilah 'tipe' dengan nama field di database

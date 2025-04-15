@@ -51,8 +51,8 @@ class KendaraanMasuksResource extends Resource
                                 Select::make('status')
                                     ->label('Status')
                                     ->options([
-                                        'Tamu' => 'Tamu',
-                                        'Supplier' => 'Supplier',
+                                        'TAMU' => 'TAMU',
+                                        'SUPPLIER' => 'SUPPLIER',
                                     ])
                                     ->placeholder('Pilih Status')
                                     ->native(false)
@@ -61,14 +61,17 @@ class KendaraanMasuksResource extends Resource
 
                                 TextInput::make('nama_sup_per')
                                     ->placeholder('Masukkan nama supplier atau perusahaan')
+                                    ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
                                     ->columnSpan(1),
 
                                 TextInput::make('plat_polisi')
                                     ->placeholder('Masukkan plat polisi')
+                                    ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
                                     ->columnSpan(1),
 
                                 TextInput::make('nama_barang')
                                     ->placeholder('Masukkan nama barang')
+                                    ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
                                     ->columnSpan(1),
 
                                 TextInput::make('jam_masuk')

@@ -46,8 +46,8 @@
 
         /* Divider */
         .divider {
-            border-bottom: 1px solid var(--border-color);
-            margin: 12px 0;
+            border-bottom: 1px solid #000;
+            margin: 8px 0;
         }
 
         /* Tabel informasi dengan padding dikurangi */
@@ -62,10 +62,11 @@
             vertical-align: top;
         }
 
-        .caca{
+        .caca {
             text-align: right;
-            margin-bottom: 7px;
+            margin-bottom: 8px;
         }
+
         .info-table .label {
             font-weight: bold;
         }
@@ -79,12 +80,11 @@
 
         .detail-table th,
         .detail-table td {
-            border: 1px solid var(--border-color);
+            border: 1px solid #000;
             padding: 4px;
         }
 
         .detail-table th {
-            background-color: var(--light-bg);
             text-align: center;
         }
 
@@ -133,27 +133,30 @@
 
         .sign-line {
             margin-top: 8px;
-            border-bottom: 1px solid var(--border-color);
+            border: 1px solid #000;
             width: 180px;
             margin-left: auto;
             margin-right: auto;
         }
 
-        /* Styles khusus untuk cetak */
         @media print {
-            body {
+            @page {
                 margin: 0;
+            }
+
+            body {
+                margin: 0 !important;
                 background-color: var(--secondary-bg);
             }
 
             .container {
-                width: 100%;
-                margin: 0;
-                padding: 20px;
-            }
-
-            .sign-box {
-                background-color: #fff;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                /* Hilangkan auto */
+                padding: 20px 20px 20px 5px !important;
+                /* top, right, bottom, left */
+                box-sizing: border-box;
             }
         }
     </style>

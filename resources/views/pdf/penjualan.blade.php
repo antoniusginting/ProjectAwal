@@ -42,7 +42,7 @@
 
         .caca{
             text-align: right;
-            margin-bottom: 7px;
+            margin-bottom: 8px;
         }
         header.header h2 {
             font-size: 1rem;
@@ -51,8 +51,8 @@
 
         /* Divider */
         .divider {
-            border-bottom: 1px solid var(--border-color);
-            margin: 12px 0;
+            border-bottom: 1px solid #000;
+            margin: 8px 0;
         }
 
         /* Tabel informasi dengan padding dikurangi */
@@ -80,12 +80,11 @@
 
         .detail-table th,
         .detail-table td {
-            border: 1px solid var(--border-color);
+            border: 1px solid #000;
             padding: 4px;
         }
 
         .detail-table th {
-            background-color: var(--light-bg);
             text-align: center;
         }
 
@@ -98,7 +97,6 @@
         }
 
         .total-row {
-            background-color: var(--light-bg);
             font-weight: bold;
         }
 
@@ -134,7 +132,7 @@
 
         .sign-line {
             margin-top: 8px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid #000;
             width: 180px;
             margin-left: auto;
             margin-right: auto;

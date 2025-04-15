@@ -47,14 +47,15 @@ class SupplierResource extends Resource
                         ->schema([
                             TextInput::make('nama_supplier')
                                 ->required()
+                                ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
                                 ->placeholder('Masukkan Nama Supplier'),
         
                             Select::make('jenis_supplier')
                                 ->label('Jenis Supplier')
                                 ->options([
-                                    'Bonar Jaya' => 'Bonar Jaya',
-                                    'Simpang 2' => 'Simpang 2',
-                                    'Agen Purchasing' => 'Agen Purchasing',
+                                    'BONAR JAYA' => 'BONAR JAYA',
+                                    'SIMPANG 2' => 'SIMPANG 2',
+                                    'AGEN PURCHASING' => 'AGEN PURCHASING',
                                 ])
                                 ->placeholder('Pilih Jenis Supplier')
                                 ->native(false),
@@ -79,13 +80,14 @@ class SupplierResource extends Resource
                                 ->options([
                                     'BRI' => 'BRI',
                                     'BCA' => 'BCA',
-                                    'Mandiri' => 'Mandiri',
+                                    'MANDIRI' => 'MANDIRI',
                                 ])
                                 ->placeholder('Pilih nama bank')
                                 ->native(false),
         
                             TextInput::make('atas_nama_bank')
                                 ->label('Atas nama bank')
+                                ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
                                 ->placeholder('Masukkan atas nama bank'),
                         ])->columns(2) // 2 kolom di layar besar
                 ]),

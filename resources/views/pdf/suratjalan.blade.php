@@ -51,7 +51,7 @@
 
         /* Divider */
         .divider {
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid #000;
             margin: 12px 0;
         }
 
@@ -71,6 +71,9 @@
             font-weight: bold;
         }
 
+        .caca{
+            margin-bottom: 8px;
+        }
         /* Tabel detail pengiriman dengan padding di dalam sel yang lebih kecil */
         .detail-table {
             width: 100%;
@@ -80,12 +83,11 @@
 
         .detail-table th,
         .detail-table td {
-            border: 1px solid var(--border-color);
+            border: 1px solid #000;
             padding: 4px;
         }
 
         .detail-table th {
-            background-color: var(--light-bg);
             text-align: center;
         }
 
@@ -98,7 +100,6 @@
         }
 
         .total-row {
-            background-color: var(--light-bg);
             font-weight: bold;
         }
 
@@ -134,7 +135,7 @@
 
         .sign-line {
             margin-top: 8px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid #000;
             width: 180px;
             margin-left: auto;
             margin-right: auto;
@@ -184,14 +185,17 @@
                     <td style="width: 20%; font-weight: bold;">Alamat</td>
                     <td style="width: 80%;">: {{ $suratjalan->alamat->alamat }}</td>
                 </tr>
+                @if (!empty($suratjalan->po))
                 <tr>
                     <td style="width: 20%; font-weight: bold;">No PO</td>
                     <td style="width: 80%;">: {{ $suratjalan->po }}</td>
                 </tr>
+                @endif
             </table>
         </section>
 
         <div class="divider"></div>
+        <div class="caca">Print Date : {{ now()->format('d-m-Y H:i:s') }}</div>
         <!-- Detail Pengiriman -->
         <section>
             <div style="overflow-x: auto;">

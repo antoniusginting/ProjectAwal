@@ -62,16 +62,21 @@ class SortiranResource extends Resource
                                     ->label('No SPB')
                                     ->placeholder('Pilih No SPB Pembelian')
                                     ->options(
-                                        Pembelian::whereNotIn('id', Sortiran::pluck('id_pembelian')) // Exclude yang sudah ada
-                                            ->latest()
-                                            ->with(['mobil', 'supplier'])
-                                            ->get()
-                                            ->mapWithKeys(function ($item) {
-                                                return [
-                                                    $item->id => $item->no_spb . ' - Timbangan ' . $item->keterangan . ' - ' .
-                                                        $item->supplier->nama_supplier . ' - ' . $item->plat_polisi . ' - Tara ' . $item->tara
-                                                ];
-                                            })
+                                        function () {
+                                            $idSudahDisortir = Sortiran::pluck('id_pembelian')->toArray();
+                                    
+                                            return Pembelian::with(['mobil', 'supplier'])
+                                                ->whereNotIn('id', $idSudahDisortir) // belum pernah disortir
+                                                ->whereNotNull('tara') // tara sudah terisi
+                                                ->latest()
+                                                ->get()
+                                                ->mapWithKeys(function ($item) {
+                                                    return [
+                                                        $item->id => $item->no_spb . ' - TIMBANGAN   ' . $item->keterangan . ' - ' .
+                                                            $item->supplier->nama_supplier . ' - ' . $item->plat_polisi 
+                                                    ];
+                                                });
+                                        }
                                     )
                                     ->searchable()
                                     ->required()

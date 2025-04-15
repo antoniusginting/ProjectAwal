@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
@@ -94,6 +95,7 @@ class PenjualanResource extends Resource
                                 //     }),
                                 TextInput::make('plat_polisi')
                                     ->suffixIcon('heroicon-o-truck')
+                                    ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
                                     ->placeholder('Masukkan plat polisi'),
                                 TextInput::make('bruto')
                                     ->label('Bruto')
@@ -102,7 +104,6 @@ class PenjualanResource extends Resource
                                         return $record && !is_null($state);
                                     })
                                     ->placeholder('Masukkan Nilai Bruto')
-                                    ->required()
                                     ->live(debounce: 600) // Tunggu 500ms setelah user berhenti mengetik
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                         $tara = $get('tara') ?? 0;
@@ -110,11 +111,21 @@ class PenjualanResource extends Resource
                                     }),
                                 TextInput::make('nama_supir')
                                     ->placeholder('Masukkan Nama Supir')
+                                    // Bisa membuat jadi auto uppercase, cuman kurangnya harus ditunggu lagi dulu
+                                    // ->extraAttributes(['style' => 'text-transform: uppercase'])
+                                    // ->live()
+                                    // ->afterStateUpdated(
+                                    //     fn($state, callable $set, Component $component) =>
+                                    //     $set($component->getName(), strtoupper($state))
+                                    // )
+                                    // Code untuk membuat uppercase saat dikirim ke database
+                                    ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
                                     ->required(),
                                 TextInput::make('tara')
                                     ->label('Tara')
                                     ->placeholder('Masukkan Nilai Tara')
                                     ->numeric()
+                                    ->required()
                                     ->live(debounce: 600) // Tambahkan debounce juga di sini
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                         $bruto = $get('bruto') ?? 0;
@@ -137,6 +148,7 @@ class PenjualanResource extends Resource
                                     ->numeric(),
                                 TextInput::make('nama_lumbung')
                                     ->placeholder('Masukkan Nama Lumbung')
+                                    ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
                                     ->required(),
                                 Select::make('keterangan') // Gantilah 'tipe' dengan nama field di database
                                     ->label('Timbangan ke-')
@@ -153,9 +165,11 @@ class PenjualanResource extends Resource
                                     ->required(), // Opsional: Atur default value
                                 TextInput::make('no_lumbung')
                                     ->placeholder('Masukkan No Lumbung')
+                                    ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
                                     ->required(),
                                 TextInput::make('brondolan')
                                     ->label('Satuan Muatan')
+                                    ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
                                     ->placeholder('Masukkan satuan muatan'),
                                 Select::make('id_supplier')
                                     ->label('Supplier')

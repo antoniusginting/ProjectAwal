@@ -33,6 +33,7 @@ class KontrakResource extends Resource
                     ->schema([
                         TextInput::make('nama')
                             ->label('Nama')
+                            ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
                             ->placeholder('Masukkan nama kontrak'),
                         TextInput::make('npwp')
                             ->label('NPWP')

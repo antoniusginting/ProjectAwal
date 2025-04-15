@@ -70,9 +70,11 @@ class SuratJalanResource extends Resource
                                     ->required(),
                                 TextInput::make('po')
                                     ->label('PO')
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan no PO'),
                                 TextInput::make('kota')
                                     ->label('Kota')
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan Kota')
                                     ->required(),
                             ])->columns(2),
@@ -141,6 +143,7 @@ class SuratJalanResource extends Resource
                                     }),
                                 TextInput::make('satuan_muatan')
                                     ->label('Satuan Muatan')
+                                    ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
                                     ->placeholder('Masukkan satuan muatan'),
                                 TextInput::make('bruto_final')
                                     ->label('Bruto')
