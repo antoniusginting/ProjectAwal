@@ -19,7 +19,7 @@ use App\Filament\Resources\UserResource\RelationManagers;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Card;
 
-class UserResource extends Resource 
+class UserResource extends Resource
 {
     // public static function getNavigationBadge(): ?string
     // {
@@ -57,9 +57,10 @@ class UserResource extends Resource
                             ->label('Kata Sandi')
                             ->password()
                             ->placeholder(fn($record) => $record ? 'Biarkan kosong jika tidak diubah' : 'Masukkan kata sandi')
-                            ->minLength(8)
-                            ->dehydrated(fn($state) => filled($state)) // Hanya kirim jika diisi
-                            ->required(fn($operation) => $operation === 'create'),
+                            ->dehydrated(fn($state) => filled($state)) // Hanya dikirim kalau diisi
+                            ->required(fn($operation) => $operation === 'create')
+                            ->rule(fn($state) => filled($state) ? ['min:5'] : []),
+
 
                         Select::make('roles')
                             ->relationship('roles', 'name')
@@ -116,5 +117,4 @@ class UserResource extends Resource
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
     }
-
 }

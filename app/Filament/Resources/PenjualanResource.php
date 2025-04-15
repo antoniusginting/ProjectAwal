@@ -100,9 +100,6 @@ class PenjualanResource extends Resource
                                 TextInput::make('bruto')
                                     ->label('Bruto')
                                     ->numeric()
-                                    ->disabled(function ($state, $record) {
-                                        return $record && !is_null($state);
-                                    })
                                     ->placeholder('Masukkan Nilai Bruto')
                                     ->live(debounce: 600) // Tunggu 500ms setelah user berhenti mengetik
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {

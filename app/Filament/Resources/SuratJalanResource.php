@@ -143,7 +143,7 @@ class SuratJalanResource extends Resource
                                     }),
                                 TextInput::make('satuan_muatan')
                                     ->label('Satuan Muatan')
-                                    ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan satuan muatan'),
                                 TextInput::make('bruto_final')
                                     ->label('Bruto')
@@ -156,10 +156,16 @@ class SuratJalanResource extends Resource
                                     ->label('Tara')
                                     ->disabled() // Field ini hanya ditampilkan sebagai hasil dari database
                                     ->dehydrated(false),
-                                TextInput::make('nama_supir')
-                                    ->label('Nama Supir')
-                                    ->disabled()
-                                    ->dehydrated(false),
+                                Select::make('jenis_mobil') // Gantilah 'tipe' dengan nama field di database
+                                    ->label('Jenis Mobil')
+                                    ->options([
+                                        'TRONTON' => 'TRONTON',
+                                        'COLT DIESEL' => 'COLD DIESEL (CD)',
+                                    ])
+                                    ->placeholder('Pilih Jenis Mobil')
+                                    // ->inlineLabel() // Membuat label sebelah kiri
+                                    ->native(false) // Mengunakan dropdown modern
+                                    ->required(), // Opsional: Atur default value
                                 TextInput::make('netto_final')
                                     ->label('Netto')
                                     ->readOnly(),
@@ -178,6 +184,8 @@ class SuratJalanResource extends Resource
                 TextColumn::make('id')
                     ->label('No')
                     ->alignCenter(),
+                TextColumn::make('tronton.kode')
+                    ->label('No Penjualan'),
                 TextColumn::make('po')
                     ->label('No PO')
                     ->searchable(),

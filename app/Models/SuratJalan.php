@@ -18,6 +18,7 @@ class SuratJalan extends Model
         'bruto_final',
         'netto_final',
         'tambah_berat',
+        'jenis_mobil',
     ];
 
     // Relasi ke User

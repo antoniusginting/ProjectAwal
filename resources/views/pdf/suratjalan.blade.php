@@ -222,7 +222,7 @@
                                     {{ $suratjalan->tronton->penjualan1->plat_polisi }}
                                 @else
                                     {{ $suratjalan->tronton->penjualan1->no_container }}
-                                @endif
+                                @endif / {{$suratjalan->jenis_mobil}}
                             </td>
                             <td rowspan="3" class="text-center">{{ $suratjalan->tronton->penjualan1->nama_supir }}</td>
                             <td rowspan="3" class="text-center">{{$suratjalan->satuan_muatan}}</td>

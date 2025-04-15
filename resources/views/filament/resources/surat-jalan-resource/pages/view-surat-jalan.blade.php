@@ -72,6 +72,7 @@
                             @else
                                 {{ $suratjalan->tronton->penjualan1->no_container }}
                             @endif
+                            / {{$suratjalan->jenis_mobil}}
                         </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700" rowspan="3">
                             {{ $suratjalan->tronton->penjualan1->nama_supir }}

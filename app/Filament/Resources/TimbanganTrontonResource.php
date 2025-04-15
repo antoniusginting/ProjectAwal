@@ -131,7 +131,8 @@ class TimbanganTrontonResource extends Resource
                                                     ->afterStateHydrated(function ($state, callable $set) {
                                                         if ($state) {
                                                             $penjualan = Penjualan::find($state);
-                                                            $set('plat_polisi1', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
+                                                            $set('no_lumbung_1', $penjualan?->no_lumbung);
+                                                            $set('nama_lumbung_1', $penjualan?->nama_lumbung);
                                                             $set('bruto1', $penjualan?->bruto);
                                                             $set('tara1', $penjualan?->tara);
                                                             $set('netto1', $penjualan?->netto);
@@ -143,15 +144,25 @@ class TimbanganTrontonResource extends Resource
                                                         $set('bruto1', $penjualan?->bruto);
                                                         $set('tara1', $penjualan?->tara);
                                                         $set('netto1', $penjualan?->netto);
+                                                        $set('no_lumbung_1', $penjualan?->no_lumbung);
+                                                        $set('nama_lumbung_1', $penjualan?->nama_lumbung);
                                                         $set('total_netto', self::hitungTotalNetto($get)); // Update total_netto
                                                         $set('bruto_akhir', self::getBrutoAkhir($get));
                                                         $set('tara_awal', self::getTaraAwal($get));
                                                     }),
-                                                TextInput::make('plat_polisi1')
-                                                    ->label('Plat Polisi')
-                                                    ->reactive()
-                                                    ->disabled(),
-
+                                                Grid::make(2)
+                                                    ->schema([
+                                                        TextInput::make('no_lumbung_1')
+                                                            ->placeholder('Otomatis terisi')
+                                                            ->reactive()
+                                                            ->disabled()
+                                                            ->label('No Lumbung'),
+                                                        TextInput::make('nama_lumbung_1')
+                                                            ->placeholder('Otomatis terisi')
+                                                            ->reactive()
+                                                            ->disabled()
+                                                            ->label('Nama Lumbung'),
+                                                    ]),
                                                 TextInput::make('bruto1')
                                                     ->placeholder('Otomatis terisi')
                                                     ->label('Bruto')
@@ -228,7 +239,8 @@ class TimbanganTrontonResource extends Resource
                                                     ->afterStateHydrated(function ($state, callable $set) {
                                                         if ($state) {
                                                             $penjualan = Penjualan::find($state);
-                                                            $set('plat_polisi2', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
+                                                            $set('no_lumbung_2', $penjualan?->no_lumbung);
+                                                            $set('nama_lumbung_2', $penjualan?->nama_lumbung);
                                                             $set('bruto2', $penjualan?->bruto);
                                                             $set('tara2', $penjualan?->tara);
                                                             $netto2 = $penjualan?->netto ?? 0;
@@ -242,6 +254,8 @@ class TimbanganTrontonResource extends Resource
                                                         $set('plat_polisi2', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
                                                         $set('bruto2', $penjualan?->bruto);
                                                         $set('tara2', $penjualan?->tara);
+                                                        $set('no_lumbung_2', $penjualan?->no_lumbung);
+                                                        $set('nama_lumbung_2', $penjualan?->nama_lumbung);
                                                         $newNetto = $penjualan?->netto ?? 0;
                                                         // Ambil nilai netto sebelumnya, jika belum ada asumsikan 0
                                                         $prevNetto = $get('prev_netto2') ?? 0;
@@ -263,10 +277,19 @@ class TimbanganTrontonResource extends Resource
                                                         $set('bruto_akhir', self::getBrutoAkhir($get));
                                                     }),
 
-                                                TextInput::make('plat_polisi2')
-                                                    ->label('Plat Polisi')
-                                                    ->reactive()
-                                                    ->disabled(),
+                                                Grid::make(2)
+                                                    ->schema([
+                                                        TextInput::make('no_lumbung_2')
+                                                            ->placeholder('Otomatis terisi')
+                                                            ->reactive()
+                                                            ->disabled()
+                                                            ->label('No Lumbung'),
+                                                        TextInput::make('nama_lumbung_2')
+                                                            ->placeholder('Otomatis terisi')
+                                                            ->reactive()
+                                                            ->disabled()
+                                                            ->label('Nama Lumbung'),
+                                                    ]),
 
                                                 TextInput::make('bruto2')
                                                     ->placeholder('Otomatis terisi')
@@ -344,7 +367,8 @@ class TimbanganTrontonResource extends Resource
                                                     ->afterStateHydrated(function ($state, callable $set) {
                                                         if ($state) {
                                                             $penjualan = Penjualan::find($state);
-                                                            $set('plat_polisi3', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
+                                                            $set('no_lumbung_3', $penjualan?->no_lumbung);
+                                                            $set('nama_lumbung_3', $penjualan?->nama_lumbung);
                                                             $set('bruto3', $penjualan?->bruto);
                                                             $set('tara3', $penjualan?->tara);
                                                             $netto3 = $penjualan?->netto ?? 0;
@@ -358,6 +382,8 @@ class TimbanganTrontonResource extends Resource
                                                         $set('plat_polisi3', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
                                                         $set('bruto3', $penjualan?->bruto);
                                                         $set('tara3', $penjualan?->tara);
+                                                        $set('no_lumbung_3', $penjualan?->no_lumbung);
+                                                        $set('nama_lumbung_3', $penjualan?->nama_lumbung);
                                                         $newNetto = $penjualan?->netto ?? 0;
                                                         // Ambil nilai netto sebelumnya, jika belum ada asumsikan 0
                                                         $prevNetto = $get('prev_netto3') ?? 0;
@@ -379,10 +405,19 @@ class TimbanganTrontonResource extends Resource
                                                         $set('bruto_akhir', self::getBrutoAkhir($get));
                                                     }),
 
-                                                TextInput::make('plat_polisi3')
-                                                    ->label('Plat Polisi')
-                                                    ->reactive()
-                                                    ->disabled(),
+                                                Grid::make(2)
+                                                    ->schema([
+                                                        TextInput::make('no_lumbung_3')
+                                                            ->placeholder('Otomatis terisi')
+                                                            ->reactive()
+                                                            ->disabled()
+                                                            ->label('No Lumbung'),
+                                                        TextInput::make('nama_lumbung_3')
+                                                            ->placeholder('Otomatis terisi')
+                                                            ->reactive()
+                                                            ->disabled()
+                                                            ->label('Nama Lumbung'),
+                                                    ]),
 
                                                 TextInput::make('bruto3')
                                                     ->placeholder('Otomatis terisi')
@@ -461,7 +496,8 @@ class TimbanganTrontonResource extends Resource
                                                     ->afterStateHydrated(function ($state, callable $set) {
                                                         if ($state) {
                                                             $penjualan = Penjualan::find($state);
-                                                            $set('plat_polisi4', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
+                                                            $set('no_lumbung_4', $penjualan?->no_lumbung);
+                                                            $set('nama_lumbung_4', $penjualan?->nama_lumbung);
                                                             $set('bruto4', $penjualan?->bruto);
                                                             $set('tara4', $penjualan?->tara);
                                                             $netto4 = $penjualan?->netto ?? 0;
@@ -475,6 +511,8 @@ class TimbanganTrontonResource extends Resource
                                                         $set('plat_polisi4', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
                                                         $set('bruto4', $penjualan?->bruto);
                                                         $set('tara4', $penjualan?->tara);
+                                                        $set('no_lumbung_4', $penjualan?->no_lumbung);
+                                                        $set('nama_lumbung_4', $penjualan?->nama_lumbung);
                                                         $newNetto = $penjualan?->netto ?? 0;
                                                         // Ambil nilai netto sebelumnya, jika belum ada asumsikan 0
                                                         $prevNetto = $get('prev_netto4') ?? 0;
@@ -495,10 +533,19 @@ class TimbanganTrontonResource extends Resource
                                                         $set('netto4', $newNetto);
                                                         $set('bruto_akhir', self::getBrutoAkhir($get));
                                                     }),
-                                                TextInput::make('plat_polisi4')
-                                                    ->label('Plat Polisi')
-                                                    ->reactive()
-                                                    ->disabled(),
+                                                Grid::make(2)
+                                                    ->schema([
+                                                        TextInput::make('no_lumbung_4')
+                                                            ->placeholder('Otomatis terisi')
+                                                            ->reactive()
+                                                            ->disabled()
+                                                            ->label('No Lumbung'),
+                                                        TextInput::make('nama_lumbung_4')
+                                                            ->placeholder('Otomatis terisi')
+                                                            ->reactive()
+                                                            ->disabled()
+                                                            ->label('Nama Lumbung'),
+                                                    ]),
 
                                                 TextInput::make('bruto4')
                                                     ->placeholder('Otomatis terisi')
@@ -577,7 +624,8 @@ class TimbanganTrontonResource extends Resource
                                                     ->afterStateHydrated(function ($state, callable $set) {
                                                         if ($state) {
                                                             $penjualan = Penjualan::find($state);
-                                                            $set('plat_polisi5', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
+                                                            $set('no_lumbung_5', $penjualan?->no_lumbung);
+                                                            $set('nama_lumbung_5', $penjualan?->nama_lumbung);
                                                             $set('bruto5', $penjualan?->bruto);
                                                             $set('tara5', $penjualan?->tara);
                                                             $netto5 = $penjualan?->netto ?? 0;
@@ -591,6 +639,8 @@ class TimbanganTrontonResource extends Resource
                                                         $set('plat_polisi5', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
                                                         $set('bruto5', $penjualan?->bruto);
                                                         $set('tara5', $penjualan?->tara);
+                                                        $set('no_lumbung_5', $penjualan?->no_lumbung);
+                                                        $set('nama_lumbung_5', $penjualan?->nama_lumbung);
                                                         $newNetto = $penjualan?->netto ?? 0;
                                                         // Ambil nilai netto sebelumnya, jika belum ada asumsikan 0
                                                         $prevNetto = $get('prev_netto5') ?? 0;
@@ -612,10 +662,19 @@ class TimbanganTrontonResource extends Resource
                                                         $set('bruto_akhir', self::getBrutoAkhir($get));
                                                     }),
 
-                                                TextInput::make('plat_polisi5')
-                                                    ->label('Plat Polisi')
-                                                    ->reactive()
-                                                    ->disabled(),
+                                                Grid::make(2)
+                                                    ->schema([
+                                                        TextInput::make('no_lumbung_5')
+                                                            ->placeholder('Otomatis terisi')
+                                                            ->reactive()
+                                                            ->disabled()
+                                                            ->label('No Lumbung'),
+                                                        TextInput::make('nama_lumbung_5')
+                                                            ->placeholder('Otomatis terisi')
+                                                            ->reactive()
+                                                            ->disabled()
+                                                            ->label('Nama Lumbung'),
+                                                    ]),
 
                                                 TextInput::make('bruto5')
                                                     ->placeholder('Otomatis terisi')
@@ -693,7 +752,8 @@ class TimbanganTrontonResource extends Resource
                                                     ->afterStateHydrated(function ($state, callable $set) {
                                                         if ($state) {
                                                             $penjualan = Penjualan::find($state);
-                                                            $set('plat_polisi6', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
+                                                            $set('no_lumbung_6', $penjualan?->no_lumbung);
+                                                            $set('nama_lumbung_6', $penjualan?->nama_lumbung);
                                                             $set('bruto6', $penjualan?->bruto);
                                                             $set('tara6', $penjualan?->tara);
                                                             $netto6 = $penjualan?->netto ?? 0;
@@ -707,6 +767,8 @@ class TimbanganTrontonResource extends Resource
                                                         $set('plat_polisi6', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
                                                         $set('bruto6', $penjualan?->bruto);
                                                         $set('tara6', $penjualan?->tara);
+                                                        $set('no_lumbung_6', $penjualan?->no_lumbung);
+                                                        $set('nama_lumbung_6', $penjualan?->nama_lumbung);
                                                         $newNetto = $penjualan?->netto ?? 0;
                                                         // Ambil nilai netto sebelumnya, jika belum ada asumsikan 0
                                                         $prevNetto = $get('prev_netto6') ?? 0;
@@ -728,10 +790,19 @@ class TimbanganTrontonResource extends Resource
                                                         $set('bruto_akhir', self::getBrutoAkhir($get));
                                                     }),
 
-                                                TextInput::make('plat_polisi6')
-                                                    ->label('Plat Polisi')
-                                                    ->reactive()
-                                                    ->disabled(),
+                                                Grid::make(2)
+                                                    ->schema([
+                                                        TextInput::make('no_lumbung_6')
+                                                            ->placeholder('Otomatis terisi')
+                                                            ->reactive()
+                                                            ->disabled()
+                                                            ->label('No Lumbung'),
+                                                        TextInput::make('nama_lumbung_6')
+                                                            ->placeholder('Otomatis terisi')
+                                                            ->reactive()
+                                                            ->disabled()
+                                                            ->label('Nama Lumbung'),
+                                                    ]),
 
                                                 TextInput::make('bruto6')
                                                     ->placeholder('Otomatis terisi')
@@ -762,8 +833,8 @@ class TimbanganTrontonResource extends Resource
                                     ->onIcon('heroicon-m-bolt')
                                     ->offIcon('heroicon-m-user')
                                     ->dehydrated(true)
-                                    ->columns(1)
-                                    ->hidden(fn () => !Auth::user()?->hasAnyRole(['admin', 'super_admin'])),
+                                    ->hidden(fn () => !Auth::user()?->hasAnyRole(['admin', 'super_admin']))
+                                    ->columns(1),
                                 Textarea::make('keterangan')
                                     ->placeholder('Masukkan Keterangan')
                                     ->columnSpanFull(), // Tetap 1 kolom penuh di semua ukuran layar
