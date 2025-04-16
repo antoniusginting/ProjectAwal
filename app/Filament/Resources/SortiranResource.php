@@ -262,6 +262,7 @@ class SortiranResource extends Resource
                                             ->required(), // Opsional: Atur default value
                                         FileUpload::make('foto_jagung_1')
                                             ->image()
+                                            ->required()
                                             ->multiple()
                                             ->openable()
                                             ->imagePreviewHeight(200)
@@ -301,11 +302,11 @@ class SortiranResource extends Resource
                                                         (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
-                                        TextInput::make('total_karung')
-                                            ->label('Jumlah Karung Saat Ini')
-                                            ->reactive()
-                                            ->readOnly()
-                                            ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
+                                        // TextInput::make('total_karung')
+                                        //     ->label('Jumlah Karung Saat Ini')
+                                        //     ->reactive()
+                                        //     ->disabled()
+                                        //     ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
                                         TextInput::make('tonase_1')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')
@@ -368,11 +369,11 @@ class SortiranResource extends Resource
                                                         (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
-                                        TextInput::make('total_karung')
-                                            ->label('Jumlah Karung Saat Ini')
-                                            ->reactive()
-                                            ->readOnly()
-                                            ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
+                                        // TextInput::make('total_karung')
+                                        //     ->label('Jumlah Karung Saat Ini')
+                                        //     ->reactive()
+                                        //     ->disabled()
+                                        //     ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
                                         TextInput::make('tonase_2')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')
@@ -436,11 +437,11 @@ class SortiranResource extends Resource
                                                         (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
-                                        TextInput::make('total_karung')
-                                            ->label('Jumlah Karung Saat Ini')
-                                            ->reactive()
-                                            ->readOnly()
-                                            ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
+                                        // TextInput::make('total_karung')
+                                        //     ->label('Jumlah Karung Saat Ini')
+                                        //     ->reactive()
+                                        //     ->disabled()
+                                        //     ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
                                         TextInput::make('tonase_3')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')
@@ -503,11 +504,11 @@ class SortiranResource extends Resource
                                                         (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
-                                        TextInput::make('total_karung')
-                                            ->label('Jumlah Karung Saat Ini')
-                                            ->reactive()
-                                            ->readOnly()
-                                            ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
+                                        // TextInput::make('total_karung')
+                                        //     ->label('Jumlah Karung Saat Ini')
+                                        //     ->reactive()
+                                        //     ->disabled()
+                                        //     ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
                                         TextInput::make('tonase_4')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')
@@ -570,11 +571,11 @@ class SortiranResource extends Resource
                                                         (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
-                                        TextInput::make('total_karung')
-                                            ->label('Jumlah Karung Saat Ini')
-                                            ->reactive()
-                                            ->readOnly()
-                                            ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
+                                        // TextInput::make('total_karung')
+                                        //     ->label('Jumlah Karung Saat Ini')
+                                        //     ->reactive()
+                                        //     ->disabled()
+                                        //     ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
                                         TextInput::make('tonase_5')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')
@@ -637,11 +638,11 @@ class SortiranResource extends Resource
                                                         (int) ($get('jumlah_karung_6') ?? 0)
                                                 )
                                             ),
-                                        TextInput::make('total_karung')
-                                            ->label('Jumlah Karung Saat Ini')
-                                            ->reactive()
-                                            ->readOnly()
-                                            ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
+                                        // TextInput::make('total_karung')
+                                        //     ->label('Jumlah Karung Saat Ini')
+                                        //     ->reactive()
+                                        //     ->disabled()
+                                        //     ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
                                         TextInput::make('tonase_6')
                                             ->placeholder('Otomatis Terisi Tonase')
                                             ->label('Tonase')
@@ -667,6 +668,7 @@ class SortiranResource extends Resource
                 TextColumn::make('created_at')->label('Tanggal')
                     ->dateTime('d-m-Y'),
                 TextColumn::make('no_sortiran')
+                    ->searchable()
                     ->label('No Sortiran')
                     ->alignCenter(),
                 TextColumn::make('pembelian.no_spb')->label('No SPB')
@@ -827,11 +829,11 @@ class SortiranResource extends Resource
                     ->icon('heroicon-o-eye')
                     ->url(fn($record) => self::getUrl("view-sortiran", ['record' => $record->id])),
             ], position: ActionsPosition::BeforeColumns)
-            ->bulkActions([
-                // Tables\Actions\BulkActionGroup::make([
-                Tables\Actions\DeleteBulkAction::make(),
-                // ]),
-            ])
+            // ->bulkActions([
+            //     // Tables\Actions\BulkActionGroup::make([
+            //     Tables\Actions\DeleteBulkAction::make(),
+            //     // ]),
+            // ])
             ->filters([
                 Filter::make('Hari Ini')
                     ->query(

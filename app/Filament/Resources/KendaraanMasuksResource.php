@@ -77,7 +77,7 @@ class KendaraanMasuksResource extends Resource
                                 TextInput::make('jam_masuk')
                                     ->readOnly()
                                     ->suffixIcon('heroicon-o-clock')
-                                    ->default(now()->format('H:i'))
+                                    ->default(now()->setTimezone('Asia/Jakarta')->format('H:i'))
                                     ->columnSpan(1),
 
                                 TextInput::make('jam_keluar')
@@ -89,7 +89,7 @@ class KendaraanMasuksResource extends Resource
                                     ->hidden(fn($livewire, $state) => $livewire instanceof \Filament\Resources\Pages\ViewRecord && empty($state))
                                     ->afterStateHydrated(function ($state, callable $set, $record) {
                                         if ($record && empty($state)) {
-                                            $set('jam_keluar', now()->format('H:i:s'));
+                                            $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
                                         }
                                     })
                                     ->columnSpan(1),
@@ -143,11 +143,11 @@ class KendaraanMasuksResource extends Resource
                 Tables\Actions\DeleteAction::make(),
                 Tables\Actions\ViewAction::make(),
             ])
-            ->bulkActions([
-                // Tables\Actions\BulkActionGroup::make([
-                Tables\Actions\DeleteBulkAction::make(),
-                // ]),
-            ])
+            // ->bulkActions([
+            //     // Tables\Actions\BulkActionGroup::make([
+            //     Tables\Actions\DeleteBulkAction::make(),
+            //     // ]),
+            // ])
             ->filters([
                 Filter::make('Hari Ini')
                     ->query(

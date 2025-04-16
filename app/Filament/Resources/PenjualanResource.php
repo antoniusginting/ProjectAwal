@@ -64,7 +64,7 @@ class PenjualanResource extends Resource
                                 TextInput::make('jam_masuk')
                                     ->readOnly()
                                     ->suffixIcon('heroicon-o-clock')
-                                    ->default(now()->format('H:i')),
+                                    ->default(now()->setTimezone('Asia/Jakarta')->format('H:i')),
                                 TextInput::make('jam_keluar')
                                     ->label('Jam Keluar')
                                     ->readOnly()
@@ -74,7 +74,7 @@ class PenjualanResource extends Resource
                                     ->afterStateHydrated(function ($state, callable $set, $record) {
                                         // Jika sedang edit dan jam_keluar kosong, isi waktu sekarang
                                         if ($record && empty($state)) {
-                                            $set('jam_keluar', now()->format('H:i:s'));
+                                            $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
                                         }
                                     }),
                                 TextInput::make('created_at')
@@ -84,6 +84,33 @@ class PenjualanResource extends Resource
                             ])->columns(4)->collapsed(),
                         Card::make()
                             ->schema([
+                                Select::make('id_penjualan')
+                                    ->label('Ambil dari Penjualan Sebelumnya')
+                                    ->options(function () {
+                                        return \App\Models\Penjualan::latest()->take(50)->get()->mapWithKeys(function ($penjualan) {
+                                            return [
+                                                $penjualan->id => "{$penjualan->plat_polisi} - {$penjualan->nama_supir} - (Timbangan ke-{$penjualan->keterangan}) - {$penjualan->created_at->format('d:m:Y')}"
+                                            ];
+                                        });
+                                    })
+                                    ->searchable()
+                                    ->reactive()
+                                    ->dehydrated(false) // jangan disimpan ke DB
+                                    ->afterStateUpdated(function (callable $set, $state) {
+                                        $penjualan = \App\Models\Penjualan::find($state);
+                                        if ($penjualan) {
+                                            $set('plat_polisi', $penjualan->plat_polisi);
+                                            $set('bruto', $penjualan->bruto);
+                                            $set('tara', $penjualan->tara);
+                                            $set('netto', max(0, intval($penjualan->bruto) - intval($penjualan->tara)));
+                                            $set('nama_supir', $penjualan->nama_supir);
+                                            $set('nama_barang', $penjualan->nama_barang);
+                                            $set('nama_lumbung', $penjualan->nama_lumbung);
+                                            $set('no_lumbung', $penjualan->no_lumbung);
+                                            $set('keterangan', $penjualan->keterangan);
+                                            $set('brondolan', $penjualan->brondolan);
+                                        }
+                                    })->columnSpan(2),
                                 // TextInput::make('no_spb')
                                 //     ->label('No SPB')
                                 //     ->disabled()
@@ -235,11 +262,11 @@ class PenjualanResource extends Resource
                     ->icon('heroicon-o-eye')
                     ->url(fn($record) => self::getUrl("view-penjualan", ['record' => $record->id])),
             ], position: ActionsPosition::BeforeColumns)
-            ->bulkActions([
-                // Tables\Actions\BulkActionGroup::make([
-                Tables\Actions\DeleteBulkAction::make(),
-                // ]),
-            ])
+            // ->bulkActions([
+            //     // Tables\Actions\BulkActionGroup::make([
+            //     Tables\Actions\DeleteBulkAction::make(),
+            //     // ]),
+            // ])
             ->filters([
                 Filter::make('Hari Ini')
                     ->query(

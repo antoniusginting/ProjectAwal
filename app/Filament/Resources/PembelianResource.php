@@ -73,7 +73,7 @@ class PembelianResource extends Resource
                                 TextInput::make('jam_masuk')
                                     ->readOnly()
                                     ->suffixIcon('heroicon-o-clock')
-                                    ->default(now()->format('H:i')),
+                                    ->default(now()->setTimezone('Asia/Jakarta')->format('H:i')),
                                 TextInput::make('jam_keluar')
                                     ->label('Jam Keluar')
                                     ->readOnly()
@@ -83,7 +83,7 @@ class PembelianResource extends Resource
                                     ->afterStateHydrated(function ($state, callable $set, $record) {
                                         // Jika sedang edit dan jam_keluar kosong, isi waktu sekarang
                                         if ($record && empty($state)) {
-                                            $set('jam_keluar', now()->format('H:i:s'));
+                                            $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
                                         }
                                     }),
                                 TextInput::make('created_at')
@@ -102,13 +102,39 @@ class PembelianResource extends Resource
 
                         Card::make()
                             ->schema([
+                                Select::make('id_pembelian')
+                                    ->label('Ambil dari Pembelian Sebelumnya')
+                                    ->options(function () {
+                                        return \App\Models\Pembelian::latest()->take(50)->get()->mapWithKeys(function ($pembelian) {
+                                            return [
+                                                $pembelian->id => "{$pembelian->plat_polisi} - {$pembelian->nama_supir} - (Timbangan ke-{$pembelian->keterangan}) - {$pembelian->created_at->format('d:m:Y')}"
+                                            ];
+                                        });
+                                    })
+                                    ->searchable()
+                                    ->reactive()
+                                    ->dehydrated(false) // jangan disimpan ke DB
+                                    ->afterStateUpdated(function (callable $set, $state) {
+                                        $pembelian = \App\Models\Pembelian::find($state);
+                                        if ($pembelian) {
+                                            $set('plat_polisi', $pembelian->plat_polisi);
+                                            $set('bruto', $pembelian->bruto);
+                                            $set('tara', $pembelian->tara);
+                                            $set('netto', max(0, intval($pembelian->bruto) - intval($pembelian->tara)));
+                                            $set('nama_supir', $pembelian->nama_supir);
+                                            $set('nama_barang', $pembelian->nama_barang);
+                                            $set('id_supplier', $pembelian->id_supplier);
+                                            $set('keterangan', $pembelian->keterangan);
+                                            $set('brondolan', $pembelian->brondolan);
+                                        }
+                                    })->columnSpan(2),
                                 TextInput::make('plat_polisi')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan plat polisi'),
                                 TextInput::make('bruto')
                                     ->placeholder('Masukkan nilai bruto')
                                     ->label('Bruto')
-                                    ->numeric() 
+                                    ->numeric()
                                     ->required()
                                     ->live(debounce: 600) // Tunggu 500ms setelah user berhenti mengetik
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
@@ -230,8 +256,7 @@ class PembelianResource extends Resource
                     ->searchable(),
                 TextColumn::make('nama_barang')
                     ->searchable(),
-                TextColumn::make('supplier.jenis_supplier')->label('Jenis')
-                    ->searchable(),
+                
                 TextColumn::make('keterangan')
                     ->prefix('Timbangan-')
                     ->searchable(),
@@ -260,11 +285,11 @@ class PembelianResource extends Resource
                     ->icon('heroicon-o-eye')
                     ->url(fn($record) => self::getUrl("view-pembelian", ['record' => $record->id])),
             ], position: ActionsPosition::BeforeColumns)
-            ->bulkActions([
-                // Tables\Actions\BulkActionGroup::make([
-                Tables\Actions\DeleteBulkAction::make(),
-                // ]),
-            ])
+            // ->bulkActions([
+            //     // Tables\Actions\BulkActionGroup::make([
+            //     Tables\Actions\DeleteBulkAction::make(),
+            //     // ]),
+            // ])
             ->filters([
                 Filter::make('Hari Ini')
                     ->query(

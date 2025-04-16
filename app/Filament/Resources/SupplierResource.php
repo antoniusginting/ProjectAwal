@@ -105,9 +105,6 @@ class SupplierResource extends Resource
                 TextColumn::make('nama_supplier')
                     ->label('Nama supplier')
                     ->searchable(),
-                TextColumn::make('jenis_supplier')
-                    ->label('Jenis supplier')
-                    ->searchable(),
                 TextColumn::make('no_ktp')
                     ->label('No KTP')
                     ->searchable(),
