@@ -58,11 +58,11 @@
                         @if ($penjualan)
                             <tr>
                                 <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap">{{ $i }}</td>
-                                <td class="border p-2 border-gray-300 dark:border-gray-700 whitespace-nowrap">{{ $penjualan->no_spb }}</td>
-                                <td class="border p-2 border-gray-300 dark:border-gray-700 whitespace-nowrap">{{ $penjualan->nama_barang }}</td>
-                                <td class="border p-2 border-gray-300 dark:border-gray-700 whitespace-nowrap">{{ $penjualan->brondolan }}</td>
-                                <td class="border p-2 border-gray-300 dark:border-gray-700 whitespace-nowrap">{{ $penjualan->nama_lumbung }}</td>
-                                <td class="border p-2 border-gray-300 dark:border-gray-700 whitespace-nowrap">{{ $penjualan->no_lumbung }}</td>
+                                <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap">{{ $penjualan->no_spb }}</td>
+                                <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap">{{ $penjualan->nama_barang }}</td>
+                                <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap">{{ $penjualan->brondolan }}</td>
+                                <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap">{{ $penjualan->nama_lumbung }}</td>
+                                <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap">{{ $penjualan->no_lumbung }}</td>
                                 <td class="border p-2 border-gray-300 dark:border-gray-700 text-right whitespace-nowrap">
                                     {{ number_format($penjualan->netto, 0, ',', '.') }}
                                 </td>

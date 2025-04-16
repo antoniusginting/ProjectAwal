@@ -83,18 +83,35 @@ class SuratJalanResource extends Resource
                                 Select::make('id_timbangan_tronton')
                                     ->label('ID Laporan Penjualan')
 
-                                    ->options(
-                                        TimbanganTronton::whereNotIn('id', SuratJalan::pluck('id_timbangan_tronton')) // Exclude yang sudah ada
+                                    ->options(function ($get) {
+                                        $selectedId = $get('id_timbangan_tronton');
+                                
+                                        // Ambil semua id yang sudah dipakai
+                                        $usedIds = SuratJalan::pluck('id_timbangan_tronton')->toArray();
+                                
+                                        // Hapus dulu selectedId dari daftar id yang digunakan (agar tidak terfilter saat edit)
+                                        if ($selectedId) {
+                                            $usedIds = array_diff($usedIds, [$selectedId]);
+                                        }
+                                
+                                        // Ambil data timbangan yang belum digunakan (plus yang dipilih saat edit)
+                                        $query = TimbanganTronton::whereNotIn('id', $usedIds)
                                             ->latest()
-                                            ->with(['penjualan1'])
-                                            ->get()
+                                            ->with('penjualan1');
+                                
+                                        // Jika sedang edit dan ID tidak masuk list, tambahkan secara manual
+                                        if ($selectedId && !in_array($selectedId, $query->pluck('id')->toArray())) {
+                                            $query->orWhere('id', $selectedId);
+                                        }
+                                
+                                        return $query->get()
                                             ->mapWithKeys(function ($item) {
                                                 return [
-                                                    $item->id => $item->kode . ' - ' . $item->penjualan1->nama_supir . ' - ' .
-                                                        ($item->penjualan1->plat_polisi ?? $item->penjualan1->no_container)
+                                                    $item->id => $item->kode . ' - ' . ($item->penjualan1->nama_supir ?? '-') . ' - ' .
+                                                        ($item->penjualan1->plat_polisi ?? $item->penjualan1->no_container ?? '-')
                                                 ];
-                                            })
-                                    )
+                                            });
+                                    })
                                     ->searchable()
                                     ->required()
                                     ->reactive()

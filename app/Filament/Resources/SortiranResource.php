@@ -61,23 +61,36 @@ class SortiranResource extends Resource
                                 Select::make('id_pembelian')
                                     ->label('No SPB')
                                     ->placeholder('Pilih No SPB Pembelian')
-                                    ->options(
-                                        function () {
-                                            $idSudahDisortir = Sortiran::pluck('id_pembelian')->toArray();
-                                    
-                                            return Pembelian::with(['mobil', 'supplier'])
-                                                ->whereNotIn('id', $idSudahDisortir) // belum pernah disortir
-                                                ->whereNotNull('tara') // tara sudah terisi
-                                                ->latest()
-                                                ->get()
-                                                ->mapWithKeys(function ($item) {
-                                                    return [
-                                                        $item->id => $item->no_spb . ' - TIMBANGAN   ' . $item->keterangan . ' - ' .
-                                                            $item->supplier->nama_supplier . ' - ' . $item->plat_polisi 
-                                                    ];
-                                                });
+                                    ->options(function ($get) {
+                                        $selectedId = $get('id_pembelian');
+
+                                        $idSudahDisortir = Sortiran::pluck('id_pembelian')->toArray();
+
+                                        // Hilangkan selected ID dari filter jika sedang edit
+                                        if ($selectedId) {
+                                            $idSudahDisortir = array_diff($idSudahDisortir, [$selectedId]);
                                         }
-                                    )
+
+                                        $query = Pembelian::with(['mobil', 'supplier'])
+                                            ->whereNotIn('id', $idSudahDisortir)
+                                            ->whereNotNull('tara')
+                                            ->latest();
+
+                                        // Pastikan data yang sedang dipilih (saat edit) tetap ada
+                                        if ($selectedId) {
+                                            $query->orWhere('id', $selectedId);
+                                        }
+
+                                        return $query->get()
+                                            ->mapWithKeys(function ($item) {
+                                                return [
+                                                    $item->id => $item->no_spb . ' - TIMBANGAN ' . $item->keterangan . ' - ' .
+                                                        ($item->supplier->nama_supplier ?? '-') . ' - ' .
+                                                        ($item->plat_polisi ?? '-')
+                                                ];
+                                            });
+                                    })
+
                                     ->searchable()
                                     ->required()
                                     ->reactive()
@@ -211,22 +224,22 @@ class SortiranResource extends Resource
                 Card::make()
                     ->schema([
                         Placeholder::make('next_idi')
-                                    ->label('No Sortiran')
-                                    ->content(function ($record) {
-                                        // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
-                                        if ($record) {
-                                            return $record->no_sortiran;
-                                        }
+                            ->label('No Sortiran')
+                            ->content(function ($record) {
+                                // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
+                                if ($record) {
+                                    return $record->no_sortiran;
+                                }
 
-                                        // Jika sedang membuat data baru, hitung kode berikutnya
-                                        $nextId = (Sortiran::max('id') ?? 0) + 1;
-                                        return 'S' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
-                                    }),
-                                TextInput::make('no_lumbung')
-                                    ->label('No Lumbung')
-                                    ->placeholder('Masukkan No Lumbung')
-                                    ->required()
-                                    ->numeric(),
+                                // Jika sedang membuat data baru, hitung kode berikutnya
+                                $nextId = (Sortiran::max('id') ?? 0) + 1;
+                                return 'S' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+                            }),
+                        TextInput::make('no_lumbung')
+                            ->label('No Lumbung')
+                            ->placeholder('Masukkan No Lumbung')
+                            ->required()
+                            ->numeric(),
                         // Grid untuk menyusun field ke kanan
                         Grid::make([
                             'default' => 1,

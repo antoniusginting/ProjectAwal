@@ -1,6 +1,6 @@
 <x-filament-panels::page>
-    <div class="p-6 bg-white dark:bg-gray-800 max-w-4xl mx-auto shadow rounded-lg">
-       
+    <div class="p-6 bg-white dark:bg-gray-800 w-full mx-auto shadow rounded-lg">
+
         <!-- Responsive Card Using Tailwind CSS -->
         <div class="max-w-4xl mx-auto px-4 py-6">
             <div class="bg-white dark:bg-gray-900 shadow-lg rounded-xl overflow-hidden">
@@ -13,7 +13,8 @@
                         </div>
                         <div class="flex items-center">
                             <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Supplier</p>
-                            <p class="text-gray-600 dark:text-gray-400">: {{ $sortiran->pembelian->supplier->nama_supplier }}</p>
+                            <p class="text-gray-600 dark:text-gray-400">:
+                                {{ $sortiran->pembelian->supplier->nama_supplier }}</p>
                         </div>
                         <div class="flex items-center">
                             <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Plat Polisi</p>
@@ -40,19 +41,23 @@
                     <div class="space-y-4">
                         <div class="flex items-center">
                             <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Bruto</p>
-                            <p class="text-gray-600 dark:text-gray-400">: {{ number_format($sortiran->pembelian->bruto, 0, ',', '.') }}</p>
+                            <p class="text-gray-600 dark:text-gray-400">:
+                                {{ number_format($sortiran->pembelian->bruto, 0, ',', '.') }}</p>
                         </div>
                         <div class="flex items-center">
                             <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Tara</p>
-                            <p class="text-gray-600 dark:text-gray-400">: {{ number_format($sortiran->pembelian->tara, 0, ',', '.') }}</p>
+                            <p class="text-gray-600 dark:text-gray-400">:
+                                {{ number_format($sortiran->pembelian->tara, 0, ',', '.') }}</p>
                         </div>
                         <div class="flex items-center">
                             <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Netto</p>
-                            <p class="text-gray-600 dark:text-gray-400">: {{ number_format($sortiran->pembelian->netto, 0, ',', '.') }}</p>
+                            <p class="text-gray-600 dark:text-gray-400">:
+                                {{ number_format($sortiran->pembelian->netto, 0, ',', '.') }}</p>
                         </div>
                         <div class="flex items-center">
                             <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Timbangan</p>
-                            <p class="text-gray-600 dark:text-gray-400">: ke - {{ $sortiran->pembelian->keterangan }}</p>
+                            <p class="text-gray-600 dark:text-gray-400">: ke - {{ $sortiran->pembelian->keterangan }}
+                            </p>
                         </div>
                         <div class="flex items-center">
                             <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Lumbung Basah</p>
@@ -89,7 +94,7 @@
                             $tonase =
                                 $jumlah_karung > 0
                                     ? floatval(
-                                        str_replace(',', '.', str_replace('.', '', $sortiran["tonase_$i"] ?? '0'))
+                                        str_replace(',', '.', str_replace('.', '', $sortiran["tonase_$i"] ?? '0')),
                                     )
                                     : 0;
                         @endphp
@@ -123,4 +128,21 @@
             </table>
         </div>
     </div>
+    {{-- @php
+        $fotoList = $sortiran->foto_jagung_1;
+    @endphp
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+        @for ($i = 0; $i < 6; $i++)
+            @if (!empty($fotoList[$i]))
+                <div
+                    style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: #f9f9f9; padding: 10px; text-align: center;">
+                    <img src="{{ asset('storage/' . $fotoList[$i]) }}" alt="Foto Jagung {{ $i + 1 }}"
+                        style="width: 100%; height: auto; border-radius: 5px;">
+                    <p style="margin-top: 8px; font-size: 14px;">Foto {{ $i + 1 }}</p>
+                </div>
+            @endif
+        @endfor
+    </div> --}}
+
 </x-filament-panels::page>

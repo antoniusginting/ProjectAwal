@@ -175,13 +175,13 @@ table.caca, table.caca th, table.caca td {
                         @continue
                     @endif
                     @php
-                        $total_karung += $jumlah_karung;
+                        $total_karung += $jumlah_karung;    
                         $total_tonase += $tonase;
                     @endphp
                     <tr>
                         <td class="text-center">{{ $i }}</td>
-                        <td>{{ $sortiran["kualitas_jagung_$i"] ?? '-' }}</td>
-                        <td>{{ $sortiran["x1_x10_$i"] ?? '-' }}</td>
+                        <td class="text-center">{{ $sortiran["kualitas_jagung_$i"] ?? '-' }}</td>
+                        <td class="text-center">{{ $sortiran["x1_x10_$i"] ?? '-' }}</td>
                         <td class="text-center">{{ $jumlah_karung }}</td>
                         <td class="text-center">{{ number_format($tonase, 0, ',', '.') }}</td>
                     </tr>
