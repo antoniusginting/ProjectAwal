@@ -45,6 +45,11 @@ class SuratJalanResource extends Resource
                                     ->label('Nama Kontrak')
                                     ->required()
                                     ->options(Kontrak::all()->pluck('nama', 'id'))
+                                    // ->options(
+                                    //     Kontrak::where('nama', 'like', '%bonar%')
+                                    //         ->orWhere('nama', 'like', '%dharma%')
+                                    //         ->pluck('nama', 'id')
+                                    // )
                                     ->searchable()
                                     ->reactive(), // Agar saat memilih kontrak, alamat terfilter
                                 TextInput::make('created_at')
@@ -70,10 +75,12 @@ class SuratJalanResource extends Resource
                                     ->required(),
                                 TextInput::make('po')
                                     ->label('PO')
+                                    ->autocomplete('off')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan no PO'),
                                 TextInput::make('kota')
                                     ->label('Kota')
+                                    ->autocomplete('off')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan Kota')
                                     ->required(),
@@ -85,25 +92,25 @@ class SuratJalanResource extends Resource
 
                                     ->options(function ($get) {
                                         $selectedId = $get('id_timbangan_tronton');
-                                
+
                                         // Ambil semua id yang sudah dipakai
                                         $usedIds = SuratJalan::pluck('id_timbangan_tronton')->toArray();
-                                
+
                                         // Hapus dulu selectedId dari daftar id yang digunakan (agar tidak terfilter saat edit)
                                         if ($selectedId) {
                                             $usedIds = array_diff($usedIds, [$selectedId]);
                                         }
-                                
+
                                         // Ambil data timbangan yang belum digunakan (plus yang dipilih saat edit)
                                         $query = TimbanganTronton::whereNotIn('id', $usedIds)
                                             ->latest()
                                             ->with('penjualan1');
-                                
+
                                         // Jika sedang edit dan ID tidak masuk list, tambahkan secara manual
                                         if ($selectedId && !in_array($selectedId, $query->pluck('id')->toArray())) {
                                             $query->orWhere('id', $selectedId);
                                         }
-                                
+
                                         return $query->get()
                                             ->mapWithKeys(function ($item) {
                                                 return [
@@ -122,6 +129,7 @@ class SuratJalanResource extends Resource
                                         // Set field-field lain berdasarkan data yang didapat
                                         $set('nama_supir', $timbangan?->penjualan1?->nama_supir ?? '');
                                         $set('nama_barang', $timbangan?->penjualan1?->nama_barang ?? '');
+                                        $set('plat_polisi', $timbangan?->penjualan1?->plat_polisi ?? '');
                                         $set('tara_awal', $timbangan?->tara_awal ?? '');
                                         $set('bruto_akhir', $timbangan?->bruto_akhir ?? '');
                                         $set('total_netto', $timbangan?->total_netto ?? '');
@@ -131,6 +139,7 @@ class SuratJalanResource extends Resource
                                         if ($state) {
                                             $timbangan = TimbanganTronton::where('id', $state)->first();
 
+                                            $set('plat_polisi', $timbangan?->penjualan1?->plat_polisi ?? '');
                                             $set('nama_supir', $timbangan?->penjualan1?->nama_supir ?? '');
                                             $set('nama_barang', $timbangan?->penjualan1?->nama_barang ?? '');
                                             $set('tara_awal', $timbangan?->tara_awal ?? 0);
@@ -158,10 +167,10 @@ class SuratJalanResource extends Resource
                                         $set('bruto_final', ($get('bruto_akhir') ?? 0) + ($state ?? 0));
                                         $set('netto_final', ($get('total_netto') ?? 0) + ($state ?? 0));
                                     }),
-                                TextInput::make('satuan_muatan')
-                                    ->label('Satuan Muatan')
-                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
-                                    ->placeholder('Masukkan satuan muatan'),
+                                TextInput::make('plat_polisi')
+                                    ->label('Plat Polisi')
+                                    ->disabled()
+                                    ->dehydrated(false),
                                 TextInput::make('bruto_final')
                                     ->label('Bruto')
                                     ->readOnly(), // Field ini tidak bisa diubah langsung oleh user
@@ -223,10 +232,6 @@ class SuratJalanResource extends Resource
                     ->label('Netto')
                     ->searchable()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                TextColumn::make('satuan_muatan')
-                    ->label('Satuan Muatan')
-                    ->alignCenter()
-                    ->searchable(),
                 TextColumn::make('tronton.penjualan1.nama_supir')
                     ->label('Nama Supir')
                     ->searchable(),
@@ -242,11 +247,11 @@ class SuratJalanResource extends Resource
                     ->icon('heroicon-o-eye')
                     ->url(fn($record) => self::getUrl("view-surat-jalan", ['record' => $record->id])),
             ], position: ActionsPosition::BeforeColumns);
-            // ->bulkActions([
-            //     Tables\Actions\BulkActionGroup::make([
-            //         Tables\Actions\DeleteBulkAction::make(),
-            //     ]),
-            // ]);
+        // ->bulkActions([
+        //     Tables\Actions\BulkActionGroup::make([
+        //         Tables\Actions\DeleteBulkAction::make(),
+        //     ]),
+        // ]);
     }
 
     public static function getRelations(): array

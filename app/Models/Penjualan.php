@@ -22,6 +22,7 @@ class Penjualan extends Model
         'jam_keluar',
         'no_lumbung',
         'nama_lumbung',
+        'jumlah_karung',
         'user_id'
     ];
 

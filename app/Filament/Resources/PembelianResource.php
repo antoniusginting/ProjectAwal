@@ -112,9 +112,24 @@ class PembelianResource extends Resource
                                         });
                                     })
                                     ->searchable()
+                                    ->hidden(fn($livewire) => $livewire->getRecord()?->exists)
                                     ->reactive()
                                     ->dehydrated(false) // jangan disimpan ke DB
                                     ->afterStateUpdated(function (callable $set, $state) {
+                                        if ($state === null) {
+                                            // Kosongkan semua data yang sebelumnya di-set
+                                            $set('plat_polisi', null);
+                                            $set('bruto', null);
+                                            $set('tara', null);
+                                            $set('netto', null);
+                                            $set('nama_supir', null);
+                                            $set('nama_barang', null);
+                                            $set('id_supplier', null);
+                                            $set('keterangan', null);
+                                            $set('brondolan', null);
+                                            return;
+                                        }
+
                                         $pembelian = \App\Models\Pembelian::find($state);
                                         if ($pembelian) {
                                             $set('plat_polisi', $pembelian->plat_polisi);
@@ -124,12 +139,18 @@ class PembelianResource extends Resource
                                             $set('nama_supir', $pembelian->nama_supir);
                                             $set('nama_barang', $pembelian->nama_barang);
                                             $set('id_supplier', $pembelian->id_supplier);
-                                            $set('keterangan', $pembelian->keterangan);
+                                            // Naikkan keterangan jika awalnya 1
+                                            $keteranganBaru = in_array(intval($pembelian->keterangan), [1, 2, 3, 4])
+                                                ? intval($pembelian->keterangan) + 1
+                                                : $pembelian->keterangan;
+                                            $set('keterangan', $keteranganBaru);
                                             $set('brondolan', $pembelian->brondolan);
                                         }
-                                    })->columnSpan(2),
+                                    })
+                                    ->columnSpan(2),
                                 TextInput::make('plat_polisi')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
+                                    ->autocomplete('off')
                                     ->placeholder('Masukkan plat polisi'),
                                 TextInput::make('bruto')
                                     ->placeholder('Masukkan nilai bruto')
@@ -141,13 +162,8 @@ class PembelianResource extends Resource
                                         $tara = $get('tara') ?? 0;
                                         $set('netto', max(0, intval($state) - intval($tara))); // Hitung netto
                                     }),
-                                // Nanti dipakai
-                                // Select::make('id_mobil')
-                                //     ->label('Plat Polisi')
-                                //     ->options(Mobil::pluck('plat_polisi', 'id')) // Ambil daftar mobil
-                                //     ->searchable() // Biar bisa cari
-                                //     ->required(), // Wajib diisi
                                 TextInput::make('nama_supir')
+                                    ->autocomplete('off')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan Nama Supir'),
                                 TextInput::make('tara')
@@ -161,6 +177,7 @@ class PembelianResource extends Resource
                                     }),
 
                                 TextInput::make('nama_barang')
+                                    ->autocomplete('off')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan Nama Barang'),
 
@@ -184,38 +201,11 @@ class PembelianResource extends Resource
                                         '4' => 'Timbangan ke-4',
                                         '5' => 'Timbangan ke-5',
                                     ])
+                                    ->default('1')
                                     ->placeholder('Pilih timbangan ke-')
                                     // ->inlineLabel() // Membuat label sebelah kiri
                                     ->native(false) // Mengunakan dropdown modern
                                     ->required(), // Opsional: Atur default value
-                                // Select::make('kepemilikan')
-                                //     ->label('Kepemilikan kendaraan')
-                                //     ->options([
-                                //         'Milik Sendiri' => 'Milik Sendiri',
-                                //         'Minjam' => 'Minjam',
-                                //     ])
-                                //     ->placeholder('Pilih Status Kepemilikan')
-                                //     // ->inlineLabel() // Membuat label sebelah kiri
-                                //     ->native(false) // Mengunakan dropdown modern
-                                //     ->required(), // Opsional: Atur default value,
-
-
-
-                                //     Select::make('id_supplier')
-                                //     ->label('Pilih Supplier')
-                                //     ->searchable()
-                                //     ->options(Supplier::pluck('nama_supplier', 'id'))
-                                //     ->reactive() // Reaktif agar memantau perubahan
-                                //     ->afterStateUpdated(function ($state, callable $set) {
-                                //         $supplier = Supplier::find($state);
-                                //         $set('nama_supplier', $supplier?->nama_supplier);
-                                //         $set('jenis_supplier', $supplier?->jenis_supplier);
-                                //     }),
-
-                                // Placeholder::make('jenis_supplier')
-                                //     ->label('Jenis Supplier')
-                                //     ->content(fn($get) => $get('jenis_supplier') ?? 'Pilih Nama Supplier terlebih dahulu'),
-
                                 TextInput::make('no_container')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan No Container'),
@@ -256,7 +246,7 @@ class PembelianResource extends Resource
                     ->searchable(),
                 TextColumn::make('nama_barang')
                     ->searchable(),
-                
+
                 TextColumn::make('keterangan')
                     ->prefix('Timbangan-')
                     ->searchable(),

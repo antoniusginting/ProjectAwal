@@ -61,16 +61,19 @@ class KendaraanMasuksResource extends Resource
 
                                 TextInput::make('nama_sup_per')
                                     ->placeholder('Masukkan nama supplier atau perusahaan')
+                                    ->autocomplete('off')
                                     ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
                                     ->columnSpan(1),
 
                                 TextInput::make('plat_polisi')
                                     ->placeholder('Masukkan plat polisi')
+                                    ->autocomplete('off')
                                     ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
                                     ->columnSpan(1),
 
                                 TextInput::make('nama_barang')
                                     ->placeholder('Masukkan nama barang')
+                                    ->autocomplete('off')
                                     ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
                                     ->columnSpan(1),
 

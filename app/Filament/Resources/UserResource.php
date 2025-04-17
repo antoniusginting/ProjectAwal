@@ -43,6 +43,7 @@ class UserResource extends Resource
                         TextInput::make('name')
                             ->label('Nama Lengkap')
                             ->required()
+                            ->autocomplete('off')
                             ->placeholder('Masukkan nama lengkap')
                             ->maxLength(255),
 
@@ -50,6 +51,7 @@ class UserResource extends Resource
                             ->label('Alamat Email')
                             ->email()
                             ->required()
+                            ->autocomplete('off')
                             ->placeholder('Masukkan alamat email')
                             ->maxLength(255),
 

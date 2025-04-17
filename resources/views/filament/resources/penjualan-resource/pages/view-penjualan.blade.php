@@ -66,7 +66,7 @@
                             {{ $penjualan->nama_supir }}
                         </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap" rowspan="3">
-                            {{ $penjualan->brondolan }}
+                          {{$penjualan->jumlah_karung}} / {{ $penjualan->brondolan }}
                         </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap" rowspan="3">
                             {{ $penjualan->nama_barang }}

@@ -179,6 +179,7 @@ class SortiranResource extends Resource
                                 TextInput::make('total_karung')
                                     ->label('Total Karung')
                                     ->numeric()
+                                    ->autocomplete('off')
                                     ->helperText('Keterangan: Ketik ulang total karung untuk mengetahui tonase')
                                     ->placeholder('Otomatis terhitung')
                                     ->reactive()
@@ -238,6 +239,7 @@ class SortiranResource extends Resource
                         TextInput::make('no_lumbung')
                             ->label('No Lumbung')
                             ->placeholder('Masukkan No Lumbung')
+                            ->autocomplete('off')
                             ->required()
                             ->numeric(),
                         // Grid untuk menyusun field ke kanan

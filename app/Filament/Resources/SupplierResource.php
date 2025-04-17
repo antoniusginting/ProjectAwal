@@ -40,57 +40,62 @@ class SupplierResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-        ->schema([
-            Card::make()
-                ->schema([
-                    Grid::make()
-                        ->schema([
-                            TextInput::make('nama_supplier')
-                                ->required()
-                                ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
-                                ->placeholder('Masukkan Nama Supplier'),
-        
-                            Select::make('jenis_supplier')
-                                ->label('Jenis Supplier')
-                                ->options([
-                                    'BONAR JAYA' => 'BONAR JAYA',
-                                    'SIMPANG 2' => 'SIMPANG 2',
-                                    'AGEN PURCHASING' => 'AGEN PURCHASING',
-                                ])
-                                ->placeholder('Pilih Jenis Supplier')
-                                ->native(false),
-        
-                            TextInput::make('no_ktp')
-                                ->label('Nomor KTP')    
-                                ->numeric()
-                                ->placeholder('Masukkan nomor KTP'),
-        
-                            TextInput::make('npwp')
-                                ->label('NPWP')
-                                ->numeric()
-                                ->placeholder('Masukkan NPWP'),
-        
-                            TextInput::make('no_rek')
-                                ->label('Nomor rekening')
-                                ->numeric()
-                                ->placeholder('Masukkan nomor rekening'),
-        
-                            Select::make('nama_bank')
-                                ->label('Nama Bank')
-                                ->options([
-                                    'BRI' => 'BRI',
-                                    'BCA' => 'BCA',
-                                    'MANDIRI' => 'MANDIRI',
-                                ])
-                                ->placeholder('Pilih nama bank')
-                                ->native(false),
-        
-                            TextInput::make('atas_nama_bank')
-                                ->label('Atas nama bank')
-                                ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
-                                ->placeholder('Masukkan atas nama bank'),
-                        ])->columns(2) // 2 kolom di layar besar
-                ]),
+            ->schema([
+                Card::make()
+                    ->schema([
+                        Grid::make()
+                            ->schema([
+                                TextInput::make('nama_supplier')
+                                    ->required()
+                                    ->autocomplete('off')
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
+                                    ->placeholder('Masukkan Nama Supplier'),
+
+                                Select::make('jenis_supplier')
+                                    ->label('Jenis Supplier')
+                                    ->options([
+                                        'BONAR JAYA' => 'BONAR JAYA',
+                                        'SIMPANG 2' => 'SIMPANG 2',
+                                        'AGEN PURCHASING' => 'AGEN PURCHASING',
+                                    ])
+                                    ->placeholder('Pilih Jenis Supplier')
+                                    ->native(false),
+
+                                TextInput::make('no_ktp')
+                                    ->label('Nomor KTP')
+                                    ->numeric()
+                                    ->autocomplete('off')
+                                    ->placeholder('Masukkan nomor KTP'),
+
+                                TextInput::make('npwp')
+                                    ->label('NPWP')
+                                    ->numeric()
+                                    ->autocomplete('off')
+                                    ->placeholder('Masukkan NPWP'),
+
+                                TextInput::make('no_rek')
+                                    ->label('Nomor rekening')
+                                    ->numeric()
+                                    ->autocomplete('off')
+                                    ->placeholder('Masukkan nomor rekening'),
+
+                                Select::make('nama_bank')
+                                    ->label('Nama Bank')
+                                    ->options([
+                                        'BRI' => 'BRI',
+                                        'BCA' => 'BCA',
+                                        'MANDIRI' => 'MANDIRI',
+                                    ])
+                                    ->placeholder('Pilih nama bank')
+                                    ->native(false),
+
+                                TextInput::make('atas_nama_bank')
+                                    ->label('Atas nama bank')
+                                    ->autocomplete('off')
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
+                                    ->placeholder('Masukkan atas nama bank'),
+                            ])->columns(2) // 2 kolom di layar besar
+                    ]),
             ]);
     }
 
@@ -151,5 +156,4 @@ class SupplierResource extends Resource
             'edit' => Pages\EditSupplier::route('/{record}/edit'),
         ];
     }
-
 }

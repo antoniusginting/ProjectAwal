@@ -23,6 +23,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
 use App\Filament\Resources\PenjualanResource\Pages;
+use Filament\Forms\Components\Grid;
+
+use function Laravel\Prompts\text;
 
 class PenjualanResource extends Resource
 {
@@ -95,9 +98,22 @@ class PenjualanResource extends Resource
                                     })
                                     ->searchable()
                                     ->reactive()
+                                    ->hidden(fn($livewire) => $livewire->getRecord()?->exists)
                                     ->dehydrated(false) // jangan disimpan ke DB
                                     ->afterStateUpdated(function (callable $set, $state) {
                                         $penjualan = \App\Models\Penjualan::find($state);
+                                        if ($state === null) {
+                                            // Kosongkan semua data yang sebelumnya di-set
+                                            $set('plat_polisi', null);
+                                            $set('bruto', null);
+                                            $set('tara', null);
+                                            $set('netto', null);
+                                            $set('nama_supir', null);
+                                            $set('nama_barang', 'JAGUNG KERING SUPER');
+                                            $set('keterangan', null);
+                                            $set('brondolan', null);
+                                            return;
+                                        }
                                         if ($penjualan) {
                                             $set('plat_polisi', $penjualan->plat_polisi);
                                             $set('bruto', $penjualan->bruto);
@@ -105,27 +121,23 @@ class PenjualanResource extends Resource
                                             $set('netto', max(0, intval($penjualan->bruto) - intval($penjualan->tara)));
                                             $set('nama_supir', $penjualan->nama_supir);
                                             $set('nama_barang', $penjualan->nama_barang);
-                                            $set('nama_lumbung', $penjualan->nama_lumbung);
-                                            $set('no_lumbung', $penjualan->no_lumbung);
-                                            $set('keterangan', $penjualan->keterangan);
+                                            // Naikkan keterangan jika awalnya 1, 2, atau 3
+                                            $keteranganBaru = in_array(intval($penjualan->keterangan), [1, 2, 3, 4])
+                                                ? intval($penjualan->keterangan) + 1
+                                                : $penjualan->keterangan;
+                                            $set('keterangan', $keteranganBaru);
                                             $set('brondolan', $penjualan->brondolan);
                                         }
-                                    })->columnSpan(2),
-                                // TextInput::make('no_spb')
-                                //     ->label('No SPB')
-                                //     ->disabled()
-                                //     ->extraAttributes(['readonly' => true])
-                                //     ->dehydrated(false)
-                                //     ->afterStateUpdated(function (callable $set, $get) {
-                                //         $nextId = Pembelian::max('id') + 1; // Ambil ID terakhir + 1
-                                //         $set('no_spb', $get('jenis') . '-' . $nextId);
-                                //     }),
+                                    })->columnSpan(4),
                                 TextInput::make('plat_polisi')
                                     ->suffixIcon('heroicon-o-truck')
-                                    ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
+                                    ->autocomplete('off')
+                                    ->columnSpan(2)
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan plat polisi'),
                                 TextInput::make('bruto')
                                     ->label('Bruto')
+                                    ->columnSpan(2)
                                     ->numeric()
                                     ->placeholder('Masukkan Nilai Bruto')
                                     ->live(debounce: 600) // Tunggu 500ms setelah user berhenti mengetik
@@ -134,19 +146,14 @@ class PenjualanResource extends Resource
                                         $set('netto', max(0, intval($state) - intval($tara))); // Hitung netto
                                     }),
                                 TextInput::make('nama_supir')
+                                    ->autocomplete('off')
+                                    ->columnSpan(2)
                                     ->placeholder('Masukkan Nama Supir')
-                                    // Bisa membuat jadi auto uppercase, cuman kurangnya harus ditunggu lagi dulu
-                                    // ->extraAttributes(['style' => 'text-transform: uppercase'])
-                                    // ->live()
-                                    // ->afterStateUpdated(
-                                    //     fn($state, callable $set, Component $component) =>
-                                    //     $set($component->getName(), strtoupper($state))
-                                    // )
-                                    // Code untuk membuat uppercase saat dikirim ke database
-                                    ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->required(),
                                 TextInput::make('tara')
                                     ->label('Tara')
+                                    ->columnSpan(2)
                                     ->placeholder('Masukkan Nilai Tara')
                                     ->numeric()
                                     ->required()
@@ -155,27 +162,25 @@ class PenjualanResource extends Resource
                                         $bruto = $get('bruto') ?? 0;
                                         $set('netto', max(0, intval($bruto) - intval($state)));
                                     }),
-                                // Select::make('id_mobil')
-                                //     ->label('Plat Polisi')
-                                //     ->placeholder('Pilih Plat Polisi')
-                                //     ->options(Mobil::pluck('plat_polisi', 'id')) // Ambil daftar mobil
-                                //     ->searchable() // Biar bisa cari
-                                //     ->required(), // Wajib diisi
                                 TextInput::make('nama_barang')
                                     ->default('JAGUNG KERING SUPER')
                                     ->required()
-                                    ->readOnly(),
+                                    ->columnSpan(2),
                                 TextInput::make('netto')
                                     ->label('Netto')
                                     ->readOnly()
+                                    ->columnSpan(2)
                                     ->placeholder('Otomatis Terhitung')
                                     ->numeric(),
                                 TextInput::make('nama_lumbung')
                                     ->placeholder('Masukkan Nama Lumbung')
-                                    ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
+                                    ->autocomplete('off')
+                                    ->columnSpan(2)
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->required(),
                                 Select::make('keterangan') // Gantilah 'tipe' dengan nama field di database
                                     ->label('Timbangan ke-')
+                                    ->columnSpan(2)
                                     ->options([
                                         '1' => 'Timbangan ke-1',
                                         '2' => 'Timbangan ke-2',
@@ -183,24 +188,31 @@ class PenjualanResource extends Resource
                                         '4' => 'Timbangan ke-4',
                                         '5' => 'Timbangan ke-5',
                                     ])
+                                    ->default(1)
                                     ->placeholder('Pilih timbangan ke-')
                                     // ->inlineLabel() // Membuat label sebelah kiri
                                     ->native(false) // Mengunakan dropdown modern
                                     ->required(), // Opsional: Atur default value
                                 TextInput::make('no_lumbung')
                                     ->placeholder('Masukkan No Lumbung')
-                                    ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
+                                    ->columnSpan(2)
+                                    ->autocomplete('off')
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->required(),
-                                TextInput::make('brondolan')
+                                TextInput::make('jumlah_karung')
+                                    ->numeric()
+                                    ->label('Jumlah Karung')
+                                    ->autocomplete('off')
+                                    ->placeholder('Masukkan Jumlah Karung'),
+                                Select::make('brondolan') // Gantilah 'tipe' dengan nama field di database
                                     ->label('Satuan Muatan')
-                                    ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
-                                    ->placeholder('Masukkan satuan muatan'),
-                                Select::make('id_supplier')
-                                    ->label('Supplier')
-                                    ->placeholder('Pilih Supplier')
-                                    ->options(Supplier::pluck('nama_supplier', 'id')) // Ambil daftar mobil
-                                    ->searchable() // Biar bisa cari\
-                                    ->hidden(),
+                                    ->options([
+                                        'GONI' => 'GONI',
+                                        'CURAH' => 'CURAH',
+                                    ])
+                                    ->placeholder('Pilih Satuan Timbangan')
+                                    ->native(false) // Mengunakan dropdown modern
+                                    ->required(), // Opsional: Atur default value
                                 TextInput::make('no_container')
                                     ->label('No Container')
                                     ->placeholder('Masukkan no container')
@@ -208,8 +220,8 @@ class PenjualanResource extends Resource
                                 Hidden::make('user_id')
                                     ->label('User ID')
                                     ->default(Auth::id()) // Set nilai default user yang sedang login,
-                            ])->columns(2),
-                    ])->columns(2)
+                            ])->columns(4),
+                    ])
             ]);
     }
 

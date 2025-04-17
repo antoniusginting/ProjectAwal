@@ -72,14 +72,27 @@
                             @else
                                 {{ $suratjalan->tronton->penjualan1->no_container }}
                             @endif
-                            / {{$suratjalan->jenis_mobil}}
+                            / {{ $suratjalan->jenis_mobil }}
                         </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700" rowspan="3">
                             {{ $suratjalan->tronton->penjualan1->nama_supir }}
                         </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700" rowspan="3">
-                            {{ $suratjalan->satuan_muatan }}
+                            @php
+                                $totalKarung = 0;
+                                for ($i = 1; $i <= 6; $i++) {
+                                    $penjualan = $suratjalan->tronton->{'penjualan' . $i} ?? null;
+                                    if ($penjualan && $penjualan->brondolan == 'GONI') {
+                                        $totalKarung += $penjualan->jumlah_karung;
+                                    }
+                                }
+                            @endphp
+                            @if ($totalKarung > 0)
+                                {{ number_format($totalKarung, 0, ',', '.') }} /
+                            @endif
+                            {{ $suratjalan->tronton->penjualan1->brondolan }}
                         </td>
+                        
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700" rowspan="3">
                             JAGUNG KERING SUPER
                         </td>
@@ -102,6 +115,7 @@
                     </tr>
                 </tbody>
             </table>
+            
         </div>
 
         <!-- Tanda Tangan -->

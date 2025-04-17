@@ -63,9 +63,10 @@
             padding: 2px;
             vertical-align: top;
         }
-        .caca{
-          margin-bottom: 8px;
-          text-align: right;
+
+        .caca {
+            margin-bottom: 8px;
+            text-align: right;
         }
 
         .info-table .label {
@@ -133,7 +134,7 @@
 
         .sign-line {
             margin-top: 8px;
-            border-bottom : 1px solid #000;
+            border-bottom: 1px solid #000;
             width: 180px;
             margin-left: auto;
             margin-right: auto;
@@ -200,14 +201,17 @@
                             <th>No</th>
                             <th>No_SPB</th>
                             <th>Jenis</th>
-                            <th>Satuan Muatan</th>
                             <th>Lumbung</th>
                             <th>No Lumbung/IO</th>
+                            <th>Satuan Muatan</th> <!-- Kolom untuk jumlah karung / GONI -->
                             <th>Berat</th>
                         </tr>
                     </thead>
                     <tbody>
                         @php $totalNetto = 0; @endphp
+                        @php $totalKarung = 0; @endphp
+                        @php $adaGoni = false; @endphp <!-- Flag untuk mengecek apakah ada GONI -->
+
                         @for ($i = 1; $i <= 6; $i++)
                             @php $penjualan = $laporanpenjualan->{'penjualan' . $i}; @endphp
                             @if ($penjualan)
@@ -215,21 +219,41 @@
                                     <td class="text-center">{{ $i }}</td>
                                     <td class="text-center">{{ $penjualan->no_spb }}</td>
                                     <td class="text-center">{{ $penjualan->nama_barang }}</td>
-                                    <td class="text-center">{{ $penjualan->brondolan }}</td>
+                                    <!-- Tampilkan jumlah karung / GONI di kolom Satuan Muatan -->
                                     <td class="text-center">{{ $penjualan->nama_lumbung }}</td>
                                     <td class="text-center">{{ $penjualan->no_lumbung }}</td>
+                                    <td class="text-center">
+                                        @if ($penjualan->brondolan == 'GONI')
+                                            @php
+                                                $adaGoni = true;
+                                                $totalKarung += $penjualan->jumlah_karung;
+                                            @endphp
+                                            {{ $penjualan->jumlah_karung }} / {{ $penjualan->brondolan }}
+                                        @else
+                                            {{ $penjualan->brondolan }}
+                                        @endif
+                                    </td>
                                     <td class="text-right">{{ number_format($penjualan->netto, 0, ',', '.') }}</td>
                                 </tr>
                                 @php $totalNetto += $penjualan->netto; @endphp
                             @endif
                         @endfor
+
                         <!-- Baris total keseluruhan -->
                         <tr class="total-row">
-                            <td colspan="6" class="text-center">Total Berat</td>
+                            <td colspan="5" class="text-center">Total</td>
+                            <td class="text-center">
+                                @if ($adaGoni)
+                                    {{ number_format($totalKarung, 0, ',', '.') }} / GONI
+                                @else
+                                    -
+                                @endif
+                            </td>
                             <td class="text-right">{{ number_format($totalNetto, 0, ',', '.') }}</td>
                         </tr>
                     </tbody>
                 </table>
+
             </div>
         </section>
 

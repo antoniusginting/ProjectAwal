@@ -40,10 +40,11 @@
             margin: 0;
         }
 
-        .caca{
+        .caca {
             text-align: right;
             margin-bottom: 7px;
         }
+
         header.header h2 {
             font-size: 1rem;
             margin: 0;
@@ -71,9 +72,10 @@
             font-weight: bold;
         }
 
-        .caca{
+        .caca {
             margin-bottom: 8px;
         }
+
         /* Tabel detail pengiriman dengan padding di dalam sel yang lebih kecil */
         .detail-table {
             width: 100%;
@@ -170,12 +172,13 @@
         </header>
 
         <div class="divider"></div>
-        
+
         <!-- Informasi Pengiriman -->
         <section>
             <table class="info-table">
                 <tr>
-                    <td colspan="2" style="width: 20%;">{{ $suratjalan->kota }}, {{ $suratjalan->created_at->format('d-m-Y') }}</td>
+                    <td colspan="2" style="width: 20%;">{{ $suratjalan->kota }},
+                        {{ $suratjalan->created_at->format('d-m-Y') }}</td>
                 </tr>
                 <tr>
                     <td style="width: 20%; font-weight: bold;">Kepada Yth.</td>
@@ -186,10 +189,10 @@
                     <td style="width: 80%;">: {{ $suratjalan->alamat->alamat }}</td>
                 </tr>
                 @if (!empty($suratjalan->po))
-                <tr>
-                    <td style="width: 20%; font-weight: bold;">No PO</td>
-                    <td style="width: 80%;">: {{ $suratjalan->po }}</td>
-                </tr>
+                    <tr>
+                        <td style="width: 20%; font-weight: bold;">No PO</td>
+                        <td style="width: 80%;">: {{ $suratjalan->po }}</td>
+                    </tr>
                 @endif
             </table>
         </section>
@@ -203,7 +206,7 @@
                     <thead>
                         <tr>
                             <th class="border p-2">
-                                @if(!empty($suratjalan->tronton->penjualan1->plat_polisi))
+                                @if (!empty($suratjalan->tronton->penjualan1->plat_polisi))
                                     Plat Polisi
                                 @else
                                     No Container
@@ -222,13 +225,28 @@
                                     {{ $suratjalan->tronton->penjualan1->plat_polisi }}
                                 @else
                                     {{ $suratjalan->tronton->penjualan1->no_container }}
-                                @endif / {{$suratjalan->jenis_mobil}}
+                                @endif / {{ $suratjalan->jenis_mobil }}
                             </td>
-                            <td rowspan="3" class="text-center">{{ $suratjalan->tronton->penjualan1->nama_supir }}</td>
-                            <td rowspan="3" class="text-center">{{$suratjalan->satuan_muatan}}</td>
+                            <td rowspan="3" class="text-center">{{ $suratjalan->tronton->penjualan1->nama_supir }}
+                            </td>
+                            <td class="border p-2 text-center border-gray-300 dark:border-gray-700" rowspan="3">
+                                @php
+                                    $totalKarung = 0;
+                                    for ($i = 1; $i <= 6; $i++) {
+                                        $penjualan = $suratjalan->tronton->{'penjualan' . $i} ?? null;
+                                        if ($penjualan && $penjualan->brondolan == 'GONI') {
+                                            $totalKarung += $penjualan->jumlah_karung;
+                                        }
+                                    }
+                                @endphp
+                                @if ($totalKarung > 0)
+                                    {{ number_format($totalKarung, 0, ',', '.') }} /
+                                @endif
+                                {{ $suratjalan->tronton->penjualan1->brondolan }}
+                            </td>
                             <td rowspan="3" class="text-center">JAGUNG KERING SUPER</td>
                             <td>Bruto</td>
-                            <td class="caca" >{{ number_format($suratjalan->bruto_final, 0, ',', '.') }}</td>
+                            <td class="caca">{{ number_format($suratjalan->bruto_final, 0, ',', '.') }}</td>
                         </tr>
                         <tr>
                             <td>Tara</td>
