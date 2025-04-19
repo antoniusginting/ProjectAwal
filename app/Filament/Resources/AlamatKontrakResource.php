@@ -51,9 +51,10 @@ class AlamatKontrakResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')
+                TextColumn::make('No')
                     ->label('No')
-                    ->alignCenter(),
+                    ->alignCenter()
+                    ->rowIndex(), // auto generate number sesuai urutan tampilan
                 TextColumn::make('kontrak.nama')
                     ->label('Nama')
                     ->searchable(),

@@ -49,12 +49,10 @@ class KontrakResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('no')
+                TextColumn::make('No')
                     ->label('No')
-                    ->state(
-                        fn($record, $livewire) =>
-                        $livewire->getTableRecords()->search($record) + 1
-                    ),
+                    ->alignCenter()
+                    ->rowIndex(), // auto generate number sesuai urutan tampilan
                 TextColumn::make('nama')
                     ->copyable()
                     ->searchable(),

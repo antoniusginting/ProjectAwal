@@ -79,7 +79,10 @@ class UserResource extends Resource
         return $table
             ->defaultPaginationPageOption(5)
             ->columns([
-                TextColumn::make('id')->label('No'),
+                TextColumn::make('No')
+                    ->label('No')
+                    ->alignCenter()
+                    ->rowIndex(), // auto generate number sesuai urutan tampilan
                 TextColumn::make('name')->label('Nama'),
                 TextColumn::make('email'),
                 TextColumn::make('roles.name')

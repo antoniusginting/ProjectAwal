@@ -105,8 +105,10 @@ class SupplierResource extends Resource
             ->defaultPaginationPageOption(5)
             ->columns([
                 // Kalau mau buat border di tabel ->extraAttributes(['style' => 'border-right: 1px solid #ddd;'])
-                TextColumn::make('id')
-                    ->label('No'),
+                TextColumn::make('No')
+                    ->label('No')
+                    ->alignCenter()
+                    ->rowIndex(), // auto generate number sesuai urutan tampilan
                 TextColumn::make('nama_supplier')
                     ->label('Nama supplier')
                     ->searchable(),

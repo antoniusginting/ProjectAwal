@@ -249,7 +249,19 @@ class PenjualanResource extends Resource
                 TextColumn::make('keterangan')
                     ->prefix('Timbangan ke-')
                     ->searchable(),
-                TextColumn::make('brondolan')->label('Satuan Muatan'),
+                TextColumn::make('satuan_muatan')
+                    ->label('Satuan Muatan')
+                    ->alignCenter()
+                    ->getStateUsing(function ($record) {
+                        $karung = $record->jumlah_karung ?? '-';
+                        $brondolan = $record->brondolan ?? '-';
+
+                        if (strtolower($brondolan) === 'curah') {
+                            return $brondolan;
+                        }
+
+                        return "{$karung} / {$brondolan}";
+                    }),
                 TextColumn::make('bruto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('tara')

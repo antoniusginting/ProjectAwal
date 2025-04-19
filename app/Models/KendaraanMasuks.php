@@ -15,7 +15,8 @@ class KendaraanMasuks extends Model
         'jam_masuk',
         'jam_keluar',
         'user_id',
-        'status_muat',
+        'nomor_antrian',
+        'status_selesai',
     ];
 
     public function user(){
