@@ -73,18 +73,15 @@ class PembelianResource extends Resource
                                 TextInput::make('jam_masuk')
                                     ->readOnly()
                                     ->suffixIcon('heroicon-o-clock')
-                                    ->default(now()->setTimezone('Asia/Jakarta')->format('H:i')),
+                                    ->default(now()->setTimezone('Asia/Jakarta')->format('H:i:s')),
                                 TextInput::make('jam_keluar')
                                     ->label('Jam Keluar')
                                     ->readOnly()
-                                    ->placeholder('Kosongkan jika belum keluar')
+                                    ->placeholder('Kosong jika belum keluar')
                                     ->suffixIcon('heroicon-o-clock')
-                                    ->required(false) // Bisa kosong saat tambah data
-                                    ->afterStateHydrated(function ($state, callable $set, $record) {
-                                        // Jika sedang edit dan jam_keluar kosong, isi waktu sekarang
-                                        if ($record && empty($state)) {
-                                            $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
-                                        }
+                                    ->required(false)
+                                    ->afterStateHydrated(function ($state, callable $set) {
+                                        // Biarkan tetap kosong saat edit
                                     }),
                                 TextInput::make('created_at')
                                     ->label('Tanggal')
@@ -171,9 +168,15 @@ class PembelianResource extends Resource
                                     ->placeholder('Masukkan Nilai Tara')
                                     ->numeric()
                                     ->live(debounce: 600) // Tambahkan debounce juga di sini
-                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get,$livewire) {
                                         $bruto = $get('bruto') ?? 0;
                                         $set('netto', max(0, intval($bruto) - intval($state)));
+
+                                        $record = $livewire->record ?? null;
+                                        // Hanya isi jam_keluar jika sedang edit ($record tidak null) dan jam_keluar masih kosong
+                                        if ($record && empty($get('jam_keluar')) && !empty($state)) {
+                                            $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
+                                        }
                                     }),
 
                                 TextInput::make('nama_barang')

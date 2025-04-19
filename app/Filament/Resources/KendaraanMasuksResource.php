@@ -6,6 +6,7 @@ use DateTime;
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
+use Filament\Forms\Set;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\KendaraanMasuks;
@@ -53,6 +54,7 @@ class KendaraanMasuksResource extends Resource
                                     ->options([
                                         'TAMU' => 'TAMU',
                                         'SUPPLIER' => 'SUPPLIER',
+                                        'BONAR JAYA' => 'BONAR JAYA',
                                     ])
                                     ->placeholder('Pilih Status')
                                     ->native(false)
@@ -62,44 +64,79 @@ class KendaraanMasuksResource extends Resource
                                 TextInput::make('nama_sup_per')
                                     ->placeholder('Masukkan nama supplier atau perusahaan')
                                     ->autocomplete('off')
-                                    ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->columnSpan(1),
 
                                 TextInput::make('plat_polisi')
                                     ->placeholder('Masukkan plat polisi')
                                     ->autocomplete('off')
-                                    ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->columnSpan(1),
 
                                 TextInput::make('nama_barang')
                                     ->placeholder('Masukkan nama barang')
                                     ->autocomplete('off')
-                                    ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->columnSpan(1),
 
                                 TextInput::make('jam_masuk')
+                                    ->label('Jam Masuk')
                                     ->readOnly()
+                                    ->placeholder('Akan terisi saat pilih TIDAK MUAT')
                                     ->suffixIcon('heroicon-o-clock')
-                                    ->default(now()->setTimezone('Asia/Jakarta')->format('H:i'))
+                                    ->afterStateHydrated(function ($state, callable $set, $record) {
+                                        // Kalau jam_masuk kosong, tapi jam_keluar sudah ada
+                                        if (empty($state) && $record?->jam_keluar) {
+                                            $set('jam_masuk', now()->setTimezone('Asia/Jakarta')->format('H:i'));
+                                        }
+                                    })
                                     ->columnSpan(1),
 
                                 TextInput::make('jam_keluar')
                                     ->label('Jam Keluar')
                                     ->readOnly()
-                                    ->placeholder('Kosongkan jika belum keluar')
+                                    ->placeholder('Akan terisi saat pilih MUAT')
                                     ->suffixIcon('heroicon-o-clock')
-                                    ->required(false)
-                                    ->hidden(fn($livewire, $state) => $livewire instanceof \Filament\Resources\Pages\ViewRecord && empty($state))
                                     ->afterStateHydrated(function ($state, callable $set, $record) {
-                                        if ($record && empty($state)) {
-                                            $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
+                                        // Kalau jam_keluar kosong, tapi jam_masuk sudah ada
+                                        if (empty($state) && $record?->jam_masuk) {
+                                            $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i'));
                                         }
                                     })
                                     ->columnSpan(1),
+                                Select::make('status_muat')
+                                    ->label('Status Muat')
+                                    ->options([
+                                        'MUAT' => 'MUAT',
+                                        'TIDAK MUAT' => 'TIDAK MUAT',
+                                    ])
+                                    ->placeholder('Pilih Status')
+                                    ->native(false)
+                                    ->default(fn($livewire) => $livewire->getRecord()?->muat ?? null)
+                                    ->dehydrated(true)
+                                    ->required(fn($livewire) => ! $livewire->getRecord()?->exists)
+                                    ->reactive()
+                                    ->afterStateHydrated(function ($state) {
+                                        logger('MUAT STATE SAAT EDIT: ' . ($state ?? 'NULL'));
+                                    })
+                                    ->afterStateUpdated(function (?string $state, Set $set) {
+                                        $now = now()->setTimezone('Asia/Jakarta')->format('H:i');
+
+                                        if ($state === 'MUAT') {
+                                            $set('jam_keluar', $now);
+                                            $set('jam_masuk', null);
+                                        } elseif ($state === 'TIDAK MUAT') {
+                                            $set('jam_masuk', $now);
+                                            $set('jam_keluar', null);
+                                        } else {
+                                            $set('jam_masuk', null);
+                                            $set('jam_keluar', null);
+                                        }
+                                    })->disabled(fn($livewire) => $livewire->getRecord()?->exists),
 
                                 Textarea::make('keterangan')
-                                    ->placeholder('Masukkan Keterangan')
-                                    ->columnSpanFull(), // Tetap 1 kolom penuh di semua ukuran layar
+                                    ->placeholder('Masukkan Keterangan'),
+                                //->columnSpanFull(), // Tetap 1 kolom penuh di semua ukuran layar
                                 Hidden::make('user_id')
                                     ->label('User ID')
                                     ->default(Auth::id()) // Set nilai default user yang sedang login,
@@ -120,6 +157,9 @@ class KendaraanMasuksResource extends Resource
                 TextColumn::make('created_at')->label('Tanggal')
                     ->dateTime('d-m-Y'),
                 TextColumn::make('status')
+                    ->label('Status')
+                    ->searchable(),
+                TextColumn::make('status_muat')
                     ->label('Status')
                     ->searchable(),
                 TextColumn::make('nama_sup_per')
