@@ -833,7 +833,7 @@ class TimbanganTrontonResource extends Resource
                                     ->onIcon('heroicon-m-bolt')
                                     ->offIcon('heroicon-m-user')
                                     ->dehydrated(true)
-                                    ->hidden(fn () => !Auth::user()?->hasAnyRole(['admin', 'super_admin']))
+                                    ->hidden(fn () => !optional(Auth::user())->hasAnyRole(['admin', 'super_admin']))
                                     ->columns(1),
                                 Textarea::make('keterangan')
                                     ->placeholder('Masukkan Keterangan')

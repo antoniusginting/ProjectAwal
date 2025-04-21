@@ -32,7 +32,7 @@ class KendaraanMuatResource extends Resource
 {
     protected static ?string $model = KendaraanMuat::class;
     protected static ?string $navigationGroup = 'Satpam';
-    protected static ?string $navigationIcon = 'heroicon-o-truck';
+    protected static ?string $navigationIcon = 'heroicon-s-truck';
 
     protected static ?int $navigationSort = 2;
     protected static ?string $navigationLabel = 'Kendaraan Muat';
@@ -53,13 +53,13 @@ class KendaraanMuatResource extends Resource
                                     ->label('Jam Keluar')
                                     ->readOnly()
                                     ->placeholder('Akan terisi otomatis saat tambah data')
-                                    ->suffixIcon('heroicon-o-clock')
-                                    ->afterStateHydrated(function ($state, callable $set, $record) {
-                                        // Kalau sedang create (tidak ada record) dan jam_masuk masih kosong
-                                        if (empty($state) && !$record) {
-                                            $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
-                                        }
-                                    }),
+                                    ->suffixIcon('heroicon-o-clock'),
+                                // ->afterStateHydrated(function ($state, callable $set, $record) {
+                                //     // Kalau sedang create (tidak ada record) dan jam_masuk masih kosong
+                                //     if (empty($state) && !$record) {
+                                //         $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
+                                //     }
+                                // }),
                                 Select::make('kendaraan_id')
                                     ->label('Plat Polisi')
                                     ->placeholder('Pilih kendaraan')
@@ -118,22 +118,45 @@ class KendaraanMuatResource extends Resource
                                     ->autocomplete('off')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->columnSpan(1),
-                                Toggle::make('status')
-                                    ->helperText('Klik jika sudah Masuk')
-                                    ->onIcon('heroicon-m-bolt')
-                                    ->offIcon('heroicon-m-user')
-                                    ->dehydrated(true)
-                                    ->columns(1)
-                                    ->reactive()
-                                    ->afterStateUpdated(function ($state, callable $set) {
-                                        if ($state) {
-                                            // Toggle aktif, isi jam_keluar
-                                            $set('jam_masuk', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
-                                        } else {
-                                            // Toggle nonaktif, kosongkan jam_keluar
-                                            $set('jam_masuk', null);
-                                        }
-                                    }),
+                                Textarea::make('keterangan')
+                                    ->placeholder('Masukkan Keterangan'),
+                                Grid::make(2)
+                                    ->schema([
+                                        Toggle::make('status_awal')
+                                            ->label('Status Keluar')
+                                            ->helperText('Klik jika sudah Keluar')
+                                            ->onIcon('heroicon-m-bolt')
+                                            ->offIcon('heroicon-m-user')
+                                            ->dehydrated(true)
+                                            ->columns(1)
+                                            ->reactive()
+                                            ->afterStateUpdated(function ($state, callable $set) {
+                                                if ($state) {
+                                                    // Toggle aktif, isi jam_keluar
+                                                    $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
+                                                } else {
+                                                    // Toggle nonaktif, kosongkan jam_keluar
+                                                    $set('jam_keluar', null);
+                                                }
+                                            }),
+                                        Toggle::make('status')
+                                            ->label('Status Masuk')
+                                            ->helperText('Klik jika sudah Masuk')
+                                            ->onIcon('heroicon-m-bolt')
+                                            ->offIcon('heroicon-m-user')
+                                            ->dehydrated(true)
+                                            ->columns(1)
+                                            ->reactive()
+                                            ->afterStateUpdated(function ($state, callable $set) {
+                                                if ($state) {
+                                                    // Toggle aktif, isi jam_masuk
+                                                    $set('jam_masuk', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
+                                                } else {
+                                                    // Toggle nonaktif, kosongkan jam_masuk
+                                                    $set('jam_masuk', null);
+                                                }
+                                            }),
+                                    ])->columnSpan(1),
 
                                 Hidden::make('user_id')
                                     ->label('User ID')
@@ -184,7 +207,7 @@ class KendaraanMuatResource extends Resource
                     ->searchable(),
                 TextColumn::make('user.name')
                     ->label('User')
-            ])
+            ])->defaultSort('id', 'desc')
             ->filters([
                 Filter::make('Hari Ini')
                     ->query(

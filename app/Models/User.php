@@ -11,7 +11,14 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable,HasRoles;
+    use HasFactory, Notifiable, HasRoles;
+
+    /**
+     * App\Models\User
+     *
+     * @property-read \Illuminate\Database\Eloquent\Collection|\Spatie\Permission\Models\Role[] $roles
+     * @method bool hasAnyRole(...$roles)
+     */
 
     /**
      * The attributes that are mass assignable.

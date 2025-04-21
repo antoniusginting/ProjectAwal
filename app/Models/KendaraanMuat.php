@@ -19,6 +19,8 @@ class KendaraanMuat extends Model
         'jam_masuk',
         'jam_keluar',
         'status',
+        'status_awal',
+        'keterangan',
     ];
 
     public function user(){

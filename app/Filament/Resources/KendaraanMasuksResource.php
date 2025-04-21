@@ -34,7 +34,7 @@ class KendaraanMasuksResource extends Resource
     protected static ?string $model = KendaraanMasuks::class;
 
     protected static ?string $navigationGroup = 'Satpam';
-    protected static ?string $navigationIcon = 'heroicon-o-truck';
+    protected static ?string $navigationIcon = 'heroicon-c-truck';
     protected static ?int $navigationSort = 1;
     protected static ?string $navigationLabel = 'Kendaraan Masuk';
     public static ?string $label = 'Daftar Kendaraan Masuk ';
@@ -62,14 +62,14 @@ class KendaraanMasuksResource extends Resource
                                 TextInput::make('jam_masuk')
                                     ->label('Jam Masuk')
                                     ->readOnly()
-                                    ->placeholder('Akan terisi otomatis saat tambah data')
-                                    ->suffixIcon('heroicon-o-clock')
-                                    ->afterStateHydrated(function ($state, callable $set, $record) {
-                                        // Kalau sedang create (tidak ada record) dan jam_masuk masih kosong
-                                        if (empty($state) && !$record) {
-                                            $set('jam_masuk', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
-                                        }
-                                    }),
+                                    ->placeholder('Akan terisi saat toggle diaktifkan')
+                                    ->suffixIcon('heroicon-o-clock'),
+                                // ->afterStateHydrated(function ($state, callable $set, $record) {
+                                //     // Kalau sedang create (tidak ada record) dan jam_masuk masih kosong
+                                //     if (empty($state) && !$record) {
+                                //         $set('jam_masuk', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
+                                //     }
+                                // }),
                                 TextInput::make('nama_sup_per')
                                     ->placeholder('Masukkan nama supplier atau perusahaan')
                                     ->autocomplete('off')
@@ -90,34 +90,53 @@ class KendaraanMasuksResource extends Resource
                                     ->numeric()
                                     ->label('Nomor Antrian')
                                     ->placeholder('Masukkan Nomor Antrian'),
-                                    // ->afterStateHydrated(function ($state, callable $set, $record) {
-                                    //     // Kalau create (record belum ada), generate nomor otomatis
-                                    //     if (!$record) {
-                                    //         $lastNomor = KendaraanMasuks::max('nomor_antrian'); // Ganti dengan model sesuai tabel kamu
-                                    //         $set('nomor_antrian', $lastNomor ? $lastNomor + 1 : 1);
-                                    //     }
-                                    // }),
+                                // ->afterStateHydrated(function ($state, callable $set, $record) {
+                                //     // Kalau create (record belum ada), generate nomor otomatis
+                                //     if (!$record) {
+                                //         $lastNomor = KendaraanMasuks::max('nomor_antrian'); // Ganti dengan model sesuai tabel kamu
+                                //         $set('nomor_antrian', $lastNomor ? $lastNomor + 1 : 1);
+                                //     }
+                                // }),
                                 TextInput::make('nama_barang')
                                     ->placeholder('Masukkan nama barang')
                                     ->autocomplete('off')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->columnSpan(1),
-                                Toggle::make('status_selesai')
-                                    ->helperText('Klik jika sudah Keluar')
-                                    ->onIcon('heroicon-m-bolt')
-                                    ->offIcon('heroicon-m-user')
-                                    ->dehydrated(true)
-                                    ->columns(1)
-                                    ->reactive()
-                                    ->afterStateUpdated(function ($state, callable $set) {
-                                        if ($state) {
-                                            // Toggle aktif, isi jam_keluar
-                                            $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
-                                        } else {
-                                            // Toggle nonaktif, kosongkan jam_keluar
-                                            $set('jam_keluar', null);
-                                        }
-                                    }),
+                                Grid::make(2)
+                                    ->schema([
+                                        Toggle::make('status_awal')
+                                            ->helperText('Klik jika sudah Masuk')
+                                            ->onIcon('heroicon-m-bolt')
+                                            ->offIcon('heroicon-m-user')
+                                            ->dehydrated(true)
+                                            ->columns(1)
+                                            ->reactive()
+                                            ->afterStateUpdated(function ($state, callable $set) {
+                                                if ($state) {
+                                                    // Toggle aktif, isi jam_masuk
+                                                    $set('jam_masuk', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
+                                                } else {
+                                                    // Toggle nonaktif, kosongkan jam_masuk
+                                                    $set('jam_masuk', null);
+                                                }
+                                            }),
+                                        Toggle::make('status_selesai')
+                                            ->helperText('Klik jika sudah Keluar')
+                                            ->onIcon('heroicon-m-bolt')
+                                            ->offIcon('heroicon-m-user')
+                                            ->dehydrated(true)
+                                            ->columns(1)
+                                            ->reactive()
+                                            ->afterStateUpdated(function ($state, callable $set) {
+                                                if ($state) {
+                                                    // Toggle aktif, isi jam_keluar
+                                                    $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
+                                                } else {
+                                                    // Toggle nonaktif, kosongkan jam_keluar
+                                                    $set('jam_keluar', null);
+                                                }
+                                            }),
+                                    ])->columnSpan(1),
                                 // Select::make('status_muat')
                                 //     ->label('Status Muat')
                                 //     ->options([
@@ -172,8 +191,10 @@ class KendaraanMasuksResource extends Resource
                     ->label('')
                     ->boolean()
                     ->alignCenter(),
-                TextColumn::make('created_at')->label('Tanggal')
-                    ->dateTime('d-m-Y'),
+                TextColumn::make('created_at_date')
+                    ->label('Tanggal Dibuat')
+                    ->state(fn($record) => \Carbon\Carbon::parse($record->created_at)->format('d-m-Y'))
+                    ->alignCenter(),
                 TextColumn::make('status')
                     ->label('Status')
                     ->searchable(),
@@ -188,9 +209,15 @@ class KendaraanMasuksResource extends Resource
                     ->searchable(),
                 TextColumn::make('keterangan')
                     ->searchable(),
+                TextColumn::make('created_at_time')
+                    ->label('Jam Dibuat')
+                    ->state(fn($record) => \Carbon\Carbon::parse($record->created_at)->format('H:i:s'))
+                    ->alignCenter(),
                 TextColumn::make('jam_masuk')
+                    ->alignCenter()
                     ->searchable(),
                 TextColumn::make('jam_keluar')
+                    ->alignCenter()
                     ->searchable(),
                 TextColumn::make('user.name')
                     ->label('User')

@@ -34,6 +34,7 @@ class KontrakResource extends Resource
                         TextInput::make('nama')
                             ->label('Nama')
                             ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
+                            ->autocomplete('off')
                             ->placeholder('Masukkan nama kontrak'),
                         TextInput::make('npwp')
                             ->label('NPWP')

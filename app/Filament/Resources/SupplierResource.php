@@ -10,6 +10,7 @@ use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
+use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
@@ -114,27 +115,29 @@ class SupplierResource extends Resource
                     ->searchable(),
                 TextColumn::make('no_ktp')
                     ->label('No KTP')
+                    ->visible(fn () => optional(Auth::user())->hasAnyRole(['Timbangan']))
                     ->searchable(),
                 TextColumn::make('npwp')
                     ->label('NPWP')
+                    ->visible(fn () => optional(Auth::user())->hasAnyRole(['Timbangan']))
                     ->searchable(),
                 TextColumn::make('no_rek')
                     ->label('No Rekening')
+                    ->visible(fn () => optional(Auth::user())->hasAnyRole(['Timbangan']))
                     ->searchable(),
                 TextColumn::make('nama_bank')
                     ->label('Nama Bank')
+                    ->visible(fn () => optional(Auth::user())->hasAnyRole(['Timbangan']))
                     ->searchable(),
                 TextColumn::make('atas_nama_bank')
                     ->label('Atas nama')
+                    ->visible(fn () => optional(Auth::user())->hasAnyRole(['Timbangan']))
                     ->searchable(),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

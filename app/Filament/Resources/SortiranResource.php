@@ -673,7 +673,7 @@ class SortiranResource extends Resource
                     ->alignCenter()
                     ->onIcon('heroicon-m-check')
                     ->offIcon('heroicon-m-x-mark')
-                    ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'super_admin'])),
+                    ->disabled(fn () => !optional(Auth::user())->hasAnyRole(['admin', 'super_admin'])),
                 TextColumn::make('created_at')->label('Tanggal')
                     ->dateTime('d-m-Y'),
                 TextColumn::make('no_sortiran')
