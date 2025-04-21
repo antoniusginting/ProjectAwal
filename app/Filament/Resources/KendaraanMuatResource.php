@@ -32,7 +32,7 @@ class KendaraanMuatResource extends Resource
 {
     protected static ?string $model = KendaraanMuat::class;
     protected static ?string $navigationGroup = 'Satpam';
-    protected static ?string $navigationIcon = 'lucide-truck';
+    protected static ?string $navigationIcon = 'heroicon-o-truck';
 
     protected static ?int $navigationSort = 2;
     protected static ?string $navigationLabel = 'Kendaraan Muat';

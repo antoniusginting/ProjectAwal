@@ -25,6 +25,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Columns\ToggleColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
@@ -667,6 +668,12 @@ class SortiranResource extends Resource
         return $table
             ->defaultPaginationPageOption(5)
             ->columns([
+                ToggleColumn::make('status')
+                    ->label('Status Audit')
+                    ->alignCenter()
+                    ->onIcon('heroicon-m-check')
+                    ->offIcon('heroicon-m-x-mark')
+                    ->visible(fn () => auth()->user()?->hasAnyRole(['admin', 'super_admin'])),
                 TextColumn::make('created_at')->label('Tanggal')
                     ->dateTime('d-m-Y'),
                 TextColumn::make('no_sortiran')
