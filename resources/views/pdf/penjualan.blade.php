@@ -18,6 +18,7 @@
         body {
             font-family: Arial, sans-serif;
             font-size: 0.875rem;
+            font-weight: bold;
             /* Sekitar 14px */
             background-color: var(--secondary-bg);
             color: var(--primary-color);
@@ -163,11 +164,11 @@
         <!-- Header Surat -->
         <header class="header">
             <h1>Bonar Jaya AdiPerkasa Nusantara</h1>
-            <h2>Laporan Penjualan</h2>
+            <h2>Surat Timbangan Penjualan</h2>
         </header>
 
         <div class="divider"></div>
-        
+
         <!-- Informasi Pengiriman -->
         <section>
             <table class="info-table">

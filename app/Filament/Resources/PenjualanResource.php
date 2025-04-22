@@ -143,8 +143,11 @@ class PenjualanResource extends Resource
                                         $set('netto', max(0, intval($state) - intval($tara))); // Hitung netto
                                         $record = $livewire->record ?? null;
                                         // Hanya isi jam_keluar jika sedang edit ($record tidak null) dan jam_keluar masih kosong
-                                        if ($record && empty($get('jam_keluar')) && !empty($state)) {
+                                        if ($record && !empty($state) && empty($get('jam_keluar'))) {
                                             $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
+                                        } elseif (empty($state)) {
+                                            // Jika tara dikosongkan, hapus juga jam_keluar
+                                            $set('jam_keluar', null);
                                         }
                                     }),
                                 TextInput::make('nama_supir')
@@ -178,8 +181,7 @@ class PenjualanResource extends Resource
                                     ->placeholder('Masukkan Nama Lumbung')
                                     ->autocomplete('off')
                                     ->columnSpan(2)
-                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
-                                    ->required(),
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state)),
                                 Select::make('keterangan') // Gantilah 'tipe' dengan nama field di database
                                     ->label('Timbangan ke-')
                                     ->columnSpan(2)
@@ -199,8 +201,7 @@ class PenjualanResource extends Resource
                                     ->placeholder('Masukkan No Lumbung')
                                     ->columnSpan(2)
                                     ->autocomplete('off')
-                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
-                                    ->required(),
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state)),
                                 TextInput::make('jumlah_karung')
                                     ->numeric()
                                     ->label('Jumlah Karung')
@@ -268,12 +269,16 @@ class PenjualanResource extends Resource
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('netto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                TextColumn::make('no_lumbung')
+                    ->alignCenter(),
+                TextColumn::make('nama_lumbung')
+                    ->alignCenter(),
                 TextColumn::make('nama_barang')
                     ->searchable(),
-                TextColumn::make('jam_masuk'),
-                TextColumn::make('jam_keluar'),
-                TextColumn::make('no_lumbung'),
-                TextColumn::make('nama_lumbung'),
+                TextColumn::make('jam_masuk')
+                    ->alignCenter(),
+                TextColumn::make('jam_keluar')
+                    ->alignCenter(),
                 TextColumn::make('user.name')
                     ->label('User')
             ])

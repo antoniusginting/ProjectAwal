@@ -192,7 +192,7 @@ class KendaraanMasuksResource extends Resource
                     ->boolean()
                     ->alignCenter(),
                 TextColumn::make('created_at_date')
-                    ->label('Tanggal Dibuat')
+                    ->label('Tanggal')
                     ->state(fn($record) => \Carbon\Carbon::parse($record->created_at)->format('d-m-Y'))
                     ->alignCenter(),
                 TextColumn::make('status')

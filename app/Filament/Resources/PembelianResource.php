@@ -168,14 +168,17 @@ class PembelianResource extends Resource
                                     ->placeholder('Masukkan Nilai Tara')
                                     ->numeric()
                                     ->live(debounce: 600) // Tambahkan debounce juga di sini
-                                    ->afterStateUpdated(function ($state, callable $set, callable $get,$livewire) {
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get, $livewire) {
                                         $bruto = $get('bruto') ?? 0;
                                         $set('netto', max(0, intval($bruto) - intval($state)));
 
                                         $record = $livewire->record ?? null;
                                         // Hanya isi jam_keluar jika sedang edit ($record tidak null) dan jam_keluar masih kosong
-                                        if ($record && empty($get('jam_keluar')) && !empty($state)) {
+                                        if ($record && !empty($state) && empty($get('jam_keluar'))) {
                                             $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
+                                        } elseif (empty($state)) {
+                                            // Jika tara dikosongkan, hapus juga jam_keluar
+                                            $set('jam_keluar', null);
                                         }
                                     }),
 
@@ -253,8 +256,6 @@ class PembelianResource extends Resource
                 TextColumn::make('keterangan')
                     ->prefix('Timbangan-')
                     ->searchable(),
-                TextColumn::make('no_container')
-                    ->searchable(),
                 TextColumn::make('brondolan')->label('Satuan Muatan'),
                 TextColumn::make('bruto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
@@ -262,6 +263,8 @@ class PembelianResource extends Resource
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('netto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                TextColumn::make('no_container')
+                    ->searchable(),
                 TextColumn::make('jam_masuk'),
                 TextColumn::make('jam_keluar'),
                 TextColumn::make('user.name')

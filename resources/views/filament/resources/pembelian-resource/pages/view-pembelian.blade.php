@@ -9,7 +9,7 @@
 
         <!-- Divider -->
         <div class="border-b border-gray-300 dark:border-gray-700"></div>
-        
+
 
 
         <!-- Info Pengiriman -->
@@ -31,7 +31,7 @@
                 </tbody>
             </table>
         </div>
-        
+
 
         <!-- Divider -->
         <div class="border-b border-gray-300 dark:border-gray-700"></div>
@@ -52,19 +52,25 @@
                 </thead>
                 <tbody class="text-sm">
                     <tr>
-                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap" rowspan="3">
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap"
+                            rowspan="3">
                             {{ $pembelian->no_spb }}
                         </td>
-                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap" rowspan="3">
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap"
+                            rowspan="3">
                             {{ $pembelian->plat_polisi }}
                         </td>
-                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap" rowspan="3">
-                            {{ $pembelian->supplier->nama_supplier }}
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap"
+                            rowspan="3">
+                            {{ optional($pembelian->supplier)->nama_supplier ?? '-' }}
                         </td>
-                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap" rowspan="3">
+
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap"
+                            rowspan="3">
                             {{ $pembelian->nama_supir }}
                         </td>
-                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap" rowspan="3">
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap"
+                            rowspan="3">
                             {{ $pembelian->brondolan }}
                         </td>
                         <td class="border p-2 border-gray-300 dark:border-gray-700 whitespace-nowrap">Bruto</td>
@@ -98,6 +104,6 @@
                 <div class="mt-4 border-b border-gray-300 dark:border-gray-700 w-56 mx-auto"></div>
             </div>
         </div>
-        
+
     </div>
 </x-filament-panels::page>

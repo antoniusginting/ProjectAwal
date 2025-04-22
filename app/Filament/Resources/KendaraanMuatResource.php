@@ -178,8 +178,10 @@ class KendaraanMuatResource extends Resource
                     ->label('')
                     ->boolean()
                     ->alignCenter(),
-                TextColumn::make('created_at')->label('Tanggal')
-                    ->dateTime('d-m-Y'),
+                TextColumn::make('created_at_date')
+                    ->label('Tanggal')
+                    ->state(fn($record) => \Carbon\Carbon::parse($record->created_at)->format('d-m-Y'))
+                    ->alignCenter(),
                 TextColumn::make('nama_supir')
                     ->label('Nama Supir')
                     ->searchable(),
@@ -201,6 +203,10 @@ class KendaraanMuatResource extends Resource
                     ->getStateUsing(fn($record) => $record->foto[0] ?? null)
                     ->url(fn($record) => asset('storage/' . ($record->foto[0] ?? '')))
                     ->openUrlInNewTab(),
+                TextColumn::make('created_at_time')
+                    ->label('Jam Dibuat')
+                    ->state(fn($record) => \Carbon\Carbon::parse($record->created_at)->format('H:i:s'))
+                    ->alignCenter(),
                 TextColumn::make('jam_masuk')
                     ->searchable(),
                 TextColumn::make('jam_keluar')

@@ -16,6 +16,7 @@
         /* Gaya dasar halaman dengan ukuran font lebih kecil */
         body {
             font-family: Arial, sans-serif;
+            font-weight: bold; /* Tambahkan ini supaya bold */
             font-size: 0.875rem;
             /* Sekitar 14px */
             background-color: var(--secondary-bg);
@@ -167,7 +168,7 @@
         <!-- Header Surat -->
         <header class="header">
             <h1>Bonar Jaya AdiPerkasa Nusantara</h1>
-            <h2>Laporan Pembelian</h2>
+            <h2>Surat Timbangan Pembelian</h2>
         </header>
 
         <div class="divider"></div>
@@ -203,6 +204,7 @@
                             <th>Nama Supplier</th>
                             <th>Nama Supir</th>
                             <th>Satuan Muatan</th>
+                            <th>Nama Barang</th>
                             <th colspan="2">Berat</th>
                         </tr>
                     </thead>
@@ -210,6 +212,7 @@
                         <tr>
                             <td rowspan="3" class="text-center">{{ $pembelian->no_spb }}</td>
                             <td rowspan="3" class="text-center">{{ $pembelian->plat_polisi }}</td>
+                            <td rowspan="3" class="text-center">{{ optional($pembelian->supplier)->nama_supplier ?? '-' }}</td>
                             <td rowspan="3" class="text-center">{{ $pembelian->nama_supir }}</td>
                             <td rowspan="3" class="text-center">{{ $pembelian->brondolan }}</td>
                             <td rowspan="3" class="text-center">{{ $pembelian->nama_barang }}</td>

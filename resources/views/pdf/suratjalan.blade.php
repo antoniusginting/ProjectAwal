@@ -18,6 +18,7 @@
         body {
             font-family: Arial, sans-serif;
             font-size: 0.875rem;
+            font-weight: bold;
             /* Sekitar 14px */
             background-color: var(--secondary-bg);
             color: var(--primary-color);
