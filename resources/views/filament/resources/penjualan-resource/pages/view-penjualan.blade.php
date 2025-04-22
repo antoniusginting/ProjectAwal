@@ -66,7 +66,14 @@
                             {{ $penjualan->nama_supir }}
                         </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap" rowspan="3">
-                          {{$penjualan->jumlah_karung}} / {{ $penjualan->brondolan }}
+                            @if ($penjualan->brondolan == 'GONI')
+                            @php
+                                $adaGoni = true;
+                            @endphp
+                            {{ $penjualan->jumlah_karung }} - {{ $penjualan->brondolan }}
+                        @else
+                            {{ $penjualan->brondolan }}
+                        @endif
                         </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap" rowspan="3">
                             {{ $penjualan->nama_barang }}

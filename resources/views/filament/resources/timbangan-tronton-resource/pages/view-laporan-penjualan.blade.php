@@ -84,7 +84,7 @@
                                             $adaGoni = true;
                                             $totalKarung += $penjualan->jumlah_karung;
                                         @endphp
-                                        {{ $penjualan->jumlah_karung }} / {{ $penjualan->brondolan }}
+                                        {{ $penjualan->jumlah_karung }} - {{ $penjualan->brondolan }}
                                     @else
                                         {{ $penjualan->brondolan }}
                                     @endif
@@ -104,7 +104,7 @@
                         </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap">
                             @if ($adaGoni)
-                                {{ number_format($totalKarung, 0, ',', '.') }} / GONI
+                                {{ number_format($totalKarung, 0, ',', '.') }} - GONI
                             @else
                                 -
                             @endif

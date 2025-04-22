@@ -19,9 +19,11 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Forms\Components\TimePicker;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
+use Filament\Tables\Filters\TernaryFilter;
 use App\Filament\Resources\PembelianResource\Pages;
 
 class PembelianResource extends Resource
@@ -130,9 +132,9 @@ class PembelianResource extends Resource
                                         $pembelian = \App\Models\Pembelian::find($state);
                                         if ($pembelian) {
                                             $set('plat_polisi', $pembelian->plat_polisi);
-                                            $set('bruto', $pembelian->bruto);
-                                            $set('tara', $pembelian->tara);
-                                            $set('netto', max(0, intval($pembelian->bruto) - intval($pembelian->tara)));
+                                            $set('bruto', $pembelian->tara);
+                                            // $set('tara', $pembelian->tara);
+                                            //$set('netto', max(0, intval($pembelian->bruto) - intval($pembelian->tara)));
                                             $set('nama_supir', $pembelian->nama_supir);
                                             $set('nama_barang', $pembelian->nama_barang);
                                             $set('id_supplier', $pembelian->id_supplier);
@@ -236,6 +238,8 @@ class PembelianResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            // Query dasar tanpa filter tara
+            ->query(Pembelian::query())
             ->defaultPaginationPageOption(5)
             ->columns([
                 TextColumn::make('created_at')->label('Tanggal')
@@ -252,7 +256,6 @@ class PembelianResource extends Resource
                     ->searchable(),
                 TextColumn::make('nama_barang')
                     ->searchable(),
-
                 TextColumn::make('keterangan')
                     ->prefix('Timbangan-')
                     ->searchable(),
@@ -269,29 +272,28 @@ class PembelianResource extends Resource
                 TextColumn::make('jam_keluar'),
                 TextColumn::make('user.name')
                     ->label('User')
-
             ])
-            ->defaultSort('no_spb', 'desc') // Megurutkan no_spb terakhir menjadi pertama pada tabel
-            ->filters([
-                //
-            ])
+            ->defaultSort('no_spb', 'desc')
             ->actions([
                 Tables\Actions\Action::make('view-pembelian')
                     ->label(__("Lihat"))
                     ->icon('heroicon-o-eye')
                     ->url(fn($record) => self::getUrl("view-pembelian", ['record' => $record->id])),
             ], position: ActionsPosition::BeforeColumns)
-            // ->bulkActions([
-            //     // Tables\Actions\BulkActionGroup::make([
-            //     Tables\Actions\DeleteBulkAction::make(),
-            //     // ]),
-            // ])
             ->filters([
+                // Filter untuk menampilkan data pada hari ini
                 Filter::make('Hari Ini')
                     ->query(
                         fn(Builder $query) =>
                         $query->whereDate('created_at', Carbon::today())
                     ),
+                // Filter toggle untuk menampilkan data dimana tara null
+                Filter::make('Tara Kosong')
+                    ->query(
+                        fn(Builder $query) =>
+                        $query->whereNull('tara')
+                    )
+                    ->toggle(), // Filter ini dapat diaktifkan/nonaktifkan oleh pengguna
             ]);
     }
 

@@ -87,11 +87,26 @@ class PenjualanResource extends Resource
                                 Select::make('id_penjualan')
                                     ->label('Ambil dari Penjualan Sebelumnya')
                                     ->options(function () {
-                                        return \App\Models\Penjualan::latest()->take(50)->get()->mapWithKeys(function ($penjualan) {
-                                            return [
-                                                $penjualan->id => "{$penjualan->plat_polisi} - {$penjualan->nama_supir} - (Timbangan ke-{$penjualan->keterangan}) - {$penjualan->created_at->format('d:m:Y')}"
-                                            ];
-                                        });
+                                        // Ambil ID penjualan yang ada di kolom id_penjualan_1 sampai id_penjualan_6
+                                        $existingPenjualans = \App\Models\TimbanganTronton::whereNotNull('id_timbangan_jual_1')
+                                            ->pluck('id_timbangan_jual_1')
+                                            ->merge(\App\Models\TimbanganTronton::whereNotNull('id_timbangan_jual_2')->pluck('id_timbangan_jual_2'))
+                                            ->merge(\App\Models\TimbanganTronton::whereNotNull('id_timbangan_jual_3')->pluck('id_timbangan_jual_3'))
+                                            ->merge(\App\Models\TimbanganTronton::whereNotNull('id_timbangan_jual_4')->pluck('id_timbangan_jual_4'))
+                                            ->merge(\App\Models\TimbanganTronton::whereNotNull('id_timbangan_jual_5')->pluck('id_timbangan_jual_5'))
+                                            ->merge(\App\Models\TimbanganTronton::whereNotNull('id_timbangan_jual_6')->pluck('id_timbangan_jual_6'))
+                                            ->toArray();
+
+                                        // Ambil ID penjualan yang belum ada di tabel timbangan_tronton
+                                        return \App\Models\Penjualan::latest()
+                                            ->whereNotIn('id', $existingPenjualans)  // Hanya ambil yang belum ada di tabel timbangan_tronton
+                                            ->take(50)
+                                            ->get()
+                                            ->mapWithKeys(function ($penjualan) {
+                                                return [
+                                                    $penjualan->id => "{$penjualan->plat_polisi} - {$penjualan->nama_supir} - (Timbangan ke-{$penjualan->keterangan}) - {$penjualan->created_at->format('d:m:Y')}"
+                                                ];
+                                            });
                                     })
                                     ->searchable()
                                     ->reactive()
@@ -113,9 +128,7 @@ class PenjualanResource extends Resource
                                         }
                                         if ($penjualan) {
                                             $set('plat_polisi', $penjualan->plat_polisi);
-                                            $set('bruto', $penjualan->bruto);
-                                            $set('tara', $penjualan->tara);
-                                            $set('netto', max(0, intval($penjualan->bruto) - intval($penjualan->tara)));
+                                            $set('tara', $penjualan->bruto);
                                             $set('nama_supir', $penjualan->nama_supir);
                                             $set('nama_barang', $penjualan->nama_barang);
                                             // Naikkan keterangan jika awalnya 1, 2, atau 3
@@ -125,7 +138,9 @@ class PenjualanResource extends Resource
                                             $set('keterangan', $keteranganBaru);
                                             $set('brondolan', $penjualan->brondolan);
                                         }
-                                    })->columnSpan(4),
+                                    })
+                                    ->columnSpan(4),
+
                                 TextInput::make('plat_polisi')
                                     ->suffixIcon('heroicon-o-truck')
                                     ->autocomplete('off')
@@ -231,6 +246,10 @@ class PenjualanResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            // ->query(
+            //     Penjualan::query()->whereNull('bruto') // hanya data yang punya nilai tara
+            // )
+            ->query(Penjualan::query())
             ->defaultPaginationPageOption(5)
             ->columns([
                 TextColumn::make('created_at')->label('Tanggal')
@@ -261,7 +280,7 @@ class PenjualanResource extends Resource
                             return $brondolan;
                         }
 
-                        return "{$karung} / {$brondolan}";
+                        return "{$karung} - {$brondolan}";
                     }),
                 TextColumn::make('bruto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
@@ -304,6 +323,13 @@ class PenjualanResource extends Resource
                         fn(Builder $query) =>
                         $query->whereDate('created_at', Carbon::today())
                     ),
+                    // Filter toggle untuk menampilkan data dimana tara null
+                Filter::make('Bruto Kosong')
+                ->query(
+                    fn(Builder $query) =>
+                    $query->whereNull('bruto')
+                )
+                ->toggle(), // Filter ini dapat diaktifkan/nonaktifkan oleh pengguna
             ]);
     }
 

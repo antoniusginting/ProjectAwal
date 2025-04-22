@@ -88,7 +88,7 @@
                                 }
                             @endphp
                             @if ($totalKarung > 0)
-                                {{ number_format($totalKarung, 0, ',', '.') }} /
+                                {{ number_format($totalKarung, 0, ',', '.') }} -
                             @endif
                             {{ $suratjalan->tronton->penjualan1->brondolan }}
                         </td>

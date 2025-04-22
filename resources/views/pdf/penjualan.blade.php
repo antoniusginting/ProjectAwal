@@ -41,10 +41,11 @@
             margin: 0;
         }
 
-        .caca{
+        .caca {
             text-align: right;
             margin-bottom: 8px;
         }
+
         header.header h2 {
             font-size: 1rem;
             margin: 0;
@@ -212,7 +213,18 @@
                             <td rowspan="3" class="text-center">{{ $penjualan->no_spb }}</td>
                             <td rowspan="3" class="text-center">{{ $penjualan->plat_polisi }}</td>
                             <td rowspan="3" class="text-center">{{ $penjualan->nama_supir }}</td>
-                            <td rowspan="3" class="text-center">{{ $penjualan->brondolan }}</td>
+                            <td rowspan="3" class="text-center">
+                                @if ($penjualan->brondolan == 'GONI')
+                                    @php
+                                        $adaGoni = true;
+                                    @endphp
+                                    {{ $penjualan->jumlah_karung }} - {{ $penjualan->brondolan }}
+                                @else
+                                    {{ $penjualan->brondolan }}
+                                @endif
+                            </td>
+                            {{-- <td rowspan="3" class="text-center">{{ $penjualan->jumlah_karung }} -
+                                {{ $penjualan->brondolan }}</td> --}}
                             <td rowspan="3" class="text-center">{{ $penjualan->nama_barang }}</td>
                             <td>Bruto</td>
                             <td class="text-right">{{ number_format($penjualan->bruto, 0, ',', '.') }}</td>
