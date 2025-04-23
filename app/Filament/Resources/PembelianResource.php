@@ -25,6 +25,8 @@ use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Filters\TernaryFilter;
 use App\Filament\Resources\PembelianResource\Pages;
+use App\Filament\Resources\PembelianResource\Pages\EditPembelian;
+use Filament\Forms\Components\Grid;
 
 class PembelianResource extends Resource
 {
@@ -218,15 +220,23 @@ class PembelianResource extends Resource
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan No Container'),
 
-                                Select::make('brondolan') // Gantilah 'tipe' dengan nama field di database
-                                    ->label('Satuan Muatan')
-                                    ->options([
-                                        'GONI' => 'GONI',
-                                        'CURAH' => 'CURAH',
-                                    ])
-                                    ->placeholder('Pilih Satuan Timbangan')
-                                    ->native(false) // Mengunakan dropdown modern
-                                    ->required(), // Opsional: Atur default value
+                                Grid::make(2)
+                                    ->schema([
+                                        TextInput::make('jumlah_karung')
+                                            ->numeric()
+                                            ->label('Jumlah Karung')
+                                            ->autocomplete('off')
+                                            ->placeholder('Masukkan Jumlah Karung'),
+                                        Select::make('brondolan') // Gantilah 'tipe' dengan nama field di database
+                                            ->label('Satuan Muatan')
+                                            ->options([
+                                                'GONI' => 'GONI',
+                                                'CURAH' => 'CURAH',
+                                            ])
+                                            ->placeholder('Pilih Satuan Timbangan')
+                                            ->native(false) // Mengunakan dropdown modern
+                                            ->required(), // Opsional: Atur default value
+                                    ])->columnSpan(1),
                                 Hidden::make('user_id')
                                     ->label('User ID')
                                     ->default(Auth::id()) // Set nilai default user yang sedang login,
@@ -238,6 +248,17 @@ class PembelianResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->recordUrl(
+                fn(Pembelian $record): ?string =>
+                optional(Auth::user())->hasAnyRole(['super_admin'])
+                    // super_admin & admin selalu bisa
+                    ? EditPembelian::getUrl(['record' => $record])
+                    // selain itu, hanya bisa kalau kernek belum terisi
+                    : (! $record->tara
+                        ? EditPembelian::getUrl(['record' => $record])
+                        : null
+                    )
+            )
             // Query dasar tanpa filter tara
             ->query(Pembelian::query())
             ->defaultPaginationPageOption(5)
@@ -259,7 +280,19 @@ class PembelianResource extends Resource
                 TextColumn::make('keterangan')
                     ->prefix('Timbangan-')
                     ->searchable(),
-                TextColumn::make('brondolan')->label('Satuan Muatan'),
+                TextColumn::make('satuan_muatan')
+                    ->label('Satuan Muatan')
+                    ->alignCenter()
+                    ->getStateUsing(function ($record) {
+                        $karung = $record->jumlah_karung ?? '';
+                        $brondolan = $record->brondolan ?? '-';
+
+                        if (strtolower($brondolan) === 'curah') {
+                            return $brondolan;
+                        }
+
+                        return "{$karung} - {$brondolan}";
+                    }),
                 TextColumn::make('bruto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('tara')

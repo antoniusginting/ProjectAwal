@@ -16,8 +16,8 @@
 
         /* Gaya dasar halaman dengan ukuran font lebih kecil */
         body {
-            font-family: Arial, sans-serif;
-            font-size: 0.875rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12pt;
             font-weight: bold;
             /* Sekitar 14px */
             background-color: var(--secondary-bg);
@@ -147,6 +147,8 @@
         /* Styles khusus untuk cetak */
         @media print {
             body {
+                font-family: 'Courier New', Courier, monospace;
+                font-size: 12pt;
                 margin: 0;
                 background-color: var(--secondary-bg);
             }

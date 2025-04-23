@@ -22,7 +22,8 @@ class Pembelian extends Model
         'no_po',
         'jam_masuk',
         'jam_keluar',
-        'user_id'
+        'user_id',
+        'jumlah_karung',
     ];
     
     // Relasi ke User

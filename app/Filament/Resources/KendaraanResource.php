@@ -14,6 +14,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\KendaraanResource\Pages;
+use App\Filament\Resources\KendaraanResource\Pages\EditKendaraan;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\KendaraanResource\RelationManagers;
 
@@ -80,6 +81,12 @@ class KendaraanResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            // ->recordUrl(
+            //     fn(Kendaraan $record): ?string =>
+            //     $record->nama_kernek
+            //         ? null
+            //         : EditKendaraan::getUrl(['record' => $record])
+            // )
             ->columns([
                 TextColumn::make('No')
                     ->label('No')

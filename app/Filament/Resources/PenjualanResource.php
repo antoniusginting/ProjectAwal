@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
 use App\Filament\Resources\PenjualanResource\Pages;
+use App\Filament\Resources\PenjualanResource\Pages\EditPenjualan;
 use Filament\Forms\Components\Grid;
 
 use function Laravel\Prompts\text;
@@ -246,6 +247,17 @@ class PenjualanResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+        ->recordUrl(
+            fn(Penjualan $record): ?string =>
+            optional(Auth::user())->hasAnyRole(['super_admin'])
+                // super_admin & admin selalu bisa
+                ? EditPenjualan::getUrl(['record' => $record])
+                // selain itu, hanya bisa kalau kernek belum terisi
+                : (! $record->bruto
+                    ? EditPenjualan::getUrl(['record' => $record])
+                    : null
+                )
+        )
             // ->query(
             //     Penjualan::query()->whereNull('bruto') // hanya data yang punya nilai tara
             // )
@@ -323,13 +335,13 @@ class PenjualanResource extends Resource
                         fn(Builder $query) =>
                         $query->whereDate('created_at', Carbon::today())
                     ),
-                    // Filter toggle untuk menampilkan data dimana tara null
+                // Filter toggle untuk menampilkan data dimana tara null
                 Filter::make('Bruto Kosong')
-                ->query(
-                    fn(Builder $query) =>
-                    $query->whereNull('bruto')
-                )
-                ->toggle(), // Filter ini dapat diaktifkan/nonaktifkan oleh pengguna
+                    ->query(
+                        fn(Builder $query) =>
+                        $query->whereNull('bruto')
+                    )
+                    ->toggle(), // Filter ini dapat diaktifkan/nonaktifkan oleh pengguna
             ]);
     }
 

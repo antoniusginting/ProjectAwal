@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Sortiran;
+use Filament\Forms\Components\Actions\Action as FormAction;
+
 use Filament\Forms\Form;
 use App\Models\Pembelian;
 use Filament\Tables\Table;
@@ -23,6 +25,7 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Columns\ToggleColumn;
@@ -136,8 +139,8 @@ class SortiranResource extends Resource
                                             $value = $get('netto_pembelian');
                                         }
 
-                                        // Format angka dengan ribuan menggunakan titik dan desimal menggunakan koma
-                                        $set('netto_bersih', number_format($value, 0, ',', '.'));
+                                        // // Format angka dengan ribuan menggunakan titik dan desimal menggunakan koma
+                                        // $set('netto_bersih', number_format($value, 0, ',', '.'));
                                     })
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                         // Hilangkan format sebelum melakukan operasi matematis
@@ -178,10 +181,11 @@ class SortiranResource extends Resource
                                     ->placeholder('Otomatis terisi saat memilih no SPB')
                                     ->disabled(),
                                 TextInput::make('total_karung')
+                                    ->readOnly()
                                     ->label('Total Karung')
                                     ->numeric()
                                     ->autocomplete('off')
-                                    ->helperText('Keterangan: Ketik ulang total karung untuk mengetahui tonase')
+                                    ->helperText('Keterangan: Klik icon Calculator untuk mengetahui tonase')
                                     ->placeholder('Otomatis terhitung')
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, $set, $get) {
@@ -216,7 +220,35 @@ class SortiranResource extends Resource
 
                                         // Opsi: Jika Anda ingin secara visual juga mengupdate field netto_bersih
                                         $set('netto_bersih', number_format($updatedNettoBersih, 0, ',', '.'));
-                                    }),
+                                    })
+                                    ->suffixAction(
+                                        FormAction::make('cekTonase')
+                                            ->icon('heroicon-o-calculator')
+                                            ->tooltip('Cek Tonase')
+                                            ->action(function ($state, callable $set, $get) {
+                                                // Ambil kembali semua nilai yang dibutuhkan
+                                                $nettoPembelian = floatval(str_replace(['.', ','], ['', '.'], $get('netto_pembelian') ?? 1));
+                                                $beratTungkul   = floatval(str_replace(['.', ','], ['', '.'], $get('berat_tungkul') ?? 0));
+                                                $updatedNetto   = max(0, $nettoPembelian - $beratTungkul);
+                                                $totalKarung    = floatval($state ?: 1);
+
+                                                // Hitung dan set ulang tonase_1 … tonase_6
+                                                foreach (range(1, 6) as $i) {
+                                                    $jumlahKarung = floatval($get("jumlah_karung_$i") ?? 0);
+                                                    $tonase       = ($jumlahKarung * $updatedNetto) / $totalKarung;
+                                                    $rounded      = round($tonase, 0);
+                                                    $set("tonase_$i", number_format($rounded, 0, ',', '.'));
+                                                }
+
+                                                // Update field netto_bersih juga kalau perlu
+                                                $set('netto_bersih', number_format($updatedNetto, 0, ',', '.'));
+
+                                                Notification::make()
+                                                    ->title('Tonase berhasil dihitung!')
+                                                    ->success()
+                                                    ->send();
+                                            })
+                                    ),
                                 Hidden::make('user_id')
                                     ->label('User ID')
                                     ->default(Auth::id()) // Set nilai default user yang sedang login,
@@ -311,9 +343,9 @@ class SortiranResource extends Resource
                                         //     ->disabled()
                                         //     ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
                                         TextInput::make('tonase_1')
-                                            ->placeholder('Otomatis Terisi Tonase')
+                                            ->placeholder('Otomatis tonase terisi')
                                             ->label('Tonase')
-                                            ->helperText('Terisi otomatis pada saat total karung diketik ulang')
+                                            ->required()
                                             ->readOnly(),
                                     ])
                                     ->columnSpan(1)->collapsible(), // Satu card per kolom
@@ -378,9 +410,9 @@ class SortiranResource extends Resource
                                         //     ->disabled()
                                         //     ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
                                         TextInput::make('tonase_2')
-                                            ->placeholder('Otomatis Terisi Tonase')
+                                            ->placeholder('Otomatis tonase terisi')
                                             ->label('Tonase')
-                                            ->helperText('Terisi otomatis pada saat total karung diketik ulang')
+
                                             ->readOnly(),
 
                                     ])
@@ -446,9 +478,9 @@ class SortiranResource extends Resource
                                         //     ->disabled()
                                         //     ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
                                         TextInput::make('tonase_3')
-                                            ->placeholder('Otomatis Terisi Tonase')
+                                            ->placeholder('Otomatis tonase terisi')
                                             ->label('Tonase')
-                                            ->helperText('Terisi otomatis pada saat total karung diketik ulang')
+                                            ->required()
                                             ->readOnly(),
                                     ])
                                     ->columnSpan(1)->collapsible(),
@@ -513,9 +545,9 @@ class SortiranResource extends Resource
                                         //     ->disabled()
                                         //     ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
                                         TextInput::make('tonase_4')
-                                            ->placeholder('Otomatis Terisi Tonase')
+                                            ->placeholder('Otomatis tonase terisi')
                                             ->label('Tonase')
-                                            ->helperText('Terisi otomatis pada saat total karung diketik ulang')
+                                            ->required()
                                             ->readOnly(),
                                     ])
                                     ->columnSpan(1)->collapsed(),
@@ -580,9 +612,9 @@ class SortiranResource extends Resource
                                         //     ->disabled()
                                         //     ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
                                         TextInput::make('tonase_5')
-                                            ->placeholder('Otomatis Terisi Tonase')
+                                            ->placeholder('Otomatis tonase terisi')
                                             ->label('Tonase')
-                                            ->helperText('Terisi otomatis pada saat total karung diketik ulang')
+                                            ->required()
                                             ->readOnly(),
                                     ])
                                     ->columnSpan(1)->collapsed(),
@@ -647,9 +679,9 @@ class SortiranResource extends Resource
                                         //     ->disabled()
                                         //     ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
                                         TextInput::make('tonase_6')
-                                            ->placeholder('Otomatis Terisi Tonase')
+                                            ->placeholder('Otomatis tonase terisi')
                                             ->label('Tonase')
-                                            ->helperText('Terisi otomatis pada saat total karung diketik ulang')
+                                            ->required()
                                             ->readOnly(),
                                     ])
                                     ->columnSpan(1)->collapsed(),
@@ -673,7 +705,7 @@ class SortiranResource extends Resource
                     ->alignCenter()
                     ->onIcon('heroicon-m-check')
                     ->offIcon('heroicon-m-x-mark')
-                    ->disabled(fn () => !optional(Auth::user())->hasAnyRole(['admin', 'super_admin'])),
+                    ->disabled(fn() => !optional(Auth::user())->hasAnyRole(['admin', 'super_admin'])),
                 TextColumn::make('created_at')->label('Tanggal')
                     ->dateTime('d-m-Y'),
                 TextColumn::make('no_sortiran')

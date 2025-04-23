@@ -71,7 +71,14 @@
                         </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap"
                             rowspan="3">
-                            {{ $pembelian->brondolan }}
+                            @if ($pembelian->brondolan == 'GONI')
+                                @php
+                                    $adaGoni = true;
+                                @endphp
+                                {{ $pembelian->jumlah_karung }} - {{ $pembelian->brondolan }}
+                            @else
+                                {{ $pembelian->brondolan }}
+                            @endif
                         </td>
                         <td class="border p-2 border-gray-300 dark:border-gray-700 whitespace-nowrap">Bruto</td>
                         <td class="border p-2 border-gray-300 dark:border-gray-700 text-right whitespace-nowrap">

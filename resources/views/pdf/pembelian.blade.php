@@ -15,9 +15,10 @@
 
         /* Gaya dasar halaman dengan ukuran font lebih kecil */
         body {
-            font-family: Arial, sans-serif;
-            font-weight: bold; /* Tambahkan ini supaya bold */
-            font-size: 0.875rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12pt;
+            font-weight: bold;
+            /* Tambahkan ini supaya bold */
             /* Sekitar 14px */
             background-color: var(--secondary-bg);
             color: var(--primary-color);
@@ -146,6 +147,8 @@
             }
 
             body {
+                font-family: 'Courier New', Courier, monospace;
+                font-size: 12pt;
                 margin: 0 !important;
                 background-color: var(--secondary-bg);
             }
@@ -212,9 +215,19 @@
                         <tr>
                             <td rowspan="3" class="text-center">{{ $pembelian->no_spb }}</td>
                             <td rowspan="3" class="text-center">{{ $pembelian->plat_polisi }}</td>
-                            <td rowspan="3" class="text-center">{{ optional($pembelian->supplier)->nama_supplier ?? '-' }}</td>
+                            <td rowspan="3" class="text-center">
+                                {{ optional($pembelian->supplier)->nama_supplier ?? '-' }}</td>
                             <td rowspan="3" class="text-center">{{ $pembelian->nama_supir }}</td>
-                            <td rowspan="3" class="text-center">{{ $pembelian->brondolan }}</td>
+                            <td rowspan="3" class="text-center">
+                                @if ($pembelian->brondolan == 'GONI')
+                                    @php
+                                        $adaGoni = true;
+                                    @endphp
+                                    {{ $pembelian->jumlah_karung }} - {{ $pembelian->brondolan }}
+                                @else
+                                    {{ $pembelian->brondolan }}
+                                @endif
+                            </td>
                             <td rowspan="3" class="text-center">{{ $pembelian->nama_barang }}</td>
                             <td>Bruto</td>
                             <td class="text-right">{{ number_format($pembelian->bruto, 0, ',', '.') }}</td>
