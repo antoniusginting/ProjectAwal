@@ -184,6 +184,14 @@ class SortiranResource extends Resource
                                     ->readOnly()
                                     ->label('Total Karung')
                                     ->numeric()
+                                    ->extraAttributes([
+                                        'style' => '
+                                            background-color: #f8f9fa;
+                                            color: #212529;
+                                            cursor: not-allowed;
+                                        ',
+                                        'onfocus' => 'this.blur()',
+                                    ])
                                     ->autocomplete('off')
                                     ->helperText('Keterangan: Klik icon Calculator untuk mengetahui tonase')
                                     ->placeholder('Otomatis terhitung')
@@ -230,7 +238,16 @@ class SortiranResource extends Resource
                                                 $nettoPembelian = floatval(str_replace(['.', ','], ['', '.'], $get('netto_pembelian') ?? 1));
                                                 $beratTungkul   = floatval(str_replace(['.', ','], ['', '.'], $get('berat_tungkul') ?? 0));
                                                 $updatedNetto   = max(0, $nettoPembelian - $beratTungkul);
-                                                $totalKarung    = floatval($state ?: 1);
+                                                $totalKarung    = floatval($state ?: 0);
+
+                                                // ❗ Cek dulu apakah total karung valid
+                                                if ($totalKarung <= 0) {
+                                                    Notification::make()
+                                                        ->title('Total karung tidak boleh kosong atau nol!')
+                                                        ->danger()
+                                                        ->send();
+                                                    return; // hentikan eksekusi
+                                                }
 
                                                 // Hitung dan set ulang tonase_1 … tonase_6
                                                 foreach (range(1, 6) as $i) {

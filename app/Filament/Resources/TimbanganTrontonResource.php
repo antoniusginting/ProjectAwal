@@ -11,16 +11,17 @@ use Filament\Tables\Table;
 use App\Models\TimbanganTronton;
 use Filament\Resources\Resource;
 use function Laravel\Prompts\text;
+use Illuminate\Support\Collection;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
 use Illuminate\Support\Facades\Auth;
-use Filament\Forms\Components\Hidden;
 
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use function Laravel\Prompts\textarea;
-use Filament\Forms\Components\Textarea;
 
+use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
@@ -30,6 +31,7 @@ use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Columns\CheckboxColumn;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TimbanganTrontonResource\Pages;
+use App\Filament\Resources\TimbanganTrontonResource\Pages\EditTimbanganTronton;
 use App\Filament\Resources\TimbanganTrontonResource\RelationManagers;
 
 class TimbanganTrontonResource extends Resource
@@ -44,8 +46,92 @@ class TimbanganTrontonResource extends Resource
 
     public static function form(Form $form): Form
     {
+
         return $form
             ->schema([
+                Select::make('plat_polisi')
+                    ->label('Ambil dari Penjualan (No BK)')
+                    ->searchable()
+                    ->options(function () {
+                        $usedIds = Collection::make(range(1, 6))
+                            ->flatMap(function (int $i) {
+                                return TimbanganTronton::query()
+                                    ->pluck("id_timbangan_jual_{$i}")
+                                    ->map(fn($val) => intval($val));
+                            })
+                            ->filter(fn($id) => !is_null($id) && $id !== '')
+                            ->unique()
+                            ->values()
+                            ->all();
+
+                        return Penjualan::query()
+                            ->whereNotIn('id', $usedIds)
+                            ->distinct()
+                            ->orderByDesc('created_at')
+                            ->pluck('plat_polisi', 'plat_polisi')
+                            ->toArray();
+                    })
+                    ->reactive()
+                    ->afterStateUpdated(function (callable $set, $state, callable $get) {
+                        if (! $state) {
+                            return;
+                        }
+
+                        // Get used IDs to prevent them from being populated
+                        $usedIds = Collection::make(range(1, 6))
+                            ->flatMap(function (int $i) {
+                                return TimbanganTronton::query()
+                                    ->pluck("id_timbangan_jual_{$i}")
+                                    ->map(fn($val) => intval($val));
+                            })
+                            ->filter(fn($id) => !is_null($id) && $id !== '')
+                            ->unique()
+                            ->values()
+                            ->all();
+
+                        // Also get the current form's IDs to avoid overwriting them
+                        $currentFormIds = Collection::make(range(1, 6))
+                            ->map(function (int $i) use ($get) {
+                                return $get("id_timbangan_jual_{$i}");
+                            })
+                            ->filter(fn($id) => !is_null($id) && $id !== '')
+                            ->unique()
+                            ->values()
+                            ->all();
+
+                        // Combine both sets of IDs to exclude
+                        $allUsedIds = array_merge($usedIds, $currentFormIds);
+
+                        // Prefill data dari Penjualan berdasarkan plat_polisi yang dipilih, but exclude used IDs
+                        $records = Penjualan::where('plat_polisi', $state)
+                            ->whereNotIn('id', $allUsedIds)
+                            ->get();
+
+                        // Find the first empty slot to start filling from
+                        $startIndex = 1;
+                        while ($startIndex <= 6 && $get("id_timbangan_jual_{$startIndex}") !== null) {
+                            $startIndex++;
+                        }
+
+                        // Fill only empty slots
+                        foreach ($records as $idx => $pj) {
+                            $i = $startIndex + $idx;
+                            if ($i > 6) break;
+                            $set("id_timbangan_jual_{$i}", $pj->id);
+                            $set("nama_lumbung_{$i}", $pj->nama_lumbung);
+                            $set("no_lumbung_{$i}", $pj->no_lumbung);
+                            $set("bruto{$i}", $pj->bruto);
+                            $set("tara{$i}", $pj->tara);
+                            $set("netto{$i}", $pj->netto);
+                        }
+
+                        // Update ringkasan akhir
+                        $set('total_netto', self::hitungTotalNetto($get));
+                        $set('bruto_akhir', self::getBrutoAkhir($get));
+                        $set('tara_awal', self::getTaraAwal($get));
+                    }),
+
+
                 Card::make()
                     ->schema([
                         Grid::make(3)
@@ -174,13 +260,13 @@ class TimbanganTrontonResource extends Resource
                                                 TextInput::make('tara1')
                                                     ->label('Tara')
                                                     ->reactive()
-                                                    ->afterStateHydrated(fn($state, $set) => $set('tara1', number_format($state, 0, ',', '.')))
+                                                    // ->afterStateHydrated(fn($state, $set) => $set('tara1', number_format($state, 0, ',', '.')))
                                                     ->disabled(),
 
                                                 TextInput::make('netto1')
                                                     ->label('Netto')
                                                     ->reactive()
-                                                    ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '')
+                                                    // ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '')
                                                     ->disabled(),
                                             ])->columnSpan(1)->collapsible(),
                                         //Timbangan Jual 2
@@ -302,13 +388,13 @@ class TimbanganTrontonResource extends Resource
                                                 TextInput::make('tara2')
                                                     ->label('Tara')
                                                     ->reactive()
-                                                    ->afterStateHydrated(fn($state, $set) => $set('tara2', number_format($state, 0, ',', '.')))
+
                                                     ->disabled(),
 
                                                 TextInput::make('netto2')
                                                     ->label('Netto')
                                                     ->reactive()
-                                                    ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '')
+
                                                     ->disabled(),
                                             ])->columnSpan(1)->collapsible(),
                                         //Timbangan Jual 3
@@ -430,13 +516,13 @@ class TimbanganTrontonResource extends Resource
                                                 TextInput::make('tara3')
                                                     ->label('Tara')
                                                     ->reactive()
-                                                    ->afterStateHydrated(fn($state, $set) => $set('tara3', number_format($state, 0, ',', '.')))
+
                                                     ->disabled(),
 
                                                 TextInput::make('netto3')
                                                     ->label('Netto')
                                                     ->reactive()
-                                                    ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '')
+
                                                     ->disabled(),
                                             ])->columnSpan(1)->collapsible(),
                                         //Timbangan Jual 4
@@ -558,13 +644,13 @@ class TimbanganTrontonResource extends Resource
                                                 TextInput::make('tara4')
                                                     ->label('Tara')
                                                     ->reactive()
-                                                    ->afterStateHydrated(fn($state, $set) => $set('tara4', number_format($state, 0, ',', '.')))
+
                                                     ->disabled(),
 
                                                 TextInput::make('netto4')
                                                     ->label('Netto')
                                                     ->reactive()
-                                                    ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '')
+
                                                     ->disabled(),
                                             ])->columnSpan(1)->collapsed(),
                                         //Timbangan Jual 5
@@ -687,13 +773,13 @@ class TimbanganTrontonResource extends Resource
                                                 TextInput::make('tara5')
                                                     ->label('Tara')
                                                     ->reactive()
-                                                    ->afterStateHydrated(fn($state, $set) => $set('tara5', number_format($state, 0, ',', '.')))
+
                                                     ->disabled(),
 
                                                 TextInput::make('netto5')
                                                     ->label('Netto')
                                                     ->reactive()
-                                                    ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '')
+
                                                     ->disabled(),
                                             ])->columnSpan(1)->collapsed(),
                                         //Timbangan Jual 6
@@ -815,13 +901,13 @@ class TimbanganTrontonResource extends Resource
                                                 TextInput::make('tara6')
                                                     ->label('Tara')
                                                     ->reactive()
-                                                    ->afterStateHydrated(fn($state, $set) => $set('tara6', number_format($state, 0, ',', '.')))
+
                                                     ->disabled(),
 
                                                 TextInput::make('netto6')
                                                     ->label('Netto')
                                                     ->reactive()
-                                                    ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '')
+
                                                     ->disabled(),
                                             ])->columnSpan(1)->collapsed(),
                                     ])->columns(3)->collapsible(),
@@ -833,7 +919,7 @@ class TimbanganTrontonResource extends Resource
                                     ->onIcon('heroicon-m-bolt')
                                     ->offIcon('heroicon-m-user')
                                     ->dehydrated(true)
-                                    ->hidden(fn () => !optional(Auth::user())->hasAnyRole(['admin', 'super_admin']))
+                                    ->hidden(fn() => !optional(Auth::user())->hasAnyRole(['admin', 'super_admin']))
                                     ->columns(1),
                                 Textarea::make('keterangan')
                                     ->placeholder('Masukkan Keterangan')
@@ -871,10 +957,29 @@ class TimbanganTrontonResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->recordUrl(function (TimbanganTronton $record): ?string {
+                // 1) Super admin selalu boleh
+                if (optional(Auth::user())->hasRole('super_admin')) {
+                    return EditTimbanganTronton::getUrl(['record' => $record]);
+                }
+
+                // 2) Selain super admin, hanya boleh edit kalau:
+                //    • status falsy, dan
+                //    • BELUM punya suratJalans
+                if (! $record->status && ! $record->suratJalans()->exists()) {
+                    return EditTimbanganTronton::getUrl(['record' => $record]);
+                }
+
+                // 3) Sisanya: non-clickable
+                return null;
+            })
+
             ->columns([
                 IconColumn::make('status')
                     ->boolean()
                     ->alignCenter(),
+                TextColumn::make('penjualan1.plat_polisi')
+                    ->label('Plat Polisi'),
                 TextColumn::make('kode')
                     ->label('No Penjualan'),
                 TextColumn::make('created_at')->label('Tanggal')

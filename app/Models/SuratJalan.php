@@ -21,7 +21,8 @@ class SuratJalan extends Model
     ];
 
     // Relasi ke User
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class, 'user_id');
     }
     // Relasi ke Kontrak
@@ -43,5 +44,24 @@ class SuratJalan extends Model
     public function tronton()
     {
         return $this->belongsTo(TimbanganTronton::class, 'id_timbangan_tronton', 'id');
+    }
+
+    public function timbanganTronton()
+    {
+        return $this->belongsTo(TimbanganTronton::class, 'id_timbangan_tronton');
+    }
+    // Method untuk mengambil BK (plat_polisi) yang sudah digunakan
+    public static function getUsedBK()
+    {
+        return self::with('timbanganTronton')
+            ->get()
+            ->map(function ($surat) {
+                // Pastikan data timbanganTronton ada dan plat_polisi tidak null
+                return $surat->timbanganTronton ? $surat->timbanganTronton->plat_polisi : null;
+            })
+            ->filter()   // Hapus nilai null
+            ->unique()
+            ->values()
+            ->all();
     }
 }

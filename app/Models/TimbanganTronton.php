@@ -26,12 +26,13 @@ class TimbanganTronton extends Model
 
 
     // Relasi ke User
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class, 'user_id');
     }
     public function penjualan1()
     {
-        return $this->belongsTo(Penjualan::class, 'id_timbangan_jual_1','id');
+        return $this->belongsTo(Penjualan::class, 'id_timbangan_jual_1', 'id');
     }
 
     public function penjualan2()
@@ -58,5 +59,9 @@ class TimbanganTronton extends Model
     {
         return $this->belongsTo(Penjualan::class, 'id_timbangan_jual_6');
     }
-
+    public function suratJalans()
+    {
+        // Ganti second argument kalau nama FK-mu bukan timbangan_tronton_id
+        return $this->hasMany(SuratJalan::class, 'id_timbangan_tronton');
+    }
 }

@@ -247,17 +247,17 @@ class PenjualanResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-        ->recordUrl(
-            fn(Penjualan $record): ?string =>
-            optional(Auth::user())->hasAnyRole(['super_admin'])
-                // super_admin & admin selalu bisa
-                ? EditPenjualan::getUrl(['record' => $record])
-                // selain itu, hanya bisa kalau kernek belum terisi
-                : (! $record->bruto
+            ->recordUrl(
+                fn(Penjualan $record): ?string =>
+                optional(Auth::user())->hasAnyRole(['super_admin'])
+                    // super_admin & admin selalu bisa
                     ? EditPenjualan::getUrl(['record' => $record])
-                    : null
-                )
-        )
+                    // selain itu, hanya bisa kalau kernek belum terisi
+                    : (! $record->bruto
+                        ? EditPenjualan::getUrl(['record' => $record])
+                        : null
+                    )
+            )
             // ->query(
             //     Penjualan::query()->whereNull('bruto') // hanya data yang punya nilai tara
             // )
