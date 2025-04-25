@@ -24,6 +24,8 @@
                         <td class="whitespace-nowrap">: {{ $penjualan->created_at->format('H:i') }}</td>
                         <td class="font-semibold whitespace-nowrap">Nama Lumbung</td>
                         <td class="whitespace-nowrap">: {{ $penjualan->nama_lumbung}}</td>
+                        <td class="font-semibold whitespace-nowrap">Jam Masuk</td>
+                        <td class="whitespace-nowrap">: {{ $penjualan->jam_masuk}}</td>
                     </tr>
                     <tr>
                         <td class="font-semibold whitespace-nowrap">Operator</td>
@@ -32,6 +34,8 @@
                         <td class="whitespace-nowrap">: {{ $penjualan->no_container }}</td>
                         <td class="font-semibold text-left align-top whitespace-nowrap">No Lumbung</td>
                         <td class="whitespace-nowrap">: {{ $penjualan->no_lumbung }}</td>
+                        <td class="font-semibold whitespace-nowrap">Jam Keluar</td>
+                        <td class="whitespace-nowrap">: {{ $penjualan->jam_keluar}}</td>
                     </tr>
                 </tbody>
             </table>

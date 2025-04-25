@@ -429,7 +429,7 @@ class SortiranResource extends Resource
                                         TextInput::make('tonase_2')
                                             ->placeholder('Otomatis tonase terisi')
                                             ->label('Tonase')
-
+                                            ->required()
                                             ->readOnly(),
 
                                     ])

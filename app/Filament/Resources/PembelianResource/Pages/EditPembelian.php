@@ -30,6 +30,11 @@ class EditPembelian extends EditRecord
                 ->url(PembelianResource::getUrl('index')),
         ];
     }
+    // protected function getRedirectUrl(): string
+    // {
+    //     return $this->getResource()::getUrl('view-pembelian', ['record' => $this->record]);
+    // }
+
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index'); // Arahkan ke daftar tabel

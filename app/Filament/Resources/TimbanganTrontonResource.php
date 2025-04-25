@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use Dom\Text;
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
@@ -14,13 +15,14 @@ use function Laravel\Prompts\text;
 use Illuminate\Support\Collection;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
-use Illuminate\Support\Facades\Auth;
 
+use Filament\Tables\Filters\Filter;
+use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+
 use Filament\Forms\Components\Toggle;
 use function Laravel\Prompts\textarea;
-
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -31,8 +33,8 @@ use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Columns\CheckboxColumn;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TimbanganTrontonResource\Pages;
-use App\Filament\Resources\TimbanganTrontonResource\Pages\EditTimbanganTronton;
 use App\Filament\Resources\TimbanganTrontonResource\RelationManagers;
+use App\Filament\Resources\TimbanganTrontonResource\Pages\EditTimbanganTronton;
 
 class TimbanganTrontonResource extends Resource
 {
@@ -68,7 +70,13 @@ class TimbanganTrontonResource extends Resource
                             ->whereNotIn('id', $usedIds)
                             ->distinct()
                             ->orderByDesc('created_at')
-                            ->pluck('plat_polisi', 'plat_polisi')
+                            ->get()
+                            ->mapWithKeys(function ($penjualan) {
+                                // Menggabungkan plat polisi dan nama supir sebagai label
+                                $label = $penjualan->plat_polisi . ' - ' . $penjualan->nama_supir;
+                                // Tetap menggunakan plat_polisi sebagai value
+                                return [$penjualan->plat_polisi => $label];
+                            })
                             ->toArray();
                     })
                     ->reactive()
@@ -1092,7 +1100,11 @@ class TimbanganTrontonResource extends Resource
                     ->label('User')
             ])->defaultSort('id', 'desc')
             ->filters([
-                //
+                Filter::make('Hari Ini')
+                    ->query(
+                        fn(Builder $query) =>
+                        $query->whereDate('created_at', Carbon::today())
+                    )->toggle(),
             ])
             ->actions([
                 Tables\Actions\Action::make('View')

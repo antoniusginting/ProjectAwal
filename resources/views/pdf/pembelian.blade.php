@@ -54,7 +54,7 @@
 
         /* Tabel informasi dengan padding dikurangi */
         .info-table {
-            width: 65%;
+            width: 100%;
             border-collapse: collapse;
             margin-bottom: 12px;
         }
@@ -182,14 +182,17 @@
                 <tr>
                     <td class="label">Tanggal</td>
                     <td>: {{ $pembelian->created_at->format('d-m-Y') }}</td>
-                    <td class="label">Jam</td>
-                    <td>: {{ $pembelian->created_at->format('H:i:s') }}</td>
+                    <td class="label">Jam Masuk</td>
+                    <td>: {{ $pembelian->jam_masuk }}</td>
+                    <td class="label">Container</td>
+                    <td>: {{ $pembelian->no_container ?: '-' }}</td>
                 </tr>
                 <tr>
                     <td class="label">Operator</td>
                     <td>: {{ $pembelian->user->name }}</td>
-                    <td class="label">Container</td>
-                    <td>: {{ $pembelian->no_container }}</td>
+                    <td class="label">Jam Keluar</td>
+                    <td>: {{ $pembelian->jam_keluar }}</td>
+
                 </tr>
             </table>
         </section>

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Kontrak;
@@ -12,6 +13,7 @@ use App\Models\AlamatKontrak;
 use App\Models\TimbanganTronton;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
+use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
@@ -187,6 +189,7 @@ class SuratJalanResource extends Resource
                                     ->options([
                                         'TRONTON' => 'TRONTON',
                                         'COLT DIESEL' => 'COLD DIESEL (CD)',
+                                        'CONTAINER' => 'CONTAINER',
                                     ])
                                     ->placeholder('Pilih Jenis Mobil')
                                     // ->inlineLabel() // Membuat label sebelah kiri
@@ -207,9 +210,8 @@ class SuratJalanResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')
-                    ->label('No')
-                    ->alignCenter(),
+                TextColumn::make('created_at')->label('Tanggal')
+                    ->dateTime('d-m-Y'),
                 TextColumn::make('tronton.kode')
                     ->label('No Penjualan'),
                 TextColumn::make('po')
@@ -239,7 +241,11 @@ class SuratJalanResource extends Resource
                     ->label('User')
             ])->defaultSort('id', 'desc')
             ->filters([
-                //
+                Filter::make('Hari Ini')
+                    ->query(
+                        fn(Builder $query) =>
+                        $query->whereDate('created_at', Carbon::today())
+                    )->toggle(),
             ])
             ->actions([
                 Tables\Actions\Action::make('View')

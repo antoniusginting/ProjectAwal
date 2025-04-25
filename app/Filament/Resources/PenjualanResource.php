@@ -88,14 +88,31 @@ class PenjualanResource extends Resource
                                 Select::make('id_penjualan')
                                     ->label('Ambil dari Penjualan Sebelumnya')
                                     ->options(function () {
-                                        // Ambil ID penjualan yang ada di kolom id_penjualan_1 sampai id_penjualan_6
-                                        $existingPenjualans = \App\Models\TimbanganTronton::whereNotNull('id_timbangan_jual_1')
-                                            ->pluck('id_timbangan_jual_1')
-                                            ->merge(\App\Models\TimbanganTronton::whereNotNull('id_timbangan_jual_2')->pluck('id_timbangan_jual_2'))
-                                            ->merge(\App\Models\TimbanganTronton::whereNotNull('id_timbangan_jual_3')->pluck('id_timbangan_jual_3'))
-                                            ->merge(\App\Models\TimbanganTronton::whereNotNull('id_timbangan_jual_4')->pluck('id_timbangan_jual_4'))
-                                            ->merge(\App\Models\TimbanganTronton::whereNotNull('id_timbangan_jual_5')->pluck('id_timbangan_jual_5'))
-                                            ->merge(\App\Models\TimbanganTronton::whereNotNull('id_timbangan_jual_6')->pluck('id_timbangan_jual_6'))
+                                        // Ambil id_timbangan_tronton dari SuratJalan
+                                        $timbanganTrontonIds = \App\Models\SuratJalan::whereNotNull('id_timbangan_tronton')
+                                            ->pluck('id_timbangan_tronton');
+
+                                        // Gunakan subquery untuk mendapatkan semua id penjualan
+                                        $existingPenjualans = \App\Models\TimbanganTronton::whereIn('id', $timbanganTrontonIds)
+                                            ->select(
+                                                'id_timbangan_jual_1',
+                                                'id_timbangan_jual_2',
+                                                'id_timbangan_jual_3',
+                                                'id_timbangan_jual_4',
+                                                'id_timbangan_jual_5',
+                                                'id_timbangan_jual_6'
+                                            )
+                                            ->get()
+                                            ->flatMap(function ($item) {
+                                                $ids = [];
+                                                for ($i = 1; $i <= 6; $i++) {
+                                                    $field = "id_timbangan_jual_{$i}";
+                                                    if (!is_null($item->$field)) {
+                                                        $ids[] = $item->$field;
+                                                    }
+                                                }
+                                                return $ids;
+                                            })
                                             ->toArray();
 
                                         // Ambil ID penjualan yang belum ada di tabel timbangan_tronton
@@ -318,7 +335,6 @@ class PenjualanResource extends Resource
                 //
             ])
             ->actions([
-
                 Tables\Actions\Action::make('view-penjualan')
                     ->label(__("Lihat"))
                     ->icon('heroicon-o-eye')
@@ -334,14 +350,15 @@ class PenjualanResource extends Resource
                     ->query(
                         fn(Builder $query) =>
                         $query->whereDate('created_at', Carbon::today())
-                    ),
+                    )->toggle(),
                 // Filter toggle untuk menampilkan data dimana tara null
                 Filter::make('Bruto Kosong')
                     ->query(
                         fn(Builder $query) =>
                         $query->whereNull('bruto')
                     )
-                    ->toggle(), // Filter ini dapat diaktifkan/nonaktifkan oleh pengguna
+                    ->toggle() // Filter ini dapat diaktifkan/nonaktifkan oleh pengguna
+                    ->default(),
             ]);
     }
 

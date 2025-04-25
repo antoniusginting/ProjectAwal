@@ -319,14 +319,15 @@ class PembelianResource extends Resource
                     ->query(
                         fn(Builder $query) =>
                         $query->whereDate('created_at', Carbon::today())
-                    ),
+                    )->toggle(),
                 // Filter toggle untuk menampilkan data dimana tara null
                 Filter::make('Tara Kosong')
                     ->query(
                         fn(Builder $query) =>
                         $query->whereNull('tara')
                     )
-                    ->toggle(), // Filter ini dapat diaktifkan/nonaktifkan oleh pengguna
+                    ->toggle() // Filter ini dapat diaktifkan/nonaktifkan oleh pengguna
+                    ->default(),
             ]);
     }
 
