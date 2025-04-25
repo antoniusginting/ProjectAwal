@@ -35,10 +35,40 @@ class EditPembelian extends EditRecord
     //     return $this->getResource()::getUrl('view-pembelian', ['record' => $this->record]);
     // }
 
+    // Di class EditRecord atau CreateRecord Anda
+    protected static string $pembelianRedirectField = 'tara';
+    protected static bool $taraChanged = false;
+
+    // Override method mutateFormDataBeforeSave untuk mendeteksi perubahan
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        // Simpan nilai original dari field tara
+        $originalTara = $this->record->tara ?? null;
+
+        // Catat nilai baru
+        $newTara = $data['tara'] ?? null;
+
+        // Set flag jika tara berubah
+        static::$taraChanged = ($originalTara !== $newTara);
+
+        return $data;
+    }
+
+    // Override getRedirectUrl untuk memeriksa flag perubahan
     protected function getRedirectUrl(): string
     {
-        return $this->getResource()::getUrl('index'); // Arahkan ke daftar tabel
+        if (static::$taraChanged) {
+            return $this->getResource()::getUrl('view-pembelian', ['record' => $this->record]);
+
+        }
+
+        return $this->getResource()::getUrl('index');
     }
+
+    // protected function getRedirectUrl(): string
+    // {
+    //     return $this->getResource()::getUrl('index'); // Arahkan ke daftar tabel
+    // }
 
     // protected function mutateFormDataBeforeSave(array $data): array
     // {
