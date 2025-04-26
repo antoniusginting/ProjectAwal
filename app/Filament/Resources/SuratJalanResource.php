@@ -24,9 +24,21 @@ use Filament\Tables\Enums\ActionsPosition;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\SuratJalanResource\Pages;
 use App\Filament\Resources\SuratJalanResource\RelationManagers;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
-class SuratJalanResource extends Resource
+class SuratJalanResource extends Resource implements HasShieldPermissions
 {
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
     protected static ?string $model = SuratJalan::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-envelope-open';
@@ -73,8 +85,7 @@ class SuratJalanResource extends Resource
                                             ->pluck('alamat', 'id')
                                             : []
                                     )
-                                    ->searchable()
-                                    ->required(),
+                                    ->searchable(),
                                 TextInput::make('po')
                                     ->label('PO')
                                     ->autocomplete('off')

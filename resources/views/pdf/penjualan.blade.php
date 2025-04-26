@@ -10,8 +10,8 @@
         :root {
             --primary-color: #1a202c;
             --secondary-bg: #ffffff;
-            --border-color: #e2e8f0;
-            --light-bg: #f7fafc;
+            --border-color: #ffffff;
+            --light-bg: #ffffff;
         }
 
         /* Gaya dasar halaman dengan ukuran font lebih kecil */
@@ -128,7 +128,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #718096;
+            color: #ffffff;
             font-size: 0.75rem;
         }
 
@@ -178,18 +178,22 @@
                 <tr>
                     <td class="label">Tanggal</td>
                     <td>: {{ $penjualan->created_at->format('d-m-Y') }}</td>
-                    <td class="label">Jam</td>
-                    <td>: {{ $penjualan->created_at->format('H:i:s') }}</td>
                     <td class="label">Nama Lumbung</td>
                     <td>: {{ $penjualan->nama_lumbung }}</td>
+                    <td class="label">Jam Masuk</td>
+                    <td>: {{ $penjualan->jam_masuk }}</td>
                 </tr>
                 <tr>
                     <td class="label">Operator</td>
                     <td>: {{ $penjualan->user->name }}</td>
-                    <td class="label">Container</td>
-                    <td>: {{ $penjualan->no_container }}</td>
                     <td class="label">No Lumbung</td>
                     <td>: {{ $penjualan->no_lumbung }}</td>
+                    <td class="label">Jam Keluar</td>
+                    <td>: {{ $penjualan->jam_keluar }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Container</td>
+                    <td>: {{ $penjualan->no_container }}</td>
                 </tr>
             </table>
         </section>

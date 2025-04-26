@@ -22,23 +22,28 @@
 
         <!-- Info Pengiriman -->
         <div>
-            <table class="w-full">
+            <table class="w-full" style="table-layout: fixed;">
+                <colgroup>
+                    <col style="width: 15%;">
+                    <col style="width: 85%;">
+                </colgroup>
                 <tbody>
                     <tr>
                         <td class="font-semibold text-left align-top">Kepada Yth.</td>
                         <td class="text-left align-top">: {{ $suratjalan->kontrak->nama }}</td>
                     </tr>
+                    @if (!empty($suratjalan->alamat->alamat))
                     <tr>
                         <td class="font-semibold text-left align-top">Alamat</td>
                         <td class="text-left align-top">: {{ $suratjalan->alamat->alamat }}</td>
                     </tr>
-                    @if (!empty($suratjalan->po))
-                        <tr>
-                            <td class="font-semibold text-left align-top">No PO</td>
-                            <td class="text-left align-top">: {{ $suratjalan->po }}</td>
-                        </tr>
                     @endif
-
+                    @if (!empty($suratjalan->po))
+                    <tr>
+                        <td class="font-semibold text-left align-top">No PO</td>
+                        <td class="text-left align-top">: {{ $suratjalan->po }}</td>
+                    </tr>
+                    @endif
                 </tbody>
             </table>
         </div>
@@ -92,7 +97,7 @@
                             @endif
                             {{ $suratjalan->tronton->penjualan1->brondolan }}
                         </td>
-                        
+
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700" rowspan="3">
                             JAGUNG KERING SUPER
                         </td>
@@ -115,7 +120,7 @@
                     </tr>
                 </tbody>
             </table>
-            
+
         </div>
 
         <!-- Tanda Tangan -->

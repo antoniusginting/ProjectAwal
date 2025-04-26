@@ -1,28 +1,40 @@
 <?php
 
 namespace App\Filament\Resources;
-
+namespace BezhanSalleh\FilamentShield\Resources;
 use Filament\Forms;
 use Filament\Tables;
-use Filament\Infolists\Infolist;
 use App\Models\Mobil;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Actions\ViewAction;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use function Laravel\Prompts\text;
+use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\MobilResource\Pages;
 use Filament\Infolists\Components\TextEntry;
+use App\Filament\Resources\MobilResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\MobilResource\RelationManagers;
-use Filament\Actions\ViewAction;
-use Filament\Forms\Components\Card;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
-class MobilResource extends Resource
+class MobilResource extends Resource implements HasShieldPermissions
 {
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
     public static function canAccess(): bool
     {
         return false; // Menyembunyikan resource dari sidebar

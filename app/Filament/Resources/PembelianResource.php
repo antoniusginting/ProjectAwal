@@ -11,6 +11,7 @@ use App\Models\Pembelian;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Grid;
 use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Hidden;
@@ -25,11 +26,22 @@ use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Filters\TernaryFilter;
 use App\Filament\Resources\PembelianResource\Pages;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\PembelianResource\Pages\EditPembelian;
-use Filament\Forms\Components\Grid;
 
-class PembelianResource extends Resource
+class PembelianResource extends Resource implements HasShieldPermissions
 {
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
     // public static function getNavigationBadge(): ?string
     // {
     //     return static::getModel()::count();
@@ -327,7 +339,10 @@ class PembelianResource extends Resource
                         $query->whereNull('tara')
                     )
                     ->toggle() // Filter ini dapat diaktifkan/nonaktifkan oleh pengguna
-                    ->default(),
+                    ->default(function () {
+                        // Filter aktif secara default hanya jika pengguna BUKAN super_admin ,'admin'
+                        return !optional(Auth::user())->hasAnyRole(['super_admin']);
+                    })
             ]);
     }
 

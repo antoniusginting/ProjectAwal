@@ -26,10 +26,22 @@ use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\KendaraanMuatResource\Pages;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\KendaraanMuatResource\RelationManagers;
 
-class KendaraanMuatResource extends Resource
+class KendaraanMuatResource extends Resource implements HasShieldPermissions
 {
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
     protected static ?string $model = KendaraanMuat::class;
     protected static ?string $navigationGroup = 'Satpam';
     protected static ?string $navigationIcon = 'heroicon-s-truck';

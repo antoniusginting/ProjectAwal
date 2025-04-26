@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Filament\Resources;
-
+namespace BezhanSalleh\FilamentShield\Resources;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
@@ -16,11 +16,22 @@ use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\KapasitasLumbungBasahResource\Pages;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\KapasitasLumbungBasahResource\RelationManagers;
 
-class KapasitasLumbungBasahResource extends Resource
+class KapasitasLumbungBasahResource extends Resource implements HasShieldPermissions
 {
-
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
     public static function canAccess(): bool
     {
         return false; // Menyembunyikan resource dari sidebar

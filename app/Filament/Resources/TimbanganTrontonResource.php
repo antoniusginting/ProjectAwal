@@ -33,11 +33,23 @@ use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Columns\CheckboxColumn;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TimbanganTrontonResource\Pages;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\TimbanganTrontonResource\RelationManagers;
 use App\Filament\Resources\TimbanganTrontonResource\Pages\EditTimbanganTronton;
 
-class TimbanganTrontonResource extends Resource
+class TimbanganTrontonResource extends Resource implements HasShieldPermissions
 {
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
     protected static ?string $model = TimbanganTronton::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-book-open';

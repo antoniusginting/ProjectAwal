@@ -10,8 +10,10 @@ use Filament\Forms\Form;
 use App\Models\Penjualan;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
-use Filament\Forms\Components\Card;
+use function Laravel\Prompts\text;
 
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Grid;
 use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Hidden;
@@ -23,13 +25,23 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
 use App\Filament\Resources\PenjualanResource\Pages;
+
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\PenjualanResource\Pages\EditPenjualan;
-use Filament\Forms\Components\Grid;
 
-use function Laravel\Prompts\text;
-
-class PenjualanResource extends Resource
+class PenjualanResource extends Resource implements HasShieldPermissions
 {
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
     // public static function getNavigationBadge(): ?string
     // {
     //     return static::getModel()::count();
@@ -358,7 +370,10 @@ class PenjualanResource extends Resource
                         $query->whereNull('bruto')
                     )
                     ->toggle() // Filter ini dapat diaktifkan/nonaktifkan oleh pengguna
-                    ->default(),
+                    ->default(function () {
+                        // Filter aktif secara default hanya jika pengguna BUKAN super_admin ,'admin'
+                        return !optional(Auth::user())->hasAnyRole(['super_admin']);
+                    })
             ]);
     }
 

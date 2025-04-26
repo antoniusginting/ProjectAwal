@@ -19,18 +19,17 @@
                     <tr>
                         <td class="font-semibold text-left whitespace-nowrap">Tanggal</td>
                         <td class="whitespace-nowrap">: {{ $pembelian->created_at->format('d-m-Y') }}</td>
-                        <td class="font-semibold whitespace-nowrap">Jam</td>
-                        <td class="whitespace-nowrap">: {{ $pembelian->created_at->format('H:i') }}</td>
                         <td class="font-semibold whitespace-nowrap">Jam Masuk</td>
                         <td class="whitespace-nowrap">: {{ $pembelian->jam_masuk }}</td>
+                        <td class="font-semibold text-left align-top whitespace-nowrap">Container</td>
+                        <td class="whitespace-nowrap">: {{ $pembelian->no_container ?: '-' }}</td>
                     </tr>
                     <tr>
                         <td class="font-semibold whitespace-nowrap">Operator</td>
                         <td class="whitespace-nowrap">: {{ $pembelian->user->name }}</td>
-                        <td class="font-semibold text-left align-top whitespace-nowrap">Container</td>
-                        <td class="whitespace-nowrap">: {{ $pembelian->no_container }}</td>
                         <td class="font-semibold whitespace-nowrap">Jam Keluar</td>
                         <td class="whitespace-nowrap">: {{ $pembelian->jam_keluar }}</td>
+
                     </tr>
                 </tbody>
             </table>

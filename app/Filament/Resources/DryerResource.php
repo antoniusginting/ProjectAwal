@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Filament\Resources;
-
+//supaya hilang dulu dari role
+namespace BezhanSalleh\FilamentShield\Resources;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Dryer;
@@ -22,9 +23,21 @@ use Filament\Forms\Components\Placeholder;
 use App\Filament\Resources\DryerResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\DryerResource\RelationManagers;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
-class DryerResource extends Resource
+class DryerResource extends Resource implements HasShieldPermissions
 {
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
     public static function canAccess(): bool
     {
         return false; // Menyembunyikan resource dari sidebar
@@ -39,7 +52,6 @@ class DryerResource extends Resource
     protected static ?string $navigationLabel = 'Dryer';
 
     public static ?string $label = 'Daftar Dryer ';
-
 
     public static function form(Form $form): Form
     {

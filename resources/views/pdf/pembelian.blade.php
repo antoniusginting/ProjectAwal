@@ -9,8 +9,8 @@
         :root {
             --primary-color: #1a202c;
             --secondary-bg: #ffffff;
-            --border-color: #e2e8f0;
-            --light-bg: #f7fafc;
+            --border-color: #ffffff;
+            --light-bg: #ffffff;
         }
 
         /* Gaya dasar halaman dengan ukuran font lebih kecil */
@@ -129,7 +129,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #718096;
+            color: #ffffff;
             font-size: 0.75rem;
         }
 

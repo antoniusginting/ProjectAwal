@@ -14,12 +14,24 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\KendaraanResource\Pages;
-use App\Filament\Resources\KendaraanResource\Pages\EditKendaraan;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\KendaraanResource\RelationManagers;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use App\Filament\Resources\KendaraanResource\Pages\EditKendaraan;
 
-class KendaraanResource extends Resource
+class KendaraanResource extends Resource implements HasShieldPermissions
 {
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
     protected static ?string $model = Kendaraan::class;
     protected static ?string $navigationGroup = 'Satpam';
     protected static ?string $navigationIcon = 'heroicon-o-truck';

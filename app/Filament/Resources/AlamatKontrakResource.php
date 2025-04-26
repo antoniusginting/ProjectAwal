@@ -4,23 +4,35 @@ namespace App\Filament\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
+use App\Models\Kontrak;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\AlamatKontrak;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\AlamatKontrakResource\Pages;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\AlamatKontrakResource\RelationManagers;
-use App\Models\Kontrak;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
 
-class AlamatKontrakResource extends Resource
+class AlamatKontrakResource extends Resource implements HasShieldPermissions
 {
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
     protected static ?string $model = AlamatKontrak::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-globe-asia-australia';

@@ -6,9 +6,8 @@ use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Sortiran;
-use Filament\Forms\Components\Actions\Action as FormAction;
-
 use Filament\Forms\Form;
+
 use App\Models\Pembelian;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
@@ -34,11 +33,24 @@ use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
 use App\Filament\Resources\SortiranResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Components\Actions\Action as FormAction;
 use App\Filament\Resources\SortiranResource\RelationManagers;
 use App\Filament\Resources\SortiranResource\Pages\ViewSortiran;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
-class SortiranResource extends Resource
+class SortiranResource extends Resource implements HasShieldPermissions
 {
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
     public static function getNavigationSort(): int
     {
         return 1; // Ini akan muncul di atas
@@ -78,6 +90,7 @@ class SortiranResource extends Resource
                                         $query = Pembelian::with(['mobil', 'supplier'])
                                             ->whereNotIn('id', $idSudahDisortir)
                                             ->whereNotNull('tara')
+                                            ->whereNotIn('nama_barang', ['CANGKANG', 'SEKAM'])
                                             ->latest();
 
                                         // Pastikan data yang sedang dipilih (saat edit) tetap ada
@@ -140,7 +153,7 @@ class SortiranResource extends Resource
                                         }
 
                                         // // Format angka dengan ribuan menggunakan titik dan desimal menggunakan koma
-                                        // $set('netto_bersih', number_format($value, 0, ',', '.'));
+                                         $set('netto_bersih', number_format($value, 0, ',', '.'));
                                     })
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                         // Hilangkan format sebelum melakukan operasi matematis
@@ -232,7 +245,7 @@ class SortiranResource extends Resource
                                     ->suffixAction(
                                         FormAction::make('cekTonase')
                                             ->icon('heroicon-o-calculator')
-                                            ->tooltip('Cek Tonase')
+                                            ->tooltip('Hitung Tonase')
                                             ->action(function ($state, callable $set, $get) {
                                                 // Ambil kembali semua nilai yang dibutuhkan
                                                 $nettoPembelian = floatval(str_replace(['.', ','], ['', '.'], $get('netto_pembelian') ?? 1));
@@ -314,7 +327,6 @@ class SortiranResource extends Resource
                                             ->required(), // Opsional: Atur default value
                                         FileUpload::make('foto_jagung_1')
                                             ->image()
-                                            ->required()
                                             ->multiple()
                                             ->openable()
                                             ->imagePreviewHeight(200)

@@ -1,24 +1,36 @@
 <?php
 
 namespace App\Filament\Resources;
-
-use App\Filament\Resources\LaporanPenjualanResource\Pages;
-use App\Filament\Resources\LaporanPenjualanResource\RelationManagers;
-use App\Models\LaporanPenjualan;
+namespace BezhanSalleh\FilamentShield\Resources;
 use Filament\Forms;
+use Filament\Tables;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use App\Models\LaporanPenjualan;
+use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\LaporanPenjualanResource\Pages;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use App\Filament\Resources\LaporanPenjualanResource\RelationManagers;
 
-class LaporanPenjualanResource extends Resource
+class LaporanPenjualanResource extends Resource implements HasShieldPermissions
 {
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
     public static function canAccess(): bool
     {
         return false; // Menyembunyikan resource dari sidebar

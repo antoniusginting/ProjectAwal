@@ -25,11 +25,22 @@ use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\KendaraanMasuksResource\Pages;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\KendaraanMasuksResource\RelationManagers;
 
-class KendaraanMasuksResource extends Resource
+class KendaraanMasuksResource extends Resource implements HasShieldPermissions
 {
-
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
 
     protected static ?string $model = KendaraanMasuks::class;
 

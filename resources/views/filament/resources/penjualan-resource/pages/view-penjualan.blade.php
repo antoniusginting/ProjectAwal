@@ -9,29 +9,28 @@
 
         <!-- Divider -->
         <div class="border-b border-gray-300 dark:border-gray-700"></div>
-        
+
 
 
         <!-- Info Pengiriman -->
         <div class="overflow-x-auto">
-            
+
             <table class="w-full">
                 <tbody class="text-base">
                     <tr>
                         <td class="font-semibold text-left align-top whitespace-nowrap">Tanggal</td>
                         <td class="whitespace-nowrap">: {{ $penjualan->created_at->format('d-m-Y') }}</td>
-                        <td class="font-semibold whitespace-nowrap">Jam</td>
-                        <td class="whitespace-nowrap">: {{ $penjualan->created_at->format('H:i') }}</td>
                         <td class="font-semibold whitespace-nowrap">Nama Lumbung</td>
                         <td class="whitespace-nowrap">: {{ $penjualan->nama_lumbung}}</td>
                         <td class="font-semibold whitespace-nowrap">Jam Masuk</td>
                         <td class="whitespace-nowrap">: {{ $penjualan->jam_masuk}}</td>
+                        <td class="font-semibold text-left align-top whitespace-nowrap">Container</td>
+                        <td class="whitespace-nowrap">: {{ $penjualan->no_container ?: '-'}}</td>
                     </tr>
                     <tr>
                         <td class="font-semibold whitespace-nowrap">Operator</td>
                         <td class="whitespace-nowrap">: {{ $penjualan->user->name }}</td>
-                        <td class="font-semibold text-left align-top whitespace-nowrap">Container</td>
-                        <td class="whitespace-nowrap">: {{ $penjualan->no_container }}</td>
+
                         <td class="font-semibold text-left align-top whitespace-nowrap">No Lumbung</td>
                         <td class="whitespace-nowrap">: {{ $penjualan->no_lumbung }}</td>
                         <td class="font-semibold whitespace-nowrap">Jam Keluar</td>
@@ -113,6 +112,6 @@
                 <div class="mt-4 border-b border-gray-300 dark:border-gray-700 w-56 mx-auto"></div>
             </div>
         </div>
-        
+
     </div>
 </x-filament-panels::page>

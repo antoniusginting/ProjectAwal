@@ -187,10 +187,12 @@
                     <td style="width: 20%; font-weight: bold;">Kepada Yth.</td>
                     <td style="width: 80%;">: {{ $suratjalan->kontrak->nama }}</td>
                 </tr>
+                @if (!empty($suratjalan->alamat->alamat))
                 <tr>
                     <td style="width: 20%; font-weight: bold;">Alamat</td>
-                    <td style="width: 80%;">: {{ $suratjalan->alamat->alamat }}</td>
+                    <td style="width: 80%;">: {{ $suratjalan->alamat?->alamat ?? '-' }}</td>
                 </tr>
+                @endif
                 @if (!empty($suratjalan->po))
                     <tr>
                         <td style="width: 20%; font-weight: bold;">No PO</td>
