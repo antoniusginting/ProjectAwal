@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\SortiranResource\Pages;
 
 use App\Filament\Resources\SortiranResource;
+use App\Models\Sortiran;
 use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
@@ -15,7 +16,13 @@ class CreateSortiran extends CreateRecord
     {
         return 'Tambah Sortiran';
     }
+    public function getSubheading(): ?string
+    {
+        $nextId = (Sortiran::max('id') ?? 0) + 1;
+        $noSortiran = 'S' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
 
+        return "{$noSortiran}";
+    }
     protected function getFormActions(): array
     {
         return [

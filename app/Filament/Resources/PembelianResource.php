@@ -65,27 +65,27 @@ class PembelianResource extends Resource implements HasShieldPermissions
                     ->schema([
                         Card::make()
                             ->schema([
-                                // TextInput::make('no_spb')
-                                //     ->label('No SPB')
-                                //     ->disabled()
-                                //     ->extraAttributes(['readonly' => true])
-                                //     ->dehydrated(false)
-                                //     ->afterStateUpdated(function (callable $set, $get) {
-                                //         $nextId = Pembelian::max('id') + 1; // Ambil ID terakhir + 1
-                                //         $set('no_spb', $get('jenis') . '-' . $nextId);
-                                //     }),
-                                Placeholder::make('next_id')
+                                TextInput::make('no_spb')
                                     ->label('No SPB')
-                                    ->content(function ($record) {
-                                        // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
-                                        if ($record) {
-                                            return $record->no_spb;
-                                        }
-
-                                        // Jika sedang membuat data baru, hitung kode berikutnya
-                                        $nextId = (Pembelian::max('id') ?? 0) + 1;
-                                        return 'B' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+                                    ->disabled()
+                                    ->extraAttributes(['readonly' => true])
+                                    ->dehydrated(false)
+                                    ->afterStateUpdated(function (callable $set, $get) {
+                                        $nextId = Pembelian::max('id') + 1; // Ambil ID terakhir + 1
+                                        $set('no_spb', $get('jenis') . '-' . $nextId);
                                     }),
+                                // Placeholder::make('next_id')
+                                //     ->label('No SPB')
+                                //     ->content(function ($record) {
+                                //         // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
+                                //         if ($record) {
+                                //             return $record->no_spb;
+                                //         }
+
+                                //         // Jika sedang membuat data baru, hitung kode berikutnya
+                                //         $nextId = (Pembelian::max('id') ?? 0) + 1;
+                                //         return 'B' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+                                //     }),
                                 TextInput::make('jam_masuk')
                                     ->readOnly()
                                     ->suffixIcon('heroicon-o-clock')
@@ -260,20 +260,36 @@ class PembelianResource extends Resource implements HasShieldPermissions
     public static function table(Table $table): Table
     {
         return $table
-            ->recordUrl(
-                fn(Pembelian $record): ?string =>
-                optional(Auth::user())->hasAnyRole(['super_admin'])
-                    // super_admin & admin selalu bisa
-                    ? EditPembelian::getUrl(['record' => $record])
-                    // selain itu, hanya bisa kalau kernek belum terisi
-                    : (! $record->tara
-                        ? EditPembelian::getUrl(['record' => $record])
-                        : null
-                    )
-            )
+        ->recordUrl(function (Pembelian $record): ?string {
+            $user = Auth::user();
+
+            // 1) Super admin bisa edit semua kondisi
+            if ($user && $user->hasRole('super_admin')) {
+                return EditPembelian::getUrl(['record' => $record]);
+            }
+
+            // 2) Admin1 hanya bisa edit jika tara belum ada
+            if ($user && $user->hasRole('timbangan')) {
+                if (!$record->tara) {
+                    return EditPembelian::getUrl(['record' => $record]);
+                }
+                return null;
+            }
+
+            // // 3) Admin2 hanya bisa edit jika no_spb belum ada
+            // if ($user && $user->hasRole('admin')) {
+            //     if (!$record->no_spb) {  // Sesuaikan dengan struktur data BK
+            //         return EditPembelian::getUrl(['record' => $record]);
+            //     }
+            //     return null;
+            // }
+
+            // 4) Role lainnya tidak bisa edit
+            return null;
+        })
             // Query dasar tanpa filter tara
             ->query(Pembelian::query())
-            ->defaultPaginationPageOption(5)
+            ->defaultPaginationPageOption(10)
             ->columns([
                 TextColumn::make('created_at')->label('Tanggal')
                     ->dateTime('d-m-Y'),

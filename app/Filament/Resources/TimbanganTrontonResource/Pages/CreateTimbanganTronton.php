@@ -6,6 +6,7 @@ use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\TimbanganTrontonResource;
+use App\Models\TimbanganTronton;
 
 class CreateTimbanganTronton extends CreateRecord
 {
@@ -16,6 +17,14 @@ class CreateTimbanganTronton extends CreateRecord
     {
         return 'Tambah Laporan Penjualan';
     }
+    public function getSubheading(): ?string
+    {
+        $nextId = (TimbanganTronton::max('id') ?? 0) + 1;
+        $noPenjualan = 'P' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+
+        return "{$noPenjualan}";
+    }
+
 
     protected function getFormActions(): array
     {

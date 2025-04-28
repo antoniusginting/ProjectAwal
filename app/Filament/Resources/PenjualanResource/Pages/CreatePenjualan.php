@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\PenjualanResource\Pages;
 
 use App\Filament\Resources\PenjualanResource;
+use App\Models\Penjualan;
 use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
@@ -16,7 +17,13 @@ class CreatePenjualan extends CreateRecord
     {
         return 'Tambah Penjualan';
     }
+    public function getSubheading(): ?string
+    {
+        $nextId = (Penjualan::max('id') ?? 0) + 1;
+        $noPenjualan = 'J' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
 
+        return "{$noPenjualan}";
+    }
     protected function getFormActions(): array
     {
         return [

@@ -64,7 +64,7 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
         return $form
             ->schema([
                 Select::make('plat_polisi')
-                    ->label('Ambil dari Penjualan (No BK)')
+                    ->label('Ambil dari Timbangan Penjualan (No BK)')
                     ->searchable()
                     ->options(function () {
                         $usedIds = Collection::make(range(1, 6))
@@ -150,7 +150,6 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                         $set('bruto_akhir', self::getBrutoAkhir($get));
                         $set('tara_awal', self::getTaraAwal($get));
                     }),
-
 
                 Card::make()
                     ->schema([
@@ -939,7 +938,8 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                     ->onIcon('heroicon-m-bolt')
                                     ->offIcon('heroicon-m-user')
                                     ->dehydrated(true)
-                                    ->hidden(fn() => !optional(Auth::user())->hasAnyRole(['admin', 'super_admin']))
+                                    ->default(0)
+                                    ->hidden(fn() => !optional(Auth::user())->hasAnyRole(['adminaudit', 'super_admin']))
                                     ->columns(1),
                                 Textarea::make('keterangan')
                                     ->placeholder('Masukkan Keterangan')
@@ -978,19 +978,30 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
     {
         return $table
             ->recordUrl(function (TimbanganTronton $record): ?string {
-                // 1) Super admin selalu boleh
-                if (optional(Auth::user())->hasRole('super_admin')) {
+                $user = Auth::user();
+
+                // 1) Super admin bisa edit semua kondisi
+                if ($user && $user->hasRole('super_admin')) {
                     return EditTimbanganTronton::getUrl(['record' => $record]);
                 }
 
-                // 2) Selain super admin, hanya boleh edit kalau:
-                //    • status falsy, dan
-                //    • BELUM punya suratJalans
-                if (! $record->status && ! $record->suratJalans()->exists()) {
-                    return EditTimbanganTronton::getUrl(['record' => $record]);
+                // 2) Admin1 hanya bisa edit jika status belum ada
+                if ($user && $user->hasRole('adminaudit')) {
+                    if (!$record->status) {
+                        return EditTimbanganTronton::getUrl(['record' => $record]);
+                    }
+                    return null;
                 }
 
-                // 3) Sisanya: non-clickable
+                // 3) Admin2 hanya bisa edit jika BK belum ada
+                if ($user && $user->hasRole('admin')) {
+                    if (!$record->kode) {  // Sesuaikan dengan struktur data BK
+                        return EditTimbanganTronton::getUrl(['record' => $record]);
+                    }
+                    return null;
+                }
+
+                // 4) Role lainnya tidak bisa edit
                 return null;
             })
 
@@ -998,14 +1009,19 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                 IconColumn::make('status')
                     ->boolean()
                     ->alignCenter(),
+                TextColumn::make('created_at')->label('Tanggal')
+                    ->dateTime('d-m-Y'),
                 TextColumn::make('penjualan1.plat_polisi')
-                    ->label('Plat Polisi'),
+                    ->label('Plat Polisi')
+                    ->searchable(),
                 TextColumn::make('kode')
-                    ->label('No Penjualan'),
+                    ->label('No Penjualan')
+                    ->searchable(),
                 TextColumn::make('created_at')->label('Tanggal')
                     ->dateTime('d-m-Y'),
                 TextColumn::make('penjualan1.nama_supir')
-                    ->label('Nama Supir'),
+                    ->label('Nama Supir')
+                    ->searchable(),
                 TextColumn::make('bruto_akhir')
                     ->label('Bruto Akhir')
                     ->alignCenter()

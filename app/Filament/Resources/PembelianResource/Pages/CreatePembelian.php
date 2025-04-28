@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\PembelianResource\Pages;
 
 use App\Filament\Resources\PembelianResource;
+use App\Models\Pembelian;
 use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
@@ -16,7 +17,13 @@ class CreatePembelian extends CreateRecord
     {
         return 'Tambah Pembelian';
     }
+    public function getSubheading(): ?string
+    {
+        $nextId = (Pembelian::max('id') ?? 0) + 1;
+        $noPembelian = 'B' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
 
+        return "{$noPembelian}";
+    }
     protected function getFormActions(): array
     {
         return [

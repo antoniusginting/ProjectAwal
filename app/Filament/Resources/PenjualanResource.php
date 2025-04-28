@@ -276,22 +276,39 @@ class PenjualanResource extends Resource implements HasShieldPermissions
     public static function table(Table $table): Table
     {
         return $table
-            ->recordUrl(
-                fn(Penjualan $record): ?string =>
-                optional(Auth::user())->hasAnyRole(['super_admin'])
-                    // super_admin & admin selalu bisa
-                    ? EditPenjualan::getUrl(['record' => $record])
-                    // selain itu, hanya bisa kalau kernek belum terisi
-                    : (! $record->bruto
-                        ? EditPenjualan::getUrl(['record' => $record])
-                        : null
-                    )
-            )
+        ->recordUrl(function (Penjualan $record): ?string {
+            $user = Auth::user();
+
+            // 1) Super admin bisa edit semua kondisi
+            if ($user && $user->hasRole('super_admin')) {
+                return EditPenjualan::getUrl(['record' => $record]);
+            }
+
+            // 2) Admin1 hanya bisa edit jika tara belum ada
+            if ($user && $user->hasRole('timbangan')) {
+                if (!$record->bruto) {
+                    return EditPenjualan::getUrl(['record' => $record]);
+                }
+                return null;
+            }
+
+            // // 3) Admin2 hanya bisa edit jika no_spb belum ada
+            // if ($user && $user->hasRole('admin')) {
+            //     if (!$record->no_spb) {  // Sesuaikan dengan struktur data BK
+            //         return EditPembelian::getUrl(['record' => $record]);
+            //     }
+            //     return null;
+            // }
+
+            // 4) Role lainnya tidak bisa edit
+            return null;
+        })
+
             // ->query(
             //     Penjualan::query()->whereNull('bruto') // hanya data yang punya nilai tara
             // )
             ->query(Penjualan::query())
-            ->defaultPaginationPageOption(5)
+            ->defaultPaginationPageOption(10)
             ->columns([
                 TextColumn::make('created_at')->label('Tanggal')
                     ->dateTime('d-m-Y'),

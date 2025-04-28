@@ -734,7 +734,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                     ->alignCenter()
                     ->onIcon('heroicon-m-check')
                     ->offIcon('heroicon-m-x-mark')
-                    ->disabled(fn() => !optional(Auth::user())->hasAnyRole(['admin', 'super_admin'])),
+                    ->disabled(fn() => !optional(Auth::user())->hasAnyRole(['admin', 'super_admin','adminaudit'])),
                 TextColumn::make('created_at')->label('Tanggal')
                     ->dateTime('d-m-Y'),
                 TextColumn::make('no_sortiran')
