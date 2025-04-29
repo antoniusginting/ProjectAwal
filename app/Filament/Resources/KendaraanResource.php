@@ -7,11 +7,13 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use App\Models\Kendaraan;
 use Filament\Tables\Table;
+use Illuminate\Support\Carbon;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\BadgeColumn;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\KendaraanResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -63,7 +65,7 @@ class KendaraanResource extends Resource implements HasShieldPermissions
                             ->label('Jenis Mobil')
                             ->options([
                                 'DUMP TRUCK (DT)' => 'DUMP TRUCK (DT)',
-                                'COLD DIESEL (CD)' => 'COLD DIESEL (CD)',
+                                'COLT DIESEL (CD)' => 'COLT DIESEL (CD)',
                             ])
                             ->placeholder('Pilih Jenis Mobil')
                             ->native(false)
@@ -106,6 +108,15 @@ class KendaraanResource extends Resource implements HasShieldPermissions
                 TextColumn::make('plat_polisi_terbaru')
                     ->label('Plat Baru')
                     ->searchable(),
+                // BadgeColumn::make('created_at')
+                //     ->label('Tanggal')
+                //     ->colors([
+                //         'success' => fn($state) => Carbon::parse($state)->isToday(),
+                //         'warning' => fn($state) => Carbon::parse($state)->isYesterday(),
+                //         'gray' => fn($state) => Carbon::parse($state)->isBefore(Carbon::yesterday()),
+                //     ])
+                //     ->formatStateUsing(fn($state) => Carbon::parse($state)->format('d M Y'))
+                //     ->sortable(),
                 TextColumn::make('plat_polisi_sebelumnya')
                     ->label('Plat Sebelumnya')
                     ->searchable(),
@@ -122,6 +133,19 @@ class KendaraanResource extends Resource implements HasShieldPermissions
                     ->label('Jenis Mobil')
                     ->alignCenter()
                     ->searchable(),
+                // BadgeColumn::make('jenis_mobil')
+                //     ->colors([
+                //         'primary' => 'COLD DIESEL (CD)',
+                //         'success' => 'DUMP TRUCK (DT)',
+                //     ])
+                //     ->formatStateUsing(function (string $state): string {
+                //         return match ($state) {
+                //             'COLD DIESEL (CD)' => 'Menunggu',
+                //             'DUMP TRUCK (DT)' => 'Disetujui',
+                //             default => $state,
+                //         };
+                //     })
+                //     ->sortable(),
                 TextColumn::make('status_sp')
                     ->label('Status SP')
                     ->alignCenter()

@@ -19,6 +19,7 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\BadgeColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Enums\ActionsPosition;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -221,11 +222,24 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
     {
         return $table
             ->columns([
-                TextColumn::make('created_at')->label('Tanggal')
-                    ->dateTime('d-m-Y'),
+                BadgeColumn::make('created_at')
+                    ->label('Tanggal')
+                    ->alignCenter()
+                    ->colors([
+                        'success' => fn($state) => Carbon::parse($state)->isToday(),
+                        'warning' => fn($state) => Carbon::parse($state)->isYesterday(),
+                        'gray' => fn($state) => Carbon::parse($state)->isBefore(Carbon::yesterday()),
+                    ])
+                    ->formatStateUsing(fn($state) => Carbon::parse($state)->format('d M Y')),
                 TextColumn::make('tronton.kode')
+                    ->alignCenter()
                     ->label('No Penjualan'),
+                TextColumn::make('tronton.penjualan1.plat_polisi')
+                    ->label('Plat Polisi')
+                    ->alignCenter()
+                    ->searchable(),
                 TextColumn::make('po')
+                    ->alignCenter()
                     ->label('No PO')
                     ->searchable(),
                 TextColumn::make('kontrak2.nama')

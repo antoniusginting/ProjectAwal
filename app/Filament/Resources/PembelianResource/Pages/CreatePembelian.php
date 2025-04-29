@@ -17,13 +17,13 @@ class CreatePembelian extends CreateRecord
     {
         return 'Tambah Pembelian';
     }
-    public function getSubheading(): ?string
-    {
-        $nextId = (Pembelian::max('id') ?? 0) + 1;
-        $noPembelian = 'B' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+    // public function getSubheading(): ?string
+    // {
+    //     $nextId = (Pembelian::max('id') ?? 0) + 1;
+    //     $noPembelian = 'B' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
 
-        return "{$noPembelian}";
-    }
+    //     return "{$noPembelian}";
+    // }
     protected function getFormActions(): array
     {
         return [

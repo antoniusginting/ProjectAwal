@@ -25,6 +25,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Columns\ToggleColumn;
@@ -153,7 +154,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                         }
 
                                         // // Format angka dengan ribuan menggunakan titik dan desimal menggunakan koma
-                                         $set('netto_bersih', number_format($value, 0, ',', '.'));
+                                        $set('netto_bersih', number_format($value, 0, ',', '.'));
                                     })
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                         // Hilangkan format sebelum melakukan operasi matematis
@@ -301,10 +302,10 @@ class SortiranResource extends Resource implements HasShieldPermissions
                             }),
                         TextInput::make('no_lumbung')
                             ->label('No Lumbung')
+                            ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                             ->placeholder('Masukkan No Lumbung')
                             ->autocomplete('off')
-                            ->required()
-                            ->numeric(),
+                            ->required(),
                         // Grid untuk menyusun field ke kanan
                         Grid::make([
                             'default' => 1,
@@ -727,16 +728,23 @@ class SortiranResource extends Resource implements HasShieldPermissions
     public static function table(Table $table): Table
     {
         return $table
-            ->defaultPaginationPageOption(5)
+            ->defaultPaginationPageOption(10)
             ->columns([
                 ToggleColumn::make('status')
                     ->label('Status Audit')
                     ->alignCenter()
                     ->onIcon('heroicon-m-check')
                     ->offIcon('heroicon-m-x-mark')
-                    ->disabled(fn() => !optional(Auth::user())->hasAnyRole(['admin', 'super_admin','adminaudit'])),
-                TextColumn::make('created_at')->label('Tanggal')
-                    ->dateTime('d-m-Y'),
+                    ->disabled(fn() => !optional(Auth::user())->hasAnyRole(['admin', 'super_admin', 'adminaudit'])),
+                BadgeColumn::make('created_at')
+                    ->label('Tanggal')
+                    ->alignCenter()
+                    ->colors([
+                        'success' => fn($state) => Carbon::parse($state)->isToday(),
+                        'warning' => fn($state) => Carbon::parse($state)->isYesterday(),
+                        'gray' => fn($state) => Carbon::parse($state)->isBefore(Carbon::yesterday()),
+                    ])
+                    ->formatStateUsing(fn($state) => Carbon::parse($state)->format('d M Y')),
                 TextColumn::make('no_sortiran')
                     ->searchable()
                     ->label('No Sortiran')
@@ -746,9 +754,9 @@ class SortiranResource extends Resource implements HasShieldPermissions
                 TextColumn::make('pembelian.netto')->label('Netto')
                     ->searchable()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                TextColumn::make('pembelian.tara')->label('Tara')
-                    ->searchable()
-                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                // TextColumn::make('pembelian.tara')->label('Tara')
+                //     ->searchable()
+                //     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('no_lumbung')->label('No Lumbung')
                     ->searchable()
                     ->alignCenter(),

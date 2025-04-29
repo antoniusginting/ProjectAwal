@@ -21,11 +21,12 @@ use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\BadgeColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
-use App\Filament\Resources\PenjualanResource\Pages;
 
+use App\Filament\Resources\PenjualanResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\PenjualanResource\Pages\EditPenjualan;
 
@@ -310,8 +311,15 @@ class PenjualanResource extends Resource implements HasShieldPermissions
             ->query(Penjualan::query())
             ->defaultPaginationPageOption(10)
             ->columns([
-                TextColumn::make('created_at')->label('Tanggal')
-                    ->dateTime('d-m-Y'),
+                BadgeColumn::make('created_at')
+                    ->label('Tanggal')
+                    ->alignCenter()
+                    ->colors([
+                        'success' => fn($state) => Carbon::parse($state)->isToday(),
+                        'warning' => fn($state) => Carbon::parse($state)->isYesterday(),
+                        'gray' => fn($state) => Carbon::parse($state)->isBefore(Carbon::yesterday()),
+                    ])
+                    ->formatStateUsing(fn($state) => Carbon::parse($state)->format('d M Y')),
                 TextColumn::make('no_spb')
                     ->searchable()
                     ->copyable()

@@ -211,11 +211,7 @@
                     <thead>
                         <tr>
                             <th class="border p-2">
-                                @if (!empty($suratjalan->tronton->penjualan1->plat_polisi))
-                                    Plat Polisi
-                                @else
-                                    No Container
-                                @endif
+                                Plat Polisi
                             </th>
                             <th>Nama Supir</th>
                             <th>Satuan Muatan</th>
@@ -226,11 +222,7 @@
                     <tbody>
                         <tr>
                             <td rowspan="3" class="text-center">
-                                @if (!empty($suratjalan->tronton->penjualan1->plat_polisi))
-                                    {{ $suratjalan->tronton->penjualan1->plat_polisi }}
-                                @else
-                                    {{ $suratjalan->tronton->penjualan1->no_container }}
-                                @endif - {{ $suratjalan->jenis_mobil }}
+                                {{ $suratjalan->tronton->penjualan1->plat_polisi }} - {{ $suratjalan->jenis_mobil }}
                             </td>
                             <td rowspan="3" class="text-center">{{ $suratjalan->tronton->penjualan1->nama_supir }}
                             </td>

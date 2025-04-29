@@ -21,6 +21,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
@@ -190,10 +191,15 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                     ->label('')
                     ->boolean()
                     ->alignCenter(),
-                TextColumn::make('created_at_date')
+                BadgeColumn::make('created_at')
                     ->label('Tanggal')
-                    ->state(fn($record) => \Carbon\Carbon::parse($record->created_at)->format('d-m-Y'))
-                    ->alignCenter(),
+                    ->alignCenter()
+                    ->colors([
+                        'success' => fn($state) => Carbon::parse($state)->isToday(),
+                        'warning' => fn($state) => Carbon::parse($state)->isYesterday(),
+                        'gray' => fn($state) => Carbon::parse($state)->isBefore(Carbon::yesterday()),
+                    ])
+                    ->formatStateUsing(fn($state) => Carbon::parse($state)->format('d M Y')),
                 TextColumn::make('nama_supir')
                     ->label('Nama Supir')
                     ->searchable(),

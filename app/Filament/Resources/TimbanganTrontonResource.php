@@ -27,6 +27,8 @@ use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
@@ -930,17 +932,17 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                     ->disabled(),
                                             ])->columnSpan(1)->collapsed(),
                                     ])->columns(3)->collapsible(),
-                                Toggle::make('status')
-                                    ->disabled(function ($state, $record) {
-                                        return $record && !in_array((int) $state, [0]);
-                                    })
-                                    ->helperText('Klik jika sudah diaudit')
-                                    ->onIcon('heroicon-m-bolt')
-                                    ->offIcon('heroicon-m-user')
-                                    ->dehydrated(true)
-                                    ->default(0)
-                                    ->hidden(fn() => !optional(Auth::user())->hasAnyRole(['adminaudit', 'super_admin']))
-                                    ->columns(1),
+                                // Toggle::make('status')
+                                //     ->disabled(function ($state, $record) {
+                                //         return $record && !in_array((int) $state, [0]);
+                                //     })
+                                //     ->helperText('Klik jika sudah diaudit')
+                                //     ->onIcon('heroicon-m-bolt')
+                                //     ->offIcon('heroicon-m-user')
+                                //     ->dehydrated(true)
+                                //     ->default(0)
+                                //     ->hidden(fn() => !optional(Auth::user())->hasAnyRole(['adminaudit', 'super_admin']))
+                                //     ->columns(1),
                                 Textarea::make('keterangan')
                                     ->placeholder('Masukkan Keterangan')
                                     ->columnSpanFull(), // Tetap 1 kolom penuh di semua ukuran layar
@@ -986,8 +988,8 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                 }
 
                 // 2) Admin1 hanya bisa edit jika status belum ada
-                if ($user && $user->hasRole('adminaudit')) {
-                    if (!$record->status) {
+                if ($user && $user->hasRole('timbangan')) {
+                    if (!$record->status == 1) {
                         return EditTimbanganTronton::getUrl(['record' => $record]);
                     }
                     return null;
@@ -1006,19 +1008,28 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
             })
 
             ->columns([
-                IconColumn::make('status')
-                    ->boolean()
-                    ->alignCenter(),
-                TextColumn::make('created_at')->label('Tanggal')
-                    ->dateTime('d-m-Y'),
+                ToggleColumn::make('status')
+                    ->label('Status Audit')
+                    ->alignCenter()
+                    ->onIcon('heroicon-m-check')
+                    ->offIcon('heroicon-m-x-mark')
+                    ->disabled(fn() => !optional(Auth::user())->hasAnyRole(['admin', 'super_admin', 'adminaudit'])),
+                BadgeColumn::make('created_at')
+                    ->label('Tanggal')
+                    ->alignCenter()
+                    ->colors([
+                        'success' => fn($state) => Carbon::parse($state)->isToday(),
+                        'warning' => fn($state) => Carbon::parse($state)->isYesterday(),
+                        'gray' => fn($state) => Carbon::parse($state)->isBefore(Carbon::yesterday()),
+                    ])
+                    ->formatStateUsing(fn($state) => Carbon::parse($state)->format('d M Y')),
+                TextColumn::make('kode')
+                    ->label('No Penjualan')
+                    ->alignCenter()
+                    ->searchable(),
                 TextColumn::make('penjualan1.plat_polisi')
                     ->label('Plat Polisi')
                     ->searchable(),
-                TextColumn::make('kode')
-                    ->label('No Penjualan')
-                    ->searchable(),
-                TextColumn::make('created_at')->label('Tanggal')
-                    ->dateTime('d-m-Y'),
                 TextColumn::make('penjualan1.nama_supir')
                     ->label('Nama Supir')
                     ->searchable(),
