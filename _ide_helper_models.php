@@ -626,7 +626,7 @@ namespace App\Models{
  * @property string|null $jenis
  * @property string|null $no_sortiran
  * @property int $id_pembelian
- * @property int $no_lumbung
+ * @property string|null $no_lumbung
  * @property int|null $total_karung
  * @property int|null $berat_tungkul
  * @property string|null $netto_bersih
