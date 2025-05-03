@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Sortiran extends Model
 {
@@ -69,4 +70,10 @@ class Sortiran extends Model
     // {
     //     return $this->belongsTo(KapasitasLumbungBasah::class, 'id_lumbung_basah', 'id');
     // }
+
+    public function lumbungBasahs(): BelongsToMany
+    {
+        return $this->belongsToMany(LumbungBasah::class, 'lumbung_basah_has_sortiran')
+            ->withTimestamps();
+    }
 }

@@ -30,10 +30,10 @@ class KapasitasLumbungKeringResource extends Resource implements HasShieldPermis
             'delete_any',
         ];
     }
-    public static function canAccess(): bool
-    {
-        return false; // Menyembunyikan resource dari sidebar
-    }
+    // public static function canAccess(): bool
+    // {
+    //     return false; // Menyembunyikan resource dari sidebar
+    // }
     protected static ?string $model = KapasitasLumbungKering::class;
     protected static ?string $navigationGroup = 'Kapasitas';
     protected static ?string $navigationIcon = 'heroicon-o-archive-box-arrow-down';
@@ -82,12 +82,12 @@ class KapasitasLumbungKeringResource extends Resource implements HasShieldPermis
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
                 Tables\Actions\ViewAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
+            // ->bulkActions([
+            //     Tables\Actions\BulkActionGroup::make([
+            //         Tables\Actions\DeleteBulkAction::make(),
+            //     ]),
+            // ]);
     }
 
     public static function getRelations(): array

@@ -3,17 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class LumbungBasah extends Model
 {
     protected $fillable = [
         'no_lumbung_basah',
-        'jenis_jagung',
-        'id_sortiran_1',
-        'id_sortiran_2',
-        'id_sortiran_3',
-        'id_sortiran_4',
-        'id_sortiran_5',
+        'tujuan',
         'total_netto',
         'status',
     ];
@@ -24,34 +20,40 @@ class LumbungBasah extends Model
         return $this->belongsTo(KapasitasLumbungBasah::class, 'no_lumbung_basah', 'id');
     }
 
-    public function sortiran1()
-    {
-        return $this->belongsTo(Sortiran::class, 'id_sortiran_1');
-    }
+    // public function sortiran1()
+    // {
+    //     return $this->belongsTo(Sortiran::class, 'id_sortiran_1');
+    // }
 
-    public function sortiran2()
-    {
-        return $this->belongsTo(Sortiran::class, 'id_sortiran_2');
-    }
+    // public function sortiran2()
+    // {
+    //     return $this->belongsTo(Sortiran::class, 'id_sortiran_2');
+    // }
 
-    public function sortiran3()
-    {
-        return $this->belongsTo(Sortiran::class, 'id_sortiran_3');
-    }
+    // public function sortiran3()
+    // {
+    //     return $this->belongsTo(Sortiran::class, 'id_sortiran_3');
+    // }
 
-    public function sortiran4()
-    {
-        return $this->belongsTo(Sortiran::class, 'id_sortiran_4');
-    }
+    // public function sortiran4()
+    // {
+    //     return $this->belongsTo(Sortiran::class, 'id_sortiran_4');
+    // }
 
-    public function sortiran5()
-    {
-        return $this->belongsTo(Sortiran::class, 'id_sortiran_5');
-    }
+    // public function sortiran5()
+    // {
+    //     return $this->belongsTo(Sortiran::class, 'id_sortiran_5');
+    // }
 
-    public function sortiran6()
+    // public function sortiran6()
+    // {
+    //     return $this->belongsTo(Sortiran::class, 'id_sortiran_6');
+    // }
+
+    public function sortirans(): BelongsToMany
     {
-        return $this->belongsTo(Sortiran::class, 'id_sortiran_6');
+        return $this->belongsToMany(Sortiran::class, 'lumbung_basah_has_sortiran')
+            ->withTimestamps();
     }
     // Pengurangan kapasitas_sisa dengan total_netto
     protected static function booted()
@@ -75,19 +77,19 @@ class LumbungBasah extends Model
             $oldLumbungBasah = $lumbungBasah->getOriginal();
             $oldNetto = $oldLumbungBasah['total_netto'] ?? 0;
             $oldNoLumbung = $oldLumbungBasah['no_lumbung_basah'];
-        
+
             // Cek apakah nomor lumbung berubah
             if ($oldNoLumbung !== $lumbungBasah->no_lumbung_basah) {
                 throw new \Exception('Nomor Lumbung tidak dapat diubah!');
             }
-        
+
             // Cari data kapasitas berdasarkan ID lama
             $kapasitas = KapasitasLumbungBasah::find($oldNoLumbung);
-        
+
             if ($kapasitas) {
                 // Hitung selisih perubahan
                 $selisih = $lumbungBasah->total_netto - $oldNetto;
-        
+
                 if ($selisih > 0) {
                     // Jika netto bertambah, pastikan kapasitas cukup
                     if ($kapasitas->kapasitas_sisa >= $selisih) {
@@ -101,6 +103,5 @@ class LumbungBasah extends Model
                 }
             }
         });
-        
     }
 }

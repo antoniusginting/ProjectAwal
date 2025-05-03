@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Filament\Resources;
-namespace BezhanSalleh\FilamentShield\Resources;
+// namespace BezhanSalleh\FilamentShield\Resources;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
@@ -32,10 +32,10 @@ class KapasitasLumbungBasahResource extends Resource implements HasShieldPermiss
             'delete_any',
         ];
     }
-    public static function canAccess(): bool
-    {
-        return false; // Menyembunyikan resource dari sidebar
-    }
+    // public static function canAccess(): bool
+    // {
+    //     return false; // Menyembunyikan resource dari sidebar
+    // }
 
     protected static ?string $model = KapasitasLumbungBasah::class;
     protected static ?string $navigationGroup = 'Kapasitas';
@@ -84,21 +84,31 @@ class KapasitasLumbungBasahResource extends Resource implements HasShieldPermiss
             ->columns([
                 // TextColumn::make('id')->label('No'),
                 TextColumn::make('no_kapasitas_lumbung')
+                    ->alignCenter()
                     ->label('No Lumbung'),
                 TextColumn::make('kapasitas_total')
+                    ->alignCenter()
                     ->label('Kapasitas Total')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')), // Tambah pemisah ribuan,
                 TextColumn::make('kapasitas_sisa')
                     ->label('Kapasitas Sisa')
+                    ->alignCenter()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                TextColumn::make('kapasitas_terpakai')
+                    ->label('Kapasitas Terpakai')
+                    ->alignCenter()
+                    ->getStateUsing(function ($record) {
+                        $kapasitasTerpakai = $record->kapasitas_total - $record->kapasitas_sisa;
+                        return number_format($kapasitasTerpakai, 0, ',', '.');
+                    })
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-                Tables\Actions\ViewAction::make(),
+                // Tables\Actions\EditAction::make(),
+                // Tables\Actions\DeleteAction::make(),
+                // Tables\Actions\ViewAction::make(),
                 Action::make('reset_kapasitas')
                     ->label('Reset')
                     ->action(fn($record) => $record->update([
@@ -107,24 +117,24 @@ class KapasitasLumbungBasahResource extends Resource implements HasShieldPermiss
                     ->requiresConfirmation()
                     ->color('warning')
                     ->icon('heroicon-o-arrow-path'),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                Tables\Actions\BulkAction::make('reset_kapasitas')
-                    ->label('Reset Kapasitas')
-                    ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
-                        foreach ($records as $record) {
-                            $record->update([
-                                'kapasitas_sisa' => $record->kapasitas_total,
-                            ]);
-                        }
-                    })
-                    ->requiresConfirmation()
-                    ->color('warning')
-                    ->icon('heroicon-o-arrow-path'),
-                ])
             ]);
+        // ->bulkActions([
+        //     Tables\Actions\BulkActionGroup::make([
+        //         Tables\Actions\DeleteBulkAction::make(),
+        //         Tables\Actions\BulkAction::make('reset_kapasitas')
+        //             ->label('Reset Kapasitas')
+        //             ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+        //                 foreach ($records as $record) {
+        //                     $record->update([
+        //                         'kapasitas_sisa' => $record->kapasitas_total,
+        //                     ]);
+        //                 }
+        //             })
+        //             ->requiresConfirmation()
+        //             ->color('warning')
+        //             ->icon('heroicon-o-arrow-path'),
+        //     ])
+        // ]);
     }
 
     public static function getRelations(): array
