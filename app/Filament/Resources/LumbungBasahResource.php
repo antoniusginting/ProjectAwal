@@ -86,6 +86,9 @@ class LumbungBasahResource extends Resource implements HasShieldPermissions
                                     ->reactive()
                                     ->disabled(fn($record) => $record !== null)
                                     ->afterStateHydrated(function ($state, callable $set) {
+                                        // Reset sortiran ketika no_lumbung_basah berubah
+                                        $set('sortirans', []);
+                                        $set('total_netto', 0);
                                         if ($state) {
                                             $kapasitaslumbungbasah = KapasitasLumbungBasah::find($state);
                                             $set('kapasitas_sisa', $kapasitaslumbungbasah?->kapasitas_sisa ?? 'Tidak ada');
@@ -147,10 +150,45 @@ class LumbungBasahResource extends Resource implements HasShieldPermissions
                                 // Dapatkan record saat ini (untuk mode edit)
                                 $record = $livewire->getRecord();
 
+                                // Dapatkan nilai no_lumbung_basah yang dipilih dengan cara yang aman
+                                $noLumbungBasah = null;
+
+                                // Metode yang lebih aman untuk mendapatkan data form
+                                if (method_exists($livewire, 'getData')) {
+                                    $formData = $livewire->getData();
+                                    $noLumbungBasah = $formData['no_lumbung_basah'] ?? null;
+                                } else {
+                                    // Alternatif jika getData tidak tersedia
+                                    try {
+                                        $form = $livewire->form;
+                                        $noLumbungBasah = $form->getState()['no_lumbung_basah'] ?? null;
+                                    } catch (\Throwable $e) {
+                                        // Jika gagal mendapatkan data, coba pendekatan lain
+                                        $noLumbungBasah = null;
+                                    }
+                                }
+
+                                if (!$noLumbungBasah) {
+                                    // Jika no_lumbung_basah belum dipilih, tampilkan list kosong
+                                    return $query->whereRaw('1 = 0');
+                                }
+
+                                // Dapatkan nilai no_kapasitas_lumbung dari KapasitasLumbungBasah
+                                $kapasitasLumbung = KapasitasLumbungBasah::find($noLumbungBasah);
+                                $noKapasitasLumbung = $kapasitasLumbung ? $kapasitasLumbung->no_kapasitas_lumbung : null;
+
+                                if (!$noKapasitasLumbung) {
+                                    // Jika no_kapasitas_lumbung tidak ditemukan, tampilkan list kosong
+                                    return $query->whereRaw('1 = 0');
+                                }
+
                                 // Dapatkan semua sortiran yang sudah ada di semua lumbung basah
                                 $usedSortiranIds = DB::table('lumbung_basah_has_sortiran')
                                     ->pluck('sortiran_id')
                                     ->toArray();
+
+                                // Filter dasar: sortiran harus memiliki no_lumbung yang sama dengan no_kapasitas_lumbung
+                                $baseQuery = $query->where('sortirans.no_lumbung', $noKapasitasLumbung);
 
                                 // Jika dalam mode edit, kita perlu menyertakan sortiran yang sudah terkait dengan record ini
                                 if ($record) {
@@ -159,15 +197,15 @@ class LumbungBasahResource extends Resource implements HasShieldPermissions
                                         ->pluck('sortirans.id')
                                         ->toArray();
 
-                                    // Filter untuk hanya menampilkan sortiran yang belum digunakan atau yang sudah terkait dengan record ini
-                                    return $query->where(function ($q) use ($usedSortiranIds, $currentSortiranIds) {
-                                        $q->whereNotIn('sortirans.id', $usedSortiranIds)  // Spesifikkan tabel untuk kolom id
-                                            ->orWhereIn('sortirans.id', $currentSortiranIds);  // Spesifikkan tabel untuk kolom id
-                                    })->latest('sortirans.created_at');  // Spesifikkan tabel untuk kolom created_at
+                                    // Filter lengkap:
+                                    return $baseQuery->where(function ($q) use ($usedSortiranIds, $currentSortiranIds) {
+                                        $q->whereNotIn('sortirans.id', $usedSortiranIds)
+                                            ->orWhereIn('sortirans.id', $currentSortiranIds);
+                                    })->latest('sortirans.created_at');
                                 } else {
                                     // Dalam mode create, hanya tampilkan sortiran yang belum digunakan
-                                    return $query->whereNotIn('sortirans.id', $usedSortiranIds)  // Spesifikkan tabel untuk kolom id
-                                        ->latest('sortirans.created_at');  // Spesifikkan tabel untuk kolom created_at
+                                    return $baseQuery->whereNotIn('sortirans.id', $usedSortiranIds)
+                                        ->latest('sortirans.created_at');
                                 }
                             })
                             ->getOptionLabelFromRecordUsing(function ($record) {
