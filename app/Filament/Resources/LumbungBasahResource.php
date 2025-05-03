@@ -125,33 +125,8 @@ class LumbungBasahResource extends Resource implements HasShieldPermissions
                                     ->dehydrateStateUsing(function ($state) {
                                         // Konversi ke integer saat menyimpan ke database
                                         return (int)str_replace(['.', ','], ['', '.'], $state);
-                                    })
-                                    ->suffixAction(
-                                        FormAction::make('cekTonase')
-                                            ->icon('heroicon-o-calculator')
-                                            ->tooltip('Hitung Kapasitas')
-                                            ->action(function ($get, $set) {
-                                                // Mendapatkan nilai kapasitas_sisa dan total_netto
-                                                $kapasitasSisa = (int)str_replace(['.', ','], ['', '.'], $get('kapasitas_sisa'));
-                                                $totalNetto = (int)str_replace(['.', ','], ['', '.'], $get('total_netto'));
+                                    }),
 
-                                                // Hitung kapasitas sisa baru
-                                                $kapasitasSisaBaru = $kapasitasSisa - $totalNetto;
-
-                                                // Format angka untuk tampilan
-                                                $formattedKapasitasSisaBaru = number_format($kapasitasSisaBaru, 0, ',', '.');
-
-                                                // Set nilai kapasitas_sisa yang baru
-                                                $set('kapasitas_sisa', $formattedKapasitasSisaBaru);
-
-                                                // Tampilkan notifikasi
-                                                Notification::make()
-                                                    ->title('Kapasitas dihitung ulang')
-                                                    ->body("Kapasitas sisa baru: {$formattedKapasitasSisaBaru}")
-                                                    ->success()
-                                                    ->send();
-                                            })
-                                    ),
                                 TextInput::make('created_at')
                                     ->label('Tanggal Sekarang')
                                     ->placeholder(now()->format('d-m-Y')) // Tampilkan di input
@@ -173,25 +148,78 @@ class LumbungBasahResource extends Resource implements HasShieldPermissions
                                 return $record->no_sortiran . ' - ' . $noBk;
                             })
                             ->reactive()
-                            ->afterStateUpdated(function ($state, callable $set) {
+                            ->afterStateUpdated(function ($state, callable $set, callable $get, $livewire) {
+                                // Mendapatkan nilai kapasitas sisa awal
+                                $noLumbungBasah = $get('no_lumbung_basah');
+                                $kapasitasAwal = 0;
+
+                                // Dapatkan record saat ini (untuk mode edit)
+                                $record = $livewire->getRecord();
+                                $isEditMode = $record !== null;
+
+                                // Dapatkan kapasitas awal dari database
+                                if ($noLumbungBasah) {
+                                    $kapasitasLumbung = KapasitasLumbungBasah::find($noLumbungBasah);
+                                    if ($kapasitasLumbung) {
+                                        $kapasitasAwal = $kapasitasLumbung->kapasitas_sisa;
+                                    }
+                                }
+
+                                // Jika dalam mode edit, tambahkan kembali kapasitas yang sudah terpakai sebelumnya
+                                if ($isEditMode) {
+                                    // Mendapatkan sortiran yang sudah ada sebelumnya
+                                    // Perbaiki query untuk menghindari ambiguitas
+                                    $oldSortiranIds = $record->sortirans()
+                                        ->select('sortirans.id') // Spesifikkan tabel untuk kolom id
+                                        ->pluck('sortirans.id')
+                                        ->toArray();
+
+                                    $oldSortirans = \App\Models\Sortiran::whereIn('id', $oldSortiranIds)->get();
+
+                                    // Tambahkan kembali kapasitas dari sortiran yang sebelumnya terpakai
+                                    $totalOldNetto = 0;
+                                    foreach ($oldSortirans as $oldSortiran) {
+                                        $oldNettoValue = (int) preg_replace('/[^0-9]/', '', $oldSortiran->netto_bersih);
+                                        $totalOldNetto += $oldNettoValue;
+                                    }
+
+                                    // Tambahkan kapasitas yang sebelumnya terpakai
+                                    $kapasitasAwal += $totalOldNetto;
+                                }
+
+                                // Jika tidak ada sortiran dipilih, reset total netto dan gunakan kapasitas awal
                                 if (empty($state)) {
                                     $set('total_netto', 0);
+                                    $set('kapasitas_sisa', number_format($kapasitasAwal, 0, ',', '.'));
                                     return;
                                 }
 
-                                // Ambil data sortiran berdasarkan ID yang dipilih
-                                $sortirans = \App\Models\Sortiran::whereIn('id', $state)->get();
+                                // Ambil semua sortiran yang dipilih saat ini
+                                $selectedSortirans = \App\Models\Sortiran::whereIn('id', $state)->get();
 
-                                // Hitung total dengan mengkonversi varchar ke integer
-                                $total = 0;
-                                foreach ($sortirans as $sortiran) {
-                                    // Konversi varchar ke integer (hapus karakter non-numerik jika ada)
+                                // Hitung total netto dari semua sortiran yang dipilih saat ini
+                                $totalNetto = 0;
+                                foreach ($selectedSortirans as $sortiran) {
                                     $nettoValue = (int) preg_replace('/[^0-9]/', '', $sortiran->netto_bersih);
-                                    $total += $nettoValue;
+                                    $totalNetto += $nettoValue;
                                 }
 
-                                // Set nilai ke field total_netto dengan format yang diinginkan
-                                $set('total_netto', number_format($total, 0, ',', '.'));
+                                // Set nilai total_netto dengan format
+                                $set('total_netto', number_format($totalNetto, 0, ',', '.'));
+
+                                // Hitung kapasitas sisa baru dengan mengurangi kapasitas awal dengan total netto baru
+                                $kapasitasSisaBaru = $kapasitasAwal - $totalNetto;
+
+                                // Format kapasitas sisa untuk tampilan
+                                $formattedKapasitasSisaBaru = number_format($kapasitasSisaBaru, 0, ',', '.');
+
+                                // Set nilai kapasitas_sisa baru
+                                $set('kapasitas_sisa', $formattedKapasitasSisaBaru);
+
+                                // Tampilkan notifikasi
+                                $notificationMessage = $isEditMode ?
+                                    "Kapasitas diperbarui (mode edit)" :
+                                    "Kapasitas diperbarui";
                             })
                             ->preload()
                             ->searchable(),
