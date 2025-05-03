@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 // namespace BezhanSalleh\FilamentShield\Resources;
+use Dom\Text;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Sortiran;
@@ -9,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\LumbungBasah;
 use Filament\Resources\Resource;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
 use App\Models\KapasitasLumbungBasah;
@@ -19,12 +21,11 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Actions\Action as FormAction;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\LumbungBasahResource\Pages;
+use Filament\Forms\Components\Actions\Action as FormAction;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\LumbungBasahResource\RelationManagers;
-use Dom\Text;
 
 class LumbungBasahResource extends Resource implements HasShieldPermissions
 {
@@ -142,7 +143,33 @@ class LumbungBasahResource extends Resource implements HasShieldPermissions
                         Select::make('sortirans')
                             ->label('Sortiran')
                             ->multiple()
-                            ->relationship('sortirans', 'no_sortiran')
+                            ->relationship('sortirans', 'no_sortiran', function ($query, $livewire) {
+                                // Dapatkan record saat ini (untuk mode edit)
+                                $record = $livewire->getRecord();
+
+                                // Dapatkan semua sortiran yang sudah ada di semua lumbung basah
+                                $usedSortiranIds = DB::table('lumbung_basah_has_sortiran')
+                                    ->pluck('sortiran_id')
+                                    ->toArray();
+
+                                // Jika dalam mode edit, kita perlu menyertakan sortiran yang sudah terkait dengan record ini
+                                if ($record) {
+                                    $currentSortiranIds = $record->sortirans()
+                                        ->select('sortirans.id')
+                                        ->pluck('sortirans.id')
+                                        ->toArray();
+
+                                    // Filter untuk hanya menampilkan sortiran yang belum digunakan atau yang sudah terkait dengan record ini
+                                    return $query->where(function ($q) use ($usedSortiranIds, $currentSortiranIds) {
+                                        $q->whereNotIn('sortirans.id', $usedSortiranIds)  // Spesifikkan tabel untuk kolom id
+                                            ->orWhereIn('sortirans.id', $currentSortiranIds);  // Spesifikkan tabel untuk kolom id
+                                    })->latest('sortirans.created_at');  // Spesifikkan tabel untuk kolom created_at
+                                } else {
+                                    // Dalam mode create, hanya tampilkan sortiran yang belum digunakan
+                                    return $query->whereNotIn('sortirans.id', $usedSortiranIds)  // Spesifikkan tabel untuk kolom id
+                                        ->latest('sortirans.created_at');  // Spesifikkan tabel untuk kolom created_at
+                                }
+                            })
                             ->getOptionLabelFromRecordUsing(function ($record) {
                                 $noBk = $record->pembelian ? $record->pembelian->plat_polisi : 'N/A';
                                 return $record->no_sortiran . ' - ' . $noBk;
@@ -850,6 +877,7 @@ class LumbungBasahResource extends Resource implements HasShieldPermissions
                     ->label('Tujuan'),
                 TextColumn::make('total_netto')
                     ->alignCenter()
+                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.'))
                     ->label('Total Netto'),
                 TextColumn::make('status')
                     ->label('Status'),
