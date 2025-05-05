@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 // namespace BezhanSalleh\FilamentShield\Resources;
 use Dom\Text;
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Sortiran;
@@ -10,6 +11,7 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\LumbungBasah;
 use Filament\Resources\Resource;
+use function Laravel\Prompts\text;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
@@ -21,9 +23,12 @@ use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Tables\Columns\BadgeColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
+use Filament\Tables\Enums\ActionsPosition;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+
 use App\Filament\Resources\LumbungBasahResource\Pages;
 use Filament\Forms\Components\Actions\Action as FormAction;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
@@ -288,23 +293,32 @@ class LumbungBasahResource extends Resource implements HasShieldPermissions
         return $table
             ->defaultPaginationPageOption(5)
             ->columns([
-                TextColumn::make('created_at')->label('Tanggal')
-                    ->dateTime('d-m-Y'),
+                BadgeColumn::make('created_at')
+                    ->label('Tanggal')
+                    ->alignCenter()
+                    ->colors([
+                        'success' => fn($state) => Carbon::parse($state)->isToday(),
+                        'warning' => fn($state) => Carbon::parse($state)->isYesterday(),
+                        'gray' => fn($state) => Carbon::parse($state)->isBefore(Carbon::yesterday()),
+                    ])
+                    ->formatStateUsing(fn($state) => Carbon::parse($state)->format('d M Y')),
                 TextColumn::make('no_lb')->label('No LB'),
                 TextColumn::make('no_lumbung_basah')->label('No Lumbung Basah')
                     ->searchable()
                     ->alignCenter(),
                 TextColumn::make('sortirans')
                     ->alignCenter()
+                    // ->extraAttributes(['style' => 'width: 250px;'])
                     ->label('No Sortiran')
                     ->formatStateUsing(function ($record) {
                         return $record->sortirans->map(function ($sortiran) {
-                            return $sortiran->no_sortiran . ' - ' . $sortiran->netto_bersih . ' (' . number_format($sortiran->pivot->tonase, 0, ',', '.') . ' kg)';
+                            return $sortiran->no_sortiran . ''; //. $sortiran->netto_bersih . ' - ' . $sortiran->pembelian->nama_supir . '';
                         })->implode(', ');
                     })
                     ->wrap()
                     ->limit(50),
                 TextColumn::make('tujuan')
+                    ->alignCenter()
                     ->label('Tujuan'),
                 TextColumn::make('total_netto')
                     ->alignCenter()
@@ -312,16 +326,19 @@ class LumbungBasahResource extends Resource implements HasShieldPermissions
                     ->label('Total Netto'),
                 TextColumn::make('status')
                     ->label('Status'),
+                TextColumn::make('user.name')
+                    ->label('User'),
             ])
             ->defaultSort('no_lb', 'desc')
             ->filters([
                 //
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
-                // Tables\Actions\DeleteAction::make(),
-                // Tables\Actions\ViewAction::make(),
-            ]);
+                Tables\Actions\Action::make('view-lumbungbasah')
+                    ->label(__("Lihat"))
+                    ->icon('heroicon-o-eye')
+                    ->url(fn($record) => self::getUrl("view-lumbung-basah", ['record' => $record->id])),
+            ], position: ActionsPosition::BeforeColumns);
         // ->bulkActions([
         //     Tables\Actions\BulkActionGroup::make([
         //         Tables\Actions\DeleteBulkAction::make(),
@@ -342,6 +359,7 @@ class LumbungBasahResource extends Resource implements HasShieldPermissions
             'index' => Pages\ListLumbungBasahs::route('/'),
             'create' => Pages\CreateLumbungBasah::route('/create'),
             'edit' => Pages\EditLumbungBasah::route('/{record}/edit'),
+            'view-lumbung-basah' => Pages\ViewLumbungBasah::route('/{record}/view-lumbung-basah'),
         ];
     }
 }
