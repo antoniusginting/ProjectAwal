@@ -12,8 +12,13 @@ class LumbungBasah extends Model
         'tujuan',
         'total_netto',
         'status',
+        'user_id',
     ];
-
+    // Relasi ke User
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
     // Relasi ke Kapasitas
     public function kapasitaslumbungbasah()
     {

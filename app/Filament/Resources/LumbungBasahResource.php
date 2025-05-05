@@ -13,7 +13,9 @@ use Filament\Resources\Resource;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
+use Illuminate\Support\Facades\Auth;
 use App\Models\KapasitasLumbungBasah;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
@@ -86,9 +88,6 @@ class LumbungBasahResource extends Resource implements HasShieldPermissions
                                     ->reactive()
                                     ->disabled(fn($record) => $record !== null)
                                     ->afterStateHydrated(function ($state, callable $set) {
-                                        // Reset sortiran ketika no_lumbung_basah berubah
-                                        $set('sortirans', []);
-                                        $set('total_netto', 0);
                                         if ($state) {
                                             $kapasitaslumbungbasah = KapasitasLumbungBasah::find($state);
                                             $set('kapasitas_sisa', $kapasitaslumbungbasah?->kapasitas_sisa ?? 'Tidak ada');
@@ -107,6 +106,9 @@ class LumbungBasahResource extends Resource implements HasShieldPermissions
                                         $set('kapasitas_total', $kapasitaslumbungbasah?->kapasitas_total ?? 'Tidak ada');
                                         $formattedtotal = number_format($kapasitaslumbungbasah?->kapasitas_total ?? 0, 0, ',', '.');
                                         $set('kapasitas_total', $formattedtotal);
+                                        // Reset nilai sortirans ketika no_lumbung_basah berubah
+                                        $set('sortirans', null);
+                                        $set('total_netto', null);
                                     }),
                                 TextInput::make('kapasitas_total')
                                     ->label('Kapasitas Total')
@@ -147,48 +149,33 @@ class LumbungBasahResource extends Resource implements HasShieldPermissions
                             ->label('Sortiran')
                             ->multiple()
                             ->relationship('sortirans', 'no_sortiran', function ($query, $livewire) {
+                                // Dapatkan no_lumbung_basah yang dipilih
+                                $selectedLumbungId = $livewire->data['no_lumbung_basah'] ?? null;
+
+                                // Jika no_lumbung_basah belum dipilih, kembalikan query yang tidak akan mengembalikan hasil apapun
+                                if (!$selectedLumbungId) {
+                                    // Gunakan nama tabel yang eksplisit untuk menghindari ambiguitas
+                                    return $query->where('sortirans.id', -1);
+                                }
+
                                 // Dapatkan record saat ini (untuk mode edit)
                                 $record = $livewire->getRecord();
-
-                                // Dapatkan nilai no_lumbung_basah yang dipilih dengan cara yang aman
-                                $noLumbungBasah = null;
-
-                                // Metode yang lebih aman untuk mendapatkan data form
-                                if (method_exists($livewire, 'getData')) {
-                                    $formData = $livewire->getData();
-                                    $noLumbungBasah = $formData['no_lumbung_basah'] ?? null;
-                                } else {
-                                    // Alternatif jika getData tidak tersedia
-                                    try {
-                                        $form = $livewire->form;
-                                        $noLumbungBasah = $form->getState()['no_lumbung_basah'] ?? null;
-                                    } catch (\Throwable $e) {
-                                        // Jika gagal mendapatkan data, coba pendekatan lain
-                                        $noLumbungBasah = null;
-                                    }
-                                }
-
-                                if (!$noLumbungBasah) {
-                                    // Jika no_lumbung_basah belum dipilih, tampilkan list kosong
-                                    return $query->whereRaw('1 = 0');
-                                }
-
-                                // Dapatkan nilai no_kapasitas_lumbung dari KapasitasLumbungBasah
-                                $kapasitasLumbung = KapasitasLumbungBasah::find($noLumbungBasah);
-                                $noKapasitasLumbung = $kapasitasLumbung ? $kapasitasLumbung->no_kapasitas_lumbung : null;
-
-                                if (!$noKapasitasLumbung) {
-                                    // Jika no_kapasitas_lumbung tidak ditemukan, tampilkan list kosong
-                                    return $query->whereRaw('1 = 0');
-                                }
 
                                 // Dapatkan semua sortiran yang sudah ada di semua lumbung basah
                                 $usedSortiranIds = DB::table('lumbung_basah_has_sortiran')
                                     ->pluck('sortiran_id')
                                     ->toArray();
 
-                                // Filter dasar: sortiran harus memiliki no_lumbung yang sama dengan no_kapasitas_lumbung
-                                $baseQuery = $query->where('sortirans.no_lumbung', $noKapasitasLumbung);
+                                // Base query - filter berdasarkan no_lumbung jika ada
+                                $query = $query->when($selectedLumbungId, function ($q) use ($selectedLumbungId) {
+                                    // Dapatkan no_lumbung dari KapasitasLumbungBasah
+                                    $kapasitasLumbung = KapasitasLumbungBasah::find($selectedLumbungId);
+                                    if ($kapasitasLumbung) {
+                                        // Filter sortiran berdasarkan no_lumbung yang sama
+                                        return $q->where('sortirans.no_lumbung', $kapasitasLumbung->no_kapasitas_lumbung);
+                                    }
+                                    return $q;
+                                });
 
                                 // Jika dalam mode edit, kita perlu menyertakan sortiran yang sudah terkait dengan record ini
                                 if ($record) {
@@ -198,13 +185,13 @@ class LumbungBasahResource extends Resource implements HasShieldPermissions
                                         ->toArray();
 
                                     // Filter lengkap:
-                                    return $baseQuery->where(function ($q) use ($usedSortiranIds, $currentSortiranIds) {
+                                    return $query->where(function ($q) use ($usedSortiranIds, $currentSortiranIds) {
                                         $q->whereNotIn('sortirans.id', $usedSortiranIds)
                                             ->orWhereIn('sortirans.id', $currentSortiranIds);
                                     })->latest('sortirans.created_at');
                                 } else {
                                     // Dalam mode create, hanya tampilkan sortiran yang belum digunakan
-                                    return $baseQuery->whereNotIn('sortirans.id', $usedSortiranIds)
+                                    return $query->whereNotIn('sortirans.id', $usedSortiranIds)
                                         ->latest('sortirans.created_at');
                                 }
                             })
@@ -288,605 +275,11 @@ class LumbungBasahResource extends Resource implements HasShieldPermissions
                             })
                             ->preload()
                             ->searchable(),
+                        Hidden::make('user_id')
+                            ->label('User ID')
+                            ->default(Auth::id()) // Set nilai default user yang sedang login,
                     ]),
-                // Card::make()
-                //     ->schema([
-                //         Grid::make(3)
-                //             ->schema([
-                //                 //Card No sortiran1
-                //                 Card::make('Sortiran ke-1')
-                //                     ->schema([
-                //                         Select::make('id_sortiran_1')
-                //                             ->label('No Sortiran')
-                //                             ->placeholder('Pilih No Sortiran 1')
-                //                             ->options(Sortiran::latest()->pluck('no_sortiran', 'id')->toArray())
-                //                             ->searchable()
-                //                             ->required()
-                //                             ->reactive()
-                //                             //->disabled(fn($record) => $record !== null)
-                //                             ->afterStateHydrated(function ($state, callable $set) {
-                //                                 if ($state) {
-                //                                     // Ambil data sortiran berdasarkan ID yang dipilih
-                //                                     $sortiran1 = Sortiran::with('pembelian')->find($state);
 
-                //                                     // Ambil netto dan format angka dengan titik ribuan
-                //                                     $nettoFormatted = number_format($sortiran1?->pembelian?->netto ?? 0, 0, ',', '.');
-
-                //                                     // Set nilai ke TextInput yang hanya untuk tampilan
-                //                                     $set('netto_1_display', $nettoFormatted);
-
-                //                                     // Ambil nomor lumbung
-                //                                     $set('no_lumbung_1', $sortiran1?->no_lumbung ?? 'Tidak ada');
-                //                                 }
-                //                             })
-                //                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                //                                 if (empty($state)) {
-                //                                     // Reset nilai jika Select dikosongkan
-                //                                     $set('netto_1', null);
-                //                                     $set('netto_1_display', null);
-                //                                     $set('no_lumbung_1', null);
-                //                                 } else {
-                //                                     // Ambil data sortiran berdasarkan ID yang dipilih
-                //                                     $sortiran1 = Sortiran::with('pembelian')->find($state);
-
-                //                                     // Pastikan netto diambil dari sortiran yang benar
-                //                                     $netto = $sortiran1?->pembelian?->netto ?? 0;
-
-                //                                     // Simpan netto agar bisa digunakan dalam perhitungan
-                //                                     $set('netto_1', $netto);
-
-                //                                     // Format angka dengan titik ribuan
-                //                                     $nettoFormatted = number_format($netto, 0, ',', '.');
-
-                //                                     // Set nilai ke TextInput tampilan
-                //                                     $set('netto_1_display', $nettoFormatted);
-
-                //                                     // Ambil nomor lumbung
-                //                                     $set('no_lumbung_1', $sortiran1?->no_lumbung ?? 'Tidak ada');
-
-                //                                     // 🔥 Validasi Duplikasi
-                //                                     $selectedSortiran = [
-                //                                         $get('id_sortiran_1'),
-                //                                         $get('id_sortiran_2'),
-                //                                         $get('id_sortiran_3'),
-                //                                         $get('id_sortiran_4'),
-                //                                         $get('id_sortiran_5'),
-                //                                         $get('id_sortiran_6'),
-                //                                     ];
-
-                //                                     // Jika nilai duplikat ditemukan
-                //                                     if (count(array_filter($selectedSortiran)) !== count(array_unique(array_filter($selectedSortiran)))) {
-                //                                         // Reset nilai yang baru diinputkan
-                //                                         $set('id_sortiran_1', null);
-                //                                         $set('netto_1_display', null);
-                //                                         $set('no_lumbung_1', null);
-
-                //                                         // Memunculkan notifikasi
-                //                                         Notification::make()
-                //                                             ->title('Gagal!')
-                //                                             ->danger()
-                //                                             ->body('Sortiran tidak boleh duplikat. Pilih nomor lain.')
-                //                                             ->send();
-                //                                     }
-                //                                 }
-
-                //                                 // 🔥 Hitung ulang total netto dengan mengambil semua nilai netto yang sudah tersimpan
-                //                                 $totalNetto =
-                //                                     intval($get('netto_1') ?? 0) +
-                //                                     intval($get('netto_2') ?? 0) +
-                //                                     intval($get('netto_3') ?? 0) +
-                //                                     intval($get('netto_4') ?? 0) +
-                //                                     intval($get('netto_5') ?? 0) +
-                //                                     intval($get('netto_6') ?? 0);
-
-                //                                 $set('total_netto', $totalNetto);
-                //                             }),
-
-                //                         TextInput::make('netto_1_display')
-                //                             ->label('Netto Pembelian')
-                //                             ->placeholder('Pilih terlebih dahulu no sortiran 1')
-                //                             ->disabled(),
-
-                //                         TextInput::make('no_lumbung_1')
-                //                             ->label('No lumbung')
-                //                             ->placeholder('Pilih terlebih dahulu no sortiran 1')
-                //                             ->disabled(),
-                //                     ])->columnSpan(1)
-                //                     ->collapsible(),
-                //                 //Card No sortiran 2
-                //                 Card::make('Sortiran ke-2')
-                //                     ->schema([
-                //                         Select::make('id_sortiran_2')
-                //                             ->label('No Sortiran')
-                //                             ->placeholder('Pilih No Sortiran 2')
-                //                             ->options(Sortiran::latest()->pluck('no_sortiran', 'id')->toArray())
-                //                             ->searchable()
-                //                             ->reactive()
-                //                             //->disabled(fn($record) => $record !== null)
-                //                             ->afterStateHydrated(function ($state, callable $set) {
-                //                                 if ($state) {
-                //                                     // Ambil data sortiran berdasarkan ID yang dipilih
-                //                                     $sortiran2 = Sortiran::with('pembelian')->find($state);
-
-                //                                     // Ambil netto dan format angka dengan titik ribuan
-                //                                     $nettoFormatted = number_format($sortiran2?->pembelian?->netto ?? 0, 0, ',', '.');
-
-                //                                     // Set nilai ke TextInput yang hanya untuk tampilan
-                //                                     $set('netto_2_display', $nettoFormatted);
-
-                //                                     // Ambil nomor lumbung
-                //                                     $set('no_lumbung_2', $sortiran2?->no_lumbung ?? 'Tidak ada');
-                //                                 }
-                //                             })
-                //                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                //                                 if (empty($state)) {
-                //                                     // Reset nilai jika Select dikosongkan
-                //                                     $set('netto_2', null);
-                //                                     $set('netto_2_display', null);
-                //                                     $set('no_lumbung_2', null);
-                //                                 } else {
-                //                                     // Ambil data sortiran berdasarkan ID yang dipilih
-                //                                     $sortiran2 = Sortiran::with('pembelian')->find($state);
-
-                //                                     // Pastikan netto diambil dari sortiran yang benar
-                //                                     $netto = $sortiran2?->pembelian?->netto ?? 0;
-
-                //                                     // Simpan netto agar bisa digunakan dalam perhitungan
-                //                                     $set('netto_2', $netto);
-
-                //                                     // Format angka dengan titik ribuan
-                //                                     $nettoFormatted = number_format($netto, 0, ',', '.');
-
-                //                                     // Set nilai ke TextInput tampilan
-                //                                     $set('netto_2_display', $nettoFormatted);
-
-                //                                     // Ambil nomor lumbung
-                //                                     $set('no_lumbung_2', $sortiran2?->no_lumbung ?? 'Tidak ada');
-
-                //                                     // 🔥 Validasi Duplikasi
-                //                                     $selectedSortiran = [
-                //                                         $get('id_sortiran_1'),
-                //                                         $get('id_sortiran_2'),
-                //                                         $get('id_sortiran_3'),
-                //                                         $get('id_sortiran_4'),
-                //                                         $get('id_sortiran_5'),
-                //                                         $get('id_sortiran_6'),
-                //                                     ];
-
-                //                                     // Jika nilai duplikat ditemukan
-                //                                     if (count(array_filter($selectedSortiran)) !== count(array_unique(array_filter($selectedSortiran)))) {
-                //                                         // Reset nilai yang baru diinputkan
-                //                                         $set('id_sortiran_2', null);
-                //                                         $set('netto_2_display', null);
-                //                                         $set('no_lumbung_2', null);
-
-                //                                         // Memunculkan notifikasi
-                //                                         Notification::make()
-                //                                             ->title('Gagal!')
-                //                                             ->danger()
-                //                                             ->body('Sortiran tidak boleh duplikat. Pilih nomor lain.')
-                //                                             ->send();
-                //                                     }
-                //                                 }
-
-                //                                 // 🔥 Hitung ulang total netto dengan mengambil semua nilai netto yang sudah tersimpan
-                //                                 $totalNetto =
-                //                                     intval($get('netto_1') ?? 0) +
-                //                                     intval($get('netto_2') ?? 0) +
-                //                                     intval($get('netto_3') ?? 0) +
-                //                                     intval($get('netto_4') ?? 0) +
-                //                                     intval($get('netto_5') ?? 0) +
-                //                                     intval($get('netto_6') ?? 0);
-
-                //                                 $set('total_netto', $totalNetto);
-                //                             }),
-
-                //                         TextInput::make('netto_2_display')
-                //                             ->label('Netto Pembelian')
-                //                             ->placeholder('Pilih terlebih dahulu no sortiran 2')
-                //                             ->disabled(),
-                //                         TextInput::make('no_lumbung_2')
-                //                             ->label('No lumbung')
-                //                             ->placeholder('Pilih terlebih dahulu no sortiran 2')
-                //                             ->disabled(),
-
-                //                     ])->columnSpan(1)
-                //                     ->collapsible(),
-                //                 //Card No sortiran 3
-                //                 Card::make('Sortiran ke-3')
-                //                     ->schema([
-                //                         Select::make('id_sortiran_3')
-                //                             ->label('No Sortiran')
-                //                             ->placeholder('Pilih No Sortiran 3')
-                //                             ->options(Sortiran::latest()->pluck('no_sortiran', 'id')->toArray())
-                //                             ->searchable()
-                //                             ->reactive()
-                //                             //->disabled(fn($record) => $record !== null)
-                //                             ->afterStateHydrated(function ($state, callable $set) {
-                //                                 if ($state) {
-                //                                     // Ambil data sortiran berdasarkan ID yang dipilih
-                //                                     $sortiran3 = Sortiran::with('pembelian')->find($state);
-
-                //                                     // Ambil netto dan format angka dengan titik ribuan
-                //                                     $nettoFormatted = number_format($sortiran3?->pembelian?->netto ?? 0, 0, ',', '.');
-
-                //                                     // Set nilai ke TextInput yang hanya untuk tampilan
-                //                                     $set('netto_3_display', $nettoFormatted);
-
-                //                                     // Ambil nomor lumbung
-                //                                     $set('no_lumbung_3', $sortiran3?->no_lumbung ?? 'Tidak ada');
-                //                                 }
-                //                             })
-                //                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                //                                 if (empty($state)) {
-                //                                     // Reset nilai jika Select dikosongkan
-                //                                     $set('netto_3', 0);
-                //                                     $set('netto_3_display', '');
-                //                                     $set('no_lumbung_3', '');
-                //                                 } else {
-                //                                     // Ambil data sortiran berdasarkan ID yang dipilih
-                //                                     $sortiran3 = Sortiran::with('pembelian')->find($state);
-
-                //                                     // Pastikan netto diambil dari sortiran yang benar
-                //                                     $netto = $sortiran3?->pembelian?->netto ?? 0;
-
-                //                                     // Simpan netto agar bisa digunakan dalam perhitungan
-                //                                     $set('netto_3', $netto);
-
-                //                                     // Format angka dengan titik ribuan
-                //                                     $nettoFormatted = number_format($netto, 0, ',', '.');
-
-                //                                     // Set nilai ke TextInput tampilan
-                //                                     $set('netto_3_display', $nettoFormatted);
-
-                //                                     // Ambil nomor lumbung
-                //                                     $set('no_lumbung_3', $sortiran3?->no_lumbung ?? 'Tidak ada');
-
-                //                                     // 🔥 Validasi Duplikasi
-                //                                     $selectedSortiran = [
-                //                                         $get('id_sortiran_1'),
-                //                                         $get('id_sortiran_2'),
-                //                                         $get('id_sortiran_3'),
-                //                                         $get('id_sortiran_4'),
-                //                                         $get('id_sortiran_5'),
-                //                                         $get('id_sortiran_6'),
-                //                                     ];
-
-                //                                     // Jika nilai duplikat ditemukan
-                //                                     if (count(array_filter($selectedSortiran)) !== count(array_unique(array_filter($selectedSortiran)))) {
-                //                                         // Reset nilai yang baru diinputkan
-                //                                         $set('id_sortiran_3', null);
-                //                                         $set('netto_3_display', null);
-                //                                         $set('no_lumbung_3', null);
-
-                //                                         // Memunculkan notifikasi
-                //                                         Notification::make()
-                //                                             ->title('Gagal!')
-                //                                             ->danger()
-                //                                             ->body('Sortiran tidak boleh duplikat. Pilih nomor lain.')
-                //                                             ->send();
-                //                                     }
-                //                                 }
-
-                //                                 // 🔥 Hitung ulang total netto dengan mengambil semua nilai netto yang sudah tersimpan
-                //                                 $totalNetto =
-                //                                     intval($get('netto_1') ?? 0) +
-                //                                     intval($get('netto_2') ?? 0) +
-                //                                     intval($get('netto_3') ?? 0) +
-                //                                     intval($get('netto_4') ?? 0) +
-                //                                     intval($get('netto_5') ?? 0) +
-                //                                     intval($get('netto_6') ?? 0);
-
-                //                                 $set('total_netto', $totalNetto);
-                //                             }),
-                //                         TextInput::make('netto_3_display')
-                //                             ->label('Netto Pembelian')
-                //                             ->placeholder('Pilih terlebih dahulu no sortiran 3')
-                //                             ->disabled(),
-                //                         TextInput::make('no_lumbung_3')
-                //                             ->label('No lumbung')
-                //                             ->placeholder('Pilih terlebih dahulu no sortiran 3')
-                //                             ->disabled(),
-                //                     ])->columnSpan(1)
-                //                     ->collapsible(),
-                //                 //Card No Sortiran 4
-                //                 Card::make('Sortiran ke-4')
-                //                     ->schema([
-                //                         Select::make('id_sortiran_4')
-                //                             ->label('No Sortiran')
-                //                             ->placeholder('Pilih No Sortiran 4')
-                //                             ->options(Sortiran::latest()->pluck('no_sortiran', 'id')->toArray())
-                //                             ->searchable()
-                //                             ->reactive()
-                //                             //->disabled(fn($record) => $record !== null)
-                //                             ->afterStateHydrated(function ($state, callable $set) {
-                //                                 if ($state) {
-                //                                     // Ambil data sortiran berdasarkan ID yang dipilih
-                //                                     $sortiran4 = Sortiran::with('pembelian')->find($state);
-
-                //                                     // Ambil netto dan format angka dengan titik ribuan
-                //                                     $nettoFormatted = number_format($sortiran4?->pembelian?->netto ?? 0, 0, ',', '.');
-
-                //                                     // Set nilai ke TextInput yang hanya untuk tampilan
-                //                                     $set('netto_4_display', $nettoFormatted);
-
-                //                                     // Ambil nomor lumbung
-                //                                     $set('no_lumbung_4', $sortiran4?->no_lumbung ?? 'Tidak ada');
-                //                                 }
-                //                             })
-                //                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                //                                 if (empty($state)) {
-                //                                     // Reset nilai jika Select dikosongkan
-                //                                     $set('netto_4', 0);
-                //                                     $set('netto_4_display', '');
-                //                                     $set('no_lumbung_4', '');
-                //                                 } else {
-                //                                     // Ambil data sortiran berdasarkan ID yang dipilih
-                //                                     $sortiran4 = Sortiran::with('pembelian')->find($state);
-
-                //                                     // Pastikan netto diambil dari sortiran yang benar
-                //                                     $netto = $sortiran4?->pembelian?->netto ?? 0;
-
-                //                                     // Simpan netto agar bisa digunakan dalam perhitungan
-                //                                     $set('netto_4', $netto);
-
-                //                                     // Format angka dengan titik ribuan
-                //                                     $nettoFormatted = number_format($netto, 0, ',', '.');
-
-                //                                     // Set nilai ke TextInput tampilan
-                //                                     $set('netto_4_display', $nettoFormatted);
-
-                //                                     // Ambil nomor lumbung
-                //                                     $set('no_lumbung_4', $sortiran1?->no_lumbung ?? 'Tidak ada');
-
-                //                                     // 🔥 Validasi Duplikasi
-                //                                     $selectedSortiran = [
-                //                                         $get('id_sortiran_1'),
-                //                                         $get('id_sortiran_2'),
-                //                                         $get('id_sortiran_3'),
-                //                                         $get('id_sortiran_4'),
-                //                                         $get('id_sortiran_5'),
-                //                                         $get('id_sortiran_6'),
-                //                                     ];
-
-                //                                     // Jika nilai duplikat ditemukan
-                //                                     if (count(array_filter($selectedSortiran)) !== count(array_unique(array_filter($selectedSortiran)))) {
-                //                                         // Reset nilai yang baru diinputkan
-                //                                         $set('id_sortiran_4', null);
-                //                                         $set('netto_4_display', null);
-                //                                         $set('no_lumbung_4', null);
-
-                //                                         // Memunculkan notifikasi
-                //                                         Notification::make()
-                //                                             ->title('Gagal!')
-                //                                             ->danger()
-                //                                             ->body('Sortiran tidak boleh duplikat. Pilih nomor lain.')
-                //                                             ->send();
-                //                                     }
-                //                                 }
-
-                //                                 // 🔥 Hitung ulang total netto dengan mengambil semua nilai netto yang sudah tersimpan
-                //                                 $totalNetto =
-                //                                     intval($get('netto_1') ?? 0) +
-                //                                     intval($get('netto_2') ?? 0) +
-                //                                     intval($get('netto_3') ?? 0) +
-                //                                     intval($get('netto_4') ?? 0) +
-                //                                     intval($get('netto_5') ?? 0) +
-                //                                     intval($get('netto_6') ?? 0);
-
-                //                                 $set('total_netto', $totalNetto);
-                //                             }),
-
-                //                         TextInput::make('netto_4_display')
-                //                             ->label('Netto Pembelian')
-                //                             ->placeholder('Pilih terlebih dahulu no sortiran 4')
-                //                             ->disabled(),
-                //                         TextInput::make('no_lumbung_4')
-                //                             ->label('No lumbung')
-                //                             ->placeholder('Pilih terlebih dahulu no sortiran 4')
-                //                             ->disabled(),
-
-                //                     ])->columnSpan(1)
-                //                     ->collapsible(),
-                //                 //Card No sortiran 5
-                //                 Card::make('Sortiran ke-5')
-                //                     ->schema([
-                //                         Select::make('id_sortiran_5')
-                //                             ->label('No Sortiran')
-                //                             ->placeholder('Pilih No Sortiran 5')
-                //                             ->options(Sortiran::latest()->pluck('no_sortiran', 'id')->toArray())
-                //                             ->searchable()
-                //                             ->reactive()
-                //                             //->disabled(fn($record) => $record !== null)
-                //                             ->afterStateHydrated(function ($state, callable $set) {
-                //                                 if ($state) {
-                //                                     // Ambil data sortiran berdasarkan ID yang dipilih
-                //                                     $sortiran5 = Sortiran::with('pembelian')->find($state);
-
-                //                                     // Ambil netto dan format angka dengan titik ribuan
-                //                                     $nettoFormatted = number_format($sortiran5?->pembelian?->netto ?? 0, 0, ',', '.');
-
-                //                                     // Set nilai ke TextInput yang hanya untuk tampilan
-                //                                     $set('netto_5_display', $nettoFormatted);
-
-                //                                     // Ambil nomor lumbung
-                //                                     $set('no_lumbung_5', $sortiran5?->no_lumbung ?? 'Tidak ada');
-                //                                 }
-                //                             })
-                //                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                //                                 if (empty($state)) {
-                //                                     // Reset nilai jika Select dikosongkan
-                //                                     $set('netto_5', 0);
-                //                                     $set('netto_5_display', '');
-                //                                     $set('no_lumbung_5', '');
-                //                                 } else {
-                //                                     // Ambil data sortiran berdasarkan ID yang dipilih
-                //                                     $sortiran5 = Sortiran::with('pembelian')->find($state);
-
-                //                                     // Pastikan netto diambil dari sortiran yang benar
-                //                                     $netto = $sortiran5?->pembelian?->netto ?? 0;
-
-                //                                     // Simpan netto agar bisa digunakan dalam perhitungan
-                //                                     $set('netto_5', $netto);
-
-                //                                     // Format angka dengan titik ribuan
-                //                                     $nettoFormatted = number_format($netto, 0, ',', '.');
-
-                //                                     // Set nilai ke TextInput tampilan
-                //                                     $set('netto_5_display', $nettoFormatted);
-
-                //                                     // Ambil nomor lumbung
-                //                                     $set('no_lumbung_5', $sortiran5?->no_lumbung ?? 'Tidak ada');
-
-                //                                     // 🔥 Validasi Duplikasi
-                //                                     $selectedSortiran = [
-                //                                         $get('id_sortiran_1'),
-                //                                         $get('id_sortiran_2'),
-                //                                         $get('id_sortiran_3'),
-                //                                         $get('id_sortiran_4'),
-                //                                         $get('id_sortiran_5'),
-                //                                         $get('id_sortiran_6'),
-                //                                     ];
-
-                //                                     // Jika nilai duplikat ditemukan
-                //                                     if (count(array_filter($selectedSortiran)) !== count(array_unique(array_filter($selectedSortiran)))) {
-                //                                         // Reset nilai yang baru diinputkan
-                //                                         $set('id_sortiran_5', null);
-                //                                         $set('netto_5_display', null);
-                //                                         $set('no_lumbung_5', null);
-
-                //                                         // Memunculkan notifikasi
-                //                                         Notification::make()
-                //                                             ->title('Gagal!')
-                //                                             ->danger()
-                //                                             ->body('Sortiran tidak boleh duplikat. Pilih nomor lain.')
-                //                                             ->send();
-                //                                     }
-                //                                 }
-
-                //                                 // 🔥 Hitung ulang total netto dengan mengambil semua nilai netto yang sudah tersimpan
-                //                                 $totalNetto =
-                //                                     intval($get('netto_1') ?? 0) +
-                //                                     intval($get('netto_2') ?? 0) +
-                //                                     intval($get('netto_3') ?? 0) +
-                //                                     intval($get('netto_4') ?? 0) +
-                //                                     intval($get('netto_5') ?? 0) +
-                //                                     intval($get('netto_6') ?? 0);
-
-                //                                 $set('total_netto', $totalNetto);
-                //                             }),
-
-                //                         TextInput::make('netto_5_display')
-                //                             ->label('Netto Pembelian')
-                //                             ->placeholder('Pilih terlebih dahulu no sortiran 5')
-                //                             ->disabled(),
-
-                //                         TextInput::make('no_lumbung_5')
-                //                             ->label('No lumbung')
-                //                             ->placeholder('Pilih terlebih dahulu no sortiran 5')
-                //                             ->disabled(),
-                //                     ])->columnSpan(1)
-                //                     ->collapsible(),
-                //                 //Card No Sortiran 6
-                //                 Card::make('Sortiran ke-6')
-                //                     ->schema([
-                //                         Select::make('id_sortiran_6')
-                //                             ->label('No Sortiran')
-                //                             ->placeholder('Pilih No Sortiran 6')
-                //                             ->options(Sortiran::latest()->pluck('no_sortiran', 'id')->toArray())
-                //                             ->searchable()
-                //                             ->reactive()
-                //                             //->disabled(fn($record) => $record !== null)
-                //                             ->afterStateHydrated(function ($state, callable $set) {
-                //                                 if ($state) {
-                //                                     // Ambil data sortiran berdasarkan ID yang dipilih
-                //                                     $sortiran6 = Sortiran::with('pembelian')->find($state);
-
-                //                                     // Ambil netto dan format angka dengan titik ribuan
-                //                                     $nettoFormatted = number_format($sortiran6?->pembelian?->netto ?? 0, 0, ',', '.');
-
-                //                                     // Set nilai ke TextInput yang hanya untuk tampilan
-                //                                     $set('netto_6_display', $nettoFormatted);
-
-                //                                     // Ambil nomor lumbung
-                //                                     $set('no_lumbung_6', $sortiran6?->no_lumbung ?? 'Tidak ada');
-                //                                 }
-                //                             })
-                //                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                //                                 if (empty($state)) {
-                //                                     // Reset nilai jika Select dikosongkan
-                //                                     $set('netto_6', 0);
-                //                                     $set('netto_6_display', '');
-                //                                     $set('no_lumbung_6', '');
-                //                                 } else {
-                //                                     // Ambil data sortiran berdasarkan ID yang dipilih
-                //                                     $sortiran6 = Sortiran::with('pembelian')->find($state);
-
-                //                                     // Pastikan netto diambil dari sortiran yang benar
-                //                                     $netto = $sortiran6?->pembelian?->netto ?? 0;
-
-                //                                     // Simpan netto agar bisa digunakan dalam perhitungan
-                //                                     $set('netto_6', $netto);
-
-                //                                     // Format angka dengan titik ribuan
-                //                                     $nettoFormatted = number_format($netto, 0, ',', '.');
-
-                //                                     // Set nilai ke TextInput tampilan
-                //                                     $set('netto_6_display', $nettoFormatted);
-
-                //                                     // Ambil nomor lumbung
-                //                                     $set('no_lumbung_6', $sortiran6?->no_lumbung ?? 'Tidak ada');
-
-                //                                     // 🔥 Validasi Duplikasi
-                //                                     $selectedSortiran = [
-                //                                         $get('id_sortiran_1'),
-                //                                         $get('id_sortiran_2'),
-                //                                         $get('id_sortiran_3'),
-                //                                         $get('id_sortiran_4'),
-                //                                         $get('id_sortiran_5'),
-                //                                         $get('id_sortiran_6'),
-                //                                     ];
-
-                //                                     // Jika nilai duplikat ditemukan
-                //                                     if (count(array_filter($selectedSortiran)) !== count(array_unique(array_filter($selectedSortiran)))) {
-                //                                         // Reset nilai yang baru diinputkan
-                //                                         $set('id_sortiran_6', null);
-                //                                         $set('netto_6_display', null);
-                //                                         $set('no_lumbung_6', null);
-
-                //                                         // Memunculkan notifikasi
-                //                                         Notification::make()
-                //                                             ->title('Gagal!')
-                //                                             ->danger()
-                //                                             ->body('Sortiran tidak boleh duplikat. Pilih nomor lain.')
-                //                                             ->send();
-                //                                     }
-                //                                 }
-
-                //                                 // 🔥 Hitung ulang total netto dengan mengambil semua nilai netto yang sudah tersimpan
-                //                                 $totalNetto =
-                //                                     intval($get('netto_1') ?? 0) +
-                //                                     intval($get('netto_2') ?? 0) +
-                //                                     intval($get('netto_3') ?? 0) +
-                //                                     intval($get('netto_4') ?? 0) +
-                //                                     intval($get('netto_5') ?? 0) +
-                //                                     intval($get('netto_6') ?? 0);
-
-                //                                 $set('total_netto', $totalNetto);
-                //                             }),
-
-                //                         TextInput::make('netto_6_display')
-                //                             ->label('Netto Pembelian')
-                //                             ->placeholder('Pilih terlebih dahulu no sortiran 6')
-                //                             ->disabled(),
-                //                         TextInput::make('no_lumbung_6')
-                //                             ->label('No lumbung')
-                //                             ->placeholder('Pilih terlebih dahulu no sortiran 6')
-                //                             ->disabled(),
-                //                     ])->columnSpan(1)
-                //                     ->collapsible(),
-                //             ])
-                //     ])
             ]);
     }
 
