@@ -14,7 +14,7 @@ class CreateKendaraanMasuks extends CreateRecord
     // Ubah judul halaman "Create Mobil" menjadi "Tambah Mobil"
     function getTitle(): string
     {
-        return 'Tambah Kendaraan Masuk';
+        return 'Tambah Registrasi Kendaraan';
     }
 
     protected function getFormActions(): array

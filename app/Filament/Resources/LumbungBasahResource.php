@@ -140,7 +140,7 @@ class LumbungBasahResource extends Resource implements HasShieldPermissions
 
                                 TextInput::make('created_at')
                                     ->label('Tanggal Sekarang')
-                                    ->placeholder(now()->format('d-m-Y')) // Tampilkan di input
+                                    ->formatStateUsing(fn($state) => \Carbon\Carbon::parse($state)->format('d-m-Y'))
                                     ->disabled(), // Tidak bisa diedit
                                 TextInput::make('kapasitas_sisa')
                                     ->label('Kapasitas Sisa')

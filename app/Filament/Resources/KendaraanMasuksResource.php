@@ -48,150 +48,132 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
     protected static ?string $navigationGroup = 'Satpam';
     protected static ?string $navigationIcon = 'heroicon-c-truck';
     protected static ?int $navigationSort = 1;
-    protected static ?string $navigationLabel = 'Kendaraan Masuk';
-    public static ?string $label = 'Daftar Kendaraan Masuk ';
+    protected static ?string $navigationLabel = 'Registrasi Kendaraan';
+    public static ?string $label = 'Daftar Registrasi Kendaraan ';
 
     public static function form(Form $form): Form
     {
         return $form
+    ->schema([
+        Card::make()
             ->schema([
-                Card::make()
+                Grid::make()
                     ->schema([
+                        // First group - form fields
+                        Select::make('status')
+                            ->label('Status')
+                            ->options([
+                                'TAMU' => 'TAMU',
+                                'SUPPLIER' => 'SUPPLIER',
+                                'BONAR JAYA' => 'BONAR JAYA',
+                            ])
+                            ->placeholder('Pilih Status')
+                            ->native(false)
+                            ->required()
+                            ->columnSpan(['default' => 1, 'md' => 1]),
+
+                        TextInput::make('nama_sup_per')
+                            ->label('Nama Supplier/Perusahaan')
+                            ->placeholder('Masukkan nama supplier atau perusahaan')
+                            ->autocomplete('off')
+                            ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
+                            ->columnSpan(['default' => 1, 'md' => 1]),
+
+                        TextInput::make('plat_polisi')
+                            ->label('Plat Polisi')
+                            ->placeholder('Masukkan plat polisi')
+                            ->autocomplete('off')
+                            ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
+                            ->columnSpan(['default' => 1, 'md' => 1]),
+
+                        TextInput::make('nama_barang')
+                            ->label('Nama Barang')
+                            ->placeholder('Masukkan nama barang')
+                            ->autocomplete('off')
+                            ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
+                            ->columnSpan(['default' => 1, 'md' => 1]),
+
+                        TextInput::make('nomor_antrian')
+                            ->numeric()
+                            ->label('Nomor Antrian')
+                            ->placeholder('Masukkan Nomor Antrian')
+                            ->columnSpan(['default' => 1, 'md' => 1]),
+
+                        TextInput::make('jam_masuk')
+                            ->label('Jam Masuk')
+                            ->readOnly()
+                            ->placeholder('Akan terisi saat toggle diaktifkan')
+                            ->suffixIcon('heroicon-o-clock')
+                            ->columnSpan(['default' => 1, 'md' => 1]),
+
+                        TextInput::make('jam_keluar')
+                            ->label('Jam Keluar')
+                            ->readOnly()
+                            ->placeholder('Akan terisi saat toggle diaktifkan')
+                            ->suffixIcon('heroicon-o-clock')
+                            ->columnSpan(['default' => 1, 'md' => 1]),
+
+                        // Second group - toggles
                         Grid::make()
                             ->schema([
-                                Select::make('status')
-                                    ->label('Status')
-                                    ->options([
-                                        'TAMU' => 'TAMU',
-                                        'SUPPLIER' => 'SUPPLIER',
-                                        'BONAR JAYA' => 'BONAR JAYA',
-                                    ])
-                                    ->placeholder('Pilih Status')
-                                    ->native(false)
-                                    ->required()
+                                Toggle::make('status_awal')
+                                    ->label('Status Masuk')
+                                    ->helperText('Klik jika sudah Masuk')
+                                    ->onIcon('heroicon-m-bolt')
+                                    ->offIcon('heroicon-m-user')
+                                    ->dehydrated(true)
+                                    ->reactive()
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        if ($state) {
+                                            // Toggle aktif, isi jam_masuk
+                                            $set('jam_masuk', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
+                                        } else {
+                                            // Toggle nonaktif, kosongkan jam_masuk
+                                            $set('jam_masuk', null);
+                                        }
+                                    })
                                     ->columnSpan(1),
 
-                                TextInput::make('jam_masuk')
-                                    ->label('Jam Masuk')
-                                    ->readOnly()
-                                    ->placeholder('Akan terisi saat toggle diaktifkan')
-                                    ->suffixIcon('heroicon-o-clock'),
-                                // ->afterStateHydrated(function ($state, callable $set, $record) {
-                                //     // Kalau sedang create (tidak ada record) dan jam_masuk masih kosong
-                                //     if (empty($state) && !$record) {
-                                //         $set('jam_masuk', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
-                                //     }
-                                // }),
-                                TextInput::make('nama_sup_per')
-                                    ->placeholder('Masukkan nama supplier atau perusahaan')
-                                    ->autocomplete('off')
-                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
+                                Toggle::make('status_selesai')
+                                    ->label('Status Keluar')
+                                    ->helperText('Klik jika sudah Keluar')
+                                    ->onIcon('heroicon-m-bolt')
+                                    ->offIcon('heroicon-m-user')
+                                    ->dehydrated(true)
+                                    ->reactive()
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        if ($state) {
+                                            // Toggle aktif, isi jam_keluar
+                                            $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
+                                        } else {
+                                            // Toggle nonaktif, kosongkan jam_keluar
+                                            $set('jam_keluar', null);
+                                        }
+                                    })
                                     ->columnSpan(1),
-
-                                TextInput::make('jam_keluar')
-                                    ->label('Jam Keluar')
-                                    ->readOnly()
-                                    ->placeholder('Akan terisi saat toggle diaktifkan')
-                                    ->suffixIcon('heroicon-o-clock'),
-                                TextInput::make('plat_polisi')
-                                    ->placeholder('Masukkan plat polisi')
-                                    ->autocomplete('off')
-                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
-                                    ->columnSpan(1),
-                                TextInput::make('nomor_antrian')
-                                    ->numeric()
-                                    ->label('Nomor Antrian')
-                                    ->placeholder('Masukkan Nomor Antrian'),
-                                // ->afterStateHydrated(function ($state, callable $set, $record) {
-                                //     // Kalau create (record belum ada), generate nomor otomatis
-                                //     if (!$record) {
-                                //         $lastNomor = KendaraanMasuks::max('nomor_antrian'); // Ganti dengan model sesuai tabel kamu
-                                //         $set('nomor_antrian', $lastNomor ? $lastNomor + 1 : 1);
-                                //     }
-                                // }),
-                                TextInput::make('nama_barang')
-                                    ->placeholder('Masukkan nama barang')
-                                    ->autocomplete('off')
-                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
-                                    ->columnSpan(1),
-                                Grid::make(2)
-                                    ->schema([
-                                        Toggle::make('status_awal')
-                                            ->helperText('Klik jika sudah Masuk')
-                                            ->onIcon('heroicon-m-bolt')
-                                            ->offIcon('heroicon-m-user')
-                                            ->dehydrated(true)
-                                            ->columns(1)
-                                            ->reactive()
-                                            ->afterStateUpdated(function ($state, callable $set) {
-                                                if ($state) {
-                                                    // Toggle aktif, isi jam_masuk
-                                                    $set('jam_masuk', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
-                                                } else {
-                                                    // Toggle nonaktif, kosongkan jam_masuk
-                                                    $set('jam_masuk', null);
-                                                }
-                                            }),
-                                        Toggle::make('status_selesai')
-                                            ->helperText('Klik jika sudah Keluar')
-                                            ->onIcon('heroicon-m-bolt')
-                                            ->offIcon('heroicon-m-user')
-                                            ->dehydrated(true)
-                                            ->columns(1)
-                                            ->reactive()
-                                            ->afterStateUpdated(function ($state, callable $set) {
-                                                if ($state) {
-                                                    // Toggle aktif, isi jam_keluar
-                                                    $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
-                                                } else {
-                                                    // Toggle nonaktif, kosongkan jam_keluar
-                                                    $set('jam_keluar', null);
-                                                }
-                                            }),
-                                    ])->columnSpan(1),
-                                // Select::make('status_muat')
-                                //     ->label('Status Muat')
-                                //     ->options([
-                                //         'MUAT' => 'MUAT',
-                                //         'TIDAK MUAT' => 'TIDAK MUAT',
-                                //     ])
-                                //     ->placeholder('Pilih Status')
-                                //     ->native(false)
-                                //     ->default(fn($livewire) => $livewire->getRecord()?->muat ?? null)
-                                //     ->dehydrated(true)
-                                //     ->required(fn($livewire) => ! $livewire->getRecord()?->exists)
-                                //     ->reactive()
-                                //     ->afterStateHydrated(function ($state) {
-                                //         logger('MUAT STATE SAAT EDIT: ' . ($state ?? 'NULL'));
-                                //     })
-                                //     ->afterStateUpdated(function (?string $state, Set $set) {
-                                //         $now = now()->setTimezone('Asia/Jakarta')->format('H:i');
-
-                                //         if ($state === 'MUAT') {
-                                //             $set('jam_keluar', $now);
-                                //             $set('jam_masuk', null);
-                                //         } elseif ($state === 'TIDAK MUAT') {
-                                //             $set('jam_masuk', $now);
-                                //             $set('jam_keluar', null);
-                                //         } else {
-                                //             $set('jam_masuk', null);
-                                //             $set('jam_keluar', null);
-                                //         }
-                                //     })->disabled(fn($livewire) => $livewire->getRecord()?->exists),
-
-                                Textarea::make('keterangan')
-                                    ->placeholder('Masukkan Keterangan')
-                                    ->columnSpanFull(), // Tetap 1 kolom penuh di semua ukuran layar
-                                Hidden::make('user_id')
-                                    ->label('User ID')
-                                    ->default(Auth::id()) // Set nilai default user yang sedang login,
                             ])
                             ->columns([
-                                'sm' => 1,  // Mobile: 1 kolom
-                                'md' => 2,  // Tablet & Desktop: 2 kolom
-                            ]),
+                                'default' => 1, // On mobile: 2 columns for toggles side by side
+                                'md' => 1,      // On larger screens: still 2 columns
+                            ])
+                            ->columnSpan(['default' => 'full', 'md' => 1]), // Changed to 1 column on desktop
+
+                        // Last item - keterangan
+                        Textarea::make('keterangan')
+                            ->label('Keterangan')
+                            ->placeholder('Masukkan Keterangan')
+                            ->columnSpan('full'), // Always full width
+
+                        // Hidden field
+                        Hidden::make('user_id')
+                            ->default(Auth::id()),
+                    ])
+                    ->columns([
+                        'default' => 1, // Mobile: 1 column (stacked)
+                        'md' => 2,      // Tablet & Desktop: 2 columns
                     ]),
-            ]);
+            ]),
+    ]);
     }
 
     public static function table(Table $table): Table
@@ -204,14 +186,14 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
                     ->boolean()
                     ->alignCenter(),
                 BadgeColumn::make('created_at')
-                    ->label('Tanggal')
+                    ->label('Tanggal | Jam')
                     ->alignCenter()
                     ->colors([
                         'success' => fn($state) => Carbon::parse($state)->isToday(),
                         'warning' => fn($state) => Carbon::parse($state)->isYesterday(),
                         'gray' => fn($state) => Carbon::parse($state)->isBefore(Carbon::yesterday()),
                     ])
-                    ->formatStateUsing(fn($state) => Carbon::parse($state)->format('d M Y')),
+                    ->formatStateUsing(fn($state) => Carbon::parse($state)->format('d M Y | H:i:s')),
                 TextColumn::make('status')
                     ->label('Status')
                     ->searchable(),
@@ -226,10 +208,10 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
                     ->searchable(),
                 TextColumn::make('keterangan')
                     ->searchable(),
-                TextColumn::make('created_at_time')
-                    ->label('Jam Dibuat')
-                    ->state(fn($record) => \Carbon\Carbon::parse($record->created_at)->format('H:i:s'))
-                    ->alignCenter(),
+                // TextColumn::make('created_at_time')
+                //     ->label('Jam Dibuat')
+                //     ->state(fn($record) => \Carbon\Carbon::parse($record->created_at)->format('H:i:s'))
+                //     ->alignCenter(),
                 TextColumn::make('jam_masuk')
                     ->alignCenter()
                     ->searchable(),
