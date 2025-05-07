@@ -87,7 +87,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                         if ($selectedId) {
                                             $idSudahDisortir = array_diff($idSudahDisortir, [$selectedId]);
                                         }
-                                        $idsYangDikecualikan = [28,21,20]; // Beberapa ID yang ingin dikecualikan
+                                        $idsYangDikecualikan = [122]; // Beberapa ID yang ingin dikecualikan
                                         $query = Pembelian::with(['mobil', 'supplier'])
                                             ->whereNotIn('id', $idSudahDisortir)
                                             ->whereNotNull('tara')

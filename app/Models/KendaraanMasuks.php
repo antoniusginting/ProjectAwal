@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class KendaraanMasuks extends Model
 {
+    protected $casts = [
+        'foto' => 'array',
+    ];
     protected $fillable = [
         'status',
         'nama_sup_per',
@@ -13,6 +16,7 @@ class KendaraanMasuks extends Model
         'nama_barang',
         'keterangan',
         'jam_masuk',
+        'foto',
         'jam_keluar',
         'user_id',
         'nomor_antrian',
@@ -20,7 +24,8 @@ class KendaraanMasuks extends Model
         'status_awal',
     ];
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class, 'user_id');
     }
 }

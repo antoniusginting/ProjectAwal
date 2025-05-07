@@ -32,17 +32,17 @@ class KapasitasLumbungBasahResource extends Resource implements HasShieldPermiss
             'delete_any',
         ];
     }
-    public static function canAccess(): bool
-    {
-        return false; // Menyembunyikan resource dari sidebar
-    }
+    // public static function canAccess(): bool
+    // {
+    //     return false; // Menyembunyikan resource dari sidebar
+    // }
 
     protected static ?string $model = KapasitasLumbungBasah::class;
     protected static ?string $navigationGroup = 'Kapasitas';
 
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
 
-    protected static ?string $navigationLabel = 'Kapasitas Lumbung Basah';
+    protected static ?string $navigationLabel = 'Kapasitas LB';
 
     public static ?string $label = 'Daftar Kapasitas Lumbung Basah ';
 

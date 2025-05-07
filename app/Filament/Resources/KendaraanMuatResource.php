@@ -127,7 +127,7 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                                 TextInput::make('jam_keluar')
                                     ->label('Jam Berangkat')
                                     ->readOnly()
-                                    ->placeholder('Akan terisi otomatis saat tambah data')
+                                    ->placeholder('Akan terisi saat toggle diaktifkan')
                                     ->suffixIcon('heroicon-o-clock'),
 
                                 // 8. Jam Masuk
@@ -163,7 +163,7 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                                             ->reactive()
                                             ->afterStateUpdated(function ($state, callable $set) {
                                                 if ($state) {
-                                                    $set('jam_masuk', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
+                                                    $set('jam_masuk', now()->setTimezone('Asia/Jakarta')->format('Y-m-d H:i:s'));
                                                 } else {
                                                     $set('jam_masuk', null);
                                                 }
@@ -258,7 +258,15 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                 TextColumn::make('jam_masuk')
                     ->label('Masuk')
                     ->alignCenter()
-                    ->searchable(),
+                    ->searchable()
+                    ->formatStateUsing(function ($state) {
+                        // Mengatur lokalitas ke Bahasa Indonesia
+                        Carbon::setLocale('id');
+
+                        return Carbon::parse($state)
+                            ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
+                            ->isoFormat('D MMMM YYYY | HH:mm:ss');
+                    }),
                 TextColumn::make('user.name')
                     ->label('User')
             ])->defaultSort('id', 'desc')
