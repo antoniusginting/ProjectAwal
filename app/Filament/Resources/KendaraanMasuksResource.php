@@ -31,6 +31,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\KendaraanMasuksResource\Pages;
+use App\Filament\Resources\KendaraanMasuksResource\Pages\EditKendaraanMasuks;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\KendaraanMasuksResource\RelationManagers;
 
@@ -136,7 +137,7 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
                                     ->columnSpan(['default' => 1, 'md' => 1]),
 
                                 FileUpload::make('foto')
-                                    ->label('Status Ekspedisi')
+                                    ->label('Foto')
                                     ->image()
                                     ->multiple()
                                     ->openable()
@@ -184,6 +185,7 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
                                             ->offIcon('heroicon-m-user')
                                             ->dehydrated(true)
                                             ->reactive()
+                                            ->disabled(fn($get) => !$get('status_awal'))
                                             ->afterStateUpdated(function ($state, callable $set) {
                                                 if ($state) {
                                                     // Toggle aktif, isi jam_keluar
@@ -252,6 +254,22 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
     public static function table(Table $table): Table
     {
         return $table
+            ->recordUrl(function (KendaraanMasuks $record): ?string {
+                $user = Auth::user();
+
+                // 1) Super admin bisa edit semua kondisi
+                if ($user && $user->hasRole('super_admin')) {
+                    return EditKendaraanMasuks::getUrl(['record' => $record]);
+                }
+
+                if ($user && $user->hasRole('satpam')) {
+                    if (!$record->jam_keluar) {
+                        return EditKendaraanMasuks::getUrl(['record' => $record]);
+                    }
+                    return null;
+                }
+                return null;
+            })
             ->defaultPaginationPageOption(5)
             ->columns([
                 IconColumn::make('status_selesai')
@@ -308,7 +326,7 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
                     }),
                 ImageColumn::make('foto')
                     ->alignCenter()
-                    ->label('Status Ekspedisi')
+                    ->label('Foto')
                     ->getStateUsing(fn($record) => $record->foto[0] ?? null)
                     ->url(fn($record) => asset('storage/' . ($record->foto[0] ?? '')))
                     ->openUrlInNewTab(),
@@ -342,8 +360,8 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
             ->filters([
                 // Filter untuk Hari Ini
                 Filter::make('Hari Ini')
-                    ->query(fn (Builder $query) => $query->whereDate('created_at', Carbon::today())),
-                
+                    ->query(fn(Builder $query) => $query->whereDate('created_at', Carbon::today())),
+
                 // Filter berdasarkan Status
                 SelectFilter::make('status')
                     ->label('Status')
@@ -355,8 +373,8 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
                         'EKSPEDISI' => 'EKSPEDISI',
                     ])
                     ->placeholder('Semua Status'),
-                    ]);
-            // ->filtersFormColumns(2); // Optional: Menampilkan filter dalam 2 kolom
+            ]);
+        // ->filtersFormColumns(2); // Optional: Menampilkan filter dalam 2 kolom
     }
 
     public static function getRelations(): array

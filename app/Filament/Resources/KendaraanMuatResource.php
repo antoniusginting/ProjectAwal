@@ -29,6 +29,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\KendaraanMuatResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\KendaraanMuatResource\RelationManagers;
+use App\Filament\Resources\KendaraanMuatResource\Pages\EditKendaraanMuat;
 
 class KendaraanMuatResource extends Resource implements HasShieldPermissions
 {
@@ -161,6 +162,7 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                                             ->offIcon('heroicon-m-user')
                                             ->dehydrated(true)
                                             ->reactive()
+                                            ->disabled(fn($get) => !$get('status_awal'))
                                             ->afterStateUpdated(function ($state, callable $set) {
                                                 if ($state) {
                                                     $set('jam_masuk', now()->setTimezone('Asia/Jakarta')->format('Y-m-d H:i:s'));
@@ -197,6 +199,22 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
     public static function table(Table $table): Table
     {
         return $table
+            ->recordUrl(function (KendaraanMuat $record): ?string {
+                $user = Auth::user();
+
+                // 1) Super admin bisa edit semua kondisi
+                if ($user && $user->hasRole('super_admin')) {
+                    return EditKendaraanMuat::getUrl(['record' => $record]);
+                }
+
+                if ($user && $user->hasRole('satpam')) {
+                    if (!$record->jam_masuk) {
+                        return EditKendaraanMuat::getUrl(['record' => $record]);
+                    }
+                    return null;
+                }
+                return null;
+            })
             ->columns([
                 IconColumn::make('status')
                     ->label('')
@@ -235,7 +253,7 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                     ->label('Tujuan')
                     ->searchable(),
                 ImageColumn::make('foto')
-                    ->label('Foto 1')
+                    ->label('Foto')
                     ->getStateUsing(fn($record) => $record->foto[0] ?? null)
                     ->url(fn($record) => asset('storage/' . ($record->foto[0] ?? '')))
                     ->openUrlInNewTab(),
