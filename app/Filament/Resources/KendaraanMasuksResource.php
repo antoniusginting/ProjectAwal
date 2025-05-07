@@ -296,41 +296,41 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
                     ->label('Status')
                     ->color(function ($record) {
                         return match ($record->status) {
-                            'TAMU' => 'gray',
-                            'SUPPLIER' => 'info',    // Hijau
+                            'TAMU' => 'tamu',
+                            'SUPPLIER' => 'supplier',    // Hijau
                             'BONAR JAYA' => 'primary',  // Biru
-                            'EKSPEDISI' => 'warning',   // Oranye
+                            'EKSPEDISI' => 'ekspedisi',   // Oranye
                             default => 'secondary',
                         };
                     })
                     ->searchable(),
+                    TextColumn::make('nomor_antrian')
+                        ->alignCenter()
+                        ->searchable()
+                        ->badge() // Menggunakan badge untuk tampilan yang lebih menarik
+                        ->color(function ($record) {
+                            return match ($record->status) {
+                                'TAMU' => 'tamu',
+                                'SUPPLIER' => 'supplier',    // Hijau
+                                'BONAR JAYA' => 'primary',  // Biru
+                                'EKSPEDISI' => 'ekspedisi',   // Oranye
+                                default => 'secondary',
+                            };
+                        })
+                        // Tampilkan strip jika nomor antrian kosong
+                        ->formatStateUsing(function ($state, $record) {
+                            if ($record->status === 'TAMU' || empty($state)) {
+                                return '-';
+                            }
+    
+                            return $state;
+                        }),
                 TextColumn::make('nama_sup_per')
                     ->label('Nama Sup/Per')
                     ->searchable(),
                 TextColumn::make('plat_polisi')
                     ->label('Plat Mobil')
                     ->searchable(),
-                TextColumn::make('nomor_antrian')
-                    ->alignCenter()
-                    ->searchable()
-                    ->badge() // Menggunakan badge untuk tampilan yang lebih menarik
-                    ->color(function ($record) {
-                        return match ($record->status) {
-                            'TAMU' => 'gray',
-                            'SUPPLIER' => 'info',    // Hijau
-                            'BONAR JAYA' => 'primary',  // Biru
-                            'EKSPEDISI' => 'warning',   // Oranye
-                            default => 'secondary',
-                        };
-                    })
-                    // Tampilkan strip jika nomor antrian kosong
-                    ->formatStateUsing(function ($state, $record) {
-                        if ($record->status === 'TAMU' || empty($state)) {
-                            return '-';
-                        }
-
-                        return $state;
-                    }),
                 ImageColumn::make('foto')
                     ->alignCenter()
                     ->label('Foto')

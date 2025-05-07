@@ -31,6 +31,10 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->colors([
                 'primary' => '#2424a4',
+                //BADGE
+                'supplier' => '#7F0D83',
+                'tamu' => '#990000',
+                'ekspedisi' => '#086E6E'
             ])
             ->brandLogo(asset('storage/logo_cv.png')) // Ganti dengan path logo kamu
             ->favicon(asset('storage/favicon.ico')) // Ambil dari storage

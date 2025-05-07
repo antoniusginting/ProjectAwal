@@ -745,7 +745,14 @@ class SortiranResource extends Resource implements HasShieldPermissions
                         'warning' => fn($state) => Carbon::parse($state)->isYesterday(),
                         'gray' => fn($state) => Carbon::parse($state)->isBefore(Carbon::yesterday()),
                     ])
-                    ->formatStateUsing(fn($state) => Carbon::parse($state)->format('d M Y')),
+                    ->formatStateUsing(function ($state) {
+                        // Mengatur lokalitas ke Bahasa Indonesia
+                        Carbon::setLocale('id');
+
+                        return Carbon::parse($state)
+                            ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
+                            ->isoFormat('D MMMM YYYY | HH:mm:ss');
+                    }),
                 TextColumn::make('no_sortiran')
                     ->searchable()
                     ->label('No Sortiran')
