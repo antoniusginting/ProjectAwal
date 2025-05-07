@@ -173,7 +173,7 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                                     ])
                                     ->columns([
                                         'lg' => 2,     // Desktop: 2 kolom
-                                        'md' => 2,     // Tablet: 2 kolom  
+                                        'md' => 2,     // Tablet: 2 kolom
                                         'default' => 1 // Mobile: 1 kolom
                                     ]),
 
@@ -189,7 +189,7 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                             ])
                             ->columns([
                                 'lg' => 2,     // Desktop: 2 kolom
-                                'md' => 2,     // Tablet: 2 kolom  
+                                'md' => 2,     // Tablet: 2 kolom
                                 'default' => 1 // Mobile: 1 kolom (default jika tidak ada)
                             ]),
                     ]),
@@ -220,14 +220,14 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                     ->label('')
                     ->boolean()
                     ->alignCenter(),
-                BadgeColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->label('Tanggal | Jam')
                     ->alignCenter()
-                    ->colors([
-                        'success' => fn($state) => Carbon::parse($state)->isToday(),
-                        'warning' => fn($state) => Carbon::parse($state)->isYesterday(),
-                        'gray' => fn($state) => Carbon::parse($state)->isBefore(Carbon::yesterday()),
-                    ])
+                    // ->colors([
+                    //     'success' => fn($state) => Carbon::parse($state)->isToday(),
+                    //     'warning' => fn($state) => Carbon::parse($state)->isYesterday(),
+                    //     'gray' => fn($state) => Carbon::parse($state)->isBefore(Carbon::yesterday()),
+                    // ])
                     ->formatStateUsing(function ($state) {
                         // Mengatur lokalitas ke Bahasa Indonesia
                         Carbon::setLocale('id');

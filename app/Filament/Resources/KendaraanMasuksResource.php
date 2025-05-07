@@ -276,23 +276,30 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
                     ->label('')
                     ->boolean()
                     ->alignCenter(),
-                BadgeColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->label('Tanggal | Jam')
                     ->alignCenter()
-                    ->colors([
-                        'success' => fn($state) => Carbon::parse($state)->isToday(),
-                        'warning' => fn($state) => Carbon::parse($state)->isYesterday(),
-                        'gray' => fn($state) => Carbon::parse($state)->isBefore(Carbon::yesterday()),
-                    ])
-                    ->formatStateUsing(fn($state) => Carbon::parse($state)->format('d M Y | H:i:s')),
+                    // ->colors([
+                    //     'success' => fn($state) => Carbon::parse($state)->isToday(),
+                    //     'warning' => fn($state) => Carbon::parse($state)->isYesterday(),
+                    //     'gray' => fn($state) => Carbon::parse($state)->isBefore(Carbon::yesterday()),
+                    // ])
+                    ->formatStateUsing(function ($state) {
+                        // Mengatur lokalitas ke Bahasa Indonesia
+                        Carbon::setLocale('id');
+
+                        return Carbon::parse($state)
+                            ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
+                            ->isoFormat('D MMMM YYYY | HH:mm:ss');
+                    }),
                 TextColumn::make('status')
                     ->label('Status')
                     ->color(function ($record) {
                         return match ($record->status) {
                             'TAMU' => 'gray',
-                            'SUPPLIER' => 'danger',    // Hijau
+                            'SUPPLIER' => 'info',    // Hijau
                             'BONAR JAYA' => 'primary',  // Biru
-                            'EKSPEDISI' => 'info',   // Oranye
+                            'EKSPEDISI' => 'warning',   // Oranye
                             default => 'secondary',
                         };
                     })
@@ -310,9 +317,9 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
                     ->color(function ($record) {
                         return match ($record->status) {
                             'TAMU' => 'gray',
-                            'SUPPLIER' => 'danger',    // Hijau
+                            'SUPPLIER' => 'info',    // Hijau
                             'BONAR JAYA' => 'primary',  // Biru
-                            'EKSPEDISI' => 'info',   // Oranye
+                            'EKSPEDISI' => 'warning',   // Oranye
                             default => 'secondary',
                         };
                     })
