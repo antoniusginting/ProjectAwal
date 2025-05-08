@@ -248,6 +248,7 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                     ->searchable(),
                 TextColumn::make('tonase')
                     ->label('Tonase')
+                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.'))
                     ->searchable(),
                 TextColumn::make('tujuan')
                     ->label('Tujuan')

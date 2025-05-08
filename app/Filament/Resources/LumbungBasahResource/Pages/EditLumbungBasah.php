@@ -6,6 +6,7 @@ use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\LumbungBasahResource;
+use App\Models\LumbungBasah;
 
 class EditLumbungBasah extends EditRecord
 {
@@ -23,7 +24,11 @@ class EditLumbungBasah extends EditRecord
         return [
             Action::make('save')
                 ->label('Ubah')
-                ->action(fn () => $this->save()), // Menggunakan fungsi simpan manual
+                ->action(fn() => $this->save()), // Menggunakan fungsi simpan manual
+            Action::make('cancel')
+                ->label('Batal')
+                ->color('gray')
+                ->url(LumbungBasahResource::getUrl('index')),
         ];
     }
     protected function getRedirectUrl(): string

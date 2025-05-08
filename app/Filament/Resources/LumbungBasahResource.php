@@ -202,7 +202,8 @@ class LumbungBasahResource extends Resource implements HasShieldPermissions
                             })
                             ->getOptionLabelFromRecordUsing(function ($record) {
                                 $noBk = $record->pembelian ? $record->pembelian->plat_polisi : 'N/A';
-                                return $record->no_sortiran . ' - ' . $noBk;
+                                $supplier = $record->pembelian ? $record->pembelian->supplier->nama_supplier : 'N/A';
+                                return $record->no_sortiran . ' - ' . $noBk . ' - ' . $supplier . ' - ' . $record->netto_bersih;
                             })
                             ->reactive()
                             ->afterStateUpdated(function ($state, callable $set, callable $get, $livewire) {
@@ -301,7 +302,14 @@ class LumbungBasahResource extends Resource implements HasShieldPermissions
                         'warning' => fn($state) => Carbon::parse($state)->isYesterday(),
                         'gray' => fn($state) => Carbon::parse($state)->isBefore(Carbon::yesterday()),
                     ])
-                    ->formatStateUsing(fn($state) => Carbon::parse($state)->format('d M Y')),
+                    ->formatStateUsing(function ($state) {
+                        // Mengatur lokalitas ke Bahasa Indonesia
+                        Carbon::setLocale('id');
+
+                        return Carbon::parse($state)
+                            ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
+                            ->isoFormat('D MMMM YYYY | HH:mm:ss');
+                    }),
                 TextColumn::make('no_lb')->label('No LB'),
                 TextColumn::make('no_lumbung_basah')->label('No Lumbung Basah')
                     ->searchable()
