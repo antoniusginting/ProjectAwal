@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources;
 //supaya hilang dulu dari role
-namespace BezhanSalleh\FilamentShield\Resources;
+// namespace BezhanSalleh\FilamentShield\Resources;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Dryer;
@@ -38,10 +38,10 @@ class DryerResource extends Resource implements HasShieldPermissions
             'delete_any',
         ];
     }
-    public static function canAccess(): bool
-    {
-        return false; // Menyembunyikan resource dari sidebar
-    }
+    // public static function canAccess(): bool
+    // {
+    //     return false; // Menyembunyikan resource dari sidebar
+    // }
     public static function getNavigationSort(): int
     {
         return 3; // Ini akan muncul di atas
@@ -83,19 +83,28 @@ class DryerResource extends Resource implements HasShieldPermissions
                                     ->afterStateHydrated(function ($state, callable $set) {
                                         if ($state) {
                                             $kapasitasdryer = KapasitasDryer::find($state);
+                                            $set('kapasitas_sisa', $kapasitasdryer?->kapasitas_sisa ?? 'Tidak ada');
+                                            $formattedSisa = number_format($kapasitasdryer?->kapasitas_sisa ?? 0, 0, ',', '.');
+                                            $set('kapasitas_sisa', $formattedSisa);
                                             $set('kapasitas_total', $kapasitasdryer?->kapasitas_total ?? 'Tidak ada');
-                                            $formattedSisa = number_format($kapasitasdryer?->kapasitas_total ?? 0, 0, ',', '.');
-                                            $set('kapasitas_total', $formattedSisa);
+                                            $formattedtotal = number_format($kapasitasdryer?->kapasitas_total ?? 0, 0, ',', '.');
+                                            $set('kapasitas_total', $formattedtotal);
                                         }
                                     })
                                     ->afterStateUpdated(function ($state, callable $set) {
                                         $kapasitasdryer = KapasitasDryer::find($state);
+                                        $set('kapasitas_sisa', $kapasitasdryer?->kapasitas_sisa ?? 'Tidak ada');
+                                        $formattedSisa = number_format($kapasitasdryer?->kapasitas_sisa ?? 0, 0, ',', '.');
+                                        $set('kapasitas_sisa', $formattedSisa);
                                         $set('kapasitas_total', $kapasitasdryer?->kapasitas_total ?? 'Tidak ada');
-                                        $formattedSisa = number_format($kapasitasdryer?->kapasitas_total ?? 0, 0, ',', '.');
-                                        $set('kapasitas_total', $formattedSisa);
+                                        $formattedtotal = number_format($kapasitasdryer?->kapasitas_total ?? 0, 0, ',', '.');
+                                        $set('kapasitas_total', $formattedtotal);
+                                        // Reset nilai sortirans ketika no_lumbung_basah berubah
+                                        $set('sortirans', null);
+                                        $set('total_netto', null);
                                     }),
                                 Select::make('lumbung_tujuan')
-                                    ->label('Nama lumbung kering')
+                                    ->label('Lumbung Tujuan')
                                     ->options([
                                         'A' => 'A',
                                         'B' => 'B',
@@ -107,37 +116,46 @@ class DryerResource extends Resource implements HasShieldPermissions
                                         'H' => 'H',
                                         'I' => 'I',
                                     ])
-                                    ->placeholder('Pilih nama lumbung kering')
+                                    ->placeholder('Pilih lumbung kering')
                                     ->native(false),
                                 TextInput::make('kapasitas_total')
                                     ->label('Kapasitas Total')
                                     ->placeholder('Pilih terlebih dahulu nama Dryer')
                                     ->disabled(),
-                                TextInput::make('created_at')
-                                    ->label('Tanggal/Jam')
-                                    ->placeholder(now()->format('d-m-Y H:i:s')) // Tampilkan di input
-                                    ->disabled(), // Tidak bisa diedit
+                                TextInput::make('pj')
+                                    ->label('PenanggungJawab')
+                                    ->placeholder('Masukkan PenanggungJawab'),
+                                TextInput::make('total_netto')
+                                    ->label('Kapasitas Terpakai')
+                                    ->placeholder('Otomatis terhitung')
+                                    ->readOnly(),
                                 TextInput::make('operator')
                                     ->label('Operator Dryer')
-                                    ->required()
+                                    // ->required()
                                     ->placeholder('Masukkan Operator Dryer'),
+                                TextInput::make('kapasitas_sisa')
+                                    ->label('Kapasitas Sisa')
+                                    ->placeholder('Otomatis terhitung')
+                                    ->disabled(),
+
+                                // TextInput::make('created_at')
+                                //     ->label('Tanggal/Jam')
+                                //     ->placeholder(now()->format('d-m-Y H:i:s')) // Tampilkan di input
+                                //     ->disabled(), // Tidak bisa diedit
+
                                 TextInput::make('rencana_kadar')
                                     ->label('Rencana Kadar')
                                     ->numeric()
-                                    ->required()
+                                    // ->required()
                                     ->placeholder('Masukkan rencana kadar'),
                                 TextInput::make('hasil_kadar')
                                     ->label('Hasil Kadar')
                                     ->numeric()
                                     ->placeholder('Masukkan hasil kadar'),
-                                TextInput::make('jenis_jagung')
-                                    ->label('Jenis Jagung')
-                                    ->required()
+                                TextInput::make('nama_barang')
+                                    ->label('Nama Barang')
+                                    // ->required()
                                     ->placeholder('Masukkan jenis jagung'),
-                                TextInput::make('total_netto')
-                                    ->label('Total Netto LB')
-                                    ->placeholder('Otomatis terhitung')
-                                    ->readOnly(),
                             ])->columns(2)
                     ])->collapsible(),
                 Card::make()

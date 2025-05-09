@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Filament\Resources;
-namespace BezhanSalleh\FilamentShield\Resources;
+// namespace BezhanSalleh\FilamentShield\Resources;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
@@ -30,10 +30,10 @@ class KapasitasDryerResource extends Resource implements HasShieldPermissions
             'delete_any',
         ];
     }
-    public static function canAccess(): bool
-    {
-        return false; // Menyembunyikan resource dari sidebar
-    }
+    // public static function canAccess(): bool
+    // {
+    //     return false; // Menyembunyikan resource dari sidebar
+    // }
     protected static ?string $model = KapasitasDryer::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-archive-box-x-mark';
@@ -71,24 +71,37 @@ class KapasitasDryerResource extends Resource implements HasShieldPermissions
             //->actionsPosition(Tables\Enums\ActionsPosition::BeforeColumns)
             ->columns([
                 TextColumn::make('nama_kapasitas_dryer')
+                    ->alignCenter()
                     ->label('Nama Dryer'),
                 TextColumn::make('kapasitas_total')
                     ->label('Kapasitas Total')
+                    ->alignCenter()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')), // Tambah pemisah ribuan,
+                TextColumn::make('kapasitas_sisa')
+                    ->label('Kapasitas Sisa')
+                    ->alignCenter()
+                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')), // Tambah pemisah ribuan,
+                TextColumn::make('kapasitas_terpakai')
+                    ->label('Kapasitas Terpakai')
+                    ->alignCenter()
+                    ->getStateUsing(function ($record) {
+                        $kapasitasTerpakai = $record->kapasitas_total - $record->kapasitas_sisa;
+                        return number_format($kapasitasTerpakai, 0, ',', '.');
+                    })
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-                Tables\Actions\ViewAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\EditAction::make(),
+                // Tables\Actions\DeleteAction::make(),
+                // Tables\Actions\ViewAction::make(),
             ]);
+        // ->bulkActions([
+        //     Tables\Actions\BulkActionGroup::make([
+        //         Tables\Actions\DeleteBulkAction::make(),
+        //     ]),
+        // ]);
     }
 
     public static function getRelations(): array

@@ -33,6 +33,7 @@ use App\Filament\Resources\LumbungBasahResource\Pages;
 use Filament\Forms\Components\Actions\Action as FormAction;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\LumbungBasahResource\RelationManagers;
+use App\Models\KapasitasDryer;
 
 class LumbungBasahResource extends Resource implements HasShieldPermissions
 {
@@ -119,8 +120,10 @@ class LumbungBasahResource extends Resource implements HasShieldPermissions
                                     ->label('Kapasitas Total')
                                     ->placeholder('Pilih terlebih dahulu no lumbung basah')
                                     ->disabled(),
-                                TextInput::make('tujuan')
+                                Select::make('lumbung_tujuan')
+                                    ->native(false)
                                     ->label('Tujuan')
+                                    ->options(KapasitasDryer::pluck('nama_kapasitas_dryer', 'nama_kapasitas_dryer'))
                                     ->placeholder('Masukkan Tujuan'),
                                 TextInput::make('total_netto')
                                     ->label('Total Netto')
