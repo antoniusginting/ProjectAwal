@@ -310,18 +310,22 @@ class LumbungBasahResource extends Resource implements HasShieldPermissions
                             ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
                             ->isoFormat('D MMMM YYYY | HH:mm:ss');
                     }),
-                TextColumn::make('no_lb')->label('No LB'),
-                TextColumn::make('no_lumbung_basah')->label('No Lumbung Basah')
+                TextColumn::make('no_lb')
+                    ->label('No LB'),
+                TextColumn::make('kapasitaslumbungbasah.no_kapasitas_lumbung')->label('No Lumbung Basah')
                     ->searchable()
                     ->alignCenter(),
-                    TextColumn::make('sortirans')
+                // TextColumn::make('no_lumbung_basah')->label('No Lumbung Basah')
+                //     ->searchable()
+                //     ->alignCenter(),
+                TextColumn::make('sortirans')
                     ->alignCenter()
                     ->label('No Sortiran')
                     ->formatStateUsing(function ($record) {
                         $text = $record->sortirans->map(function ($sortiran) {
                             return $sortiran->no_sortiran;
                         })->implode(', ');
-                        
+
                         // Batasi jumlah karakter dan tambahkan ellipsis
                         return \Illuminate\Support\Str::limit($text, 30, '...');
                     })

@@ -53,6 +53,7 @@ class Sortiran extends Model
         'kadar_air',
         'total_karung',
         'user_id',
+        'keterangan',
     ];
     // Relasi ke User
     public function user()

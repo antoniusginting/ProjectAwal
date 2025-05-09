@@ -289,24 +289,41 @@ class SortiranResource extends Resource implements HasShieldPermissions
                     ->collapsible(),
                 Card::make()
                     ->schema([
-                        Placeholder::make('next_idi')
-                            ->label('No Sortiran')
-                            ->content(function ($record) {
-                                // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
-                                if ($record) {
-                                    return $record->no_sortiran;
-                                }
+                        Grid::make()
+                            ->schema([
+                                Placeholder::make('next_idi')
+                                    ->label('No Sortiran')
+                                    ->content(function ($record) {
+                                        // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
+                                        if ($record) {
+                                            return $record->no_sortiran;
+                                        }
 
-                                // Jika sedang membuat data baru, hitung kode berikutnya
-                                $nextId = (Sortiran::max('id') ?? 0) + 1;
-                                return 'S' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
-                            }),
-                        TextInput::make('no_lumbung')
-                            ->label('No Lumbung')
-                            ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
-                            ->placeholder('Masukkan No Lumbung')
-                            ->autocomplete('off')
-                            ->required(),
+                                        // Jika sedang membuat data baru, hitung kode berikutnya
+                                        $nextId = (Sortiran::max('id') ?? 0) + 1;
+                                        return 'S' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+                                    }),
+                                // TextInput::make('no_lumbung')
+                                //     ->label('No Lumbung')
+                                //     ->placeholder('Masukkan No Lumbung')
+                                //     ->autocomplete('off')
+                                //     ->required(),
+                                Select::make('no_lumbung')
+                                    ->label('No Lumbung')
+                                    ->placeholder('Pilih No Lumbung')
+                                    ->options(KapasitasLumbungBasah::pluck('no_kapasitas_lumbung', 'no_kapasitas_lumbung'))
+                                    ->searchable(),
+                                TextInput::make('kadar_air')
+                                    ->label('Kadar Air')
+                                    ->numeric()
+                                    ->placeholder('Masukkan kadar air')
+                                    ->required(),
+                                TextInput::make('keterangan')
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
+                                    ->label('Keterangan')
+                                    ->placeholder('Masukkan keterangan'),
+                            ]),
+
                         // Grid untuk menyusun field ke kanan
                         Grid::make([
                             'default' => 1,
@@ -717,11 +734,11 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                     ])
                                     ->columnSpan(1)->collapsed(),
                             ]),
-                        TextInput::make('kadar_air')
-                            ->label('Kadar Air')
-                            ->numeric()
-                            ->placeholder('Masukkan kadar air')
-                            ->required(),
+                        // TextInput::make('kadar_air')
+                        //     ->label('Kadar Air')
+                        //     ->numeric()
+                        //     ->placeholder('Masukkan kadar air')
+                        //     ->required(),
                     ])
             ]);
     }
@@ -772,7 +789,9 @@ class SortiranResource extends Resource implements HasShieldPermissions
                     ->searchable()
                     ->alignCenter()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-
+                TextColumn::make('keterangan')
+                    ->label('Keterangan')
+                    ->alignCenter(),
                 //Jagung 1
                 TextColumn::make('kualitas_jagung_1')
                     ->label('Kualitas Jagung 1'),
