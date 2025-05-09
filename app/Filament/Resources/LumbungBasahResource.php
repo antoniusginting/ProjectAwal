@@ -47,10 +47,10 @@ class LumbungBasahResource extends Resource implements HasShieldPermissions
             'delete_any',
         ];
     }
-    public static function canAccess(): bool
-    {
-        return false; // Menyembunyikan resource dari sidebar
-    }
+    // public static function canAccess(): bool
+    // {
+    //     return false; // Menyembunyikan resource dari sidebar
+    // }
     public static function getNavigationSort(): int
     {
         return 2; // Ini akan muncul di atas
@@ -314,17 +314,25 @@ class LumbungBasahResource extends Resource implements HasShieldPermissions
                 TextColumn::make('no_lumbung_basah')->label('No Lumbung Basah')
                     ->searchable()
                     ->alignCenter(),
-                TextColumn::make('sortirans')
+                    TextColumn::make('sortirans')
                     ->alignCenter()
-                    // ->extraAttributes(['style' => 'width: 250px;'])
                     ->label('No Sortiran')
                     ->formatStateUsing(function ($record) {
-                        return $record->sortirans->map(function ($sortiran) {
-                            return $sortiran->no_sortiran . ''; //. $sortiran->netto_bersih . ' - ' . $sortiran->pembelian->nama_supir . '';
+                        $text = $record->sortirans->map(function ($sortiran) {
+                            return $sortiran->no_sortiran;
                         })->implode(', ');
+                        
+                        // Batasi jumlah karakter dan tambahkan ellipsis
+                        return \Illuminate\Support\Str::limit($text, 30, '...');
                     })
-                    ->wrap()
-                    ->limit(50),
+                    // Tambahkan ini untuk batasi lebar kolom dengan CSS
+                    ->extraAttributes(['class' => 'max-w-md truncate'])
+                    // Tambahkan tooltip untuk melihat konten lengkap saat hover
+                    ->tooltip(function ($record) {
+                        return $record->sortirans->map(function ($sortiran) {
+                            return $sortiran->no_sortiran;
+                        })->implode(', ');
+                    }),
                 TextColumn::make('tujuan')
                     ->alignCenter()
                     ->label('Tujuan'),
