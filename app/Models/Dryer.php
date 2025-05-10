@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Filament\Notifications\Notification;
+use Illuminate\Validation\ValidationException;
 
 class Dryer extends Model
 {
@@ -36,7 +38,7 @@ class Dryer extends Model
     {
         return $this->belongsTo(LumbungBasah::class, 'id_lumbung_2');
     }
-    
+
     public function lumbung3()
     {
         return $this->belongsTo(LumbungBasah::class, 'id_lumbung_3');
@@ -59,7 +61,16 @@ class Dryer extends Model
                 if ($kapasitas->kapasitas_sisa >= $dryer->total_netto) {
                     $kapasitas->decrement('kapasitas_sisa', $dryer->total_netto);
                 } else {
-                    throw new \Exception('Kapasitas tidak mencukupi!');
+                    Notification::make()
+                        ->danger()
+                        ->title('Kapasitas Tidak Mencukupi')
+                        ->body('Total netto yang diinput melebihi kapasitas sisa Dryer.')
+                        ->persistent()
+                        ->send();
+                    // Gunakan ValidationException untuk tetap di halaman form
+                    throw ValidationException::withMessages([
+                        'total_netto' => 'Total netto melebihi kapasitas sisa Dryer.',
+                    ]);
                 }
             }
         });
@@ -87,7 +98,16 @@ class Dryer extends Model
                     if ($kapasitas->kapasitas_sisa >= $selisih) {
                         $kapasitas->decrement('kapasitas_sisa', $selisih);
                     } else {
-                        throw new \Exception('Kapasitas tidak mencukupi!');
+                        Notification::make()
+                            ->danger()
+                            ->title('Kapasitas Tidak Mencukupi')
+                            ->body('Total netto yang diinput melebihi kapasitas sisa Dryer.')
+                            ->persistent()
+                            ->send();
+                        // Gunakan ValidationException untuk tetap di halaman form
+                        throw ValidationException::withMessages([
+                            'total_netto' => 'Total netto melebihi kapasitas sisa Dryer.',
+                        ]);
                     }
                 } elseif ($selisih < 0) {
                     // Jika netto berkurang, tambahkan kembali ke kapasitas

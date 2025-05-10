@@ -14,7 +14,7 @@ class CreateDryer extends CreateRecord
     // Ubah judul halaman "Create Kapasitas lumbung basah" menjadi "Tambah Kapasitas lumbung basah"
     function getTitle(): string
     {
-        return 'Tambah Kapasitas Dryer';
+        return 'Tambah Dryer/Panggangan';
     }
 
     protected function getFormActions(): array

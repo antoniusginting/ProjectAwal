@@ -9,6 +9,7 @@ use Filament\Tables\Table;
 use App\Models\KapasitasDryer;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
@@ -96,6 +97,14 @@ class KapasitasDryerResource extends Resource implements HasShieldPermissions
                 // Tables\Actions\EditAction::make(),
                 // Tables\Actions\DeleteAction::make(),
                 // Tables\Actions\ViewAction::make(),
+                Action::make('reset_kapasitas')
+                    ->label('Reset')
+                    ->action(fn($record) => $record->update([
+                        'kapasitas_sisa' => $record->kapasitas_total
+                    ]))
+                    ->requiresConfirmation()
+                    ->color('warning')
+                    ->icon('heroicon-o-arrow-path'),
             ]);
         // ->bulkActions([
         //     Tables\Actions\BulkActionGroup::make([

@@ -27,7 +27,7 @@ class EditKapasitasDryer extends EditRecord
             Action::make('cancel')
                 ->label('Batal')
                 ->color('gray')
-                ->url(KapasitasDryer::getUrl('index')),
+                ->url(KapasitasDryerResource::getUrl('index')),
         ];
     }
     protected function getRedirectUrl(): string

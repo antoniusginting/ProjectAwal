@@ -77,32 +77,55 @@ class DryerResource extends Resource implements HasShieldPermissions
                                     ->label('Nama Dryer')
                                     ->placeholder('Pilih nama Dryer')
                                     ->options(KapasitasDryer::pluck('nama_kapasitas_dryer', 'id'))
-                                    ->searchable() // Biar bisa cari
+                                    ->searchable()
                                     ->required()
                                     ->reactive()
-                                    ->afterStateHydrated(function ($state, callable $set) {
+                                    ->afterStateHydrated(function ($state, callable $set, callable $get) {
                                         if ($state) {
                                             $kapasitasdryer = KapasitasDryer::find($state);
-                                            $set('kapasitas_sisa', $kapasitasdryer?->kapasitas_sisa ?? 'Tidak ada');
-                                            $formattedSisa = number_format($kapasitasdryer?->kapasitas_sisa ?? 0, 0, ',', '.');
+
+                                            // Simpan kapasitas sisa asli (tanpa format) untuk perhitungan
+                                            $kapasitasSisaValue = $kapasitasdryer?->kapasitas_sisa ?? 0;
+                                            $set('kapasitas_sisa_original', $kapasitasSisaValue);
+
+                                            // Format untuk tampilan
+                                            $formattedSisa = number_format($kapasitasSisaValue, 0, ',', '.');
                                             $set('kapasitas_sisa', $formattedSisa);
-                                            $set('kapasitas_total', $kapasitasdryer?->kapasitas_total ?? 'Tidak ada');
+
+                                            // Kapasitas total
                                             $formattedtotal = number_format($kapasitasdryer?->kapasitas_total ?? 0, 0, ',', '.');
                                             $set('kapasitas_total', $formattedtotal);
+
+                                            // Hitung ulang kapasitas sisa berdasarkan total netto jika sudah ada
+                                            $totalNetto = (float) ($get('total_netto') ?? 0);
+                                            if ($totalNetto > 0) {
+                                                $sisaSetelahDikurangi = $kapasitasSisaValue - $totalNetto;
+                                                $formattedSisaAkhir = number_format($sisaSetelahDikurangi, 0, ',', '.');
+                                                $set('kapasitas_sisa_akhir', $formattedSisaAkhir);
+                                            }
                                         }
                                     })
-                                    ->afterStateUpdated(function ($state, callable $set) {
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                         $kapasitasdryer = KapasitasDryer::find($state);
-                                        $set('kapasitas_sisa', $kapasitasdryer?->kapasitas_sisa ?? 'Tidak ada');
-                                        $formattedSisa = number_format($kapasitasdryer?->kapasitas_sisa ?? 0, 0, ',', '.');
+
+                                        // Simpan kapasitas sisa asli untuk perhitungan
+                                        $kapasitasSisaValue = $kapasitasdryer?->kapasitas_sisa ?? 0;
+                                        $set('kapasitas_sisa_original', $kapasitasSisaValue);
+
+                                        // Format untuk tampilan
+                                        $formattedSisa = number_format($kapasitasSisaValue, 0, ',', '.');
                                         $set('kapasitas_sisa', $formattedSisa);
-                                        $set('kapasitas_total', $kapasitasdryer?->kapasitas_total ?? 'Tidak ada');
+
+                                        // Kapasitas total
                                         $formattedtotal = number_format($kapasitasdryer?->kapasitas_total ?? 0, 0, ',', '.');
                                         $set('kapasitas_total', $formattedtotal);
-                                        // Reset nilai sortirans ketika no_lumbung_basah berubah
+
+                                        // Reset nilai
                                         $set('sortirans', null);
                                         $set('total_netto', null);
+                                        $set('kapasitas_sisa_akhir', $formattedSisa); // Reset kapasitas sisa akhir ke nilai awal
                                     }),
+
                                 Select::make('lumbung_tujuan')
                                     ->label('Lumbung Tujuan')
                                     ->options([
@@ -118,25 +141,14 @@ class DryerResource extends Resource implements HasShieldPermissions
                                     ])
                                     ->placeholder('Pilih lumbung kering')
                                     ->native(false),
-                                TextInput::make('kapasitas_total')
-                                    ->label('Kapasitas Total')
-                                    ->placeholder('Pilih terlebih dahulu nama Dryer')
-                                    ->disabled(),
+
                                 TextInput::make('pj')
                                     ->label('PenanggungJawab')
                                     ->placeholder('Masukkan PenanggungJawab'),
-                                TextInput::make('total_netto')
-                                    ->label('Kapasitas Terpakai')
-                                    ->placeholder('Otomatis terhitung')
-                                    ->readOnly(),
                                 TextInput::make('operator')
                                     ->label('Operator Dryer')
                                     // ->required()
                                     ->placeholder('Masukkan Operator Dryer'),
-                                TextInput::make('kapasitas_sisa')
-                                    ->label('Kapasitas Sisa')
-                                    ->placeholder('Otomatis terhitung')
-                                    ->disabled(),
 
                                 // TextInput::make('created_at')
                                 //     ->label('Tanggal/Jam')
@@ -156,288 +168,420 @@ class DryerResource extends Resource implements HasShieldPermissions
                                     ->label('Nama Barang')
                                     // ->required()
                                     ->placeholder('Masukkan jenis jagung'),
-                            ])->columns(2)
+                            ])->columns(2),
+                        Card::make()
+                            ->schema([
+                                TextInput::make('kapasitas_total')
+                                    ->label('Kapasitas Total')
+                                    ->placeholder('Pilih terlebih dahulu nama Dryer')
+                                    ->disabled(),
+                                TextInput::make('total_netto')
+                                    ->label('Kapasitas Terpakai')
+                                    ->placeholder('Otomatis terhitung')
+                                    ->readOnly(),
+                                TextInput::make('kapasitas_sisa_akhir')
+                                    ->label('Kapasitas Sisa')
+                                    ->placeholder('Otomatis terhitung')
+                                    ->disabled(),
+                            ])->columns(3),
                     ])->collapsible(),
                 Card::make()
                     ->schema([
                         Grid::make(2)
                             ->schema([
-                                //Card Lumbung 1
-                                Card::make('Lumbung ke-1')
-                                    ->schema([
-                                        Select::make('id_lumbung_1')
-                                            ->label('No Lumbung')
-                                            ->placeholder('Pilih No Lumbung 1')
-                                            ->options(LumbungBasah::latest()->pluck('no_lb', 'id')->toArray())
-                                            ->searchable()
-                                            ->required()
-                                            ->reactive()
-                                            //->disabled(fn($record) => $record !== null)
-                                            ->afterStateHydrated(function ($state, callable $set) {
-                                                if ($state) {
-                                                    $lumbung = LumbungBasah::find($state);
-                                                    $set('total_netto_1', $lumbung?->total_netto ?? 0); // Simpan sebagai angka
-                                                    $set('no_lumbung_1', $lumbung?->no_lumbung_basah ?? 'Tidak ada');
-                                                    $set('jenis_jagung_1', $lumbung?->jenis_jagung ?? 'Tidak ada');
-                                                }
+                                // Select Lumbung 1
+                                Select::make('id_lumbung_1')
+                                    ->label('No Lumbung 1')
+                                    ->placeholder('Pilih No Lumbung 1')
+                                    ->options(function (callable $get) {
+                                        $currentId = $get('id_lumbung_1'); // nilai yang dipilih (jika ada)
+
+                                        // Ambil semua field timbangan jual (dari 1 sampai 6)
+                                        $usedSpbIds = Dryer::query()
+                                            ->get()
+                                            ->flatMap(function ($record) {
+                                                return [
+                                                    $record->id_lumbung_1,
+                                                    $record->id_lumbung_2,
+                                                    $record->id_lumbung_3,
+                                                    $record->id_lumbung_4,
+                                                ];
                                             })
-                                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                                if (empty($state)) {
-                                                    $set('total_netto_1', null);
-                                                    $set('no_lumbung_1', null);
-                                                    $set('jenis_jagung_1', null);
-                                                } else {
-                                                    $selectedLumbungs = [
-                                                        $get('id_lumbung_1'),
-                                                        $get('id_lumbung_2'),
-                                                        $get('id_lumbung_3'),
-                                                        $get('id_lumbung_4'),
-                                                    ];
-                                                    $occurrences = array_count_values(array_filter($selectedLumbungs));
-                                                    if ($occurrences[$state] > 1) {
-                                                        Notification::make()
-                                                            ->title('Peringatan!')
-                                                            ->body('No lumbung tidak boleh sama.')
-                                                            ->danger()
-                                                            ->send();
+                                            ->filter()   // Hilangkan nilai null
+                                            ->unique()   // Pastikan tidak ada duplikasi
+                                            ->toArray();
 
-                                                        $set('id_lumbung_1', null);
-                                                        return;
-                                                    }
+                                        // Jika ada nilai yang tersimpan, kita ingin menyertakannya walaupun termasuk dalam usedSpbIds.
+                                        $lumbungQuery = LumbungBasah::query();
+                                        if ($currentId) {
+                                            $lumbungQuery->where(function ($query) use ($currentId, $usedSpbIds) {
+                                                $query->where('id', $currentId)
+                                                    ->orWhereNotIn('id', $usedSpbIds);
+                                            });
+                                        } else {
+                                            $lumbungQuery->whereNotIn('id', $usedSpbIds);
+                                        }
 
-                                                    $lumbung = LumbungBasah::find($state);
-                                                    $set('total_netto_1', $lumbung?->total_netto ?? 0); // Simpan sebagai angka
-                                                    $set('no_lumbung_1', $lumbung?->no_lumbung_basah ?? 'Tidak ada');
-                                                    $set('jenis_jagung_1', $lumbung?->jenis_jagung ?? 'Tidak ada');
-                                                }
-
-                                                $totalNetto = (float) ($get('total_netto_1') ?? 0) + (float) ($get('total_netto_2') ?? 0)
-                                                    + (float) ($get('total_netto_3') ?? 0) + (float) ($get('total_netto_4') ?? 0);
-                                                $set('total_netto', $totalNetto); // Simpan sebagai angka
-                                            }),
-                                        TextInput::make('total_netto_1')
-                                            ->label('Total Netto')
-                                            ->placeholder('Pilih terlebih dahulu No Lumbung 1')
-                                            ->disabled(),
-
-                                        TextInput::make('no_lumbung_1')
-                                            ->label('No Lumbung')
-                                            ->placeholder('Pilih terlebih dahulu No Lumbung 1')
-                                            ->disabled(),
-
-                                        TextInput::make('jenis_jagung_1')
-                                            ->label('Jenis Jagung')
-                                            ->placeholder('Pilih terlebih dahulu No Lumbung 1')
-                                            ->disabled(),
-                                    ])->columnSpan(1)
-                                    ->collapsible(),
-                                //Card Lumbung 2
-                                Card::make('Lumbung ke-2')
-                                    ->schema([
-                                        Select::make('id_lumbung_2')
-                                            ->label('No Lumbung')
-                                            ->placeholder('Pilih No Lumbung 2')
-                                            ->options(LumbungBasah::latest()->pluck('no_lb', 'id')->toArray()) // Urutan data dari terbaru ke lama
-                                            ->searchable()
-                                            ->reactive()
-                                            //->disabled(fn($record) => $record !== null)
-                                            ->afterStateHydrated(function ($state, callable $set) {
-                                                if ($state) {
-                                                    $lumbung = LumbungBasah::find($state);
-                                                    $set('total_netto_2', $lumbung?->total_netto ?? 0); // Simpan sebagai angka
-                                                    $set('no_lumbung_2', $lumbung?->no_lumbung_basah ?? 'Tidak ada');
-                                                    $set('jenis_jagung_2', $lumbung?->jenis_jagung ?? 'Tidak ada');
-                                                }
+                                        return $lumbungQuery
+                                            ->latest()
+                                            ->with('kapasitaslumbungbasah')
+                                            ->get()
+                                            ->mapWithKeys(function ($item) {
+                                                return [
+                                                    $item->id => $item->no_lb .
+                                                        ' - ' . $item->total_netto .
+                                                        ' - ' . $item->kapasitaslumbungbasah->no_kapasitas_lumbung
+                                                ];
                                             })
-                                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                                if (empty($state)) {
-                                                    $set('total_netto_2', null);
-                                                    $set('no_lumbung_2', null);
-                                                    $set('jenis_jagung_2', null);
-                                                } else {
-                                                    $selectedLumbungs = [
-                                                        $get('id_lumbung_1'),
-                                                        $get('id_lumbung_2'),
-                                                        $get('id_lumbung_3'),
-                                                        $get('id_lumbung_4'),
-                                                    ];
-                                                    $occurrences = array_count_values(array_filter($selectedLumbungs));
-                                                    if ($occurrences[$state] > 1) {
-                                                        Notification::make()
-                                                            ->title('Peringatan!')
-                                                            ->body('No lumbung tidak boleh sama.')
-                                                            ->danger()
-                                                            ->send();
+                                            ->toArray();
+                                    })
+                                    ->searchable()
+                                    ->required()
+                                    ->reactive()
+                                    ->afterStateHydrated(function ($state, callable $set) {
+                                        if ($state) {
+                                            $lumbung = LumbungBasah::with('kapasitaslumbungbasah')->find($state);
+                                            $set('total_netto_1', $lumbung?->total_netto ?? 0);
+                                            $set('no_lumbung_1', $lumbung?->kapasitaslumbungbasah?->no_kapasitas_lumbung ?? 'Tidak ada');
+                                            $set('jenis_jagung_1', $lumbung?->jenis_jagung ?? 'Tidak ada');
+                                        }
+                                    })
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        if (empty($state)) {
+                                            $set('total_netto_1', null);
+                                            $set('no_lumbung_1', null);
+                                            $set('jenis_jagung_1', null);
+                                        } else {
+                                            $selectedLumbungs = [
+                                                $get('id_lumbung_1'),
+                                                $get('id_lumbung_2'),
+                                                $get('id_lumbung_3'),
+                                                $get('id_lumbung_4'),
+                                            ];
+                                            $occurrences = array_count_values(array_filter($selectedLumbungs));
+                                            if ($occurrences[$state] > 1) {
+                                                Notification::make()
+                                                    ->title('Peringatan!')
+                                                    ->body('No lumbung tidak boleh sama.')
+                                                    ->danger()
+                                                    ->send();
 
-                                                        $set('id_lumbung_2', null);
-                                                        return;
-                                                    }
+                                                $set('id_lumbung_1', null);
+                                                return;
+                                            }
 
-                                                    $lumbung = LumbungBasah::find($state);
-                                                    $set('total_netto_2', $lumbung?->total_netto ?? 0); // Simpan sebagai angka
-                                                    $set('no_lumbung_2', $lumbung?->no_lumbung_basah ?? 'Tidak ada');
-                                                    $set('jenis_jagung_2', $lumbung?->jenis_jagung ?? 'Tidak ada');
-                                                }
+                                            $lumbung = LumbungBasah::find($state);
+                                            $set('total_netto_1', $lumbung?->total_netto ?? 0);
+                                            $set('no_lumbung_1', $lumbung?->kapasitaslumbungbasah?->no_kapasitas_lumbung ?? 'Tidak ada');
+                                            $set('jenis_jagung_1', $lumbung?->jenis_jagung ?? 'Tidak ada');
+                                        }
 
-                                                $totalNetto = (float) ($get('total_netto_1') ?? 0) + (float) ($get('total_netto_2') ?? 0)
-                                                    + (float) ($get('total_netto_3') ?? 0) + (float) ($get('total_netto_4') ?? 0);
-                                                $set('total_netto', $totalNetto); // Simpan sebagai angka
-                                            }),
-                                        TextInput::make('total_netto_2')
-                                            ->label('Total Netto')
-                                            ->placeholder('Pilih terlebih dahulu No Lumbung 2')
-                                            ->disabled(),
+                                        // Hitung total netto dari semua lumbung
+                                        $totalNetto = (float) ($get('total_netto_1') ?? 0) + (float) ($get('total_netto_2') ?? 0)
+                                            + (float) ($get('total_netto_3') ?? 0) + (float) ($get('total_netto_4') ?? 0);
+                                        $set('total_netto', $totalNetto);
 
-                                        TextInput::make('no_lumbung_2')
-                                            ->label('No Lumbung')
-                                            ->placeholder('Pilih terlebih dahulu No Lumbung 2')
-                                            ->disabled(),
+                                        // Hitung kapasitas sisa setelah dikurangi total netto
+                                        $kapasitasSisaOriginal = (float) ($get('kapasitas_sisa_original') ?? 0);
+                                        $sisaSetelahDikurangi = $kapasitasSisaOriginal - $totalNetto;
+                                        $formattedSisaAkhir = number_format($sisaSetelahDikurangi, 0, ',', '.');
+                                        $set('kapasitas_sisa_akhir', $formattedSisaAkhir);
+                                    }),
 
-                                        TextInput::make('jenis_jagung_2')
-                                            ->label('Jenis Jagung')
-                                            ->placeholder('Pilih terlebih dahulu No Lumbung 2')
-                                            ->disabled(),
+                                // Select Lumbung 2
+                                Select::make('id_lumbung_2')
+                                    ->label('No Lumbung 2')
+                                    ->placeholder('Pilih No Lumbung 2')
+                                    ->options(function (callable $get) {
+                                        $currentId = $get('id_lumbung_2'); // nilai yang dipilih (jika ada)
 
-
-                                    ])->columnSpan(1)->collapsible(),
-                                //Card Lumbung 3
-                                Card::make('Lumbung ke-3')
-                                    ->schema([
-                                        Select::make('id_lumbung_3')
-                                            ->label('No Lumbung')
-                                            ->placeholder('Pilih No Lumbung 3')
-                                            ->options(LumbungBasah::latest()->pluck('no_lb', 'id')->toArray()) // Urutan data dari terbaru ke lama
-                                            ->searchable()
-                                            ->reactive()
-                                            //->disabled(fn($record) => $record !== null)
-                                            ->afterStateHydrated(function ($state, callable $set) {
-                                                if ($state) {
-                                                    $lumbung = LumbungBasah::find($state);
-                                                    $set('total_netto_3', $lumbung?->total_netto ?? 0); // Simpan sebagai angka
-                                                    $set('no_lumbung_3', $lumbung?->no_lumbung_basah ?? 'Tidak ada');
-                                                    $set('jenis_jagung_3', $lumbung?->jenis_jagung ?? 'Tidak ada');
-                                                }
+                                        // Ambil semua field timbangan jual (dari 1 sampai 6)
+                                        $usedSpbIds = Dryer::query()
+                                            ->get()
+                                            ->flatMap(function ($record) {
+                                                return [
+                                                    $record->id_lumbung_1,
+                                                    $record->id_lumbung_2,
+                                                    $record->id_lumbung_3,
+                                                    $record->id_lumbung_4,
+                                                ];
                                             })
-                                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                                if (empty($state)) {
-                                                    $set('total_netto_3', null);
-                                                    $set('no_lumbung_3', null);
-                                                    $set('jenis_jagung_3', null);
-                                                } else {
-                                                    $selectedLumbungs = [
-                                                        $get('id_lumbung_1'),
-                                                        $get('id_lumbung_2'),
-                                                        $get('id_lumbung_3'),
-                                                        $get('id_lumbung_4'),
-                                                    ];
-                                                    $occurrences = array_count_values(array_filter($selectedLumbungs));
-                                                    if ($occurrences[$state] > 1) {
-                                                        Notification::make()
-                                                            ->title('Peringatan!')
-                                                            ->body('No lumbung tidak boleh sama.')
-                                                            ->danger()
-                                                            ->send();
+                                            ->filter()   // Hilangkan nilai null
+                                            ->unique()   // Pastikan tidak ada duplikasi
+                                            ->toArray();
 
-                                                        $set('id_lumbung_3', null);
-                                                        return;
-                                                    }
+                                        // Jika ada nilai yang tersimpan, kita ingin menyertakannya walaupun termasuk dalam usedSpbIds.
+                                        $lumbungQuery = LumbungBasah::query();
+                                        if ($currentId) {
+                                            $lumbungQuery->where(function ($query) use ($currentId, $usedSpbIds) {
+                                                $query->where('id', $currentId)
+                                                    ->orWhereNotIn('id', $usedSpbIds);
+                                            });
+                                        } else {
+                                            $lumbungQuery->whereNotIn('id', $usedSpbIds);
+                                        }
 
-                                                    $lumbung = LumbungBasah::find($state);
-                                                    $set('total_netto_3', $lumbung?->total_netto ?? 0); // Simpan sebagai angka
-                                                    $set('no_lumbung_3', $lumbung?->no_lumbung_basah ?? 'Tidak ada');
-                                                    $set('jenis_jagung_3', $lumbung?->jenis_jagung ?? 'Tidak ada');
-                                                }
-
-                                                $totalNetto = (float) ($get('total_netto_1') ?? 0) + (float) ($get('total_netto_2') ?? 0)
-                                                    + (float) ($get('total_netto_3') ?? 0) + (float) ($get('total_netto_4') ?? 0);
-                                                $set('total_netto', $totalNetto); // Simpan sebagai angka
-                                            }),
-                                        TextInput::make('total_netto_3')
-                                            ->label('Total Netto')
-                                            ->placeholder('Pilih terlebih dahulu No Lumbung 3')
-                                            ->disabled(),
-
-                                        TextInput::make('no_lumbung_3')
-                                            ->label('No Lumbung')
-                                            ->placeholder('Pilih terlebih dahulu No Lumbung 3')
-                                            ->disabled(),
-
-                                        TextInput::make('jenis_jagung_3')
-                                            ->label('Jenis Jagung')
-                                            ->placeholder('Pilih terlebih dahulu No Lumbung 3')
-                                            ->disabled(),
-
-
-                                    ])->columnSpan(1)->collapsed(),
-                                //Card Lumbung 4
-                                Card::make('Lumbung ke-4')
-                                    ->schema([
-                                        Select::make('id_lumbung_4')
-                                            ->label('No Lumbung')
-                                            ->placeholder('Pilih No Lumbung 4')
-                                            ->options(LumbungBasah::latest()->pluck('no_lb', 'id')->toArray()) // Urutan data dari terbaru ke lama
-                                            ->searchable()
-                                            ->reactive()
-                                            //->disabled(fn($record) => $record !== null)
-                                            ->afterStateHydrated(function ($state, callable $set) {
-                                                if ($state) {
-                                                    $lumbung = LumbungBasah::find($state);
-                                                    $set('total_netto_4', $lumbung?->total_netto ?? 0); // Simpan sebagai angka
-                                                    $set('no_lumbung_4', $lumbung?->no_lumbung_basah ?? 'Tidak ada');
-                                                    $set('jenis_jagung_4', $lumbung?->jenis_jagung ?? 'Tidak ada');
-                                                }
+                                        return $lumbungQuery
+                                            ->latest()
+                                            ->with('kapasitaslumbungbasah')
+                                            ->get()
+                                            ->mapWithKeys(function ($item) {
+                                                return [
+                                                    $item->id => $item->no_lb .
+                                                        ' - ' . $item->total_netto .
+                                                        ' - ' . $item->kapasitaslumbungbasah->no_kapasitas_lumbung
+                                                ];
                                             })
-                                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                                if (empty($state)) {
-                                                    $set('total_netto_4', null);
-                                                    $set('no_lumbung_4', null);
-                                                    $set('jenis_jagung_4', null);
-                                                } else {
-                                                    $selectedLumbungs = [
-                                                        $get('id_lumbung_1'),
-                                                        $get('id_lumbung_2'),
-                                                        $get('id_lumbung_3'),
-                                                        $get('id_lumbung_4'),
-                                                    ];
-                                                    $occurrences = array_count_values(array_filter($selectedLumbungs));
-                                                    if ($occurrences[$state] > 1) {
-                                                        Notification::make()
-                                                            ->title('Peringatan!')
-                                                            ->body('No lumbung tidak boleh sama.')
-                                                            ->danger()
-                                                            ->send();
+                                            ->toArray();
+                                    })
+                                    ->searchable()
+                                    ->reactive()
+                                    ->afterStateHydrated(function ($state, callable $set) {
+                                        if ($state) {
+                                            $lumbung = LumbungBasah::with('kapasitaslumbungbasah')->find($state);
+                                            $set('total_netto_2', $lumbung?->total_netto ?? 0);
+                                            $set('no_lumbung_2', $lumbung?->kapasitaslumbungbasah?->no_kapasitas_lumbung ?? 'Tidak ada');
+                                            $set('jenis_jagung_2', $lumbung?->jenis_jagung ?? 'Tidak ada');
+                                        }
+                                    })
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        if (empty($state)) {
+                                            $set('total_netto_2', null);
+                                            $set('no_lumbung_2', null);
+                                            $set('jenis_jagung_2', null);
+                                        } else {
+                                            $selectedLumbungs = [
+                                                $get('id_lumbung_1'),
+                                                $get('id_lumbung_2'),
+                                                $get('id_lumbung_3'),
+                                                $get('id_lumbung_4'),
+                                            ];
+                                            $occurrences = array_count_values(array_filter($selectedLumbungs));
+                                            if ($occurrences[$state] > 1) {
+                                                Notification::make()
+                                                    ->title('Peringatan!')
+                                                    ->body('No lumbung tidak boleh sama.')
+                                                    ->danger()
+                                                    ->send();
 
-                                                        $set('id_lumbung_4', null);
-                                                        return;
-                                                    }
+                                                $set('id_lumbung_2', null);
+                                                return;
+                                            }
 
-                                                    $lumbung = LumbungBasah::find($state);
-                                                    $set('total_netto_4', $lumbung?->total_netto ?? 0); // Simpan sebagai angka
-                                                    $set('no_lumbung_4', $lumbung?->no_lumbung_basah ?? 'Tidak ada');
-                                                    $set('jenis_jagung_4', $lumbung?->jenis_jagung ?? 'Tidak ada');
-                                                }
+                                            $lumbung = LumbungBasah::find($state);
+                                            $set('total_netto_2', $lumbung?->total_netto ?? 0);
+                                            $set('no_lumbung_2', $lumbung?->kapasitaslumbungbasah?->no_kapasitas_lumbung ?? 'Tidak ada');
+                                            $set('jenis_jagung_2', $lumbung?->jenis_jagung ?? 'Tidak ada');
+                                        }
 
-                                                $totalNetto = (float) ($get('total_netto_1') ?? 0) + (float) ($get('total_netto_2') ?? 0)
-                                                    + (float) ($get('total_netto_3') ?? 0) + (float) ($get('total_netto_4') ?? 0);
-                                                $set('total_netto', $totalNetto); // Simpan sebagai angka
-                                            }),
-                                        TextInput::make('total_netto_4')
-                                            ->label('Total Netto')
-                                            ->placeholder('Pilih terlebih dahulu No Lumbung 4')
-                                            ->disabled(),
+                                        // Hitung total netto dari semua lumbung
+                                        $totalNetto = (float) ($get('total_netto_1') ?? 0) + (float) ($get('total_netto_2') ?? 0)
+                                            + (float) ($get('total_netto_3') ?? 0) + (float) ($get('total_netto_4') ?? 0);
+                                        $set('total_netto', $totalNetto);
 
-                                        TextInput::make('no_lumbung_4')
-                                            ->label('No Lumbung')
-                                            ->placeholder('Pilih terlebih dahulu No Lumbung 4')
-                                            ->disabled(),
+                                        // Hitung kapasitas sisa setelah dikurangi total netto
+                                        $kapasitasSisaOriginal = (float) ($get('kapasitas_sisa_original') ?? 0);
+                                        $sisaSetelahDikurangi = $kapasitasSisaOriginal - $totalNetto;
+                                        $formattedSisaAkhir = number_format($sisaSetelahDikurangi, 0, ',', '.');
+                                        $set('kapasitas_sisa_akhir', $formattedSisaAkhir);
+                                    }),
 
-                                        TextInput::make('jenis_jagung_4')
-                                            ->label('Jenis Jagung')
-                                            ->placeholder('Pilih terlebih dahulu No Lumbung 4')
-                                            ->disabled(),
+                                // Select Lumbung 3
+                                Select::make('id_lumbung_3')
+                                    ->label('No Lumbung 3')
+                                    ->placeholder('Pilih No Lumbung 3')
+                                    ->options(function (callable $get) {
+                                        $currentId = $get('id_lumbung_3'); // nilai yang dipilih (jika ada)
 
+                                        // Ambil semua field timbangan jual (dari 1 sampai 6)
+                                        $usedSpbIds = Dryer::query()
+                                            ->get()
+                                            ->flatMap(function ($record) {
+                                                return [
+                                                    $record->id_lumbung_1,
+                                                    $record->id_lumbung_2,
+                                                    $record->id_lumbung_3,
+                                                    $record->id_lumbung_4,
+                                                ];
+                                            })
+                                            ->filter()   // Hilangkan nilai null
+                                            ->unique()   // Pastikan tidak ada duplikasi
+                                            ->toArray();
 
-                                    ])->columnSpan(1)->collapsed(),
+                                        // Jika ada nilai yang tersimpan, kita ingin menyertakannya walaupun termasuk dalam usedSpbIds.
+                                        $lumbungQuery = LumbungBasah::query();
+                                        if ($currentId) {
+                                            $lumbungQuery->where(function ($query) use ($currentId, $usedSpbIds) {
+                                                $query->where('id', $currentId)
+                                                    ->orWhereNotIn('id', $usedSpbIds);
+                                            });
+                                        } else {
+                                            $lumbungQuery->whereNotIn('id', $usedSpbIds);
+                                        }
+
+                                        return $lumbungQuery
+                                            ->latest()
+                                            ->with('kapasitaslumbungbasah')
+                                            ->get()
+                                            ->mapWithKeys(function ($item) {
+                                                return [
+                                                    $item->id => $item->no_lb .
+                                                        ' - ' . $item->total_netto .
+                                                        ' - ' . $item->kapasitaslumbungbasah->no_kapasitas_lumbung
+                                                ];
+                                            })
+                                            ->toArray();
+                                    })
+                                    ->searchable()
+                                    ->reactive()
+                                    ->afterStateHydrated(function ($state, callable $set) {
+                                        if ($state) {
+                                            $lumbung = LumbungBasah::with('kapasitaslumbungbasah')->find($state);
+                                            $set('total_netto_3', $lumbung?->total_netto ?? 0);
+                                            $set('no_lumbung_3', $lumbung?->kapasitaslumbungbasah?->no_kapasitas_lumbung ?? 'Tidak ada');
+                                            $set('jenis_jagung_3', $lumbung?->jenis_jagung ?? 'Tidak ada');
+                                        }
+                                    })
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        if (empty($state)) {
+                                            $set('total_netto_3', null);
+                                            $set('no_lumbung_3', null);
+                                            $set('jenis_jagung_3', null);
+                                        } else {
+                                            $selectedLumbungs = [
+                                                $get('id_lumbung_1'),
+                                                $get('id_lumbung_2'),
+                                                $get('id_lumbung_3'),
+                                                $get('id_lumbung_4'),
+                                            ];
+                                            $occurrences = array_count_values(array_filter($selectedLumbungs));
+                                            if ($occurrences[$state] > 1) {
+                                                Notification::make()
+                                                    ->title('Peringatan!')
+                                                    ->body('No lumbung tidak boleh sama.')
+                                                    ->danger()
+                                                    ->send();
+
+                                                $set('id_lumbung_3', null);
+                                                return;
+                                            }
+
+                                            $lumbung = LumbungBasah::find($state);
+                                            $set('total_netto_3', $lumbung?->total_netto ?? 0);
+                                            $set('no_lumbung_3', $lumbung?->kapasitaslumbungbasah?->no_kapasitas_lumbung ?? 'Tidak ada');
+                                            $set('jenis_jagung_3', $lumbung?->jenis_jagung ?? 'Tidak ada');
+                                        }
+
+                                        // Hitung total netto dari semua lumbung
+                                        $totalNetto = (float) ($get('total_netto_1') ?? 0) + (float) ($get('total_netto_2') ?? 0)
+                                            + (float) ($get('total_netto_3') ?? 0) + (float) ($get('total_netto_4') ?? 0);
+                                        $set('total_netto', $totalNetto);
+
+                                        // Hitung kapasitas sisa setelah dikurangi total netto
+                                        $kapasitasSisaOriginal = (float) ($get('kapasitas_sisa_original') ?? 0);
+                                        $sisaSetelahDikurangi = $kapasitasSisaOriginal - $totalNetto;
+                                        $formattedSisaAkhir = number_format($sisaSetelahDikurangi, 0, ',', '.');
+                                        $set('kapasitas_sisa_akhir', $formattedSisaAkhir);
+                                    }),
+
+                                // Select Lumbung 4
+                                Select::make('id_lumbung_4')
+                                    ->label('No Lumbung 4')
+                                    ->placeholder('Pilih No Lumbung 4')
+                                    ->options(function (callable $get) {
+                                        $currentId = $get('id_lumbung_4'); // nilai yang dipilih (jika ada)
+
+                                        // Ambil semua field timbangan jual (dari 1 sampai 6)
+                                        $usedSpbIds = Dryer::query()
+                                            ->get()
+                                            ->flatMap(function ($record) {
+                                                return [
+                                                    $record->id_lumbung_1,
+                                                    $record->id_lumbung_2,
+                                                    $record->id_lumbung_3,
+                                                    $record->id_lumbung_4,
+                                                ];
+                                            })
+                                            ->filter()   // Hilangkan nilai null
+                                            ->unique()   // Pastikan tidak ada duplikasi
+                                            ->toArray();
+
+                                        // Jika ada nilai yang tersimpan, kita ingin menyertakannya walaupun termasuk dalam usedSpbIds.
+                                        $lumbungQuery = LumbungBasah::query();
+                                        if ($currentId) {
+                                            $lumbungQuery->where(function ($query) use ($currentId, $usedSpbIds) {
+                                                $query->where('id', $currentId)
+                                                    ->orWhereNotIn('id', $usedSpbIds);
+                                            });
+                                        } else {
+                                            $lumbungQuery->whereNotIn('id', $usedSpbIds);
+                                        }
+
+                                        return $lumbungQuery
+                                            ->latest()
+                                            ->with('kapasitaslumbungbasah')
+                                            ->get()
+                                            ->mapWithKeys(function ($item) {
+                                                return [
+                                                    $item->id => $item->no_lb .
+                                                        ' - ' . $item->total_netto .
+                                                        ' - ' . $item->kapasitaslumbungbasah->no_kapasitas_lumbung
+                                                ];
+                                            })
+                                            ->toArray();
+                                    })
+                                    ->searchable()
+                                    ->reactive()
+                                    ->afterStateHydrated(function ($state, callable $set) {
+                                        if ($state) {
+                                            $lumbung = LumbungBasah::with('kapasitaslumbungbasah')->find($state);
+                                            $set('total_netto_4', $lumbung?->total_netto ?? 0);
+                                            $set('no_lumbung_4', $lumbung?->kapasitaslumbungbasah?->no_kapasitas_lumbung ?? 'Tidak ada');
+                                            $set('jenis_jagung_4', $lumbung?->jenis_jagung ?? 'Tidak ada');
+                                        }
+                                    })
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        if (empty($state)) {
+                                            $set('total_netto_4', null);
+                                            $set('no_lumbung_4', null);
+                                            $set('jenis_jagung_4', null);
+                                        } else {
+                                            $selectedLumbungs = [
+                                                $get('id_lumbung_1'),
+                                                $get('id_lumbung_2'),
+                                                $get('id_lumbung_3'),
+                                                $get('id_lumbung_4'),
+                                            ];
+                                            $occurrences = array_count_values(array_filter($selectedLumbungs));
+                                            if ($occurrences[$state] > 1) {
+                                                Notification::make()
+                                                    ->title('Peringatan!')
+                                                    ->body('No lumbung tidak boleh sama.')
+                                                    ->danger()
+                                                    ->send();
+
+                                                $set('id_lumbung_4', null);
+                                                return;
+                                            }
+
+                                            $lumbung = LumbungBasah::find($state);
+                                            $set('total_netto_4', $lumbung?->total_netto ?? 0);
+                                            $set('no_lumbung_4', $lumbung?->kapasitaslumbungbasah?->no_kapasitas_lumbung ?? 'Tidak ada');
+                                            $set('jenis_jagung_4', $lumbung?->jenis_jagung ?? 'Tidak ada');
+                                        }
+
+                                        // Hitung total netto dari semua lumbung
+                                        $totalNetto = (float) ($get('total_netto_1') ?? 0) + (float) ($get('total_netto_2') ?? 0)
+                                            + (float) ($get('total_netto_3') ?? 0) + (float) ($get('total_netto_4') ?? 0);
+                                        $set('total_netto', $totalNetto);
+
+                                        // Hitung kapasitas sisa setelah dikurangi total netto
+                                        $kapasitasSisaOriginal = (float) ($get('kapasitas_sisa_original') ?? 0);
+                                        $sisaSetelahDikurangi = $kapasitasSisaOriginal - $totalNetto;
+                                        $formattedSisaAkhir = number_format($sisaSetelahDikurangi, 0, ',', '.');
+                                        $set('kapasitas_sisa_akhir', $formattedSisaAkhir);
+                                    }),
+
                             ])
                     ])
             ]);
@@ -446,7 +590,8 @@ class DryerResource extends Resource implements HasShieldPermissions
     public static function table(Table $table): Table
     {
         return $table
-            ->defaultPaginationPageOption(5)
+            ->defaultPaginationPageOption(10)
+            ->defaultSort('no_dryer', 'desc')
             ->columns([
                 TextColumn::make('created_at')
                     ->label('Tanggal')
@@ -462,8 +607,8 @@ class DryerResource extends Resource implements HasShieldPermissions
                     ->label('Lumbung Tujuan')
                     ->searchable()
                     ->alignCenter(),
-                TextColumn::make('jenis_jagung')
-                    ->label('Jenis Jagung')
+                TextColumn::make('nama_barang')
+                    ->label('Nama Barang')
                     ->searchable()
                     ->alignCenter(),
 
@@ -484,19 +629,19 @@ class DryerResource extends Resource implements HasShieldPermissions
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
-                Tables\Actions\ViewAction::make(),
+                // Tables\Actions\ViewAction::make(),
             ])
             ->filters([
                 //
-            ])
-
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
+
+        // ->bulkActions([
+        //     Tables\Actions\BulkActionGroup::make([
+        //         Tables\Actions\DeleteBulkAction::make(),
+        //     ]),
+        // ]);
     }
 
     public static function getRelations(): array

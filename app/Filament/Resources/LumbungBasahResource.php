@@ -120,7 +120,7 @@ class LumbungBasahResource extends Resource implements HasShieldPermissions
                                     ->label('Kapasitas Total')
                                     ->placeholder('Pilih terlebih dahulu no lumbung basah')
                                     ->disabled(),
-                                Select::make('lumbung_tujuan')
+                                Select::make('tujuan')
                                     ->native(false)
                                     ->label('Tujuan')
                                     ->options(KapasitasDryer::pluck('nama_kapasitas_dryer', 'nama_kapasitas_dryer'))

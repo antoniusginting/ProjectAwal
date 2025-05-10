@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Filament\Notifications\Notification;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class LumbungBasah extends Model
@@ -72,7 +74,16 @@ class LumbungBasah extends Model
                 if ($kapasitas->kapasitas_sisa >= $lumbungBasah->total_netto) {
                     $kapasitas->decrement('kapasitas_sisa', $lumbungBasah->total_netto);
                 } else {
-                    throw new \Exception('Kapasitas tidak mencukupi!');
+                    Notification::make()
+                        ->danger()
+                        ->title('Kapasitas Tidak Mencukupi')
+                        ->body('Total netto yang diinput melebihi kapasitas sisa lumbung basah.')
+                        ->persistent()
+                        ->send();
+                    // Gunakan ValidationException untuk tetap di halaman form
+                    throw ValidationException::withMessages([
+                        'total_netto' => 'Total netto melebihi kapasitas sisa lumbung basah.',
+                    ]);
                 }
             }
         });
@@ -100,7 +111,16 @@ class LumbungBasah extends Model
                     if ($kapasitas->kapasitas_sisa >= $selisih) {
                         $kapasitas->decrement('kapasitas_sisa', $selisih);
                     } else {
-                        throw new \Exception('Kapasitas tidak mencukupi!');
+                        Notification::make()
+                            ->danger()
+                            ->title('Kapasitas Tidak Mencukupi')
+                            ->body('Total netto yang diinput melebihi kapasitas sisa lumbung basah.')
+                            ->persistent()
+                            ->send();
+                        // Gunakan ValidationException untuk tetap di halaman form
+                        throw ValidationException::withMessages([
+                            'total_netto' => 'Total netto melebihi kapasitas sisa lumbung basah.',
+                        ]);
                     }
                 } elseif ($selisih < 0) {
                     // Jika netto berkurang, tambahkan kembali ke kapasitas
