@@ -127,23 +127,23 @@ class SupplierResource extends Resource implements HasShieldPermissions
                     ->searchable(),
                 TextColumn::make('no_ktp')
                     ->label('No KTP')
-                    ->visible(fn () => optional(Auth::user())->hasAnyRole(['Admin','super_admin']))
+                    ->visible(fn () => optional(Auth::user())->hasAnyRole(['Admin','super_admin','Purchasing']))
                     ->searchable(),
                 TextColumn::make('npwp')
                     ->label('NPWP')
-                    ->visible(fn () => optional(Auth::user())->hasAnyRole(['Admin','super_admin']))
+                    ->visible(fn () => optional(Auth::user())->hasAnyRole(['Admin','super_admin','Purchasing']))
                     ->searchable(),
                 TextColumn::make('no_rek')
                     ->label('No Rekening')
-                    ->visible(fn () => optional(Auth::user())->hasAnyRole(['Admin','super_admin']))
+                    ->visible(fn () => optional(Auth::user())->hasAnyRole(['Admin','super_admin','Purchasing']))
                     ->searchable(),
                 TextColumn::make('nama_bank')
                     ->label('Nama Bank')
-                    ->visible(fn () => optional(Auth::user())->hasAnyRole(['Admin','super_admin']))
+                    ->visible(fn () => optional(Auth::user())->hasAnyRole(['Admin','super_admin','Purchasing']))
                     ->searchable(),
                 TextColumn::make('atas_nama_bank')
                     ->label('Atas nama')
-                    ->visible(fn () => optional(Auth::user())->hasAnyRole(['Admin','super_admin']))
+                    ->visible(fn () => optional(Auth::user())->hasAnyRole(['Admin','super_admin','Purchasing']))
                     ->searchable(),
             ])
             ->filters([

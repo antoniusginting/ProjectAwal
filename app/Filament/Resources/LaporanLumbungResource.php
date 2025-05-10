@@ -12,13 +12,27 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
-class LaporanLumbungResource extends Resource
+class LaporanLumbungResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = LaporanLumbung::class;
-
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
+    public static function canAccess(): bool
+    {
+        return false; // Menyembunyikan resource dari sidebar
+    }
     public static function form(Form $form): Form
     {
         return $form

@@ -2,9 +2,10 @@
 
 namespace App\Filament\Resources\LaporanLumbungResource\Pages;
 
-use App\Filament\Resources\LaporanLumbungResource;
 use Filament\Actions;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
+use App\Filament\Resources\LaporanLumbungResource;
 
 class EditLaporanLumbung extends EditRecord
 {
@@ -15,5 +16,22 @@ class EditLaporanLumbung extends EditRecord
         return [
             Actions\DeleteAction::make(),
         ];
+    }
+
+    protected function getFormActions(): array
+    {
+        return [
+            Action::make('save')
+                ->label('Ubah')
+                ->action(fn() => $this->save()), // Menggunakan fungsi simpan manual
+            Action::make('cancel')
+                ->label('Batal')
+                ->color('gray')
+                ->url(LaporanLumbungResource::getUrl('index')),
+        ];
+    }
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index'); // Arahkan ke daftar tabel
     }
 }

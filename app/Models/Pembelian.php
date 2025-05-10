@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Pembelian extends Model
 {
+    protected $casts = [
+        'foto' => 'array',
+    ];
     protected $fillable = [
         // 'id_mobil', // Foreing key ke mobils
         'plat_polisi',
@@ -24,6 +27,7 @@ class Pembelian extends Model
         'jam_keluar',
         'user_id',
         'jumlah_karung',
+        'foto',
     ];
     
     // Relasi ke User

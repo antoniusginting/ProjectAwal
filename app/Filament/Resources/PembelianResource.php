@@ -20,6 +20,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TimePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -250,6 +252,13 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                             ->native(false) // Mengunakan dropdown modern
                                             ->required(), // Opsional: Atur default value
                                     ])->columnSpan(1),
+                                FileUpload::make('foto')
+                                    ->image()
+                                    ->multiple()
+                                    ->openable()
+                                    ->imagePreviewHeight(200)
+                                    ->label('Foto')
+                                    ->columnSpanFull(),
                                 Hidden::make('user_id')
                                     ->label('User ID')
                                     ->default(Auth::id()) // Set nilai default user yang sedang login,
@@ -261,33 +270,33 @@ class PembelianResource extends Resource implements HasShieldPermissions
     public static function table(Table $table): Table
     {
         return $table
-        ->recordUrl(function (Pembelian $record): ?string {
-            $user = Auth::user();
+            ->recordUrl(function (Pembelian $record): ?string {
+                $user = Auth::user();
 
-            // 1) Super admin bisa edit semua kondisi
-            if ($user && $user->hasRole('super_admin')) {
-                return EditPembelian::getUrl(['record' => $record]);
-            }
-
-            // 2) Admin1 hanya bisa edit jika tara belum ada
-            if ($user && $user->hasRole('timbangan')) {
-                if (!$record->tara) {
+                // 1) Super admin bisa edit semua kondisi
+                if ($user && $user->hasRole('super_admin')) {
                     return EditPembelian::getUrl(['record' => $record]);
                 }
+
+                // 2) Admin1 hanya bisa edit jika tara belum ada
+                if ($user && $user->hasRole('timbangan')) {
+                    if (!$record->tara) {
+                        return EditPembelian::getUrl(['record' => $record]);
+                    }
+                    return null;
+                }
+
+                // // 3) Admin2 hanya bisa edit jika no_spb belum ada
+                // if ($user && $user->hasRole('admin')) {
+                //     if (!$record->no_spb) {  // Sesuaikan dengan struktur data BK
+                //         return EditPembelian::getUrl(['record' => $record]);
+                //     }
+                //     return null;
+                // }
+
+                // 4) Role lainnya tidak bisa edit
                 return null;
-            }
-
-            // // 3) Admin2 hanya bisa edit jika no_spb belum ada
-            // if ($user && $user->hasRole('admin')) {
-            //     if (!$record->no_spb) {  // Sesuaikan dengan struktur data BK
-            //         return EditPembelian::getUrl(['record' => $record]);
-            //     }
-            //     return null;
-            // }
-
-            // 4) Role lainnya tidak bisa edit
-            return null;
-        })
+            })
             // Query dasar tanpa filter tara
             ->query(Pembelian::query())
             ->defaultPaginationPageOption(10)
@@ -346,6 +355,11 @@ class PembelianResource extends Resource implements HasShieldPermissions
                     ->searchable(),
                 TextColumn::make('jam_masuk'),
                 TextColumn::make('jam_keluar'),
+                ImageColumn::make('foto')
+                    ->label('Foto 1')
+                    ->getStateUsing(fn($record) => $record->foto[0] ?? null)
+                    ->url(fn($record) => asset('storage/' . ($record->foto[0] ?? '')))
+                    ->openUrlInNewTab(),
                 TextColumn::make('user.name')
                     ->label('User')
             ])
