@@ -31,10 +31,10 @@ class KapasitasDryerResource extends Resource implements HasShieldPermissions
             'delete_any',
         ];
     }
-    // public static function canAccess(): bool
-    // {
-    //     return false; // Menyembunyikan resource dari sidebar
-    // }
+    public static function canAccess(): bool
+    {
+        return false; // Menyembunyikan resource dari sidebar
+    }
     protected static ?string $model = KapasitasDryer::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-archive-box-x-mark';

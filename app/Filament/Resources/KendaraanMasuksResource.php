@@ -103,7 +103,9 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
                                         }
 
                                         // Untuk status selain TAMU, tampilkan nomor antrian terakhir
+                                        // Tetapi hanya ambil nomor antrian dari hari ini
                                         $lastNumber = KendaraanMasuks::where('status', $status)
+                                            ->whereDate('created_at', Carbon::today())
                                             ->max('nomor_antrian') ?? 0;
 
                                         return "Nomor antrian terakhir untuk {$status}: {$lastNumber}";
@@ -206,8 +208,15 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
                                 // Last item - keterangan
                                 Textarea::make('keterangan')
                                     ->label('Keterangan')
-                                    ->placeholder('Masukkan Keterangan')
-                                    ->columnSpan('full'), // Always full width
+                                    ->placeholder('Masukkan Keterangan'),
+                                Select::make('jenis')
+                                    ->label('Jenis')
+                                    ->native(false)
+                                    ->options([
+                                        'REGULER' => 'REGULER',
+                                        'PRIORITAS' => 'PRIORITAS',
+                                    ])
+                                    ->default('REGULER'),
 
                                 // Hidden field
                                 Hidden::make('user_id')
@@ -270,12 +279,16 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
                 }
                 return null;
             })
-            ->defaultPaginationPageOption(5)
+            ->defaultPaginationPageOption(10)
             ->columns([
                 IconColumn::make('status_selesai')
                     ->label('')
                     ->boolean()
-                    ->alignCenter(),
+                    ->alignCenter()
+                    ->getStateUsing(function ($record) {
+                        // Konversi null menjadi false atau nilai lain yang sesuai
+                        return $record->status_selesai ?? false;
+                    }),
                 TextColumn::make('created_at')
                     ->label('Tanggal | Jam')
                     ->alignCenter()
@@ -292,6 +305,13 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
                             ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
                             ->isoFormat('D MMMM YYYY | HH:mm:ss');
                     }),
+                BadgeColumn::make('jenis')
+                    ->label('Jenis')
+                    ->alignCenter()
+                    ->colors([
+                        'success' => 'PRIORITAS',
+                        'gray' => 'REGULER',
+                    ]),
                 TextColumn::make('status')
                     ->label('Status')
                     ->color(function ($record) {
@@ -304,27 +324,27 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
                         };
                     })
                     ->searchable(),
-                    TextColumn::make('nomor_antrian')
-                        ->alignCenter()
-                        ->searchable()
-                        ->badge() // Menggunakan badge untuk tampilan yang lebih menarik
-                        ->color(function ($record) {
-                            return match ($record->status) {
-                                'TAMU' => 'tamu',
-                                'SUPPLIER' => 'supplier',    // Hijau
-                                'BONAR JAYA' => 'primary',  // Biru
-                                'EKSPEDISI' => 'ekspedisi',   // Oranye
-                                default => 'secondary',
-                            };
-                        })
-                        // Tampilkan strip jika nomor antrian kosong
-                        ->formatStateUsing(function ($state, $record) {
-                            if ($record->status === 'TAMU' || empty($state)) {
-                                return '-';
-                            }
-    
-                            return $state;
-                        }),
+                TextColumn::make('nomor_antrian')
+                    ->alignCenter()
+                    ->searchable()
+                    ->badge() // Menggunakan badge untuk tampilan yang lebih menarik
+                    ->color(function ($record) {
+                        return match ($record->status) {
+                            'TAMU' => 'tamu',
+                            'SUPPLIER' => 'supplier',    // Hijau
+                            'BONAR JAYA' => 'primary',  // Biru
+                            'EKSPEDISI' => 'ekspedisi',   // Oranye
+                            default => 'secondary',
+                        };
+                    })
+                    // Tampilkan strip jika nomor antrian kosong
+                    ->formatStateUsing(function ($state, $record) {
+                        if ($record->status === 'TAMU' || empty($state)) {
+                            return '-';
+                        }
+
+                        return $state;
+                    }),
                 TextColumn::make('nama_sup_per')
                     ->label('Nama Sup/Per')
                     ->searchable(),
@@ -366,9 +386,32 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
             // ])
             ->filters([
                 // Filter untuk Hari Ini
-                Filter::make('Hari Ini')
-                    ->query(fn(Builder $query) => $query->whereDate('created_at', Carbon::today())),
-
+                SelectFilter::make('Hari')
+                    ->native(false)
+                    ->label('Hari')
+                    ->options([
+                        'today' => 'Hari Ini',
+                        'yesterday' => 'Semalam',
+                    ])
+                    ->default('today') // Menetapkan nilai default
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (empty($data['value'])) {
+                            return $query;
+                        }
+                        return match ($data['value']) {
+                            'today' => $query->whereDate('created_at', Carbon::today()),
+                            'yesterday' => $query->whereDate('created_at', Carbon::yesterday()),
+                            default => 'today',
+                        };
+                    }),
+                SelectFilter::make('jenis')
+                    ->label('Jenis')
+                    ->native(false)
+                    ->options([
+                        'REGULER' => 'REGULER',
+                        'PRIORITAS' => 'PRIORITAS',
+                    ])
+                    ->placeholder('Semua Status'),
                 // Filter berdasarkan Status
                 SelectFilter::make('status')
                     ->label('Status')
@@ -380,6 +423,16 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
                         'EKSPEDISI' => 'EKSPEDISI',
                     ])
                     ->placeholder('Semua Status'),
+                Filter::make('Jam Keluar Kosong')
+                    ->query(
+                        fn(Builder $query) =>
+                        $query->whereNull('jam_keluar')
+                    )
+                    ->toggle() // Filter ini dapat diaktifkan/nonaktifkan oleh pengguna
+                    ->default(function () {
+                        // Filter aktif secara default hanya jika pengguna BUKAN super_admin ,'admin'
+                        return !optional(Auth::user())->hasAnyRole(['super_admin']);
+                    })
             ]);
         // ->filtersFormColumns(2); // Optional: Menampilkan filter dalam 2 kolom
     }

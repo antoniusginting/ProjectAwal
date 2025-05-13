@@ -216,10 +216,12 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                 return null;
             })
             ->columns([
+
                 IconColumn::make('status')
-                    ->label('')
-                    ->boolean()
-                    ->alignCenter(),
+                    ->label('Status')
+                    ->boolean()  // Menandakan kolom adalah boolean (0 atau 1)
+                    ->icon(fn($record) => $record->status ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle')  // Tentukan ikon berdasarkan nilai status
+                    ->alignCenter(),  // Rata tengah untuk ikon
                 TextColumn::make('created_at')
                     ->label('Tanggal | Jam')
                     ->alignCenter()
@@ -295,6 +297,16 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                         fn(Builder $query) =>
                         $query->whereDate('created_at', Carbon::today())
                     ),
+                Filter::make('Jam Masuk Kosong')
+                    ->query(
+                        fn(Builder $query) =>
+                        $query->whereNull('jam_masuk')
+                    )
+                    ->toggle() // Filter ini dapat diaktifkan/nonaktifkan oleh pengguna
+                    ->default(function () {
+                        // Filter aktif secara default hanya jika pengguna BUKAN super_admin ,'admin'
+                        return !optional(Auth::user())->hasAnyRole(['super_admin']);
+                    })
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
