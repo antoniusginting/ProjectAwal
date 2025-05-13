@@ -392,6 +392,7 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
                     ->options([
                         'today' => 'Hari Ini',
                         'yesterday' => 'Semalam',
+                        'today_and_yesterday' => 'Hari Ini & Semalam',
                     ])
                     ->default('today') // Menetapkan nilai default
                     ->query(function (Builder $query, array $data): Builder {
@@ -401,7 +402,9 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
                         return match ($data['value']) {
                             'today' => $query->whereDate('created_at', Carbon::today()),
                             'yesterday' => $query->whereDate('created_at', Carbon::yesterday()),
-                            default => 'today',
+                            'today_and_yesterday' => $query->whereDate('created_at', '>=', Carbon::yesterday())
+                                ->whereDate('created_at', '<=', Carbon::today()),
+                            default => $query->whereDate('created_at', Carbon::today()),
                         };
                     }),
                 SelectFilter::make('jenis')

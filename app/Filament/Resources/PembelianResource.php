@@ -68,27 +68,27 @@ class PembelianResource extends Resource implements HasShieldPermissions
                     ->schema([
                         Card::make()
                             ->schema([
-                                TextInput::make('no_spb')
-                                    ->label('No SPB')
-                                    ->disabled()
-                                    ->extraAttributes(['readonly' => true])
-                                    ->dehydrated(false)
-                                    ->afterStateUpdated(function (callable $set, $get) {
-                                        $nextId = Pembelian::max('id') + 1; // Ambil ID terakhir + 1
-                                        $set('no_spb', $get('jenis') . '-' . $nextId);
-                                    }),
-                                // Placeholder::make('next_id')
+                                // TextInput::make('no_spb')
                                 //     ->label('No SPB')
-                                //     ->content(function ($record) {
-                                //         // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
-                                //         if ($record) {
-                                //             return $record->no_spb;
-                                //         }
+                                //     ->disabled()
+                                //     ->extraAttributes(['readonly' => true])
+                                //     ->dehydrated(false)
+                                //     ->afterStateUpdated(function (callable $set, $get) {
+                                //         $nextId = Pembelian::max('id') + 1; // Ambil ID terakhir + 1
+                                //         $set('no_spb', $get('jenis') . '-' . $nextId);
+                                //     }), 
+                                Placeholder::make('next_id')
+                                    ->label('No SPB')
+                                    ->content(function ($record) {
+                                        // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
+                                        if ($record) {
+                                            return $record->no_spb;
+                                        }
 
-                                //         // Jika sedang membuat data baru, hitung kode berikutnya
-                                //         $nextId = (Pembelian::max('id') ?? 0) + 1;
-                                //         return 'B' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
-                                //     }),
+                                        // Jika sedang membuat data baru, hitung kode berikutnya
+                                        $nextId = (Pembelian::max('id') ?? 0) + 1;
+                                        return 'B' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+                                    }),
                                 TextInput::make('jam_masuk')
                                     ->readOnly()
                                     ->suffixIcon('heroicon-o-clock')
