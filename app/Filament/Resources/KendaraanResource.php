@@ -106,7 +106,7 @@ class KendaraanResource extends Resource implements HasShieldPermissions
                     ->label('No')
                     ->rowIndex(), // auto generate number sesuai urutan tampilan
                 TextColumn::make('plat_polisi_terbaru')
-                    ->label('Plat Baru')
+                    ->label('Plat Terbaru')
                     ->searchable(),
                 // BadgeColumn::make('created_at')
                 //     ->label('Tanggal')
