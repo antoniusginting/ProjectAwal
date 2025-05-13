@@ -142,7 +142,7 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                                 Grid::make()
                                     ->schema([
                                         Toggle::make('status_awal')
-                                            ->label('Jam Berangkat')
+                                            ->label('Tombol Berangkat')
                                             ->helperText('Klik jika sudah Berangkat')
                                             ->onIcon('heroicon-m-bolt')
                                             ->offIcon('heroicon-m-user')
@@ -156,7 +156,7 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                                                 }
                                             }),
                                         Toggle::make('status')
-                                            ->label('Jam Masuk')
+                                            ->label('Tombol Masuk')
                                             ->helperText('Klik jika sudah Masuk')
                                             ->onIcon('heroicon-m-bolt')
                                             ->offIcon('heroicon-m-user')

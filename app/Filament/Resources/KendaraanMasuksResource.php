@@ -161,7 +161,7 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
                                 Grid::make()
                                     ->schema([
                                         Toggle::make('status_awal')
-                                            ->label('Status Masuk')
+                                            ->label('Tombol Masuk')
                                             ->helperText('Klik jika sudah Masuk')
                                             ->onIcon('heroicon-m-bolt')
                                             ->offIcon('heroicon-m-user')
@@ -179,7 +179,7 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
                                             ->columnSpan(1),
 
                                         Toggle::make('status_selesai')
-                                            ->label('Status Keluar')
+                                            ->label('Tombol Keluar')
                                             ->helperText('Klik jika sudah Keluar')
                                             ->onIcon('heroicon-m-bolt')
                                             ->offIcon('heroicon-m-user')

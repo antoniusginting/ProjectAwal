@@ -186,14 +186,13 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                     ->label('Tara')
                                     ->placeholder('Masukkan Nilai Tara')
                                     ->numeric()
-                                    ->live(debounce: 600) // Tambahkan debounce juga di sini
+                                    ->live(debounce: 600)
                                     ->afterStateUpdated(function ($state, callable $set, callable $get, $livewire) {
                                         $bruto = $get('bruto') ?? 0;
                                         $set('netto', max(0, intval($bruto) - intval($state)));
 
-                                        $record = $livewire->record ?? null;
-                                        // Hanya isi jam_keluar jika sedang edit ($record tidak null) dan jam_keluar masih kosong
-                                        if ($record && !empty($state) && empty($get('jam_keluar'))) {
+                                        // Isi jam_keluar kapanpun tara diisi, baik create maupun edit
+                                        if (!empty($state) && empty($get('jam_keluar'))) {
                                             $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
                                         } elseif (empty($state)) {
                                             // Jika tara dikosongkan, hapus juga jam_keluar

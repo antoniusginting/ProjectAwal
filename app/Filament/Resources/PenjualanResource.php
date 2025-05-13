@@ -189,7 +189,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                         $set('netto', max(0, intval($state) - intval($tara))); // Hitung netto
                                         $record = $livewire->record ?? null;
                                         // Hanya isi jam_keluar jika sedang edit ($record tidak null) dan jam_keluar masih kosong
-                                        if ($record && !empty($state) && empty($get('jam_keluar'))) {
+                                        if (!empty($state) && empty($get('jam_keluar'))) {
                                             $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
                                         } elseif (empty($state)) {
                                             // Jika tara dikosongkan, hapus juga jam_keluar

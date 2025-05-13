@@ -583,6 +583,18 @@ class DryerResource extends Resource implements HasShieldPermissions
                                     }),
 
                             ])
+                    ]),
+                Card::make()
+                    ->schema([
+                        Select::make('timbanganTrontons')
+                            ->label('Laporan Penjualan')
+                            ->multiple()
+                            ->relationship('timbanganTrontons', 'kode') // ganti dengan field yang ingin ditampilkan
+                            ->preload()
+                            ->getOptionLabelFromRecordUsing(function ($record) {
+                                $noBk = $record->penjualan1 ? $record->penjualan1->plat_polisi : 'N/A';
+                                return $record->kode . ' - ' . $noBk . ' - ' . $record->penjualan1->nama_supir . ' - ' . $record->total_netto;
+                            })
                     ])
             ]);
     }

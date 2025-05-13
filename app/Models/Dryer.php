@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Notifications\Notification;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Dryer extends Model
 {
@@ -22,6 +23,12 @@ class Dryer extends Model
         'total_netto',
         'pj',
     ];
+
+    public function timbanganTrontons(): BelongsToMany
+    {
+        return $this->belongsToMany(TimbanganTronton::class, 'dryers_has_timbangan_trontons')
+            ->withTimestamps();
+    }
 
     // Relasi ke Kapasitas
     public function kapasitasdryer()

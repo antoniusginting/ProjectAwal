@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class TimbanganTronton extends Model
 {
@@ -24,6 +25,11 @@ class TimbanganTronton extends Model
         'status',
     ];
 
+    public function dryers(): BelongsToMany
+    {
+        return $this->belongsToMany(Dryer::class, 'dryers_has_timbangan_trontons')
+            ->withTimestamps();
+    }
 
     // Relasi ke User
     public function user()
