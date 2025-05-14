@@ -218,31 +218,18 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
             ->columns([
 
                 IconColumn::make('status')
-                    ->label('Status')
+                    ->label('')
                     ->boolean()  // Menandakan kolom adalah boolean (0 atau 1)
-                    ->icon(fn($record) => $record->status ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle')  // Tentukan ikon berdasarkan nilai status
+                    ->icon(fn($record) => $record->status ? 'heroicon-o-check-circle' : 'heroicon-o-check-circle')  // Tentukan ikon berdasarkan nilai status
                     ->alignCenter(),  // Rata tengah untuk ikon
-                TextColumn::make('created_at')
-                    ->label('Tanggal | Jam')
-                    ->alignCenter()
-                    // ->colors([
-                    //     'success' => fn($state) => Carbon::parse($state)->isToday(),
-                    //     'warning' => fn($state) => Carbon::parse($state)->isYesterday(),
-                    //     'gray' => fn($state) => Carbon::parse($state)->isBefore(Carbon::yesterday()),
-                    // ])
-                    ->formatStateUsing(function ($state) {
-                        // Mengatur lokalitas ke Bahasa Indonesia
-                        Carbon::setLocale('id');
-
-                        return Carbon::parse($state)
-                            ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
-                            ->isoFormat('D MMMM YYYY | HH:mm:ss');
-                    }),
                 TextColumn::make('nama_supir')
                     ->label('Nama Supir')
                     ->searchable(),
                 TextColumn::make('kendaraan.plat_polisi_terbaru')
                     ->label('Plat Polisi')
+                    ->searchable(),
+                TextColumn::make('tujuan')
+                    ->label('Tujuan')
                     ->searchable(),
                 TextColumn::make('kendaraan.jenis_mobil')
                     ->label('Jenis Mobil')
@@ -252,9 +239,7 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                     ->label('Tonase')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.'))
                     ->searchable(),
-                TextColumn::make('tujuan')
-                    ->label('Tujuan')
-                    ->searchable(),
+
                 ImageColumn::make('foto')
                     ->label('Foto')
                     ->getStateUsing(fn($record) => $record->foto[0] ?? null)
@@ -280,6 +265,22 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                     ->label('Masuk')
                     ->alignCenter()
                     ->searchable()
+                    ->formatStateUsing(function ($state) {
+                        // Mengatur lokalitas ke Bahasa Indonesia
+                        Carbon::setLocale('id');
+
+                        return Carbon::parse($state)
+                            ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
+                            ->isoFormat('D MMMM YYYY | HH:mm:ss');
+                    }),
+                TextColumn::make('created_at')
+                    ->label('Tanggal | Jam')
+                    ->alignCenter()
+                    // ->colors([
+                    //     'success' => fn($state) => Carbon::parse($state)->isToday(),
+                    //     'warning' => fn($state) => Carbon::parse($state)->isYesterday(),
+                    //     'gray' => fn($state) => Carbon::parse($state)->isBefore(Carbon::yesterday()),
+                    // ])
                     ->formatStateUsing(function ($state) {
                         // Mengatur lokalitas ke Bahasa Indonesia
                         Carbon::setLocale('id');

@@ -281,50 +281,28 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
             })
             ->defaultPaginationPageOption(10)
             ->columns([
+                // IconColumn::make('status_selesai')
+                //     ->label('')
+                //     ->boolean()
+                //     ->alignCenter()
+                //     ->getStateUsing(function ($record) {
+                //         // Konversi null menjadi false atau nilai lain yang sesuai
+                //         return $record->status_selesai ?? false;
+                //     }),
                 IconColumn::make('status_selesai')
                     ->label('')
-                    ->boolean()
-                    ->alignCenter()
-                    ->getStateUsing(function ($record) {
-                        // Konversi null menjadi false atau nilai lain yang sesuai
-                        return $record->status_selesai ?? false;
-                    }),
-                TextColumn::make('created_at')
-                    ->label('Tanggal | Jam')
-                    ->alignCenter()
-                    // ->colors([
-                    //     'success' => fn($state) => Carbon::parse($state)->isToday(),
-                    //     'warning' => fn($state) => Carbon::parse($state)->isYesterday(),
-                    //     'gray' => fn($state) => Carbon::parse($state)->isBefore(Carbon::yesterday()),
-                    // ])
-                    ->formatStateUsing(function ($state) {
-                        // Mengatur lokalitas ke Bahasa Indonesia
-                        Carbon::setLocale('id');
+                    ->boolean()  // Menandakan kolom adalah boolean (0 atau 1)
+                    ->icon(fn($record) => $record->status ? 'heroicon-o-check-circle' : 'heroicon-o-check-circle')  // Tentukan ikon berdasarkan nilai status
+                    ->alignCenter(),  // Rata tengah untuk ikon
+                TextColumn::make('nama_sup_per')
+                    ->label('Nama Sup/Per')
+                    ->searchable(),
 
-                        return Carbon::parse($state)
-                            ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
-                            ->isoFormat('D MMMM YYYY | HH:mm:ss');
-                    }),
-                BadgeColumn::make('jenis')
-                    ->label('Jenis')
-                    ->alignCenter()
-                    ->colors([
-                        'success' => 'PRIORITAS',
-                        'gray' => 'REGULER',
-                    ]),
-                TextColumn::make('status')
-                    ->label('Status')
-                    ->color(function ($record) {
-                        return match ($record->status) {
-                            'TAMU' => 'tamu',
-                            'SUPPLIER' => 'supplier',    // Hijau
-                            'BONAR JAYA' => 'primary',  // Biru
-                            'EKSPEDISI' => 'ekspedisi',   // Oranye
-                            default => 'secondary',
-                        };
-                    })
+                TextColumn::make('plat_polisi')
+                    ->label('Plat Mobil')
                     ->searchable(),
                 TextColumn::make('nomor_antrian')
+                    ->label('Nomor')
                     ->alignCenter()
                     ->searchable()
                     ->badge() // Menggunakan badge untuk tampilan yang lebih menarik
@@ -345,12 +323,26 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
 
                         return $state;
                     }),
-                TextColumn::make('nama_sup_per')
-                    ->label('Nama Sup/Per')
+                BadgeColumn::make('jenis')
+                    ->label('Jenis')
+                    ->alignCenter()
+                    ->colors([
+                        'success' => 'PRIORITAS',
+                        'gray' => 'REGULER',
+                    ]),
+                TextColumn::make('status')
+                    ->label('Status')
+                    ->color(function ($record) {
+                        return match ($record->status) {
+                            'TAMU' => 'tamu',
+                            'SUPPLIER' => 'supplier',    // Hijau
+                            'BONAR JAYA' => 'primary',  // Biru
+                            'EKSPEDISI' => 'ekspedisi',   // Oranye
+                            default => 'secondary',
+                        };
+                    })
                     ->searchable(),
-                TextColumn::make('plat_polisi')
-                    ->label('Plat Mobil')
-                    ->searchable(),
+
                 ImageColumn::make('foto')
                     ->alignCenter()
                     ->label('Foto')
@@ -369,6 +361,22 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
                     ->searchable(),
                 TextColumn::make('keterangan')
                     ->searchable(),
+                TextColumn::make('created_at')
+                    ->label('Tanggal | Jam')
+                    ->alignCenter()
+                    // ->colors([
+                    //     'success' => fn($state) => Carbon::parse($state)->isToday(),
+                    //     'warning' => fn($state) => Carbon::parse($state)->isYesterday(),
+                    //     'gray' => fn($state) => Carbon::parse($state)->isBefore(Carbon::yesterday()),
+                    // ])
+                    ->formatStateUsing(function ($state) {
+                        // Mengatur lokalitas ke Bahasa Indonesia
+                        Carbon::setLocale('id');
+
+                        return Carbon::parse($state)
+                            ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
+                            ->isoFormat('D MMMM YYYY | HH:mm:ss');
+                    }),
                 TextColumn::make('user.name')
                     ->label('User')
             ])
