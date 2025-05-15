@@ -54,6 +54,7 @@ class Sortiran extends Model
         'total_karung',
         'user_id',
         'keterangan',
+        'cek',
     ];
     // Relasi ke User
     public function user()

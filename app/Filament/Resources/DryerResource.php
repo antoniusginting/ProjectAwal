@@ -18,8 +18,10 @@ use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
+use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\DryerResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\DryerResource\RelationManagers;
@@ -175,15 +177,34 @@ class DryerResource extends Resource implements HasShieldPermissions
                                     ->label('Kapasitas Total')
                                     ->placeholder('Pilih terlebih dahulu nama Dryer')
                                     ->disabled(),
+
                                 TextInput::make('total_netto')
                                     ->label('Kapasitas Terpakai')
                                     ->placeholder('Otomatis terhitung')
                                     ->readOnly(),
+
                                 TextInput::make('kapasitas_sisa_akhir')
                                     ->label('Kapasitas Sisa')
                                     ->placeholder('Otomatis terhitung')
                                     ->disabled(),
-                            ])->columns(3),
+                            ])
+                            ->columns(3)
+                            ->visible(fn($livewire) => $livewire instanceof CreateRecord),
+
+                        Card::make()
+                            ->schema([
+                                TextInput::make('kapasitas_total')
+                                    ->label('Kapasitas Total')
+                                    ->placeholder('Pilih terlebih dahulu nama Dryer')
+                                    ->disabled(),
+
+                                TextInput::make('total_netto')
+                                    ->label('Kapasitas Terpakai')
+                                    ->placeholder('Otomatis terhitung')
+                                    ->readOnly(),
+                            ])
+                            ->columns(2)
+                            ->visible(fn($livewire) => $livewire instanceof EditRecord),
                     ])->collapsible(),
                 Card::make()
                     ->schema([
@@ -606,6 +627,7 @@ class DryerResource extends Resource implements HasShieldPermissions
             ->defaultSort('no_dryer', 'desc')
             ->columns([
                 TextColumn::make('created_at')
+                    ->alignCenter()
                     ->label('Tanggal')
                     ->dateTime('d-m-Y'),
                 TextColumn::make('no_dryer')
@@ -626,17 +648,22 @@ class DryerResource extends Resource implements HasShieldPermissions
 
                 //Jagung 1
                 TextColumn::make('lumbung1.no_lb')
+                    ->alignCenter()
                     ->label('No Lumbung 1'),
                 //Jagung 2
                 TextColumn::make('lumbung2.no_lb')
+                    ->alignCenter()
                     ->label('No Lumbung 2'),
                 //Jagung 2
                 TextColumn::make('lumbung3.no_lb')
+                    ->alignCenter()
                     ->label('No Lumbung 3'),
                 //Jagung 2
                 TextColumn::make('lumbung4.no_lb')
+                    ->alignCenter()
                     ->label('No Lumbung 4'),
                 TextColumn::make('total_netto')
+                    ->alignCenter()
                     ->label('Total Netto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
             ])

@@ -87,7 +87,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                         if ($selectedId) {
                                             $idSudahDisortir = array_diff($idSudahDisortir, [$selectedId]);
                                         }
-                                        $idsYangDikecualikan = [122,194]; // Beberapa ID yang ingin dikecualikan
+                                        $idsYangDikecualikan = [122,194,243,244,246,247,248,249,250,251,252,253,254,255,47581,47582]; // Beberapa ID yang ingin dikecualikan
                                         $query = Pembelian::with(['mobil', 'supplier'])
                                             ->whereNotIn('id', $idSudahDisortir)
                                             ->whereNotNull('tara')
@@ -749,7 +749,13 @@ class SortiranResource extends Resource implements HasShieldPermissions
             ->defaultPaginationPageOption(10)
             ->columns([
                 ToggleColumn::make('status')
-                    ->label('Status Audit')
+                    ->label('Status')
+                    ->alignCenter()
+                    ->onIcon('heroicon-m-check')
+                    ->offIcon('heroicon-m-x-mark')
+                    ->disabled(fn() => !optional(Auth::user())->hasAnyRole(['admin', 'super_admin', 'adminaudit'])),
+                ToggleColumn::make('cek')
+                    ->label('Check')
                     ->alignCenter()
                     ->onIcon('heroicon-m-check')
                     ->offIcon('heroicon-m-x-mark')
@@ -930,7 +936,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
             ])
             ->actions([
                 Tables\Actions\Action::make('View')
-                    ->label(__("Lihat"))
+                    ->label(__(""))
                     ->icon('heroicon-o-eye')
                     ->url(fn($record) => self::getUrl("view-sortiran", ['record' => $record->id])),
             ], position: ActionsPosition::BeforeColumns)

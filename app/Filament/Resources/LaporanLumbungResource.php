@@ -13,6 +13,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\TextInput;
 
 class LaporanLumbungResource extends Resource implements HasShieldPermissions
 {
@@ -28,7 +30,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
             'delete_any',
         ];
     }
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-document-text';
     public static function canAccess(): bool
     {
         return false; // Menyembunyikan resource dari sidebar
@@ -37,7 +39,10 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
     {
         return $form
             ->schema([
-                //
+                Card::make()
+                ->schema([
+                    TextInput::make('caca')
+                ])
             ]);
     }
 
