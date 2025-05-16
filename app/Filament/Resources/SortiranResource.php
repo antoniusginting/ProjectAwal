@@ -87,7 +87,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                         if ($selectedId) {
                                             $idSudahDisortir = array_diff($idSudahDisortir, [$selectedId]);
                                         }
-                                        $idsYangDikecualikan = [122,194,243,244,246,247,248,249,250,251,252,253,254,255,47581,47582]; // Beberapa ID yang ingin dikecualikan
+                                        $idsYangDikecualikan = [122, 194, 243, 244, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 47581, 47582]; // Beberapa ID yang ingin dikecualikan
                                         $query = Pembelian::with(['mobil', 'supplier'])
                                             ->whereNotIn('id', $idSudahDisortir)
                                             ->whereNotNull('tara')
@@ -746,7 +746,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
     public static function table(Table $table): Table
     {
         return $table
-            ->defaultPaginationPageOption(10)
+            ->defaultPaginationPageOption(5)
             ->columns([
                 ToggleColumn::make('status')
                     ->label('Status')
@@ -754,12 +754,12 @@ class SortiranResource extends Resource implements HasShieldPermissions
                     ->onIcon('heroicon-m-check')
                     ->offIcon('heroicon-m-x-mark')
                     ->disabled(fn() => !optional(Auth::user())->hasAnyRole(['admin', 'super_admin', 'adminaudit'])),
-                ToggleColumn::make('cek')
-                    ->label('Check')
-                    ->alignCenter()
-                    ->onIcon('heroicon-m-check')
-                    ->offIcon('heroicon-m-x-mark')
-                    ->disabled(fn() => !optional(Auth::user())->hasAnyRole(['admin', 'super_admin', 'adminaudit'])),
+                // ToggleColumn::make('cek')
+                //     ->label('Check')
+                //     ->alignCenter()
+                //     ->onIcon('heroicon-m-check')
+                //     ->offIcon('heroicon-m-x-mark')
+                //     ->disabled(fn() => !optional(Auth::user())->hasAnyRole(['admin', 'super_admin', 'adminaudit'])),
                 BadgeColumn::make('created_at')
                     ->label('Tanggal')
                     ->alignCenter()
@@ -935,10 +935,19 @@ class SortiranResource extends Resource implements HasShieldPermissions
                 //
             ])
             ->actions([
-                Tables\Actions\Action::make('View')
-                    ->label(__(""))
+                Action::make('view')
+                    ->label('Lihat')
                     ->icon('heroicon-o-eye')
-                    ->url(fn($record) => self::getUrl("view-sortiran", ['record' => $record->id])),
+                    ->action(function ($record, $livewire) {
+                        $user = Auth::user();
+
+                        // Cek apakah user memiliki role 'admin' atau 'adminaudit'
+                        if ($user->hasAnyRole(['admin', 'adminaudit'])) {
+                            $record->update(['cek' => true]);
+                        }
+
+                        return redirect(self::getUrl('view-sortiran', ['record' => $record->id]));
+                    }),
             ], position: ActionsPosition::BeforeColumns)
             // ->bulkActions([
             //     // Tables\Actions\BulkActionGroup::make([
@@ -951,7 +960,13 @@ class SortiranResource extends Resource implements HasShieldPermissions
                         fn(Builder $query) =>
                         $query->whereDate('created_at', Carbon::today())
                     ),
-            ]);
+            ])
+            ->recordClasses(function ($record) {
+                return match ($record->cek) {
+                    1 => 'opacity-50',     // status = null → transparansi 50%
+                    default => '',
+                };
+            });
     }
 
     public static function getRelations(): array
