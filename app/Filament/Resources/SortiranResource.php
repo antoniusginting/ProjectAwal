@@ -87,7 +87,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                         if ($selectedId) {
                                             $idSudahDisortir = array_diff($idSudahDisortir, [$selectedId]);
                                         }
-                                        $idsYangDikecualikan = [122, 194, 243, 244, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 47581, 47582]; // Beberapa ID yang ingin dikecualikan
+                                        $idsYangDikecualikan = [122, 194, 243, 244, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 47581, 47582 ,47583]; // Beberapa ID yang ingin dikecualikan
                                         $query = Pembelian::with(['mobil', 'supplier'])
                                             ->whereNotIn('id', $idSudahDisortir)
                                             ->whereNotNull('tara')
@@ -750,6 +750,8 @@ class SortiranResource extends Resource implements HasShieldPermissions
             ->columns([
                 ToggleColumn::make('status')
                     ->label('Status')
+                    ->extraCellAttributes(fn ($record) => $record->cek === 1 ? ['style' => 'opacity: 10;'] : [])
+            
                     ->alignCenter()
                     ->onIcon('heroicon-m-check')
                     ->offIcon('heroicon-m-x-mark')
@@ -945,7 +947,6 @@ class SortiranResource extends Resource implements HasShieldPermissions
                         if ($user->hasAnyRole(['admin', 'adminaudit'])) {
                             $record->update(['cek' => true]);
                         }
-
                         return redirect(self::getUrl('view-sortiran', ['record' => $record->id]));
                     }),
             ], position: ActionsPosition::BeforeColumns)

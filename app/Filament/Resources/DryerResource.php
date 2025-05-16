@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 //supaya hilang dulu dari role
 // namespace BezhanSalleh\FilamentShield\Resources;
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Dryer;
@@ -19,9 +20,11 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Tables\Columns\BadgeColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Resources\Pages\CreateRecord;
+use Filament\Tables\Enums\ActionsPosition;
 use App\Filament\Resources\DryerResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\DryerResource\RelationManagers;
@@ -40,10 +43,10 @@ class DryerResource extends Resource implements HasShieldPermissions
             'delete_any',
         ];
     }
-    public static function canAccess(): bool
-    {
-        return false; // Menyembunyikan resource dari sidebar
-    }
+    // public static function canAccess(): bool
+    // {
+    //     return false; // Menyembunyikan resource dari sidebar
+    // }
     public static function getNavigationSort(): int
     {
         return 3; // Ini akan muncul di atas
@@ -626,10 +629,22 @@ class DryerResource extends Resource implements HasShieldPermissions
             ->defaultPaginationPageOption(10)
             ->defaultSort('no_dryer', 'desc')
             ->columns([
-                TextColumn::make('created_at')
-                    ->alignCenter()
+                BadgeColumn::make('created_at')
                     ->label('Tanggal')
-                    ->dateTime('d-m-Y'),
+                    ->alignCenter()
+                    ->colors([
+                        'success' => fn($state) => Carbon::parse($state)->isToday(),
+                        'warning' => fn($state) => Carbon::parse($state)->isYesterday(),
+                        'gray' => fn($state) => Carbon::parse($state)->isBefore(Carbon::yesterday()),
+                    ])
+                    ->formatStateUsing(function ($state) {
+                        // Mengatur lokalitas ke Bahasa Indonesia
+                        Carbon::setLocale('id');
+
+                        return Carbon::parse($state)
+                            ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
+                            ->isoFormat('D MMMM YYYY | HH:mm:ss');
+                    }),
                 TextColumn::make('no_dryer')
                     ->label('No Dryer')
                     ->searchable()
@@ -643,6 +658,22 @@ class DryerResource extends Resource implements HasShieldPermissions
                     ->alignCenter(),
                 TextColumn::make('nama_barang')
                     ->label('Nama Barang')
+                    ->searchable()
+                    ->alignCenter(),
+                TextColumn::make('pj')
+                    ->label('PJ')
+                    ->searchable()
+                    ->alignCenter(),
+                TextColumn::make('operator')
+                    ->label('Operator')
+                    ->searchable()
+                    ->alignCenter(),
+                TextColumn::make('rencana_kadar')
+                    ->label('Rencana Kadar')
+                    ->searchable()
+                    ->alignCenter(),
+                TextColumn::make('hasil_kadar')
+                    ->label('Hasil Kadar')
                     ->searchable()
                     ->alignCenter(),
 
@@ -668,10 +699,11 @@ class DryerResource extends Resource implements HasShieldPermissions
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-                // Tables\Actions\ViewAction::make(),
-            ])
+                Tables\Actions\Action::make('view-dryer')
+                    ->label(__("Lihat"))
+                    ->icon('heroicon-o-eye')
+                    ->url(fn($record) => self::getUrl("view-dryer", ['record' => $record->id])),
+            ], position: ActionsPosition::BeforeColumns)
             ->filters([
                 //
             ]);
@@ -696,6 +728,7 @@ class DryerResource extends Resource implements HasShieldPermissions
             'index' => Pages\ListDryers::route('/'),
             'create' => Pages\CreateDryer::route('/create'),
             'edit' => Pages\EditDryer::route('/{record}/edit'),
+            'view-dryer' => Pages\ViewDryer::route('/{record}/view-dryer'),
         ];
     }
 }
