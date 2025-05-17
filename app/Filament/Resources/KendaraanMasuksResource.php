@@ -263,6 +263,7 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
     public static function table(Table $table): Table
     {
         return $table
+            ->poll('5s') // polling ulang setiap 5 detik
             ->recordUrl(function (KendaraanMasuks $record): ?string {
                 $user = Auth::user();
 

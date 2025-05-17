@@ -2,6 +2,7 @@
 
 use App\Filament\Resources\PenjualanResource;
 use App\Http\Controllers\DryerController;
+use App\Http\Controllers\LaporanLumbungController;
 use App\Http\Controllers\LaporanPenjualanController;
 use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\PenjualanController;
@@ -30,3 +31,6 @@ Route::get('/print-pembelian/{id}',[PembelianController::class,'printPembelianRe
 
 //Print Timbangan dryer
 Route::get('/print-dryer/{id}',[DryerController::class,'printDryerRecord'])->name('PRINT.DRYER');
+
+//Print Timbangan Laporan Lumbung
+Route::get('/print-laporanlumbung/{id}',[LaporanLumbungController::class,'printLaporanLumbungRecord'])->name('PRINT.LAPORANLUMBUNG');
