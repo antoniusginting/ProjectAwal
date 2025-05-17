@@ -2,9 +2,10 @@
 
 namespace App\Filament\Resources\DryerResource\Pages;
 
-use App\Filament\Resources\DryerResource;
 use App\Models\Dryer;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\Page;
+use App\Filament\Resources\DryerResource;
 
 class ViewDryer extends Page
 {
@@ -27,14 +28,14 @@ class ViewDryer extends Page
     public function getHeaderActions(): array
     {
         return [
-            // Action::make('print')
-            //     ->label(__("print"))
-            //     ->icon('heroicon-o-printer')
-            //     ->url(route("PRINT.PEMBELIAN", ['id' => $this->record]))
-            //     ->extraAttributes([
-            //         'onclick' => "if(confirm('Apakah Anda yakin ingin mencetak?')) { window.open('" . route("PRINT.PEMBELIAN", ['id' => $this->record]) . "', '_blank'); }"
-            //     ])
-            //     ->openUrlInNewTab()
+            Action::make('print')
+                ->label(__("print"))
+                ->icon('heroicon-o-printer')
+                ->url(route("PRINT.DRYER", ['id' => $this->record]))
+                ->extraAttributes([
+                    'onclick' => "if(confirm('Apakah Anda yakin ingin mencetak?')) { window.open('" . route("PRINT.DRYER", ['id' => $this->record]) . "', '_blank'); }"
+                ])
+                ->openUrlInNewTab()
         ];
     }
 }

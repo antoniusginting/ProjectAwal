@@ -1,6 +1,7 @@
 <?php
 
 use App\Filament\Resources\PenjualanResource;
+use App\Http\Controllers\DryerController;
 use App\Http\Controllers\LaporanPenjualanController;
 use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\PenjualanController;
@@ -18,7 +19,7 @@ Route::get('/print-sortiran/{id}',[SortiranController::class,'printSortiranRecor
 //Print SuratJalan
 Route::get('/print-suratjalan/{id}',[SuratJalanController::class,'printSuratJalanRecord'])->name('PRINT.SURATJALAN');
 
-//Print Laporan Penjualan
+//Print Laporan LaporanPenjualan
 Route::get('/print-laporanpenjualan/{id}',[LaporanPenjualanController::class,'printLaporanPenjualanRecord'])->name('PRINT.LAPORANPENJUALAN');
 
 //Print Timbangan Penjualan
@@ -26,3 +27,6 @@ Route::get('/print-penjualan/{id}',[PenjualanController::class,'printPenjualanRe
 
 //Print Timbangan Pembelian
 Route::get('/print-pembelian/{id}',[PembelianController::class,'printPembelianRecord'])->name('PRINT.PEMBELIAN');
+
+//Print Timbangan dryer
+Route::get('/print-dryer/{id}',[DryerController::class,'printDryerRecord'])->name('PRINT.DRYER');

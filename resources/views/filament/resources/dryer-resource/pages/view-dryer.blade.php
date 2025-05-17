@@ -60,7 +60,8 @@
                         <td class="font-semibold whitespace-nowrap">Rencana Kadar</td>
                         <td class="whitespace-nowrap">: {{ $dryer->rencana_kadar }}% </td>
                         <td class="font-semibold whitespace-nowrap">Kapasitas Dryer</td>
-                        <td class="whitespace-nowrap">: {{ number_format($dryer->kapasitasdryer->kapasitas_total,'0',',','.') }}</td>
+                        <td class="whitespace-nowrap">:
+                            {{ number_format($dryer->kapasitasdryer->kapasitas_total, '0', ',', '.') }}</td>
 
                     </tr>
                     <tr>
@@ -69,7 +70,7 @@
                         <td class="font-semibold whitespace-nowrap">Hasil Kadar</td>
                         <td class="whitespace-nowrap">: {{ $dryer->hasil_kadar }}%</td>
                         <td class="font-semibold whitespace-nowrap">Kapasitas Terpakai</td>
-                        <td class="whitespace-nowrap">: {{number_format( $totalBerat,'0',',','.') }}</td>
+                        <td class="whitespace-nowrap">: {{ number_format($totalBerat, '0', ',', '.') }}</td>
                     </tr>
                     <tr>
                         <td class="font-semibold whitespace-nowrap">Jenis Barang</td>
@@ -110,7 +111,7 @@
                             <td class="border p-2 text-center border-gray-300 dark:border-gray-700">
                                 {{ $sortiran->created_at->format('d') ?? '-' }}
                             </td>
-                            <td class="border p-2 border-gray-300 dark:border-gray-700">
+                            <td class="border p-2 text-center border-gray-300 dark:border-gray-700">
                                 {{ $sortiran->pembelian->nama_barang ?? '-' }}
                             </td>
                             <td class="border p-2 text-center border-gray-300 dark:border-gray-700">
@@ -142,7 +143,35 @@
 
             </table>
         </div>
-
+        <table class="w-full border border-gray-300 border-collapse text-center">
+            <thead>
+                <tr>
+                    <th class="border border-gray-300 p-4 w-1/2">TTD Operator</th>
+                    <th class="border border-gray-300 p-4 2-1/2">TTD Penanggung Jawab</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="border border-gray-300 p-8 align-bottom h-32">
+                        <!-- Tempat tanda tangan Operator -->
+                        <div class="mt-16">
+                            <span class="block border-b border-black w-40 mx-auto"></span>
+                            {{-- <p class="mt-2 font-semibold">{{ $operatorName ?? 'Nama Operator' }}</p>
+                            <p class="text-sm text-gray-600">{{ $operatorPosition ?? 'Jabatan Operator' }}</p> --}}
+                        </div>
+                    </td>
+                    <td class="border border-gray-300 p-8 align-bottom h-32">
+                        <!-- Tempat tanda tangan Penanggung Jawab -->
+                        <div class="mt-16">
+                            <span class="block border-b border-black w-40 mx-auto"></span>
+                            {{-- <p class="mt-2 font-semibold">{{ $penanggungJawabName ?? 'Nama Penanggung Jawab' }}</p>
+                            <p class="text-sm text-gray-600">
+                                {{ $penanggungJawabPosition ?? 'Jabatan Penanggung Jawab' }}</p> --}}
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
 
 
     </div>

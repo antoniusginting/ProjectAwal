@@ -11,10 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('dryers_has_timbangan_trontons', function (Blueprint $table) {
+        Schema::create('dryer_records', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('dryer_id')->constrained()->onDelete('cascade');
-            $table->foreignId('timbangan_tronton_id')->constrained()->onDelete('cascade');
+
+            $table->unsignedBigInteger('dryer_id');
+            $table->foreign('dryer_id')->references('id')->on('dryers')->onDelete('cascade');
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
             $table->timestamps();
         });
     }
@@ -24,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('dryers_has_timbangan_trontons');
+        Schema::dropIfExists('dryer_records');
     }
 };
