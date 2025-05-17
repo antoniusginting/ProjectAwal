@@ -2,19 +2,21 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\LaporanLumbungResource\Pages;
-use App\Filament\Resources\LaporanLumbungResource\RelationManagers;
-use App\Models\LaporanLumbung;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\LaporanLumbung;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\LaporanLumbungResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
-use Filament\Forms\Components\Card;
-use Filament\Forms\Components\TextInput;
+use App\Filament\Resources\LaporanLumbungResource\RelationManagers;
 
 class LaporanLumbungResource extends Resource implements HasShieldPermissions
 {
@@ -40,9 +42,16 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
         return $form
             ->schema([
                 Card::make()
-                ->schema([
-                    TextInput::make('caca')
-                ])
+                    ->schema([
+                       Select::make('dryers')
+                            ->label('Dryer')
+                            ->multiple()
+                            ->relationship('dryers', 'no_dryer')
+                            ->preload()
+                            ->getOptionLabelFromRecordUsing(function ($record) {
+                                return $record->no_dryer . ' - ' . $record->lumbung_tujuan ;
+                            })
+                    ])
             ]);
     }
 
@@ -50,19 +59,21 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
     {
         return $table
             ->columns([
-                //
+                TextColumn::make('kode')
+                    ->label('No Laporan')
             ])
             ->filters([
                 //
             ])
+            ->defaultSort('kode', 'desc') // Megurutkan kode terakhir menjadi pertama pada tabel
             ->actions([
                 Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
+        // ->bulkActions([
+        //     Tables\Actions\BulkActionGroup::make([
+        //         Tables\Actions\DeleteBulkAction::make(),
+        //     ]),
+        // ]);
     }
 
     public static function getRelations(): array
