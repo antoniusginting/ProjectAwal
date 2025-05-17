@@ -13,6 +13,7 @@ use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Enums\ActionsPosition;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\LaporanLumbungResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
@@ -67,8 +68,11 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
             ])
             ->defaultSort('kode', 'desc') // Megurutkan kode terakhir menjadi pertama pada tabel
             ->actions([
-                Tables\Actions\EditAction::make(),
-            ]);
+                Tables\Actions\Action::make('view-laporan-lumbung')
+                    ->label(__("Lihat"))
+                    ->icon('heroicon-o-eye')
+                    ->url(fn($record) => self::getUrl("view-laporan-lumbung", ['record' => $record->id])),
+            ], position: ActionsPosition::BeforeColumns);
         // ->bulkActions([
         //     Tables\Actions\BulkActionGroup::make([
         //         Tables\Actions\DeleteBulkAction::make(),
@@ -89,6 +93,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
             'index' => Pages\ListLaporanLumbungs::route('/'),
             'create' => Pages\CreateLaporanLumbung::route('/create'),
             'edit' => Pages\EditLaporanLumbung::route('/{record}/edit'),
+            'view-laporan-lumbung' => Pages\ViewLaporanLumbung::route('/{record}/view-laporan-lumbung'),
         ];
     }
 }
