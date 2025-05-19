@@ -36,10 +36,10 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
         ];
     }
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
-    // public static function canAccess(): bool
-    // {
-    //     return false; // Menyembunyikan resource dari sidebar
-    // }
+    public static function canAccess(): bool
+    {
+        return false; // Menyembunyikan resource dari sidebar
+    }
     public static function getNavigationSort(): int
     {
         return 4; // Ini akan muncul di atas
