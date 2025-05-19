@@ -2,23 +2,24 @@
 
 namespace App\Providers\Filament;
 
+use Filament\Pages;
+use Filament\Panel;
+use Filament\Widgets;
+use Filament\PanelProvider;
+use Filament\Enums\ThemeMode;
+use Filament\Support\Colors\Color;
 use App\Filament\Widgets\BlogPostsChart;
 use App\Filament\Widgets\StatsDashboard;
 use Filament\Http\Middleware\Authenticate;
+use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Cookie\Middleware\EncryptCookies;
 use Filament\Http\Middleware\AuthenticateSession;
+use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages;
-use Filament\Panel;
-use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
-use Filament\Widgets;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
-use Illuminate\Routing\Middleware\SubstituteBindings;
-use Illuminate\Session\Middleware\StartSession;
-use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -28,6 +29,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->font('Poppins')
             ->login()
             ->colors([
                 'primary' => '#2424a4',
@@ -36,6 +38,7 @@ class AdminPanelProvider extends PanelProvider
                 'tamu' => '#990000',
                 'ekspedisi' => '#086E6E'
             ])
+            ->defaultThemeMode(ThemeMode::Light)
             ->brandLogo(asset('storage/logo_cv.png')) // Ganti dengan path logo kamu
             ->favicon(asset('storage/favicon.ico')) // Ambil dari storage
             ->brandLogoHeight('40px')
@@ -70,21 +73,21 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->plugins([
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make()
-                ->gridColumns([
-                    'default' => 1,
-                    'sm' => 2,
-                    'lg' => 3
-                ])
-                ->sectionColumnSpan(1)
-                ->checkboxListColumns([
-                    'default' => 1,
-                    'sm' => 2,
-                    'lg' => 2,
-                ])
-                ->resourceCheckboxListColumns([
-                    'default' => 1,
-                    'sm' => 3,
-                ]),
+                    ->gridColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 3
+                    ])
+                    ->sectionColumnSpan(1)
+                    ->checkboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 2,
+                    ])
+                    ->resourceCheckboxListColumns([
+                        'default' => 1,
+                        'sm' => 3,
+                    ]),
             ]);
     }
 }

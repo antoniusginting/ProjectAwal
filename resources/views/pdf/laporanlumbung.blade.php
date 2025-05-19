@@ -258,7 +258,7 @@
 
                                     @if ($index === 0)
                                         <td class="center" rowspan="{{ $rowspan }}">
-                                            {{ $dryer->pj }}
+                                            {{ $laporanlumbung->user->name }}
                                         </td>
                                     @endif
                                 </tr>
@@ -282,14 +282,14 @@
                                 <td class="center">{{ $dryer->nama_barang }}</td>
                                 <td class="center">{{ $dryer->no_dryer }}</td>
                                 <td class="center" colspan="2">Tidak ada data timbangan tronton</td>
-                                <td class="center">{{ $dryer->pj }}</td>
+                                <td class="center">{{ $laporan_lumbung->user->name }}</td>
                             </tr>
                         @endif
                     @endforeach
                 </tbody>
                 <tfoot class="table-footer">
                     <tr>
-                        <td colspan="4">Total Keseluruhan Berat:</td>
+                        <td colspan="4" class="center">Total Keseluruhan Berat</td>
                         <td class="right">
                             {{ number_format($totalKeseluruhan, 0, ',', '.') }}
                         </td>
