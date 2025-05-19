@@ -9,6 +9,8 @@ use Filament\Tables\Table;
 use App\Models\LaporanLumbung;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
+use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
@@ -34,9 +36,13 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
         ];
     }
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
-    public static function canAccess(): bool
+    // public static function canAccess(): bool
+    // {
+    //     return false; // Menyembunyikan resource dari sidebar
+    // }
+    public static function getNavigationSort(): int
     {
-        return false; // Menyembunyikan resource dari sidebar
+        return 4; // Ini akan muncul di atas
     }
     public static function form(Form $form): Form
     {
@@ -44,14 +50,17 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
             ->schema([
                 Card::make()
                     ->schema([
-                       Select::make('dryers')
+                        Select::make('dryers')
                             ->label('Dryer')
                             ->multiple()
                             ->relationship('dryers', 'no_dryer')
                             ->preload()
                             ->getOptionLabelFromRecordUsing(function ($record) {
-                                return $record->no_dryer . ' - ' . $record->lumbung_tujuan ;
-                            })
+                                return $record->no_dryer . ' - ' . $record->lumbung_tujuan;
+                            }),
+                        Hidden::make('user_id')
+                            ->label('User ID')
+                            ->default(Auth::id()) // Set nilai default user yang sedang login,
                     ])
             ]);
     }
@@ -62,6 +71,12 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
             ->columns([
                 TextColumn::make('kode')
                     ->label('No Laporan')
+                    ->searchable(),
+                TextColumn::make('dryers.no_dryer')
+                    ->searchable()
+                    ->label('Dryer'),
+                TextColumn::make('user.name')
+                ->label('PJ'),
             ])
             ->filters([
                 //

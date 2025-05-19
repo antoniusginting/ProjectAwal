@@ -7,8 +7,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class LaporanLumbung extends Model
 {
-    protected $guarded = [];
-
+    protected $fillable = [
+        "user_id",
+    ];
+    // Relasi ke User
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
     public function dryers(): BelongsToMany
     {
         return $this->belongsToMany(Dryer::class, 'laporan_lumbung_has_dryers')

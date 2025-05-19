@@ -11,12 +11,12 @@ class EditKapasitasLumbungBasah extends EditRecord
 {
     protected static string $resource = KapasitasLumbungBasahResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\DeleteAction::make(),
-        ];
-    }
+    // protected function getHeaderActions(): array
+    // {
+    //     return [
+    //         Actions\DeleteAction::make(),
+    //     ];
+    // }
     protected function getFormActions(): array
     {
         return [

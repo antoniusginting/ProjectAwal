@@ -43,10 +43,10 @@ class DryerResource extends Resource implements HasShieldPermissions
             'delete_any',
         ];
     }
-    public static function canAccess(): bool
-    {
-        return false; // Menyembunyikan resource dari sidebar
-    }
+    // public static function canAccess(): bool
+    // {
+    //     return false; // Menyembunyikan resource dari sidebar
+    // }
     public static function getNavigationSort(): int
     {
         return 3; // Ini akan muncul di atas
@@ -112,7 +112,7 @@ class DryerResource extends Resource implements HasShieldPermissions
                                     })
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                         $kapasitasdryer = KapasitasDryer::find($state);
-
+                                        $set('lumbung_tujuan', null);
                                         // Simpan kapasitas sisa asli untuk perhitungan
                                         $kapasitasSisaValue = $kapasitasdryer?->kapasitas_sisa ?? 0;
                                         $set('kapasitas_sisa_original', $kapasitasSisaValue);
@@ -133,17 +133,56 @@ class DryerResource extends Resource implements HasShieldPermissions
 
                                 Select::make('lumbung_tujuan')
                                     ->label('Lumbung Tujuan')
-                                    ->options([
-                                        'A' => 'A',
-                                        'B' => 'B',
-                                        'C' => 'C',
-                                        'D' => 'D',
-                                        'E' => 'E',
-                                        'F' => 'F',
-                                        'G' => 'G',
-                                        'H' => 'H',
-                                        'I' => 'I',
-                                    ])
+                                    ->options(function (callable $get) {
+                                        $selectedId = $get('id_kapasitas_dryer');
+                                        if (!$selectedId) {
+                                            // Jika belum pilih kapasitas dryer, tampilkan semua opsi
+                                            return [];
+                                        }
+
+                                        // Cari nama kapasitas dryer berdasarkan ID yang dipilih
+                                        $namaKapasitas = KapasitasDryer::where('id', $selectedId)->value('nama_kapasitas_dryer');
+
+                                        if (in_array($namaKapasitas, ['A', 'B', 'D'])) {
+                                            return [
+                                                'A' => 'A',
+                                                'B' => 'B',
+                                                'C' => 'C',
+                                                'D' => 'D',
+                                                'E' => 'E',
+                                            ];
+                                        }
+                                        if (in_array($namaKapasitas, ['A1', 'A2'])) {
+                                            return [
+                                                'F' => 'F',
+                                                'G' => 'G',
+                                                'H' => 'H',
+                                                'I' => 'I',
+                                            ];
+                                        }
+                                        if ($namaKapasitas === 'LSU') {
+                                            return [
+                                                'S' => 'SILO BESAR',
+                                                'F' => 'F',
+                                                'G' => 'G',
+                                                'H' => 'H',
+                                                'I' => 'I',
+                                            ];
+                                        }
+
+                                        // Default opsi lengkap
+                                        return [
+                                            'A' => 'A',
+                                            'B' => 'B',
+                                            'C' => 'C',
+                                            'D' => 'D',
+                                            'E' => 'E',
+                                            'F' => 'F',
+                                            'G' => 'G',
+                                            'H' => 'H',
+                                            'I' => 'I',
+                                        ];
+                                    })
                                     ->placeholder('Pilih lumbung kering')
                                     ->native(false),
 

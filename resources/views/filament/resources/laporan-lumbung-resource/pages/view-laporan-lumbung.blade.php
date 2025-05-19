@@ -89,7 +89,7 @@
                                     @if ($index === 0)
                                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm"
                                             rowspan="{{ $rowspan }}">
-                                            {{ $dryer->pj }}
+                                            {{ $laporanlumbung->user->name }}
                                         </td>
                                     @endif
                                 </tr>
@@ -125,7 +125,7 @@
                                     Tidak ada data timbangan tronton
                                 </td>
                                 <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                                    {{ $dryer->pj }}
+                                    {{ $laporanlumbung->pj }}
                                 </td>
                             </tr>
                         @endif
