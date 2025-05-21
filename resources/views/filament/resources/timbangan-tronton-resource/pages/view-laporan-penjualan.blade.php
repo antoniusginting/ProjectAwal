@@ -17,15 +17,21 @@
                 <tbody class="text-base">
                     <tr>
                         <td class="font-semibold text-left align-top whitespace-nowrap">Tanggal</td>
-                        <td class="whitespace-nowrap">: {{ $timbangantronton->created_at->format('d-m-Y') }}</td>
+                        <td class="whitespace-nowrap" width='200px'>:
+                            {{ !empty($timbangantronton->penjualan1->plat_polisi) ? $timbangantronton->created_at->format('d-m-Y') : '' }}
+                        </td>
                         <td class="font-semibold whitespace-nowrap">Jam</td>
-                        <td class="whitespace-nowrap">: {{ $timbangantronton->created_at->format('H:i') }}</td>
+                        <td class="whitespace-nowrap" width='200px'>:
+                            {{ !empty($timbangantronton->penjualan1->plat_polisi) ? $timbangantronton->created_at->format('H:i') : '' }}
+                        </td>
                         <td class="font-semibold text-center align-top whitespace-nowrap">No Penjualan</td>
                         <td class="whitespace-nowrap">: {{ $timbangantronton->kode ?? '' }}</td>
                     </tr>
                     <tr>
                         <td class="font-semibold whitespace-nowrap">Operator</td>
-                        <td class="whitespace-nowrap">: {{ $timbangantronton->user->name ?? '' }}</td>
+                        <td class="whitespace-nowrap">:
+                            {{ !empty($timbangantronton->penjualan1->plat_polisi) ? $timbangantronton->user->name ?? '' : '' }}
+                        </td>
                         <td class="font-semibold text-left align-top whitespace-nowrap">Plat Polisi</td>
                         <td class="whitespace-nowrap" colspan="3">:
                             {{ $timbangantronton->penjualan1->plat_polisi ?? '' }}
@@ -105,7 +111,6 @@
                             @if (isset($adaGoni) && $adaGoni)
                                 {{ number_format($totalKarung, 0, ',', '.') }} - GONI
                             @else
-                                
                             @endif
                         </td>
                         <td class="border p-2 text-right border-gray-300 dark:border-gray-700 whitespace-nowrap">

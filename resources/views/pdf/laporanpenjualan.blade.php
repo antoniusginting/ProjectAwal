@@ -178,15 +178,21 @@
             <table class="info-table">
                 <tr>
                     <td class="label">Tanggal</td>
-                    <td>: {{ $laporanpenjualan->created_at->format('d-m-Y') }}</td>
+                    <td width='130px'>:
+                        {{ !empty($laporanpenjualan->penjualan1->plat_polisi) ? $laporanpenjualan->created_at->format('d-m-Y') : '' }}
+                    </td>
                     <td class="label">Jam</td>
-                    <td>: {{ $laporanpenjualan->created_at->format('H:i') }}</td>
+                    <td width='110px'>:
+                        {{ !empty($laporanpenjualan->penjualan1->plat_polisi) ? $laporanpenjualan->created_at->format('H:i') : '' }}
+                    </td>
                     <td class="label">No Penjualan</td>
                     <td>: {{ $laporanpenjualan->kode }}</td>
                 </tr>
                 <tr>
                     <td class="label">Operator</td>
-                    <td>: {{ $laporanpenjualan->user->name }}</td>
+                    <td>:
+                        {{ !empty($laporanpenjualan->penjualan1->plat_polisi) ? $laporanpenjualan->user->name ?? '' : '' }}
+                    </td>
                     <td class="label">Plat Polisi</td>
                     <td>: {{ $laporanpenjualan->penjualan1->plat_polisi ?? '' }}</td>
                 </tr>
@@ -194,7 +200,10 @@
         </section>
 
         <div class="divider"></div>
-        <div class="caca">Print Date : {{ now()->format('d-m-Y H:i:s') }}</div>
+        @if (!empty($laporanpenjualan->penjualan1->plat_polisi))
+            <div class="caca">Print Date : {{ now()->format('d-m-Y H:i:s') }}</div>
+        @endif
+
         <!-- Detail Pengiriman -->
         <section>
             <div style="overflow-x: auto;">
@@ -249,7 +258,6 @@
                                 @if ($adaGoni)
                                     {{ number_format($totalKarung, 0, ',', '.') }} - GONI
                                 @else
-                                    
                                 @endif
                             </td>
                             <td class="text-right">
