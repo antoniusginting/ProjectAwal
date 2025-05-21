@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class TimbanganTronton extends Model
 {
+    protected $casts = [
+        'foto' => 'array',
+    ];
     protected $fillable = [
         'id_timbangan_jual_1',
         'id_timbangan_jual_2',
@@ -23,6 +26,7 @@ class TimbanganTronton extends Model
         'keterangan',
         'user_id',
         'status',
+        'foto',
     ];
 
     public function dryers(): BelongsToMany

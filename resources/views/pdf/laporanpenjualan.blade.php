@@ -188,7 +188,7 @@
                     <td class="label">Operator</td>
                     <td>: {{ $laporanpenjualan->user->name }}</td>
                     <td class="label">Plat Polisi</td>
-                    <td>: {{ $laporanpenjualan->penjualan1->plat_polisi }}</td>
+                    <td>: {{ $laporanpenjualan->penjualan1->plat_polisi ?? '' }}</td>
                 </tr>
             </table>
         </section>
@@ -216,28 +216,28 @@
                         @php $adaGoni = false; @endphp <!-- Flag untuk mengecek apakah ada GONI -->
 
                         @for ($i = 1; $i <= 6; $i++)
-                            @php $penjualan = $laporanpenjualan->{'penjualan' . $i}; @endphp
+                            @php $penjualan = $laporanpenjualan->{'penjualan' . $i} ?? null; @endphp
+                            <tr>
+                                <td class="text-center">{{ $i }}</td>
+                                <td class="text-center">{{ $penjualan->no_spb ?? '' }}</td>
+                                <td class="text-center">{{ $penjualan->nama_barang ?? '' }}</td>
+                                <td class="text-center">{{ $penjualan->nama_lumbung ?? '' }}</td>
+                                <td class="text-center">{{ $penjualan->no_lumbung ?? '' }}</td>
+                                <td class="text-center">
+                                    @if ($penjualan && $penjualan->brondolan == 'GONI')
+                                        @php
+                                            $adaGoni = true;
+                                            $totalKarung += $penjualan->jumlah_karung;
+                                        @endphp
+                                        {{ $penjualan->jumlah_karung }} - {{ $penjualan->brondolan }}
+                                    @else
+                                        {{ $penjualan->brondolan ?? '' }}
+                                    @endif
+                                </td>
+                                <td class="text-right">
+                                    {{ $penjualan ? number_format($penjualan->netto, 0, ',', '.') : '' }}</td>
+                            </tr>
                             @if ($penjualan)
-                                <tr>
-                                    <td class="text-center">{{ $i }}</td>
-                                    <td class="text-center">{{ $penjualan->no_spb }}</td>
-                                    <td class="text-center">{{ $penjualan->nama_barang }}</td>
-                                    <!-- Tampilkan jumlah karung / GONI di kolom Satuan Muatan -->
-                                    <td class="text-center">{{ $penjualan->nama_lumbung }}</td>
-                                    <td class="text-center">{{ $penjualan->no_lumbung }}</td>
-                                    <td class="text-center">
-                                        @if ($penjualan->brondolan == 'GONI')
-                                            @php
-                                                $adaGoni = true;
-                                                $totalKarung += $penjualan->jumlah_karung;
-                                            @endphp
-                                            {{ $penjualan->jumlah_karung }} - {{ $penjualan->brondolan }}
-                                        @else
-                                            {{ $penjualan->brondolan }}
-                                        @endif
-                                    </td>
-                                    <td class="text-right">{{ number_format($penjualan->netto, 0, ',', '.') }}</td>
-                                </tr>
                                 @php $totalNetto += $penjualan->netto; @endphp
                             @endif
                         @endfor
@@ -249,10 +249,11 @@
                                 @if ($adaGoni)
                                     {{ number_format($totalKarung, 0, ',', '.') }} - GONI
                                 @else
-                                    -
+                                    
                                 @endif
                             </td>
-                            <td class="text-right">{{ number_format($totalNetto, 0, ',', '.') }}</td>
+                            <td class="text-right">
+                                {{ ($totalNetto ?? 0) == 0 ? '' : number_format($totalNetto, 0, ',', '.') }}</td>
                         </tr>
                     </tbody>
                 </table>

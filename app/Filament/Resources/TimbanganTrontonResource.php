@@ -28,6 +28,8 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Columns\ToggleColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
@@ -86,7 +88,7 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                             ->whereNotNull('bruto')         // bruto tidak boleh null
                             ->where('bruto', '!=', '')      // bruto tidak boleh kosong string (jika perlu)
                             ->orderByDesc('created_at')
-                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR'])
+                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT'])
                             ->get()
                             ->mapWithKeys(function ($penjualan) {
                                 // Menggabungkan plat polisi dan nama supir sebagai label
@@ -126,7 +128,7 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
 
                         // Combine both sets of IDs to exclude
                         $allUsedIds = array_merge($usedIds, $currentFormIds);
-                        $excludedBarang = ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR'];
+                        $excludedBarang = ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT'];
                         // Prefill data dari Penjualan berdasarkan plat_polisi yang dipilih, but exclude used IDs
                         $records = Penjualan::where('plat_polisi', $state)
                             ->whereNotIn('id', $allUsedIds)
@@ -226,7 +228,7 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                         return $penjualanQuery
                                                             ->latest()
                                                             ->with(['mobil', 'supplier'])
-                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR'])
+                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT'])
                                                             ->get()
                                                             ->mapWithKeys(function ($item) {
                                                                 return [
@@ -239,7 +241,6 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                             ->toArray();
                                                     })
                                                     ->searchable()
-                                                    ->required()
                                                     ->reactive()
                                                     // Callback lain tetap sama
                                                     ->afterStateHydrated(function ($state, callable $set) {
@@ -337,7 +338,7 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                         return $penjualanQuery
                                                             ->latest()
                                                             ->with(['mobil', 'supplier'])
-                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR'])
+                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT'])
                                                             ->get()
                                                             ->mapWithKeys(function ($item) {
                                                                 return [
@@ -466,7 +467,7 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                         return $penjualanQuery
                                                             ->latest()
                                                             ->with(['mobil', 'supplier'])
-                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR'])
+                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT'])
                                                             ->get()
                                                             ->mapWithKeys(function ($item) {
                                                                 return [
@@ -595,7 +596,7 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                         return $penjualanQuery
                                                             ->latest()
                                                             ->with(['mobil', 'supplier'])
-                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR'])
+                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT'])
                                                             ->get()
                                                             ->mapWithKeys(function ($item) {
                                                                 return [
@@ -724,7 +725,7 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                         return $penjualanQuery
                                                             ->latest()
                                                             ->with(['mobil', 'supplier'])
-                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR'])
+                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT'])
                                                             ->get()
                                                             ->mapWithKeys(function ($item) {
                                                                 return [
@@ -854,7 +855,7 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                         return $penjualanQuery
                                                             ->latest()
                                                             ->with(['mobil', 'supplier'])
-                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR'])
+                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT'])
                                                             ->get()
                                                             ->mapWithKeys(function ($item) {
                                                                 return [
@@ -955,9 +956,17 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                 //     ->default(0)
                                 //     ->hidden(fn() => !optional(Auth::user())->hasAnyRole(['adminaudit', 'super_admin']))
                                 //     ->columns(1),
-                                Textarea::make('keterangan')
-                                    ->placeholder('Masukkan Keterangan')
-                                    ->columnSpanFull(), // Tetap 1 kolom penuh di semua ukuran layar
+                                Grid::make()
+                                    ->schema([
+                                        Textarea::make('keterangan')
+                                            ->placeholder('Masukkan Keterangan'),
+                                        FileUpload::make('foto')
+                                            ->image()
+                                            ->multiple()
+                                            ->openable()
+                                            ->imagePreviewHeight(200)
+                                            ->label('Foto'),
+                                    ]),
                                 Hidden::make('user_id')
                                     ->label('User ID')
                                     ->default(Auth::id()) // Set nilai default user yang sedang login,
@@ -1150,10 +1159,11 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('nama_barang'),
                 TextColumn::make('keterangan'),
-                TextColumn::make('tambah_berat')
-                    ->label('Berat Tambah')
-                    ->alignCenter()
-                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                ImageColumn::make('foto')
+                    ->label('Foto')
+                    ->getStateUsing(fn($record) => $record->foto[0] ?? null)
+                    ->url(fn($record) => asset('storage/' . ($record->foto[0] ?? '')))
+                    ->openUrlInNewTab(),
                 TextColumn::make('user.name')
                     ->label('User')
             ])->defaultSort('id', 'desc')
