@@ -35,7 +35,7 @@ class AlamatKontrakResource extends Resource implements HasShieldPermissions
     }
     protected static ?string $model = AlamatKontrak::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-globe-asia-australia';
+    protected static ?string $navigationIcon = 'heroicon-o-map';
     protected static ?string $navigationLabel = 'Alamat';
     protected static ?string $navigationGroup = 'Kontrak';
     public static ?string $label = 'Daftar Alamat Kontrak ';

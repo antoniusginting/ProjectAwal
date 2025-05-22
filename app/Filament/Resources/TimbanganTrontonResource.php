@@ -40,6 +40,8 @@ use App\Filament\Resources\TimbanganTrontonResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\TimbanganTrontonResource\RelationManagers;
 use App\Filament\Resources\TimbanganTrontonResource\Pages\EditTimbanganTronton;
+use App\Models\Luar;
+use App\Models\Pembelian;
 
 class TimbanganTrontonResource extends Resource implements HasShieldPermissions
 {
@@ -944,7 +946,347 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
 
                                                     ->disabled(),
                                             ])->columnSpan(1)->collapsed(),
-                                    ])->columns(3)->collapsible(),
+
+                                    ])->columns(3)->collapsed(),
+
+
+
+                                Card::make('Timbangan Antar Pulau')
+                                    ->schema([
+                                        //Timbangan luar 1
+                                        Card::make('Timbangan luar 1')
+                                            ->schema([
+                                                Select::make('id_luar_1')
+                                                    ->label('No SPB (Timbangan 1)')
+                                                    ->placeholder('Pilih No SPB Luar')
+                                                    ->options(function (callable $get) {
+                                                        $currentId = $get('id_luar_1'); // nilai yang dipilih (jika ada)
+
+                                                        // Ambil semua field timbangan beli (dari 1 sampai 3)
+                                                        $usedSpbIds = TimbanganTronton::query()
+                                                            ->get()
+                                                            ->flatMap(function ($record) {
+                                                                return [
+                                                                    $record->id_luar_1,
+                                                                    $record->id_luar_2,
+                                                                    $record->id_luar_3,
+                                                                ];
+                                                            })
+                                                            ->filter()   // Hilangkan nilai null
+                                                            ->unique()   // Pastikan tidak ada duplikasi
+                                                            ->toArray();
+
+                                                        // Jika ada nilai yang tersimpan, kita ingin menyertakannya walaupun termasuk dalam usedSpbIds.
+                                                        $luarQuery = Luar::query();
+                                                        if ($currentId) {
+                                                            $luarQuery->where(function ($query) use ($currentId, $usedSpbIds) {
+                                                                $query->where('id', $currentId)
+                                                                    ->orWhereNotIn('id', $usedSpbIds);
+                                                            });
+                                                        } else {
+                                                            $luarQuery->whereNotIn('id', $usedSpbIds);
+                                                        }
+
+                                                        return $luarQuery
+                                                            ->latest()
+                                                            ->with(['supplier'])
+                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT'])
+                                                            ->get()
+                                                            ->mapWithKeys(function ($item) {
+                                                                return [
+                                                                    $item->id => $item->kode .
+                                                                        ' - ' . $item->supplier->nama_supplier .
+                                                                        ' - ' . $item->kode_segel .
+                                                                        ' - ' . $item->no_container
+                                                                ];
+                                                            })
+                                                            ->toArray();
+                                                    })
+                                                    ->searchable()
+                                                    ->reactive()
+                                                    ->afterStateHydrated(function ($state, callable $set) {
+                                                        if ($state) {
+                                                            $luar = Luar::find($state);
+                                                            $set('nama_barang_7', $luar?->nama_barang);
+                                                            $set('bruto7', $luar?->bruto);
+                                                            $set('tara7', $luar?->tara);
+                                                            $set('netto7', $luar?->netto);
+                                                        }
+                                                    })
+                                                    ->afterStateUpdated(function ($state, callable $set, $get) {
+                                                        $luar = Luar::find($state);
+                                                        $set('kode_segel_7', $luar?->plat_polisi ?? 'Plat tidak ditemukan');
+                                                        $set('bruto7', $luar?->bruto);
+                                                        $set('tara7', $luar?->tara);
+                                                        $set('netto7', $luar?->netto);
+                                                        $set('nama_barang_7', $luar?->nama_barang);
+                                                        $set('total_netto', self::hitungTotalNetto($get)); // Update total_netto
+                                                        $set('bruto_akhir', self::getBrutoAkhir($get));
+                                                        $set('tara_awal', self::getTaraAwal($get));
+                                                    }),
+
+
+
+                                                TextInput::make('nama_barang_7')
+                                                    ->placeholder('Otomatis terisi')
+                                                    ->reactive()
+                                                    ->disabled()
+                                                    ->label('Nama Barang'),
+                                                TextInput::make('bruto7')
+                                                    ->placeholder('Otomatis terisi')
+                                                    ->label('Bruto')
+                                                    ->numeric()
+                                                    ->reactive()
+                                                    ->readOnly()
+                                                    ->afterStateUpdated(fn($state, $set, $get) => $set('total_bruto', self::hitungTotalBruto($get))),
+
+                                                TextInput::make('tara7')
+                                                    ->label('Tara')
+                                                    ->reactive()
+
+                                                    ->disabled(),
+
+                                                TextInput::make('netto7')
+                                                    ->label('Netto')
+                                                    ->reactive()
+
+                                                    ->disabled(),
+                                            ])->columnSpan(1)->collapsible(),
+                                        //Timbangan Luar 2
+                                        Card::make('Timbangan luar 2')
+                                            ->schema([
+                                                Select::make('id_luar_2')
+                                                    ->label('No SPB (Timbangan 2)')
+                                                    ->placeholder('Pilih No SPB Luar')
+                                                    ->options(function (callable $get) {
+                                                        $currentId = $get('id_luar_2'); // nilai yang dipilih (jika ada)
+
+                                                        // Ambil semua field timbangan beli (dari 1 sampai 3)
+                                                        $usedSpbIds = TimbanganTronton::query()
+                                                            ->get()
+                                                            ->flatMap(function ($record) {
+                                                                return [
+                                                                    $record->id_luar_1,
+                                                                    $record->id_luar_2,
+                                                                    $record->id_luar_3,
+                                                                ];
+                                                            })
+                                                            ->filter()   // Hilangkan nilai null
+                                                            ->unique()   // Pastikan tidak ada duplikasi
+                                                            ->toArray();
+
+                                                        // Jika ada nilai yang tersimpan, kita ingin menyertakannya walaupun termasuk dalam usedSpbIds.
+                                                        $luarQuery = Luar::query();
+                                                        if ($currentId) {
+                                                            $luarQuery->where(function ($query) use ($currentId, $usedSpbIds) {
+                                                                $query->where('id', $currentId)
+                                                                    ->orWhereNotIn('id', $usedSpbIds);
+                                                            });
+                                                        } else {
+                                                            $luarQuery->whereNotIn('id', $usedSpbIds);
+                                                        }
+
+                                                        return $luarQuery
+                                                            ->latest()
+                                                            ->with(['supplier'])
+                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT'])
+                                                            ->get()
+                                                            ->mapWithKeys(function ($item) {
+                                                                return [
+                                                                    $item->id => $item->kode .
+                                                                        ' - ' . $item->supplier->nama_supplier .
+                                                                        ' - ' . $item->kode_segel .
+                                                                        ' - ' . $item->no_container
+                                                                ];
+                                                            })
+                                                            ->toArray();
+                                                    })
+                                                    ->searchable()
+                                                    ->reactive()
+                                                    ->afterStateHydrated(function ($state, callable $set) {
+                                                        if ($state) {
+                                                            $luar = Luar::find($state);
+                                                            $set('nama_barang_8', $luar?->nama_barang);
+                                                            $set('bruto8', $luar?->bruto);
+                                                            $set('tara8', $luar?->tara);
+                                                            $netto8 = $luar?->netto ?? 0;
+                                                            $set('netto8', $netto8);
+                                                            // Simpan nilai awal untuk perhitungan selanjutnya
+                                                            $set('prev_netto8', $netto8);
+                                                        }
+                                                    })
+                                                    ->afterStateUpdated(function ($state, callable $set, $get) {
+                                                        $luar = Luar::find($state);
+                                                        $set('kode_segel8', $luar?->kode_segel ?? 'kode segel tidak ditemukan');
+                                                        $set('bruto8', $luar?->bruto);
+                                                        $set('tara8', $luar?->tara);
+                                                        $set('nama_barang_8', $luar?->nama_barang);
+                                                        $newNetto = $luar?->netto ?? 0;
+                                                        // Ambil nilai netto sebelumnya, jika belum ada asumsikan 0
+                                                        $prevNetto = $get('prev_netto8') ?? 0;
+
+                                                        // Hitung perbedaan antara nilai baru dan sebelumnya
+                                                        $diff = $newNetto - $prevNetto;
+
+                                                        // Update penyimpanan nilai netto sebelumnya
+                                                        $set('prev_netto8', $newNetto);
+
+                                                        // Ambil total netto saat ini. Jika belum ter-update, gunakan nilai awal (initial_total_netto)
+                                                        $currentTotal = $get('total_netto') ?? ($get('initial_total_netto') ?? 0);
+
+                                                        // Update total netto dengan menambahkan selisih
+                                                        $set('total_netto', $currentTotal + $diff);
+
+                                                        // Jika perlu, juga set field netto8 agar tampil (misalnya untuk format)
+                                                        $set('netto8', $newNetto);
+                                                        $set('bruto_akhir', self::getBrutoAkhir($get));
+                                                    }),
+
+
+
+                                                TextInput::make('nama_barang_8')
+                                                    ->placeholder('Otomatis terisi')
+                                                    ->reactive()
+                                                    ->disabled()
+                                                    ->label('Nama Barang'),
+                                                TextInput::make('bruto8')
+                                                    ->placeholder('Otomatis terisi')
+                                                    ->label('Bruto')
+                                                    ->numeric()
+                                                    ->reactive()
+                                                    ->readOnly()
+                                                    ->afterStateUpdated(fn($state, $set, $get) => $set('total_bruto', self::hitungTotalBruto($get))),
+
+                                                TextInput::make('tara8')
+                                                    ->label('Tara')
+                                                    ->reactive()
+
+                                                    ->disabled(),
+
+                                                TextInput::make('netto8')
+                                                    ->label('Netto')
+                                                    ->reactive()
+
+                                                    ->disabled(),
+                                            ])->columnSpan(1)->collapsible(),
+                                        //Timbangan Beli 3
+                                        Card::make('Timbangan luar 3')
+                                            ->schema([
+                                                Select::make('id_luar_3')
+                                                    ->label('No SPB (Timbangan 3)')
+                                                    ->placeholder('Pilih No SPB Luar')
+                                                    ->options(function (callable $get) {
+                                                        $currentId = $get('id_luar_3'); // nilai yang dipilih (jika ada)
+
+                                                        // Ambil semua field timbangan beli (dari 1 sampai 3)
+                                                        $usedSpbIds = TimbanganTronton::query()
+                                                            ->get()
+                                                            ->flatMap(function ($record) {
+                                                                return [
+                                                                    $record->id_luar_1,
+                                                                    $record->id_luar_2,
+                                                                    $record->id_luar_3,
+                                                                ];
+                                                            })
+                                                            ->filter()   // Hilangkan nilai null
+                                                            ->unique()   // Pastikan tidak ada duplikasi
+                                                            ->toArray();
+
+                                                        // Jika ada nilai yang tersimpan, kita ingin menyertakannya walaupun termasuk dalam usedSpbIds.
+                                                        $luarQuery = Luar::query();
+                                                        if ($currentId) {
+                                                            $luarQuery->where(function ($query) use ($currentId, $usedSpbIds) {
+                                                                $query->where('id', $currentId)
+                                                                    ->orWhereNotIn('id', $usedSpbIds);
+                                                            });
+                                                        } else {
+                                                            $luarQuery->whereNotIn('id', $usedSpbIds);
+                                                        }
+
+                                                        return $luarQuery
+                                                            ->latest()
+                                                            ->with(['supplier'])
+                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT'])
+                                                            ->get()
+                                                            ->mapWithKeys(function ($item) {
+                                                                return [
+                                                                    $item->id => $item->kode .
+                                                                        ' - ' . $item->supplier->nama_supplier .
+                                                                        ' - ' . $item->kode_segel .
+                                                                        ' - ' . $item->no_container
+                                                                ];
+                                                            })
+                                                            ->toArray();
+                                                    })
+                                                    ->searchable()
+                                                    ->reactive()
+                                                    ->afterStateHydrated(function ($state, callable $set) {
+                                                        if ($state) {
+                                                            $luar = Luar::find($state);
+                                                            $set('nama_barang_9', $luar?->nama_barang);
+                                                            $set('bruto9', $luar?->bruto);
+                                                            $set('tara9', $luar?->tara);
+                                                            $netto9 = $luar?->netto ?? 0;
+                                                            $set('netto9', $netto9);
+                                                            // Simpan nilai awal untuk perhitungan selanjutnya
+                                                            $set('prev_netto9', $netto9);
+                                                        }
+                                                    })
+                                                    ->afterStateUpdated(function ($state, callable $set, $get) {
+                                                        $luar = Luar::find($state);
+                                                        $set('kode_segel9', $luar?->kode_segel ?? 'kode segel tidak ditemukan');
+                                                        $set('bruto9', $luar?->bruto);
+                                                        $set('tara9', $luar?->tara);
+                                                        $set('nama_barang_9', $luar?->nama_barang);
+                                                        $newNetto = $luar?->netto ?? 0;
+                                                        // Ambil nilai netto sebelumnya, jika belum ada asumsikan 0
+                                                        $prevNetto = $get('prev_netto9') ?? 0;
+
+                                                        // Hitung perbedaan antara nilai baru dan sebelumnya
+                                                        $diff = $newNetto - $prevNetto;
+
+                                                        // Update penyimpanan nilai netto sebelumnya
+                                                        $set('prev_netto9', $newNetto);
+
+                                                        // Ambil total netto saat ini. Jika belum ter-update, gunakan nilai awal (initial_total_netto)
+                                                        $currentTotal = $get('total_netto') ?? ($get('initial_total_netto') ?? 0);
+
+                                                        // Update total netto dengan menambahkan selisih
+                                                        $set('total_netto', $currentTotal + $diff);
+
+                                                        // Jika perlu, juga set field netto9 agar tampil (misalnya untuk format)
+                                                        $set('netto9', $newNetto);
+                                                        $set('bruto_akhir', self::getBrutoAkhir($get));
+                                                    }),
+
+
+
+                                                TextInput::make('nama_barang_9')
+                                                    ->placeholder('Otomatis terisi')
+                                                    ->reactive()
+                                                    ->disabled()
+                                                    ->label('Nama Barang'),
+                                                TextInput::make('bruto9')
+                                                    ->placeholder('Otomatis terisi')
+                                                    ->label('Bruto')
+                                                    ->numeric()
+                                                    ->reactive()
+                                                    ->readOnly()
+                                                    ->afterStateUpdated(fn($state, $set, $get) => $set('total_bruto', self::hitungTotalBruto($get))),
+
+                                                TextInput::make('tara9')
+                                                    ->label('Tara')
+                                                    ->reactive()
+
+                                                    ->disabled(),
+
+                                                TextInput::make('netto9')
+                                                    ->label('Netto')
+                                                    ->reactive()
+
+                                                    ->disabled(),
+                                            ])->columnSpan(1)->collapsible(),
+                                    ])->columns(3)->collapsed(),
                                 // Toggle::make('status')
                                 //     ->disabled(function ($state, $record) {
                                 //         return $record && !in_array((int) $state, [0]);
@@ -976,12 +1318,16 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
     }
     protected static function getTaraAwal($get)
     {
-        return $get('tara1');
+        $tara1 = $get('tara1');
+        return (is_null($tara1) || trim($tara1) === '') ? $get('tara7') : $tara1;
     }
 
     protected static function getBrutoAkhir($get)
     {
-        return $get('bruto6')
+        return $get('bruto9')
+            ?? $get('bruto8')
+            ?? $get('bruto7')
+            ?? $get('bruto6')
             ?? $get('bruto5')
             ?? $get('bruto4')
             ?? $get('bruto3')
@@ -995,7 +1341,10 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
             (int) ($get('netto3') ?? 0) +
             (int) ($get('netto4') ?? 0) +
             (int) ($get('netto5') ?? 0) +
-            (int) ($get('netto6') ?? 0);
+            (int) ($get('netto6') ?? 0) +
+            (int) ($get('netto7') ?? 0) +
+            (int) ($get('netto8') ?? 0) +
+            (int) ($get('netto9') ?? 0);
     }
     public static function table(Table $table): Table
     {

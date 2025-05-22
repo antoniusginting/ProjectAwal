@@ -656,7 +656,7 @@ class DryerResource extends Resource implements HasShieldPermissions
                             ->preload()
                             ->getOptionLabelFromRecordUsing(function ($record) {
                                 $noBk = $record->penjualan1 ? $record->penjualan1->plat_polisi : 'N/A';
-                                return $record->kode . ' - ' . $noBk . ' - ' . $record->penjualan1->nama_supir . ' - ' . $record->total_netto;
+                                return $record->kode . ' - ' . $noBk . ' - ' . ($record->penjualan1->nama_supir ?? '') . ' - ' . $record->total_netto;
                             })
                     ])
             ]);

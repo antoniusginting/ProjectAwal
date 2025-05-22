@@ -71,6 +71,7 @@
                         <td class="whitespace-nowrap">: {{ $dryer->hasil_kadar }}%</td>
                         <td class="font-semibold whitespace-nowrap">Kapasitas Terpakai</td>
                         <td class="whitespace-nowrap">: {{ number_format($totalBerat, '0', ',', '.') }}</td>
+                        {{-- {{ number_format($dryer->kapasitasdryer->kapasitas_total - $totalBerat, 0, ',', '.') }} --}}
                     </tr>
                     <tr>
                         <td class="font-semibold whitespace-nowrap">Jenis Barang</td>

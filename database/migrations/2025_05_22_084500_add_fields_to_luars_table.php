@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('pembelians', function (Blueprint $table) {
+        Schema::table('luars', function (Blueprint $table) {
             $table->string('nama_barang');
             $table->string('no_container')->nullable();
             $table->string('brondolan')->nullable();
@@ -26,9 +26,6 @@ return new class extends Migration
 
             // Foreign key ke tabel suppliers
             $table->foreignId('id_supplier')->constrained('suppliers')->onDelete('cascade');
-
-            // Foreign key ke tabel mobils
-            $table->foreignId('id_mobil')->constrained('mobils')->onDelete('cascade');
         });
     }
 
@@ -37,7 +34,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('pembelians', function (Blueprint $table) {
+        Schema::table('luars', function (Blueprint $table) {
             //
         });
     }

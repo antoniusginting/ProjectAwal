@@ -91,7 +91,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                         $query = Pembelian::with(['mobil', 'supplier'])
                                             ->whereNotIn('id', $idSudahDisortir)
                                             ->whereNotNull('tara')
-                                            ->whereNotIn('nama_barang', ['CANGKANG', 'SEKAM', 'SALAH'])
+                                            ->whereNotIn('nama_barang', ['CANGKANG', 'SEKAM', 'SALAH' , 'RETUR'])
                                             ->whereNotIn('id', $idsYangDikecualikan)
                                             ->latest();
 
@@ -303,25 +303,25 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                         $nextId = (Sortiran::max('id') ?? 0) + 1;
                                         return 'S' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
                                     }),
-                                TextInput::make('no_lumbung')
-                                    ->label('No Lumbung')
-                                    ->placeholder('Masukkan No Lumbung')
-                                    ->autocomplete('off')
-                                    ->required(),
-                                // Select::make('no_lumbung')
+                                // TextInput::make('no_lumbung')
                                 //     ->label('No Lumbung')
-                                //     ->placeholder('Pilih No Lumbung')
-                                //     ->options(KapasitasLumbungBasah::pluck('no_kapasitas_lumbung', 'no_kapasitas_lumbung'))
-                                //     ->searchable(),
-                                // TextInput::make('kadar_air')
-                                //     ->label('Kadar Air')
-                                //     ->numeric()
-                                //     ->placeholder('Masukkan kadar air')
+                                //     ->placeholder('Masukkan No Lumbung')
+                                //     ->autocomplete('off')
                                 //     ->required(),
-                                // TextInput::make('keterangan')
-                                //     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
-                                //     ->label('Keterangan')
-                                //     ->placeholder('Masukkan keterangan'),
+                                Select::make('no_lumbung')
+                                    ->label('No Lumbung')
+                                    ->placeholder('Pilih No Lumbung')
+                                    ->options(KapasitasLumbungBasah::pluck('no_kapasitas_lumbung', 'no_kapasitas_lumbung'))
+                                    ->searchable(),
+                                TextInput::make('kadar_air')
+                                    ->label('Kadar Air')
+                                    ->numeric()
+                                    ->placeholder('Masukkan kadar air')
+                                    ->required(),
+                                TextInput::make('keterangan')
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
+                                    ->label('Keterangan')
+                                    ->placeholder('Masukkan keterangan'),
                             ]),
 
                         // Grid untuk menyusun field ke kanan
@@ -734,11 +734,11 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                     ])
                                     ->columnSpan(1)->collapsed(),
                             ]),
-                        TextInput::make('kadar_air')
-                            ->label('Kadar Air')
-                            ->numeric()
-                            ->placeholder('Masukkan kadar air')
-                            ->required(),
+                        // TextInput::make('kadar_air')
+                        //     ->label('Kadar Air')
+                        //     ->numeric()
+                        //     ->placeholder('Masukkan kadar air')
+                        //     ->required(),
                     ])
             ]);
     }

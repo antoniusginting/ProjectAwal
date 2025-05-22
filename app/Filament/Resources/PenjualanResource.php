@@ -163,7 +163,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                             $set('nama_supir', $penjualan->nama_supir);
                                             $set('nama_barang', $penjualan->nama_barang);
                                             // Naikkan keterangan jika awalnya 1, 2, atau 3
-                                            $keteranganBaru = in_array(intval($penjualan->keterangan), [1, 2, 3, 4])
+                                            $keteranganBaru = in_array(intval($penjualan->keterangan), [1, 2, 3, 4 , 5])
                                                 ? intval($penjualan->keterangan) + 1
                                                 : $penjualan->keterangan;
                                             $set('keterangan', $keteranganBaru);
@@ -237,6 +237,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                         '3' => 'Timbangan ke-3',
                                         '4' => 'Timbangan ke-4',
                                         '5' => 'Timbangan ke-5',
+                                        '6' => 'Timbangan ke-6',
                                     ])
                                     ->default(1)
                                     ->placeholder('Pilih timbangan ke-')
