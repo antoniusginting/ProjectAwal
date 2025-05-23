@@ -43,10 +43,10 @@ class DryerResource extends Resource implements HasShieldPermissions
             'delete_any',
         ];
     }
-    public static function canAccess(): bool
-    {
-        return false; // Menyembunyikan resource dari sidebar
-    }
+    // public static function canAccess(): bool
+    // {
+    //     return false; // Menyembunyikan resource dari sidebar
+    // }
     public static function getNavigationSort(): int
     {
         return 3; // Ini akan muncul di atas

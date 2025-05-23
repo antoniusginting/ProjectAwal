@@ -27,6 +27,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Columns\ToggleColumn;
 use Illuminate\Database\Eloquent\Builder;
@@ -91,7 +92,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                         $query = Pembelian::with(['mobil', 'supplier'])
                                             ->whereNotIn('id', $idSudahDisortir)
                                             ->whereNotNull('tara')
-                                            ->whereNotIn('nama_barang', ['CANGKANG', 'SEKAM', 'SALAH' , 'RETUR'])
+                                            ->whereNotIn('nama_barang', ['CANGKANG', 'SEKAM', 'SALAH', 'RETUR' , 'SEKAM PADI'])
                                             ->whereNotIn('id', $idsYangDikecualikan)
                                             ->latest();
 
@@ -783,6 +784,8 @@ class SortiranResource extends Resource implements HasShieldPermissions
                     ->searchable()
                     ->label('No Sortiran')
                     ->alignCenter(),
+                TextColumn::make('pembelian.supplier.nama_supplier')->label('Nama Supplier')
+                    ->searchable(),
                 TextColumn::make('pembelian.no_spb')->label('No SPB')
                     ->searchable(),
                 TextColumn::make('pembelian.netto')->label('Netto')
@@ -957,11 +960,22 @@ class SortiranResource extends Resource implements HasShieldPermissions
             //     // ]),
             // ])
             ->filters([
-                Filter::make('Hari Ini')
-                    ->query(
-                        fn(Builder $query) =>
-                        $query->whereDate('created_at', Carbon::today())
-                    ),
+                Filter::make('pilih_tanggal')
+                    ->form([
+                        DatePicker::make('tanggal')
+                            ->label('Pilih Tanggal')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['tanggal'] ?? null,
+                            fn($query, $date) => $query->whereDate('created_at', $date)
+                        );
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        return ($data['tanggal'] ?? null)
+                            ? 'Tanggal: ' . Carbon::parse($data['tanggal'])->format('d M Y')
+                            : null;
+                    }),
             ])
             ->recordClasses(function ($record) {
                 return match ($record->cek) {

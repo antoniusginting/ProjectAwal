@@ -6,13 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Print | Penjualan</title>
     <style>
-        /* Definisi variabel untuk konsistensi warna */
-        :root {
-            --primary-color: #1a202c;
-            --secondary-bg: #ffffff;
-            --border-color: #ffffff;
-            --light-bg: #ffffff;
-        }
 
         /* Gaya dasar halaman dengan ukuran font lebih kecil */
         body {

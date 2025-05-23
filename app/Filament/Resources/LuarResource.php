@@ -33,9 +33,21 @@ use App\Filament\Resources\LuarResource\Pages\ListLuars;
 use App\Filament\Resources\LuarResource\Pages\CreateLuar;
 use App\Filament\Resources\LuarResource\RelationManagers;
 use App\Filament\Resources\PembelianResource\Pages\EditPembelian;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
-class LuarResource extends Resource
+class LuarResource extends Resource implements HasShieldPermissions
 {
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
     protected static ?string $model = Luar::class;
     protected static ?string $navigationLabel = 'Pembelian Antar Pulau';
     protected static ?string $navigationGroup = 'Timbangan';
@@ -298,11 +310,12 @@ class LuarResource extends Resource
                             ->isoFormat('D MMMM YYYY | HH:mm:ss');
                     }),
                 TextColumn::make('kode')
+                    ->label('No SPB')
                     ->searchable()
                     ->copyable()
                     ->copyMessage('berhasil menyalin'),
                 TextColumn::make('kode_segel')
-                    ->label('kode_segel')
+                    ->label('Kode Segel')
                     ->searchable(),
                 // TextColumn::make('nama_supir')
                 //     ->searchable(),
@@ -365,10 +378,10 @@ class LuarResource extends Resource
                         $query->whereNull('tara')
                     )
                     ->toggle() // Filter ini dapat diaktifkan/nonaktifkan oleh pengguna
-                    ->default(function () {
-                        // Filter aktif secara default hanya jika pengguna BUKAN super_admin ,'admin'
-                        return !optional(Auth::user())->hasAnyRole(['super_admin']);
-                    })
+                    // ->default(function () {
+                    //     // Filter aktif secara default hanya jika pengguna BUKAN super_admin ,'admin'
+                    //     return !optional(Auth::user())->hasAnyRole(['super_admin']);
+                    // })
             ]);
     }
 

@@ -31,10 +31,10 @@ class KapasitasDryerResource extends Resource implements HasShieldPermissions
             'delete_any',
         ];
     }
-    public static function canAccess(): bool
-    {
-        return false; // Menyembunyikan resource dari sidebar
-    }
+    // public static function canAccess(): bool
+    // {
+    //     return false; // Menyembunyikan resource dari sidebar
+    // }
     protected static ?string $model = KapasitasDryer::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-archive-box-x-mark';
@@ -68,6 +68,7 @@ class KapasitasDryerResource extends Resource implements HasShieldPermissions
     public static function table(Table $table): Table
     {
         return $table
+            ->poll('5s') // polling ulang setiap 5 detik
             //Untuk menempatkan action jadi paling kiri
             //->actionsPosition(Tables\Enums\ActionsPosition::BeforeColumns)
             ->columns([

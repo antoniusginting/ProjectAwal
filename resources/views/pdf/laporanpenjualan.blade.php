@@ -7,11 +7,11 @@
     <title>Print | Laporan Penjualan</title>
     <style>
         /* Definisi variabel untuk konsistensi warna */
-        :root {
-            --primary-color: #1a202c;
-            --secondary-bg: #ffffff;
-            --border-color: #e2e8f0;
-            --light-bg: #f7fafc;
+
+        * {
+            margin: 4;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         /* Gaya dasar halaman dengan ukuran font lebih kecil */
@@ -129,7 +129,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #718096;
             font-size: 0.75rem;
         }
 
@@ -178,94 +177,151 @@
             <table class="info-table">
                 <tr>
                     <td class="label">Tanggal</td>
-                    <td width='130px'>:
-                        {{ !empty($laporanpenjualan->penjualan1->plat_polisi) ? $laporanpenjualan->created_at->format('d-m-Y') : '' }}
-                    </td>
+                    <td width="120px">:
+                        {{ $laporanpenjualan->created_at->format('d-m-Y') }}
                     <td class="label">Jam</td>
-                    <td width='110px'>:
-                        {{ !empty($laporanpenjualan->penjualan1->plat_polisi) ? $laporanpenjualan->created_at->format('H:i') : '' }}
+                    <td width="140px">:
+                        {{ $laporanpenjualan->created_at->format('H:i') }}
                     </td>
-                    <td class="label">No Penjualan</td>
+                    <td class="label" width="120px">No Penjualan</td>
                     <td>: {{ $laporanpenjualan->kode }}</td>
                 </tr>
                 <tr>
                     <td class="label">Operator</td>
                     <td>:
-                        {{ !empty($laporanpenjualan->penjualan1->plat_polisi) ? $laporanpenjualan->user->name ?? '' : '' }}
+                        {{ $laporanpenjualan->user->name }}
                     </td>
-                    <td class="label">Plat Polisi</td>
-                    <td>: {{ $laporanpenjualan->penjualan1->plat_polisi ?? '' }}</td>
+                    <td class="label">
+                        {{ !empty($laporanpenjualan->penjualan1->plat_polisi) ? 'Plat Polisi' : 'No Container' }}</td>
+                    <td>:
+                        {{ $laporanpenjualan->penjualan1->plat_polisi ?? ($laporanpenjualan->luar1->no_container ?? '') }}
+                    </td>
                 </tr>
             </table>
         </section>
 
         <div class="divider"></div>
-        @if (!empty($laporanpenjualan->penjualan1->plat_polisi))
-            <div class="caca">Print Date : {{ now()->format('d-m-Y H:i:s') }}</div>
-        @endif
+        <div class="caca">Print Date : {{ now()->format('d-m-Y H:i:s') }}</div>
 
         <!-- Detail Pengiriman -->
         <section>
             <div style="overflow-x: auto;">
-                <table class="detail-table">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>No_SPB</th>
-                            <th>Jenis</th>
-                            <th>Lumbung</th>
-                            <th>No Lumbung/IO</th>
-                            <th>Satuan Muatan</th> <!-- Kolom untuk jumlah karung / GONI -->
-                            <th>Berat</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @php $totalNetto = 0; @endphp
-                        @php $totalKarung = 0; @endphp
-                        @php $adaGoni = false; @endphp <!-- Flag untuk mengecek apakah ada GONI -->
-
-                        @for ($i = 1; $i <= 6; $i++)
-                            @php $penjualan = $laporanpenjualan->{'penjualan' . $i} ?? null; @endphp
+                @if (!empty($laporanpenjualan->penjualan1->plat_polisi))
+                    <table class="detail-table">
+                        <thead>
                             <tr>
-                                <td class="text-center">{{ $i }}</td>
-                                <td class="text-center">{{ $penjualan->no_spb ?? '' }}</td>
-                                <td class="text-center">{{ $penjualan->nama_barang ?? '' }}</td>
-                                <td class="text-center">{{ $penjualan->nama_lumbung ?? '' }}</td>
-                                <td class="text-center">{{ $penjualan->no_lumbung ?? '' }}</td>
+                                <th>No</th>
+                                <th>No_SPB</th>
+                                <th>Jenis</th>
+                                <th>Lumbung</th>
+                                <th>No Lumbung/IO</th>
+                                <th>Satuan Muatan</th> <!-- Kolom untuk jumlah karung / GONI -->
+                                <th>Berat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php $totalNetto = 0; @endphp
+                            @php $totalKarung = 0; @endphp
+                            @php $adaGoni = false; @endphp <!-- Flag untuk mengecek apakah ada GONI -->
+
+                            @for ($i = 1; $i <= 6; $i++)
+                                @php $penjualan = $laporanpenjualan->{'penjualan' . $i} ?? null; @endphp
+                                <tr>
+                                    <td class="text-center">{{ $i }}</td>
+                                    <td class="text-center">{{ $penjualan->no_spb ?? '' }}</td>
+                                    <td class="text-center">{{ $penjualan->nama_barang ?? '' }}</td>
+                                    <td class="text-center">{{ $penjualan->nama_lumbung ?? '' }}</td>
+                                    <td class="text-center">{{ $penjualan->no_lumbung ?? '' }}</td>
+                                    <td class="text-center">
+                                        @if ($penjualan && $penjualan->brondolan == 'GONI')
+                                            @php
+                                                $adaGoni = true;
+                                                $totalKarung += $penjualan->jumlah_karung;
+                                            @endphp
+                                            {{ $penjualan->jumlah_karung }} - {{ $penjualan->brondolan }}
+                                        @else
+                                            {{ $penjualan->brondolan ?? '' }}
+                                        @endif
+                                    </td>
+                                    <td class="text-right">
+                                        {{ $penjualan ? number_format($penjualan->netto, 0, ',', '.') : '' }}</td>
+                                </tr>
+                                @if ($penjualan)
+                                    @php $totalNetto += $penjualan->netto; @endphp
+                                @endif
+                            @endfor
+
+                            <!-- Baris total keseluruhan -->
+                            <tr class="total-row">
+                                <td colspan="5" class="text-center">Total</td>
                                 <td class="text-center">
-                                    @if ($penjualan && $penjualan->brondolan == 'GONI')
-                                        @php
-                                            $adaGoni = true;
-                                            $totalKarung += $penjualan->jumlah_karung;
-                                        @endphp
-                                        {{ $penjualan->jumlah_karung }} - {{ $penjualan->brondolan }}
+                                    @if ($adaGoni)
+                                        {{ number_format($totalKarung, 0, ',', '.') }} - GONI
                                     @else
-                                        {{ $penjualan->brondolan ?? '' }}
                                     @endif
                                 </td>
                                 <td class="text-right">
-                                    {{ $penjualan ? number_format($penjualan->netto, 0, ',', '.') : '' }}</td>
+                                    {{ ($totalNetto ?? 0) == 0 ? '' : number_format($totalNetto, 0, ',', '.') }}</td>
                             </tr>
-                            @if ($penjualan)
-                                @php $totalNetto += $penjualan->netto; @endphp
-                            @endif
-                        @endfor
+                        </tbody>
+                    </table>
+                @endif
 
-                        <!-- Baris total keseluruhan -->
-                        <tr class="total-row">
-                            <td colspan="5" class="text-center">Total</td>
-                            <td class="text-center">
-                                @if ($adaGoni)
-                                    {{ number_format($totalKarung, 0, ',', '.') }} - GONI
-                                @else
+                {{-- Tabel untuk No Container --}}
+                @if (empty($laporanpenjualan->penjualan1->plat_polisi) && !empty($laporanpenjualan->luar1->no_container))
+                    @php
+                        $totalNetto = 0;
+                        $totalKarung = 0;
+                        $adaGoni = false;
+                    @endphp
+
+                    <table class="detail-table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>No_SPB</th>
+                                <th>Jenis</th>
+                                <th>Kode Segel</th>
+                                <th>Berat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for ($i = 1; $i <= 6; $i++)
+                                @php $luar = $laporanpenjualan->{'luar' . $i} ?? null; @endphp
+                                <tr>
+                                    <td class="text-center">
+                                        {{ $i }}
+                                    </td>
+                                    <td class="text-center">
+                                        {{ $luar->kode ?? '' }}
+                                    </td>
+                                    <td class="text-center">
+                                        {{ $luar->nama_barang ?? '' }}
+                                    </td>
+                                    <td class="text-center">
+                                        {{ $luar->kode_segel ?? '' }}
+                                    </td>
+                                    <td
+                                        class="border p-2 border-gray-300 dark:border-gray-700 text-right whitespace-nowrap">
+                                        {{ $luar ? number_format($luar->netto, 0, ',', '.') : '' }}
+                                    </td>
+                                </tr>
+                                @if ($luar)
+                                    @php $totalNetto += $luar->netto; @endphp
                                 @endif
-                            </td>
-                            <td class="text-right">
-                                {{ ($totalNetto ?? 0) == 0 ? '' : number_format($totalNetto, 0, ',', '.') }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                            @endfor
 
+                            <!-- TOTAL -->
+                            <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
+                                <td colspan="4" class="text-center">Total
+                                </td>
+                                <td class="text-right">
+                                    {{ ($totalNetto ?? 0) == 0 ? '' : number_format($totalNetto, 0, ',', '.') }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                @endif
             </div>
         </section>
 

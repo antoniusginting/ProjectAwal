@@ -7,21 +7,13 @@
     <title>Print | Surat Jalan</title>
     <style>
         /* Definisi variabel untuk konsistensi warna */
-        :root {
-            --primary-color: #1a202c;
-            --secondary-bg: #ffffff;
-            --border-color: #e2e8f0;
-            --light-bg: #f7fafc;
-        }
-
         /* Gaya dasar halaman dengan ukuran font lebih kecil */
         body {
             font-family: 'Courier New', Courier, monospace;
             font-size: 12pt;
             font-weight: bold;
             /* Sekitar 14px */
-            background-color: var(--secondary-bg);
-            color: var(--primary-color);
+            background: white;
             margin: 20px;
         }
 
@@ -70,11 +62,12 @@
         }
 
         .info-table .label {
-            font-weight: bold;
+            font-size: 1.1rem;
         }
 
         .caca {
             margin-bottom: 8px;
+            font-size: 1.1rem
         }
 
         /* Tabel detail pengiriman dengan padding di dalam sel yang lebih kecil */
@@ -87,6 +80,7 @@
         .detail-table th,
         .detail-table td {
             border: 1px solid #000;
+            font-size: 1.1rem;
             padding: 4px;
         }
 
@@ -103,7 +97,7 @@
         }
 
         .total-row {
-            font-weight: bold;
+            
         }
 
         /* Tanda tangan */
@@ -116,7 +110,7 @@
         .signature {
             display: inline-block;
             text-align: center;
-            font-size: 0.875rem;
+            font-size: 1.1rem;
         }
 
         .signature p {
@@ -132,7 +126,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #718096;
             font-size: 0.75rem;
         }
 
@@ -150,7 +143,6 @@
                 font-family: 'Courier New', Courier, monospace;
                 font-size: 12pt;
                 margin: 0;
-                background-color: var(--secondary-bg);
             }
 
             .container {
@@ -160,7 +152,7 @@
             }
 
             .sign-box {
-                background-color: #fff;
+                background-color: white;
             }
         }
     </style>
@@ -180,21 +172,21 @@
         <section>
             <table class="info-table">
                 <tr>
-                    <td colspan="2" style="width: 20%;">{{ $suratjalan->kota }},
+                    <td class="label" colspan="2" style="width: 20%;">{{ $suratjalan->kota }},
                         {{ $suratjalan->created_at->format('d-m-Y') }}</td>
                 </tr>
-                <tr>
+                <tr class="label">
                     <td style="width: 20%; font-weight: bold;">Kepada Yth.</td>
                     <td style="width: 80%;">: {{ $suratjalan->kontrak->nama }}</td>
                 </tr>
                 @if (!empty($suratjalan->alamat->alamat))
-                <tr>
+                <tr class="label">
                     <td style="width: 20%; font-weight: bold;">Alamat</td>
                     <td style="width: 80%;">: {{ $suratjalan->alamat?->alamat ?? '-' }}</td>
                 </tr>
                 @endif
                 @if (!empty($suratjalan->po))
-                    <tr>
+                    <tr class="label">
                         <td style="width: 20%; font-weight: bold;">No PO</td>
                         <td style="width: 80%;">: {{ $suratjalan->po }}</td>
                     </tr>
@@ -213,7 +205,7 @@
                             <th class="border p-2">
                                 Plat Polisi
                             </th>
-                            <th>Nama Supir</th>
+                            <th >Nama Supir</th>
                             <th>Satuan Muatan</th>
                             <th>Nama Barang</th>
                             <th colspan="2">Total</th>

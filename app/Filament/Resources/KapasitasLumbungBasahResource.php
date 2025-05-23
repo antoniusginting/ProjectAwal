@@ -32,10 +32,10 @@ class KapasitasLumbungBasahResource extends Resource implements HasShieldPermiss
             'delete_any',
         ];
     }
-    public static function canAccess(): bool
-    {
-        return false; // Menyembunyikan resource dari sidebar
-    }
+    // public static function canAccess(): bool
+    // {
+    //     return false; // Menyembunyikan resource dari sidebar
+    // }
 
     protected static ?string $model = KapasitasLumbungBasah::class;
     protected static ?string $navigationGroup = 'Kapasitas';
@@ -81,6 +81,7 @@ class KapasitasLumbungBasahResource extends Resource implements HasShieldPermiss
     public static function table(Table $table): Table
     {
         return $table
+            ->poll('5s') // polling ulang setiap 5 detik
             // ->modifyQueryUsing(function (Builder $query) {
             //     // Filter query untuk mengecualikan baris dengan no_lumbung = 'Muat'
             //     return $query->whereNotIn('no_kapasitas_lumbung', ['Muat', 'TANPA LUMBUNG']);

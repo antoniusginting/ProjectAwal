@@ -27,9 +27,9 @@ class TimbanganTronton extends Model
         'user_id',
         'status',
         'foto',
-        'id_timbangan_beli_1',
-        'id_timbangan_beli_2',
-        'id_timbangan_beli_3',
+        'id_luar_1',
+        'id_luar_2',
+        'id_luar_3',
     ];
 
     public function dryers(): BelongsToMany
