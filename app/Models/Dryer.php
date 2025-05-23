@@ -24,6 +24,12 @@ class Dryer extends Model
         'pj',
     ];
 
+    
+    public function sortirans(): BelongsToMany
+    {
+        return $this->belongsToMany(Sortiran::class, 'dryer_has_sortiran')
+            ->withTimestamps();
+    }
     public function timbanganTrontons(): BelongsToMany
     {
         return $this->belongsToMany(TimbanganTronton::class, 'dryers_has_timbangan_trontons')

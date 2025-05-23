@@ -825,7 +825,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                 // TextColumn::make('pembelian.tara')->label('Tara')
                 //     ->searchable()
                 //     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                TextColumn::make('no_lumbung')->label('No Lumbung')
+                TextColumn::make('kapasitaslumbungbasah.no_kapasitas_lumbung')->label('No Lumbung')
                     ->searchable()
                     ->alignCenter(),
                 TextColumn::make('total_karung')->label('Total Karung')
