@@ -6,27 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Luar extends Model
 {
-    protected $casts = [
-        'foto' => 'array',
-    ];
     protected $fillable = [
-        // 'id_mobil', // Foreing key ke mobils
         'kode_segel',
-        'id_supplier', // Forein key ke suppliers
-        'nama_supir',
         'nama_barang',
-        'no_container',
-        'brondolan',
-        'bruto',
-        'tara',
+        'id_supplier', // Forein key ke suppliers
         'netto',
-        'keterangan',
-        'no_po',
-        'jam_masuk',
-        'jam_keluar',
+        'no_container',
         'user_id',
-        'jumlah_karung',
-        'foto',
+        'nama_ekspedisi',
     ];
     
     // Relasi ke User

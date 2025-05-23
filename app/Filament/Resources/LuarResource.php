@@ -63,15 +63,6 @@ class LuarResource extends Resource implements HasShieldPermissions
                     ->schema([
                         Card::make()
                             ->schema([
-                                // TextInput::make('no_spb')
-                                //     ->label('No SPB')
-                                //     ->disabled()
-                                //     ->extraAttributes(['readonly' => true])
-                                //     ->dehydrated(false)
-                                //     ->afterStateUpdated(function (callable $set, $get) {
-                                //         $nextId = Pembelian::max('id') + 1; // Ambil ID terakhir + 1
-                                //         $set('no_spb', $get('jenis') . '-' . $nextId);
-                                //     }), 
                                 Placeholder::make('next_id')
                                     ->label('No SPB')
                                     ->content(function ($record) {
@@ -84,120 +75,22 @@ class LuarResource extends Resource implements HasShieldPermissions
                                         $nextId = (Luar::max('id') ?? 0) + 1;
                                         return 'C' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
                                     }),
-                                // TextInput::make('jam_masuk')
-                                //     ->readOnly()
-                                //     ->suffixIcon('heroicon-o-clock')
-                                //     ->default(now()->setTimezone('Asia/Jakarta')->format('H:i:s')),
-                                // TextInput::make('jam_keluar')
-                                //     ->label('Jam Keluar')
-                                //     ->readOnly()
-                                //     ->placeholder('Kosong jika belum keluar')
-                                //     ->suffixIcon('heroicon-o-clock')
-                                //     ->required(false)
-                                //     ->afterStateHydrated(function ($state, callable $set) {
-                                //         // Biarkan tetap kosong saat edit
-                                //     }),
                                 TextInput::make('created_at')
                                     ->label('Tanggal')
                                     ->formatStateUsing(fn($state) => \Carbon\Carbon::parse($state)->format('d-m-Y'))
                                     ->disabled(), // Tidak bisa diedit
                             ])->columns(2)->collapsed(),
 
-                        // TextInput::make('no_po')
-                        //     ->label('Nomor PO') // Memberikan label deskriptif
-                        //     ->placeholder('Masukkan Nomor PO'), // Placeholder
-                        // Menambahkan note
-                        // ->helperText('Catatan: Pastikan Nomor PO diisi dengan format yang benar.'),
-
                         Card::make()
                             ->schema([
-                                // Select::make('id_pembelian')
-                                //     ->label('Ambil dari Pembelian Sebelumnya')
-                                //     ->options(function () {
-                                //         return \App\Models\Luar::latest()->take(50)->get()->mapWithKeys(function ($luar) {
-                                //             return [
-                                //                 $luar->id => "{$luar->plat_polisi} - {$luar->nama_supir} - (Timbangan ke-{$luar->keterangan}) - {$luar->created_at->format('d:m:Y')}"
-                                //             ];
-                                //         });
-                                //     })
-                                //     ->searchable()
-                                //     ->hidden(fn($livewire) => $livewire->getRecord()?->exists)
-                                //     ->reactive()
-                                //     ->dehydrated(false) // jangan disimpan ke DB
-                                //     ->afterStateUpdated(function (callable $set, $state) {
-                                //         if ($state === null) {
-                                //             // Kosongkan semua data yang sebelumnya di-set
-                                //             $set('plat_polisi', null);
-                                //             $set('bruto', null);
-                                //             $set('tara', null);
-                                //             $set('netto', null);
-                                //             $set('nama_supir', null);
-                                //             $set('nama_barang', null);
-                                //             $set('id_supplier', null);
-                                //             $set('keterangan', null);
-                                //             $set('brondolan', null);
-                                //             return;
-                                //         }
-
-                                //         $luar = \App\Models\Luar::find($state);
-                                //         if ($luar) {
-                                //             $set('plat_polisi', $luar->plat_polisi);
-                                //             $set('bruto', $luar->tara);
-                                //             // $set('tara', $luar->tara);
-                                //             //$set('netto', max(0, intval($luar->bruto) - intval($luar->tara)));
-                                //             $set('nama_supir', $luar->nama_supir);
-                                //             $set('nama_barang', $luar->nama_barang);
-                                //             $set('id_supplier', $luar->id_supplier);
-                                //             // Naikkan keterangan jika awalnya 1
-                                //             $keteranganBaru = in_array(intval($luar->keterangan), [1, 2, 3, 4])
-                                //                 ? intval($luar->keterangan) + 1
-                                //                 : $luar->keterangan;
-                                //             $set('keterangan', $keteranganBaru);
-                                //             $set('brondolan', $luar->brondolan);
-                                //         }
-                                //     })
-                                //     ->columnSpan(2),
                                 TextInput::make('kode_segel')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->autocomplete('off')
                                     ->placeholder('Masukkan kode Segel'),
-                                TextInput::make('bruto')
-                                    ->placeholder('Masukkan nilai bruto')
-                                    ->label('Bruto')
-                                    ->numeric()
-                                    ->required()
-                                    ->live(debounce: 600) // Tunggu 500ms setelah user berhenti mengetik
-                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                        $tara = $get('tara') ?? 0;
-                                        $set('netto', max(0, intval($state) - intval($tara))); // Hitung netto
-                                    }),
-                                // TextInput::make('nama_supir')
-                                //     ->autocomplete('off')
-                                //     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
-                                //     ->placeholder('Masukkan Nama Supir'),
-
                                 TextInput::make('nama_barang')
                                     ->autocomplete('off')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan Nama Barang'),
-                                TextInput::make('tara')
-                                    ->label('Tara')
-                                    ->placeholder('Masukkan Nilai Tara')
-                                    ->numeric()
-                                    ->live(debounce: 600)
-                                    ->afterStateUpdated(function ($state, callable $set, callable $get, $livewire) {
-                                        $bruto = $get('bruto') ?? 0;
-                                        $set('netto', max(0, intval($bruto) - intval($state)));
-
-                                        // // Isi jam_keluar kapanpun tara diisi, baik create maupun edit
-                                        // if (!empty($state) && empty($get('jam_keluar'))) {
-                                        //     $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
-                                        // } elseif (empty($state)) {
-                                        //     // Jika tara dikosongkan, hapus juga jam_keluar
-                                        //     $set('jam_keluar', null);
-                                        // }
-                                    }),
-
                                 Select::make('id_supplier')
                                     ->label('Supplier')
                                     ->placeholder('Pilih Supplier')
@@ -205,52 +98,14 @@ class LuarResource extends Resource implements HasShieldPermissions
                                     ->searchable(), // Biar bisa cari
                                 TextInput::make('netto')
                                     ->label('Netto')
-                                    ->readOnly()
-                                    ->placeholder('Otomatis Terhitung')
+                                    ->placeholder('Masukkan Netto')
                                     ->numeric(),
-
-                                // Select::make('keterangan') // Gantilah 'tipe' dengan nama field di database
-                                //     ->label('Timbangan ke-')
-                                //     ->options([
-                                //         '1' => 'Timbangan ke-1',
-                                //         '2' => 'Timbangan ke-2',
-                                //         '3' => 'Timbangan ke-3',
-                                //         '4' => 'Timbangan ke-4',
-                                //         '5' => 'Timbangan ke-5',
-                                //     ])
-                                //     ->default('1')
-                                //     ->placeholder('Pilih timbangan ke-')
-                                //     // ->inlineLabel() // Membuat label sebelah kiri
-                                //     ->native(false) // Mengunakan dropdown modern
-                                //     ->required(), // Opsional: Atur default value
                                 TextInput::make('no_container')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan No Container'),
-
-                                // Grid::make(2)
-                                //     ->schema([
-                                //         TextInput::make('jumlah_karung')
-                                //             ->numeric()
-                                //             ->label('Jumlah Karung')
-                                //             ->autocomplete('off')
-                                //             ->placeholder('Masukkan Jumlah Karung'),
-                                //         Select::make('brondolan') // Gantilah 'tipe' dengan nama field di database
-                                //             ->label('Satuan Muatan')
-                                //             ->options([
-                                //                 'GONI' => 'GONI',
-                                //                 'CURAH' => 'CURAH',
-                                //             ])
-                                //             ->placeholder('Pilih Satuan Timbangan')
-                                //             ->native(false) // Mengunakan dropdown modern
-                                //             ->required(), // Opsional: Atur default value
-                                //     ])->columnSpan(1),
-                                // FileUpload::make('foto')
-                                //     ->image()
-                                //     ->multiple()
-                                //     ->openable()
-                                //     ->imagePreviewHeight(200)
-                                //     ->label('Foto')
-                                //     ->columnSpanFull(),
+                                TextInput::make('nama_ekspedisi')
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
+                                    ->placeholder('Masukkan Nama Ekspedisi'),
                                 Hidden::make('user_id')
                                     ->label('User ID')
                                     ->default(Auth::id()) // Set nilai default user yang sedang login,
@@ -317,43 +172,16 @@ class LuarResource extends Resource implements HasShieldPermissions
                 TextColumn::make('kode_segel')
                     ->label('Kode Segel')
                     ->searchable(),
-                // TextColumn::make('nama_supir')
-                //     ->searchable(),
                 TextColumn::make('supplier.nama_supplier')->label('Supplier')
                     ->searchable(),
                 TextColumn::make('nama_barang')
                     ->searchable(),
-                // TextColumn::make('keterangan')
-                //     ->prefix('Timbangan-')
-                //     ->searchable(),
-                // TextColumn::make('satuan_muatan')
-                //     ->label('Satuan Muatan')
-                //     ->alignCenter()
-                //     ->getStateUsing(function ($record) {
-                //         $karung = $record->jumlah_karung ?? '';
-                //         $brondolan = $record->brondolan ?? '-';
-
-                //         if (strtolower($brondolan) === 'curah') {
-                //             return $brondolan;
-                //         }
-
-                //         return "{$karung} - {$brondolan}";
-                //     }),
-                TextColumn::make('bruto')
-                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                TextColumn::make('tara')
-                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('netto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('no_container')
                     ->searchable(),
-                // TextColumn::make('jam_masuk'),
-                // TextColumn::make('jam_keluar'),
-                // ImageColumn::make('foto')
-                //     ->label('Foto 1')
-                //     ->getStateUsing(fn($record) => $record->foto[0] ?? null)
-                //     ->url(fn($record) => asset('storage/' . ($record->foto[0] ?? '')))
-                //     ->openUrlInNewTab(),
+                TextColumn::make('nama_ekspedisi')
+                    ->searchable(),
                 TextColumn::make('user.name')
                     ->label('User')
             ])

@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Filament\Notifications\Notification;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Sortiran extends Model
@@ -55,6 +57,7 @@ class Sortiran extends Model
         'user_id',
         'keterangan',
         'cek',
+        'no_lumbung_basah',
     ];
     // Relasi ke User
     public function user()
@@ -73,9 +76,83 @@ class Sortiran extends Model
     //     return $this->belongsTo(KapasitasLumbungBasah::class, 'id_lumbung_basah', 'id');
     // }
 
-    public function lumbungBasahs(): BelongsToMany
+    // Relasi ke Kapasitas
+    public function kapasitaslumbungbasah()
     {
-        return $this->belongsToMany(LumbungBasah::class, 'lumbung_basah_has_sortiran')
-            ->withTimestamps();
+        return $this->belongsTo(KapasitasLumbungBasah::class, 'no_lumbung_basah', 'id');
+    }
+
+    // Pengurangan kapasitas_sisa dengan netto_bersih
+    protected static function booted()
+    {
+        static::creating(function ($sortiran) {
+            // Konversi netto_bersih dari varchar ke integer (hapus titik pemisah ribuan)
+            $nettoBersih = (int) str_replace('.', '', $sortiran->netto_bersih);
+
+            // Cari data kapasitas berdasarkan ID
+            $kapasitas = KapasitasLumbungBasah::find($sortiran->no_lumbung_basah);
+
+            if ($kapasitas) {
+                // Pastikan kapasitas cukup sebelum dikurangi
+                if ($kapasitas->kapasitas_sisa >= $nettoBersih) {
+                    $kapasitas->decrement('kapasitas_sisa', $nettoBersih);
+                } else {
+                    Notification::make()
+                        ->danger()
+                        ->title('Kapasitas Tidak Mencukupi')
+                        ->body('Total netto yang diinput melebihi kapasitas sisa lumbung basah.')
+                        ->persistent()
+                        ->send();
+                    // Gunakan ValidationException untuk tetap di halaman form
+                    throw ValidationException::withMessages([
+                        'netto_bersih' => 'Total netto melebihi kapasitas sisa lumbung basah.',
+                    ]);
+                }
+            }
+        });
+
+        static::updating(function ($sortiran) {
+            // Ambil data lama sebelum perubahan
+            $oldSortiran = $sortiran->getOriginal();
+            $oldNetto = (int) str_replace('.', '', $oldSortiran['netto_bersih'] ?? '0'); // Konversi ke integer dengan hapus titik
+            $oldNoLumbung = $oldSortiran['no_lumbung_basah'];
+
+            // Konversi netto_bersih baru dari varchar ke integer (hapus titik pemisah ribuan)
+            $newNetto = (int) str_replace('.', '', $sortiran->netto_bersih);
+
+            // Cek apakah nomor lumbung berubah
+            if ($oldNoLumbung !== $sortiran->no_lumbung_basah) {
+                throw new \Exception('Nomor Lumbung tidak dapat diubah!');
+            }
+
+            // Cari data kapasitas berdasarkan ID lama
+            $kapasitas = KapasitasLumbungBasah::find($oldNoLumbung);
+
+            if ($kapasitas) {
+                // Hitung selisih perubahan dengan nilai yang sudah dikonversi
+                $selisih = $newNetto - $oldNetto;
+
+                if ($selisih > 0) {
+                    // Jika netto bertambah, pastikan kapasitas cukup
+                    if ($kapasitas->kapasitas_sisa >= $selisih) {
+                        $kapasitas->decrement('kapasitas_sisa', $selisih);
+                    } else {
+                        Notification::make()
+                            ->danger()
+                            ->title('Kapasitas Tidak Mencukupi')
+                            ->body('Total netto yang diinput melebihi kapasitas sisa lumbung basah.')
+                            ->persistent()
+                            ->send();
+                        // Gunakan ValidationException untuk tetap di halaman form
+                        throw ValidationException::withMessages([
+                            'netto_bersih' => 'Total netto melebihi kapasitas sisa lumbung basah.',
+                        ]);
+                    }
+                } elseif ($selisih < 0) {
+                    // Jika netto berkurang, tambahkan kembali ke kapasitas
+                    $kapasitas->increment('kapasitas_sisa', abs($selisih));
+                }
+            }
+        });
     }
 }

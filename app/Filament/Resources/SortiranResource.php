@@ -68,6 +68,17 @@ class SortiranResource extends Resource implements HasShieldPermissions
     {
         return $form
             ->schema([
+                Card::make('Informasi Kapasitas')
+                    ->schema([
+                        TextInput::make('kapasitas_total')
+                            ->label('Kapasitas Total')
+                            ->placeholder('Pilih terlebih dahulu no lumbung basah')
+                            ->disabled(),
+                        TextInput::make('kapasitas_sisa')
+                            ->label('Kapasitas Sisa')
+                            ->placeholder('Pilih terlebih dahulu no lumbung basah')
+                            ->disabled(),
+                    ])->columns(2)->collapsible(),
                 Section::make('Informasi Pembelian') //Menambahkan Header
                     ->schema([
                         Card::make()
@@ -92,7 +103,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                         $query = Pembelian::with(['mobil', 'supplier'])
                                             ->whereNotIn('id', $idSudahDisortir)
                                             ->whereNotNull('tara')
-                                            ->whereNotIn('nama_barang', ['CANGKANG', 'SEKAM', 'SALAH', 'RETUR' , 'SEKAM PADI'])
+                                            ->whereNotIn('nama_barang', ['CANGKANG', 'SEKAM', 'SALAH', 'RETUR', 'SEKAM PADI'])
                                             ->whereNotIn('id', $idsYangDikecualikan)
                                             ->latest();
 
@@ -138,8 +149,8 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                     ->reactive()
                                     ->afterStateHydrated(fn($state, $set) => $set('netto_pembelian', number_format($state, 0, ',', '.')))
                                     ->disabled(),
-                                TextInput::make('nama_supplier')
-                                    ->label('Nama Supplier')
+                                TextInput::make('nama_barang')
+                                    ->label('Nama Barang')
                                     ->placeholder('Otomatis terisi saat memilih no SPB')
                                     ->disabled(),
                                 TextInput::make('netto_bersih')
@@ -172,10 +183,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                     ->reactive()
                                     ->disabled()
                                     ->dehydrated(),
-                                TextInput::make('plat_polisi')
-                                    ->label('Plat Polisi')
-                                    ->placeholder('Otomatis terisi saat memilih no SPB')
-                                    ->disabled(),
+
                                 TextInput::make('berat_tungkul')
                                     ->label('Berat Tungkul')
                                     ->placeholder('Masukkan berat tungkul jika ada')
@@ -192,10 +200,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                         // Perbaharui tampilan atau nilai netto_bersih dengan format ribuan
                                         $set('netto_bersih', number_format($updatedNettoBersih, 0, ',', '.'));
                                     }),
-                                TextInput::make('nama_barang')
-                                    ->label('Nama Barang')
-                                    ->placeholder('Otomatis terisi saat memilih no SPB')
-                                    ->disabled(),
+
                                 TextInput::make('total_karung')
                                     ->readOnly()
                                     ->label('Total Karung')
@@ -309,11 +314,37 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                 //     ->placeholder('Masukkan No Lumbung')
                                 //     ->autocomplete('off')
                                 //     ->required(),
-                                Select::make('no_lumbung')
-                                    ->label('No Lumbung')
+                                Select::make('no_lumbung_basah')
+                                    ->label('No Lumbung Basah')
                                     ->placeholder('Pilih No Lumbung')
-                                    ->options(KapasitasLumbungBasah::pluck('no_kapasitas_lumbung', 'no_kapasitas_lumbung'))
-                                    ->searchable(),
+                                    ->options(KapasitasLumbungBasah::pluck('no_kapasitas_lumbung', 'id'))
+                                    ->searchable() // Biar bisa cari
+                                    ->required()
+                                    ->reactive()
+                                    ->disabled(fn($record) => $record !== null)
+                                    ->afterStateHydrated(function ($state, callable $set) {
+                                        if ($state) {
+                                            $kapasitaslumbungbasah = KapasitasLumbungBasah::find($state);
+                                            $set('kapasitas_sisa', $kapasitaslumbungbasah?->kapasitas_sisa ?? 'Tidak ada');
+                                            $formattedSisa = number_format($kapasitaslumbungbasah?->kapasitas_sisa ?? 0, 0, ',', '.');
+                                            $set('kapasitas_sisa', $formattedSisa);
+                                            $set('kapasitas_total', $kapasitaslumbungbasah?->kapasitas_total ?? 'Tidak ada');
+                                            $formattedtotal = number_format($kapasitaslumbungbasah?->kapasitas_total ?? 0, 0, ',', '.');
+                                            $set('kapasitas_total', $formattedtotal);
+                                        }
+                                    })
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        $kapasitaslumbungbasah = KapasitasLumbungBasah::find($state);
+                                        $set('kapasitas_sisa', $kapasitaslumbungbasah?->kapasitas_sisa ?? 'Tidak ada');
+                                        $formattedSisa = number_format($kapasitaslumbungbasah?->kapasitas_sisa ?? 0, 0, ',', '.');
+                                        $set('kapasitas_sisa', $formattedSisa);
+                                        $set('kapasitas_total', $kapasitaslumbungbasah?->kapasitas_total ?? 'Tidak ada');
+                                        $formattedtotal = number_format($kapasitaslumbungbasah?->kapasitas_total ?? 0, 0, ',', '.');
+                                        $set('kapasitas_total', $formattedtotal);
+                                        // Reset nilai sortirans ketika no_lumbung_basah berubah
+                                        $set('sortirans', null);
+                                        $set('total_netto', null);
+                                    }),
                                 TextInput::make('kadar_air')
                                     ->label('Kadar Air')
                                     ->numeric()
