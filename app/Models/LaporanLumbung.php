@@ -10,6 +10,11 @@ class LaporanLumbung extends Model
     protected $fillable = [
         "user_id",
     ];
+    public function timbanganTrontons(): BelongsToMany
+    {
+        return $this->belongsToMany(TimbanganTronton::class, 'laporan_lb_has_timbangant')
+            ->withTimestamps();
+    }
     // Relasi ke User
     public function user()
     {

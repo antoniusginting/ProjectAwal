@@ -817,7 +817,7 @@ class DryerResource extends Resource implements HasShieldPermissions
                     ->label('Nama Dryer')
                     ->alignCenter(),
                 TextColumn::make('lumbung_tujuan')
-                    ->label('Lumbung Tujuan')
+                    ->label('Tujuan')
                     ->searchable()
                     ->alignCenter(),
                 TextColumn::make('nama_barang')
@@ -840,23 +840,25 @@ class DryerResource extends Resource implements HasShieldPermissions
                     ->label('Hasil Kadar')
                     ->searchable()
                     ->alignCenter(),
+                TextColumn::make('sortirans')
+                    ->alignCenter()
+                    ->label('No SPB')
+                    ->formatStateUsing(function ($record) {
+                        $text = $record->sortirans->map(function ($sortiran) {
+                            return $sortiran->pembelian->no_spb;
+                        })->implode(', ');
 
-                //Jagung 1
-                TextColumn::make('lumbung1.no_lb')
-                    ->alignCenter()
-                    ->label('No Lumbung 1'),
-                //Jagung 2
-                TextColumn::make('lumbung2.no_lb')
-                    ->alignCenter()
-                    ->label('No Lumbung 2'),
-                //Jagung 2
-                TextColumn::make('lumbung3.no_lb')
-                    ->alignCenter()
-                    ->label('No Lumbung 3'),
-                //Jagung 2
-                TextColumn::make('lumbung4.no_lb')
-                    ->alignCenter()
-                    ->label('No Lumbung 4'),
+                        // Batasi jumlah karakter dan tambahkan ellipsis
+                        return \Illuminate\Support\Str::limit($text, 30, '...');
+                    })
+                    // Tambahkan ini untuk batasi lebar kolom dengan CSS
+                    ->extraAttributes(['class' => 'max-w-md truncate'])
+                    // Tambahkan tooltip untuk melihat konten lengkap saat hover
+                    ->tooltip(function ($record) {
+                        return $record->sortirans->map(function ($sortiran) {
+                            return $sortiran->pembelian->no_spb;
+                        })->implode(', ');
+                    }),
                 TextColumn::make('total_netto')
                     ->alignCenter()
                     ->label('Total Netto')
@@ -872,11 +874,11 @@ class DryerResource extends Resource implements HasShieldPermissions
                 //
             ])
 
-        ->bulkActions([
-            Tables\Actions\BulkActionGroup::make([
-                Tables\Actions\DeleteBulkAction::make(),
-            ]),
-        ]);
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
     }
 
     public static function getRelations(): array

@@ -58,6 +58,15 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                             ->getOptionLabelFromRecordUsing(function ($record) {
                                 return $record->no_dryer . ' - ' . $record->lumbung_tujuan;
                             }),
+                        Select::make('timbanganTrontons')
+                            ->label('Laporan Penjualan')
+                            ->multiple()
+                            ->relationship('timbanganTrontons', 'kode') // ganti dengan field yang ingin ditampilkan
+                            ->preload()
+                            ->getOptionLabelFromRecordUsing(function ($record) {
+                                $noBk = $record->penjualan1 ? $record->penjualan1->plat_polisi : 'N/A';
+                                return $record->kode . ' - ' . $noBk . ' - ' . ($record->penjualan1->nama_supir ?? '') . ' - ' . $record->total_netto;
+                            }),
                         Hidden::make('user_id')
                             ->label('User ID')
                             ->default(Auth::id()) // Set nilai default user yang sedang login,
@@ -73,6 +82,9 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                     ->label('No Laporan')
                     ->searchable(),
                 TextColumn::make('dryers.no_dryer')
+                    ->searchable()
+                    ->label('Dryer'),
+                TextColumn::make('timbanganTrontons.kode')
                     ->searchable()
                     ->label('Dryer'),
                 TextColumn::make('user.name')
