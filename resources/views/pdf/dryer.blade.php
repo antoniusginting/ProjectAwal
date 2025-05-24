@@ -8,7 +8,7 @@
     <style>
         /* RESET & BASE STYLES */
         * {
-            margin: 0;
+            margin: 2;
             padding: 0;
             box-sizing: border-box;
         }
@@ -21,7 +21,6 @@
 
         /* CONTAINER */
         .container {
-            padding: 1.5rem;
             background-color: white;
             border-radius: 0.375rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -44,7 +43,6 @@
 
         th,
         td {
-            padding: 0.5rem;
         }
 
         /* Info Table Styles */
@@ -54,7 +52,7 @@
         }
 
         .info-table td {
-            padding: 0.35rem 0.25rem;
+            /* padding: 0.35rem 0.25rem; */
             vertical-align: top;
         }
 
@@ -74,7 +72,6 @@
 
         .info-table .colon {
             padding-left: 0;
-            padding-right: 0.1rem;
             width: 10px;
         }
 
@@ -98,6 +95,7 @@
             color: #4b5563;
             font-weight: 500;
         }
+
         /* DETAIL TABLE */
         .detail-table {
             border: 1px solid #d1d5db;
@@ -138,7 +136,6 @@
         .signature-table th,
         .signature-table td {
             text-align: center;
-            padding: 1rem;
         }
 
         .signature-box {
@@ -197,7 +194,7 @@
         <!-- Info Pengiriman -->
         <div class="table-wrapper">
             <table class="info-table">
-                @php
+                {{-- @php
                     $allSortirans = collect();
                     $totalBerat = 0;
                     $totalGoni = 0;
@@ -235,6 +232,14 @@
                             }
                         }
                     }
+                @endphp --}}
+                @php
+                    // Hitung total netto bersih dari semua sortirans
+                    $grandTotalNetto = $dryer->sortirans->sum(function ($sortiran) {
+                        // Hilangkan titik ribuan, lalu konversi
+                        $str = str_replace('.', '', $sortiran->netto_bersih);
+                        return is_numeric($str) ? (float) $str : 0;
+                    });
                 @endphp
                 <tbody>
                     <tr>
@@ -260,7 +265,7 @@
                         <td class="label">Hasil Kadar</td>
                         <td class="value">: {{ $dryer->hasil_kadar }}%</td>
                         <td class="label">Kapasitas Terpakai</td>
-                        <td class="value">: {{ number_format($totalBerat, '0', ',', '.') }}</td>
+                        <td class="value">: {{ number_format($grandTotalNetto, '0', ',', '.') }}</td>
                     </tr>
                     <tr>
                         <td class="label">Jenis Barang</td>
@@ -291,22 +296,52 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($allSortirans as $sortiran)
-                        <tr>
-                            <td>{{ $sortiran->created_at->format('d') ?? '-' }}</td>
-                            <td>{{ $sortiran->pembelian->nama_barang ?? '-' }}</td>
-                            <td>{{ $sortiran->total_karung ?? '-' }}</td>
-                            <td class="text-right">{{ $sortiran->netto_bersih ?? '-' }}</td>
-                            <td>{{ $sortiran->pembelian->no_spb ?? '-' }}</td>
-                            <td>{{ $sortiran->kadar_air ?? '-' }}%</td>
+                    @php
+                        $groupedSortirans = $dryer->sortirans->groupBy('id_sortiran');
+                    @endphp
+
+                    @foreach ($groupedSortirans as $idSortiran => $sortiransGroup)
+                        @php
+                            $totalNettoBersih = 0;
+                            $totalTotalKarung = 0;
+                        @endphp
+
+                        @foreach ($sortiransGroup as $index => $sortiran)
+                            <tr>
+                                <td>{{ $sortiran->created_at->format('d/m') ?? '-' }}</td>
+                                <td>{{ $sortiran->pembelian->nama_barang }}</td>
+                                <td>{{ $sortiran->total_karung ?? '-' }}</td>
+                                <td class="text-right">{{ $sortiran->netto_bersih ?? '-' }}</td>
+                                <td>{{ $sortiran->pembelian->no_spb ?? '-' }}</td>
+                                <td>{{ $sortiran->kadar_air ?? '-' }}%</td>
+                                @php
+                                    // Hapus pemisah ribuan (titik) dari nilai netto_bersih
+                                    $nettoBersihStripped = str_replace('.', '', $sortiran->netto_bersih);
+
+                                    // Cek jika netto_bersih bisa dikonversi menjadi angka setelah penghapusan titik
+                                    $nettoBersihValue = is_numeric($nettoBersihStripped)
+                                        ? floatval($nettoBersihStripped)
+                                        : 0;
+                                    $totalNettoBersih += $nettoBersihValue;
+
+                                    // Hapus pemisah ribuan (titik) dari nilai netto_bersih
+                                    $totalKarungStripped = str_replace('.', '', $sortiran->total_karung);
+
+                                    // Cek jika netto_bersih bisa dikonversi menjadi angka setelah penghapusan titik
+                                    $totalKarungValue = is_numeric($totalKarungStripped)
+                                        ? floatval($totalKarungStripped)
+                                        : 0;
+                                    $totalTotalKarung += $totalKarungValue;
+                                @endphp
+                            </tr>
+                        @endforeach
+                        <tr class="summary-row">
+                            <td colspan="2"></td>
+                            <td>{{ number_format($totalTotalKarung, 0, ',', '.') }}</td>
+                            <td class="text-right">{{ number_format($totalNettoBersih, 0, ',', '.') }}</td>
+                            <td colspan="2"></td>
                         </tr>
                     @endforeach
-                    <tr class="summary-row">
-                        <td colspan="2"></td>
-                        <td>{{ $totalGoni }}</td>
-                        <td class="text-right">{{ number_format($totalBerat, '0', ',', '.') }}</td>
-                        <td colspan="2"></td>
-                    </tr>
                 </tbody>
             </table>
         </div>
