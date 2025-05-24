@@ -19,7 +19,7 @@
                             {{ $laporanlumbung->created_at ? $laporanlumbung->created_at->format('h:i') : 'Tanggal kosong' }}
                         </td>
                         <td class="font-semibold whitespace-nowrap">Lumbung</td>
-                        <td class="whitespace-nowrap">: {{ $laporanlumbung->dryers->first()->lumbung_tujuan }}</td>
+                        <td class="whitespace-nowrap">: {{ $laporanlumbung->dryers->first()->lumbung_tujuan ?? '-' }}</td>
 
                     </tr>
                 </tbody>

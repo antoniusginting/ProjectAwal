@@ -19,7 +19,7 @@
         body {
             font-family: Arial, sans-serif;
             line-height: 1.6;
-            color: #1a202c;
+            color: #000000;
         }
 
         /* CONTAINER */
@@ -35,7 +35,7 @@
         .table-wrapper {
             overflow-x: auto;
             max-width: 100%;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         table {
@@ -45,13 +45,11 @@
         }
 
         th,
-        td {
-        }
+        td {}
 
         /* Info Table Styles */
         .info-table {
             border-spacing: 0;
-            margin-bottom: 0.5rem;
         }
 
         .info-table td {
@@ -63,10 +61,20 @@
             font-weight: 600;
             white-space: nowrap;
             width: 140px;
-            color: #374151;
+            color: #000000;
             padding-right: 0;
         }
 
+
+        
+        /* Print date */
+        .print-date {
+            text-align: right;
+            font-size: 14px;
+            color: #000000;
+            font-style: italic;
+        }
+        
         .info-table .value {
             white-space: nowrap;
             padding-right: 1rem;
@@ -83,7 +91,7 @@
             text-align: center;
             margin-bottom: 0.5rem;
             padding-bottom: 0.5rem;
-            border-bottom: 1px solid #374151;
+            border-bottom: 1px solid #4d4e50;
         }
 
         .report-title {
@@ -95,39 +103,40 @@
 
         .report-subtitle {
             font-size: 1rem;
-            color: #4b5563;
+            color: #000000;
             font-weight: 500;
         }
 
         /* DETAIL TABLE */
         .detail-table {
-            border: 1px solid #d1d5db;
+            border: 1px solid #000000;
             margin-top: 0.5rem;
             margin-bottom: 0.5rem;
         }
 
         .detail-table th,
         .detail-table td {
-            border: 1px solid #d1d5db;
+            border: 1px solid #000000;
             text-align: center;
         }
 
         .detail-table th {
-            background-color: #f3f4f6;
-            font-size: 0.875rem;
+            background-color: #ffffff;
+            font-size: 1rem;
             font-weight: 600;
         }
 
         .detail-table tr:hover {
-            background-color: #f9fafb;
+            background-color: #ffffff;
         }
 
         .detail-table td.text-right {
             text-align: right;
+            padding-right: 0.2rem;
         }
 
         .detail-table .summary-row {
-            background-color: #e5e7eb;
+            background-color: #ffffff;
             font-weight: 700;
         }
 
@@ -157,7 +166,7 @@
 
         /* DIVIDER */
         .divider {
-            border-bottom: 0.5px solid #d1d5db;
+            border-bottom: 1px solid #000000;
             margin: 0.5rem 0;
         }
 
@@ -284,7 +293,10 @@
 
         <!-- Divider -->
         <div class="divider"></div>
-
+        <div class="print-date">
+            Print Date:
+            {{ now()->format('d-m-Y H:i:s') }}
+        </div>
         <!-- Tabel Detail Pengiriman -->
         <div class="table-wrapper">
             <table class="detail-table">
@@ -339,7 +351,7 @@
                             </tr>
                         @endforeach
                         <tr class="summary-row">
-                            <td colspan="2"></td>
+                            <td colspan="2">Total</td>
                             <td>{{ number_format($totalTotalKarung, 0, ',', '.') }}</td>
                             <td class="text-right">{{ number_format($totalNettoBersih, 0, ',', '.') }}</td>
                             <td colspan="2"></td>

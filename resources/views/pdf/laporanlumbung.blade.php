@@ -59,7 +59,7 @@
         }
 
         .info-table td {
-            padding: 10px 12px;
+            padding: 5px 6px;
             font-size: 14px;
             line-height: 1.4;
             vertical-align: middle;
@@ -195,7 +195,7 @@
                         </td>
                         <td>Lumbung</td>
                         <td>
-                            : {{ $laporanlumbung->dryers->first()->lumbung_tujuan }}
+                            : {{ $laporanlumbung->dryers->first()->lumbung_tujuan ?? '-' }}
                         </td>
                     </tr>
                 </tbody>
@@ -346,7 +346,7 @@
                     @endfor
                 </tbody>
                 <tfoot>
-                    <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
+                    <tr>
                         <td colspan="4" class="center">
                             Total Berat:</td>
                         <td class="right">

@@ -15,6 +15,7 @@ use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\LaporanLumbungResource\Pages;
@@ -50,6 +51,18 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
             ->schema([
                 Card::make()
                     ->schema([
+                        Placeholder::make('next_id')
+                            ->label('No Laporan Lumbung')
+                            ->content(function ($record) {
+                                // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
+                                if ($record) {
+                                    return $record->no_spb;
+                                }
+
+                                // Jika sedang membuat data baru, hitung kode berikutnya
+                                $nextId = (LaporanLumbung::max('id') ?? 0) + 1;
+                                return 'IO' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+                            }),
                         Select::make('dryers')
                             ->label('Dryer')
                             ->multiple()
@@ -80,14 +93,18 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
             ->columns([
                 TextColumn::make('kode')
                     ->label('No Laporan')
+                    ->alignCenter()
                     ->searchable(),
                 TextColumn::make('dryers.no_dryer')
+                    ->alignCenter()
                     ->searchable()
                     ->label('Dryer'),
                 TextColumn::make('timbanganTrontons.kode')
                     ->searchable()
-                    ->label('Dryer'),
+                    ->alignCenter()
+                    ->label('No Laporan Penjualan'),
                 TextColumn::make('user.name')
+                    ->alignCenter()
                     ->label('PJ'),
             ])
             ->filters([

@@ -61,7 +61,7 @@
                         </div>
                         <div class="flex items-center">
                             <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Lumbung Basah</p>
-                            <p class="text-gray-600 dark:text-gray-400">: {{ $sortiran->no_lumbung }}</p>
+                            <p class="text-gray-600 dark:text-gray-400">: {{ $sortiran->kapasitaslumbungbasah->no_kapasitas_lumbung }}</p>
                         </div>
                         <div class="flex items-center">
                             <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Netto Bersih</p>
