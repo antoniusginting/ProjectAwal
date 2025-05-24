@@ -30,7 +30,7 @@
         <!-- Divider -->
         <div class="border-b border-gray-300 dark:border-gray-700"></div>
 
-        <!-- Tabel Detail Pengiriman -->
+        {{-- <!-- Tabel Detail Pengiriman -->
         <div class="overflow-x-auto">
             <table class="w-full border border-collapse border-gray-300 dark:border-gray-700">
                 <div class="text-right text-sm mb-2">Print Date:
@@ -95,7 +95,7 @@
                                 </tr>
                             @endforeach
                             {{-- Tambahkan baris total berat --}}
-                            <tr>
+        {{-- <tr>
                                 <td colspan="3"></td>
                                 <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm font-semibold"
                                     colspan="1">
@@ -106,11 +106,11 @@
                                     <strong>{{ number_format($totalBerat, 0, ',', '.') }}</strong>
                                 </td>
                                 {{-- Kolom lain kosong --}}
-                                <td class="border p-2 border-gray-300 dark:border-gray-700 text-sm"></td>
+        {{--  <td class="border p-2 border-gray-300 dark:border-gray-700 text-sm"></td>
                             </tr>
                         @else
                             {{-- Jika tidak ada timbangan tronton, tampilkan satu baris kosong --}}
-                            <tr>
+        {{-- <tr>
                                 <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                                     {{ $dryer->created_at ? $dryer->created_at->format('d-m') : '-' }}
                                 </td>
@@ -144,7 +144,7 @@
 
 
             </table>
-        </div>
+        </div> --}}
 
         {{-- <!-- Tanda Tangan -->
         <div class="flex justify-end mt-10">
@@ -156,6 +156,58 @@
                 <div class="mt-4 border-b border-gray-300 dark:border-gray-700 w-56 mx-auto"></div>
             </div>
         </div> --}}
+
+        @php
+            $dryers = $laporanlumbung->dryers->sortBy('created_at')->values();
+            $timbangan = $laporanlumbung->timbangantrontons->sortBy('created_at')->values();
+            $max = max($dryers->count(), $timbangan->count());
+            $totalKeseluruhan = $laporanlumbung->timbangantrontons->sum('total_netto');
+        @endphp
+
+        <table class="w-full border border-collapse border-gray-300 dark:border-gray-700">
+            <thead>
+                <tr class="bg-gray-100 dark:bg-gray-800">
+                    <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">TGL</th>
+                    <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Jenis</th>
+                    <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Masuk</th>
+                    <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Keluar</th>
+                    <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Berat</th>
+                    <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">PJ</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for ($i = 0; $i < $max; $i++)
+                    @php
+                        $dryer = $dryers->get($i);
+                        $timbanganItem = $timbangan->get($i);
+                    @endphp
+                    <tr>
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">{{ $dryer ? $dryer->created_at->format('d-m') : '' }}</td>
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">{{ $dryer ? $dryer->nama_barang : '' }}</td>
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">{{ $dryer ? $dryer->no_dryer : '' }}</td>
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">{{ $timbanganItem ? $timbanganItem->kode : '-' }}</td>
+                        <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
+                            {{ $timbanganItem ? number_format($timbanganItem->total_netto, 0, ',', '.') : '-' }}
+                        </td>
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                            @if ($i == 0)
+                                {{ $laporanlumbung->user->name }}
+                            @endif
+                        </td>
+                    </tr>
+                @endfor
+            </tbody>
+            <tfoot>
+                <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
+                    <td colspan="4" class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                        Total Berat:</td>
+                    <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
+                        {{ number_format($totalKeseluruhan, 0, ',', '.') }}
+                    </td>
+                    <td class="border p-2 border-gray-300 dark:border-gray-700 text-sm"></td>
+                </tr>
+            </tfoot>
+        </table>
 
     </div>
 </x-filament-panels::page>
