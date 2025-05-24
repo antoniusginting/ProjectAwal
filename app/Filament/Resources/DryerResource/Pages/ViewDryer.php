@@ -22,7 +22,7 @@ class ViewDryer extends Page
     public function mount($record)
     {
         $this->record = $record;
-        $this->dryer = Dryer::with(['lumbung1', 'lumbung2', 'lumbung3', 'lumbung4'])->find($record);
+        $this->dryer = Dryer::with(['sortirans'])->find($record);
     }
 
     public function getHeaderActions(): array
