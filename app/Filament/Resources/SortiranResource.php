@@ -985,11 +985,11 @@ class SortiranResource extends Resource implements HasShieldPermissions
                         return redirect(self::getUrl('view-sortiran', ['record' => $record->id]));
                     }),
             ], position: ActionsPosition::BeforeColumns)
-            // ->bulkActions([
-            //     // Tables\Actions\BulkActionGroup::make([
-            //     Tables\Actions\DeleteBulkAction::make(),
-            //     // ]),
-            // ])
+            ->bulkActions([
+                // Tables\Actions\BulkActionGroup::make([
+                Tables\Actions\DeleteBulkAction::make(),
+                // ]),
+            ])
             ->filters([
                 Filter::make('pilih_tanggal')
                     ->form([

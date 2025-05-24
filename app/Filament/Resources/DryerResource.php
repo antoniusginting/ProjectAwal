@@ -771,18 +771,18 @@ class DryerResource extends Resource implements HasShieldPermissions
                             ->searchable(),
 
                         // PERBAIKAN: Field total_netto dengan format display tapi simpan sebagai integer
-                        TextInput::make('total_netto')
-                            ->label('Kapasitas Terpakai')
-                            ->placeholder('Otomatis terhitung')
-                            ->readOnly()
-                            ->formatStateUsing(function ($state) {
-                                // Format untuk display dengan pemisah ribuan
-                                return $state ? number_format($state, 0, ',', '.') : '0';
-                            })
-                            ->dehydrateStateUsing(function ($state) {
-                                // Hapus format sebelum disimpan ke database
-                                return (int) str_replace(['.', ','], '', $state ?? '0');
-                            }),
+                        // TextInput::make('total_netto')
+                        //     ->label('Kapasitas Terpakai')
+                        //     ->placeholder('Otomatis terhitung')
+                        //     ->readOnly()
+                        //     ->formatStateUsing(function ($state) {
+                        //         // Format untuk display dengan pemisah ribuan
+                        //         return $state ? number_format($state, 0, ',', '.') : '0';
+                        //     })
+                        //     ->dehydrateStateUsing(function ($state) {
+                        //         // Hapus format sebelum disimpan ke database
+                        //         return (int) str_replace(['.', ','], '', $state ?? '0');
+                        //     }),
                     ])
             ]);
     }
@@ -870,13 +870,13 @@ class DryerResource extends Resource implements HasShieldPermissions
             ], position: ActionsPosition::BeforeColumns)
             ->filters([
                 //
-            ]);
+            ])
 
-        // ->bulkActions([
-        //     Tables\Actions\BulkActionGroup::make([
-        //         Tables\Actions\DeleteBulkAction::make(),
-        //     ]),
-        // ]);
+        ->bulkActions([
+            Tables\Actions\BulkActionGroup::make([
+                Tables\Actions\DeleteBulkAction::make(),
+            ]),
+        ]);
     }
 
     public static function getRelations(): array

@@ -8,7 +8,10 @@
     <style>
         /* RESET & BASE STYLES */
         * {
-            margin: 2;
+            margin-right: 0.3cm;
+            margin-left: 0.2cm;
+            margin-top: 0.2cm;
+            margin-bottom: 0%;
             padding: 0;
             box-sizing: border-box;
         }
