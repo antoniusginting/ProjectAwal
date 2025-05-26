@@ -47,6 +47,7 @@
                     <tr class="bg-gray-100 dark:bg-gray-800">
                         <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">No SPB</th>
                         <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Plat Polisi</th>
+                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Nama Barang</th>
                         <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Nama Supplier</th>
                         <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Nama Supir</th>
                         <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Satuan Muatan</th>
@@ -62,6 +63,10 @@
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap"
                             rowspan="3">
                             {{ $pembelian->plat_polisi }}
+                        </td>
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap"
+                            rowspan="3">
+                            {{ $pembelian->nama_barang }}
                         </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap"
                             rowspan="3">

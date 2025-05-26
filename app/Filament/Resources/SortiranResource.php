@@ -103,7 +103,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                         $query = Pembelian::with(['mobil', 'supplier'])
                                             ->whereNotIn('id', $idSudahDisortir)
                                             ->whereNotNull('tara')
-                                            ->whereNotIn('nama_barang', ['CANGKANG', 'SEKAM', 'SALAH', 'RETUR', 'SEKAM PADI','BESI'])
+                                            ->whereNotIn('nama_barang', ['CANGKANG', 'SEKAM', 'SALAH', 'RETUR', 'SEKAM PADI', 'BESI'])
                                             ->whereNotIn('id', $idsYangDikecualikan)
                                             ->latest();
 
@@ -780,6 +780,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
         return $table
             ->poll('5s') // polling ulang setiap 5 detik
             ->defaultPaginationPageOption(5)
+            ->paginated([5, 10, 15])
             ->columns([
                 ToggleColumn::make('status')
                     ->label('Status')
@@ -832,12 +833,6 @@ class SortiranResource extends Resource implements HasShieldPermissions
                     ->searchable()
                     ->alignCenter()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                TextColumn::make('keterangan')
-                    ->label('Keterangan')
-                    ->alignCenter(),
-                //Jagung 1
-                TextColumn::make('kualitas_jagung_1')
-                    ->label('Kualitas Jagung 1'),
                 ImageColumn::make('foto_jagung_1_1')
                     ->label('Foto 1')
                     ->getStateUsing(fn($record) => $record->foto_jagung_1[0] ?? null)
@@ -848,6 +843,12 @@ class SortiranResource extends Resource implements HasShieldPermissions
                     ->getStateUsing(fn($record) => $record->foto_jagung_1[1] ?? null)
                     ->url(fn($record) => asset('storage/' . ($record->foto_jagung_1[1] ?? '')))
                     ->openUrlInNewTab(),
+                TextColumn::make('keterangan')
+                    ->label('Keterangan')
+                    ->alignCenter(),
+                //Jagung 1
+                TextColumn::make('kualitas_jagung_1')
+                    ->label('Kualitas Jagung 1'),
                 TextColumn::make('x1_x10_1')
                     ->label('X1 - X10 1')
                     ->alignCenter(),

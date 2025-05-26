@@ -50,7 +50,7 @@
         .divider {
             border-bottom: 1px solid #000;
             /* atau bisa juga 'black' */
-            margin: 8px 0;
+            margin: 8px;
         }
 
         /* Tabel informasi dengan padding dikurangi */
@@ -66,7 +66,6 @@
         }
 
         .caca {
-            margin-bottom: 8px;
             text-align: right;
         }
 

@@ -56,7 +56,7 @@
                         </div>
                         <div class="flex items-center">
                             <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Timbangan</p>
-                            <p class="text-gray-600 dark:text-gray-400">: ke - {{ $sortiran->pembelian->keterangan }}
+                            <p class="text-gray-600 dark:text-gray-400">: KE - {{ $sortiran->pembelian->keterangan }}
                             </p>
                         </div>
                         <div class="flex items-center">

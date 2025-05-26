@@ -207,6 +207,7 @@
                         <tr>
                             <th>No_SPB</th>
                             <th>Plat Polisi</th>
+                            <th>Nama Barang</th>
                             <th>Nama Supplier</th>
                             <th>Nama Supir</th>
                             <th>Satuan Muatan</th>
@@ -218,6 +219,7 @@
                         <tr>
                             <td rowspan="3" class="text-center">{{ $pembelian->no_spb }}</td>
                             <td rowspan="3" class="text-center">{{ $pembelian->plat_polisi }}</td>
+                            <td rowspan="3" class="text-center">{{ $pembelian->nama_barang }}</td>
                             <td rowspan="3" class="text-center">
                                 {{ optional($pembelian->supplier)->nama_supplier ?? '-' }}</td>
                             <td rowspan="3" class="text-center">{{ $pembelian->nama_supir }}</td>

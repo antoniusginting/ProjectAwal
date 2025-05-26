@@ -1032,19 +1032,19 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                     ->reactive()
                                                     ->disabled()
                                                     ->label('Nama Barang'),
-                                                TextInput::make('bruto7')
-                                                    ->placeholder('Otomatis terisi')
-                                                    ->label('Bruto')
-                                                    ->numeric()
-                                                    ->reactive()
-                                                    ->readOnly()
-                                                    ->afterStateUpdated(fn($state, $set, $get) => $set('total_bruto', self::hitungTotalBruto($get))),
+                                                // TextInput::make('bruto7')
+                                                //     ->placeholder('Otomatis terisi')
+                                                //     ->label('Bruto')
+                                                //     ->numeric()
+                                                //     ->reactive()
+                                                //     ->readOnly()
+                                                //     ->afterStateUpdated(fn($state, $set, $get) => $set('total_bruto', self::hitungTotalBruto($get))),
 
-                                                TextInput::make('tara7')
-                                                    ->label('Tara')
-                                                    ->reactive()
+                                                // TextInput::make('tara7')
+                                                //     ->label('Tara')
+                                                //     ->reactive()
 
-                                                    ->disabled(),
+                                                //     ->disabled(),
 
                                                 TextInput::make('netto7')
                                                     ->label('Netto')
@@ -1149,19 +1149,19 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                     ->reactive()
                                                     ->disabled()
                                                     ->label('Nama Barang'),
-                                                TextInput::make('bruto8')
-                                                    ->placeholder('Otomatis terisi')
-                                                    ->label('Bruto')
-                                                    ->numeric()
-                                                    ->reactive()
-                                                    ->readOnly()
-                                                    ->afterStateUpdated(fn($state, $set, $get) => $set('total_bruto', self::hitungTotalBruto($get))),
+                                                // TextInput::make('bruto8')
+                                                //     ->placeholder('Otomatis terisi')
+                                                //     ->label('Bruto')
+                                                //     ->numeric()
+                                                //     ->reactive()
+                                                //     ->readOnly()
+                                                //     ->afterStateUpdated(fn($state, $set, $get) => $set('total_bruto', self::hitungTotalBruto($get))),
 
-                                                TextInput::make('tara8')
-                                                    ->label('Tara')
-                                                    ->reactive()
+                                                // TextInput::make('tara8')
+                                                //     ->label('Tara')
+                                                //     ->reactive()
 
-                                                    ->disabled(),
+                                                //     ->disabled(),
 
                                                 TextInput::make('netto8')
                                                     ->label('Netto')
@@ -1266,19 +1266,19 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                     ->reactive()
                                                     ->disabled()
                                                     ->label('Nama Barang'),
-                                                TextInput::make('bruto9')
-                                                    ->placeholder('Otomatis terisi')
-                                                    ->label('Bruto')
-                                                    ->numeric()
-                                                    ->reactive()
-                                                    ->readOnly()
-                                                    ->afterStateUpdated(fn($state, $set, $get) => $set('total_bruto', self::hitungTotalBruto($get))),
+                                                // TextInput::make('bruto9')
+                                                //     ->placeholder('Otomatis terisi')
+                                                //     ->label('Bruto')
+                                                //     ->numeric()
+                                                //     ->reactive()
+                                                //     ->readOnly()
+                                                //     ->afterStateUpdated(fn($state, $set, $get) => $set('total_bruto', self::hitungTotalBruto($get))),
 
-                                                TextInput::make('tara9')
-                                                    ->label('Tara')
-                                                    ->reactive()
+                                                // TextInput::make('tara9')
+                                                //     ->label('Tara')
+                                                //     ->reactive()
 
-                                                    ->disabled(),
+                                                //     ->disabled(),
 
                                                 TextInput::make('netto9')
                                                     ->label('Netto')
@@ -1324,10 +1324,7 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
 
     protected static function getBrutoAkhir($get)
     {
-        return $get('bruto9')
-            ?? $get('bruto8')
-            ?? $get('bruto7')
-            ?? $get('bruto6')
+        return $get('bruto6')
             ?? $get('bruto5')
             ?? $get('bruto4')
             ?? $get('bruto3')

@@ -142,13 +142,13 @@
                     <td>Kadar Air</td>
                     <td>: {{ $sortiran->kadar_air }}%</td>
                     <td>Timbangan</td>
-                    <td>: ke - {{ $sortiran->pembelian->keterangan }}</td>
+                    <td>: KE - {{ $sortiran->pembelian->keterangan }}</td>
                 </tr>
                 <tr>
                     <td>Tanggal</td>
                     <td>: {{ $sortiran->created_at }}</td>
                     <td>Lumbung Basah</td>
-                    <td>: {{ $sortiran->no_lumbung }}</td>
+                    <td>: {{ $sortiran->kapasitaslumbungbasah->no_kapasitas_lumbung }}</td>
                 </tr>
                 <tr>
                     <td>Berat Tungkul</td>

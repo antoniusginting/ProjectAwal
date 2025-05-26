@@ -671,14 +671,17 @@ class DryerResource extends Resource implements HasShieldPermissions
                                         ->pluck('sortirans.id')
                                         ->toArray();
 
-                                    // Filter lengkap:
+                                    // Filter lengkap dengan tambahan filter no_lumbung_basah
                                     return $query->where(function ($q) use ($usedSortiranIds, $currentSortiranIds) {
                                         $q->whereNotIn('sortirans.id', $usedSortiranIds)
                                             ->orWhereIn('sortirans.id', $currentSortiranIds);
-                                    })->latest('sortirans.created_at');
+                                    })
+                                        ->where('sortirans.no_lumbung_basah', '!=', 13) // Filter: exclude no_lumbung_basah = 1
+                                        ->latest('sortirans.created_at');
                                 } else {
-                                    // Dalam mode create, hanya tampilkan sortiran yang belum digunakan
+                                    // Dalam mode create, hanya tampilkan sortiran yang belum digunakan dan bukan no_lumbung_basah = 1
                                     return $query->whereNotIn('sortirans.id', $usedSortiranIds)
+                                        ->where('sortirans.no_lumbung_basah', '!=', 13) // Filter: exclude no_lumbung_basah = 1
                                         ->latest('sortirans.created_at');
                                 }
                             })
