@@ -8,6 +8,7 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\LaporanLumbung;
 use Filament\Resources\Resource;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Card;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Hidden;
@@ -56,7 +57,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                             ->content(function ($record) {
                                 // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
                                 if ($record) {
-                                    return $record->no_spb;
+                                    return $record->kode;
                                 }
 
                                 // Jika sedang membuat data baru, hitung kode berikutnya
@@ -66,7 +67,53 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                         Select::make('dryers')
                             ->label('Dryer')
                             ->multiple()
-                            ->relationship('dryers', 'no_dryer')
+                            ->relationship(
+                                name: 'dryers',
+                                titleAttribute: 'no_dryer',
+                                modifyQueryUsing: function (Builder $query) {
+                                    // Coba ambil record dari berbagai context
+                                    $currentRecordId = null;
+
+                                    // Untuk EditRecord page
+                                    if (request()->route('record')) {
+                                        $currentRecordId = request()->route('record');
+                                    }
+
+                                    // Atau dari Livewire component
+                                    try {
+                                        $livewire = \Livewire\Livewire::current();
+                                        if ($livewire && method_exists($livewire, 'getRecord')) {
+                                            $record = $livewire->getRecord();
+                                            if ($record) {
+                                                $currentRecordId = $record->getKey();
+                                            }
+                                        }
+                                    } catch (\Exception $e) {
+                                        // Ignore error jika tidak dalam context Livewire
+                                    }
+
+                                    // Ambil semua ID yang sudah digunakan
+                                    $usedLaporanIds = DB::table('laporan_lumbung_has_dryers')
+                                        ->pluck('dryer_id')
+                                        ->toArray();
+
+                                    // Jika sedang edit, ambil ID yang sudah terkait dengan record ini
+                                    if ($currentRecordId) {
+                                        $currentlySelectedIds = DB::table('laporan_lumbung_has_dryers')
+                                            ->where('laporan_lumbung_id', $currentRecordId)
+                                            ->pluck('dryer_id')
+                                            ->toArray();
+
+                                        // Exclude currently selected IDs from used IDs
+                                        $usedLaporanIds = array_diff($usedLaporanIds, $currentlySelectedIds);
+                                    }
+
+                                    return $query
+                                        ->whereNotNull('dryers.lumbung_tujuan') // Tambahkan prefix 'dryers.'
+                                        ->where('dryers.lumbung_tujuan', '!=', '') // Tambahkan prefix 'dryers.'
+                                        ->whereNotIn('dryers.id', $usedLaporanIds); // Tambahkan prefix 'dryers.'
+                                }
+                            )
                             ->preload()
                             ->getOptionLabelFromRecordUsing(function ($record) {
                                 return $record->no_dryer . ' - ' . $record->lumbung_tujuan;
@@ -74,12 +121,70 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                         Select::make('timbanganTrontons')
                             ->label('Laporan Penjualan')
                             ->multiple()
-                            ->relationship('timbanganTrontons', 'kode') // ganti dengan field yang ingin ditampilkan
+                            ->relationship(
+                                name: 'timbanganTrontons',
+                                titleAttribute: 'kode',
+                                modifyQueryUsing: function (Builder $query) {
+                                    // Coba ambil record dari berbagai context
+                                    $currentRecordId = null;
+
+                                    // Untuk EditRecord page
+                                    if (request()->route('record')) {
+                                        $currentRecordId = request()->route('record');
+                                    }
+
+                                    // Atau dari Livewire component
+                                    try {
+                                        $livewire = \Livewire\Livewire::current();
+                                        if ($livewire && method_exists($livewire, 'getRecord')) {
+                                            $record = $livewire->getRecord();
+                                            if ($record) {
+                                                $currentRecordId = $record->getKey();
+                                            }
+                                        }
+                                    } catch (\Exception $e) {
+                                        // Ignore error jika tidak dalam context Livewire
+                                    }
+
+                                    // Ambil semua ID yang sudah digunakan
+                                    $usedLaporanIds = DB::table('laporan_lb_has_timbangant')
+                                        ->pluck('timbangan_tronton_id')
+                                        ->toArray();
+
+                                    // Jika sedang edit, ambil ID yang sudah terkait dengan record ini
+                                    if ($currentRecordId) {
+                                        $currentlySelectedIds = DB::table('laporan_lb_has_timbangant')
+                                            ->where('laporan_lumbung_id', $currentRecordId)
+                                            ->pluck('timbangan_tronton_id')
+                                            ->toArray();
+
+                                        // Exclude currently selected IDs from used IDs
+                                        $usedLaporanIds = array_diff($usedLaporanIds, $currentlySelectedIds);
+                                    }
+
+                                    return $query
+                                        ->whereHas('penjualan1', function (Builder $q) {
+                                            $q->whereNotNull('nama_lumbung')
+                                                ->where('nama_lumbung', '!=', '');
+                                        })
+                                        ->whereNotIn('timbangan_trontons.id', $usedLaporanIds);
+                                }
+                            )
                             ->preload()
                             ->getOptionLabelFromRecordUsing(function ($record) {
                                 $noBk = $record->penjualan1 ? $record->penjualan1->plat_polisi : 'N/A';
                                 return $record->kode . ' - ' . $noBk . ' - ' . ($record->penjualan1->nama_supir ?? '') . ' - ' . $record->total_netto;
                             }),
+
+                        // Select::make('timbanganTrontons')
+                        //     ->label('Laporan Penjualan')
+                        //     ->multiple()
+                        //     ->relationship('timbanganTrontons', 'kode') // ganti dengan field yang ingin ditampilkan
+                        //     ->preload()
+                        //     ->getOptionLabelFromRecordUsing(function ($record) {
+                        //         $noBk = $record->penjualan1 ? $record->penjualan1->plat_polisi : 'N/A';
+                        //         return $record->kode . ' - ' . $noBk . ' - ' . ($record->penjualan1->nama_supir ?? '') . ' - ' . $record->total_netto;
+                        //     }),
                         Hidden::make('user_id')
                             ->label('User ID')
                             ->default(Auth::id()) // Set nilai default user yang sedang login,

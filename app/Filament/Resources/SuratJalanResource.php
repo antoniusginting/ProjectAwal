@@ -19,9 +19,11 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\BadgeColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Enums\ActionsPosition;
+use Filament\Forms\Components\Actions\Action;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\SuratJalanResource\Pages;
 use App\Filament\Resources\SuratJalanResource\RelationManagers;
@@ -114,9 +116,9 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                                         if ($selectedId) {
                                             $usedIds = array_diff($usedIds, [$selectedId]);
                                         }
-
-                                        // Ambil data timbangan yang belum digunakan (plus yang dipilih saat edit)
-                                        $query = TimbanganTronton::whereNotIn('id', $usedIds)
+                                        // Query untuk mengambil data TimbanganTronton yang id_luar_1 nya NULL dan belum digunakan
+                                        $query = TimbanganTronton::whereNull('id_luar_1')
+                                            ->whereNotIn('id', $usedIds)
                                             ->latest()
                                             ->with('penjualan1');
 
@@ -175,12 +177,22 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                                     ->label('Tambah Berat')
                                     ->numeric()
                                     ->placeholder('Masukkan berat yang ingin ditambah')
-                                    ->live(debounce: 600)
-                                    ->reactive() // Menjadikan field ini responsif
-                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                        $set('bruto_final', ($get('bruto_akhir') ?? 0) + ($state ?? 0));
-                                        $set('netto_final', ($get('total_netto') ?? 0) + ($state ?? 0));
-                                    }),
+                                    ->suffixAction(
+                                        Action::make('hitungBerat')
+                                            ->icon('heroicon-o-calculator')
+                                            ->tooltip('Klik untuk menghitung')
+                                            ->color('primary')
+                                            ->action(function ($state, callable $set, callable $get) {
+                                                $set('bruto_final', ($get('bruto_akhir') ?? 0) + ($state ?? 0));
+                                                $set('netto_final', ($get('total_netto') ?? 0) + ($state ?? 0));
+
+                                                // Optional: Notifikasi berhasil
+                                                Notification::make()
+                                                    ->title('Berhasil dihitung!')
+                                                    ->success()
+                                                    ->send();
+                                            })
+                                    ),
                                 TextInput::make('plat_polisi')
                                     ->label('Plat Polisi')
                                     ->disabled()

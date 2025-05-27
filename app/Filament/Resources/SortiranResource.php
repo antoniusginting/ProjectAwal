@@ -969,6 +969,12 @@ class SortiranResource extends Resource implements HasShieldPermissions
                 TextColumn::make('user.name')
                     ->label('User')
             ])->defaultSort('no_sortiran', 'desc')
+            //buat mengurutkan soritran yang sudah dilihat jadi paling bawah
+            // ->modifyQueryUsing(
+            //     fn(Builder $query) =>
+            //     $query->orderByRaw('cek IS NULL DESC, cek DESC')
+            //         ->orderBy('created_at', 'desc')
+            // )
             ->filters([
                 //
             ])
