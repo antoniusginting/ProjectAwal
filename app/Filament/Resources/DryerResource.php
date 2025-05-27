@@ -232,6 +232,23 @@ class DryerResource extends Resource implements HasShieldPermissions
                                     ->disabled(),
                             ])
                             ->columns(3)
+                            ->visible(fn($record) => $record === null),
+
+                        // Card untuk Edit (record tidak null)
+                        Card::make()
+                            ->schema([
+                                TextInput::make('kapasitas_total')
+                                    ->label('Kapasitas Total')
+                                    ->placeholder('Pilih terlebih dahulu nama Dryer')
+                                    ->disabled(),
+
+                                TextInput::make('total_netto')
+                                    ->label('Kapasitas Terpakai')
+                                    ->placeholder('Otomatis terhitung')
+                                    ->readOnly(),
+                            ])
+                            ->columns(2)
+                            ->visible(fn($record) => $record !== null),
                     ])->collapsible(),
                 // Card::make()
                 //     ->schema([
