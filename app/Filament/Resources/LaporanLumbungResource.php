@@ -63,14 +63,41 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                 // Jika sedang membuat data baru, hitung kode berikutnya
                                 $nextId = (LaporanLumbung::max('id') ?? 0) + 1;
                                 return 'IO' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
-                            }),
+                            })->columnSpanFull(),
+                        Select::make('filter_lumbung_tujuan')
+                            ->native(false)
+                            ->label('Lumbung Kering')
+                            ->options(function () {
+                                // Ambil daftar nama_lumbung unik dari tabel penjualan1 (relasi)
+                                return \App\Models\Dryer::query()
+                                    ->whereNotNull('lumbung_tujuan')
+                                    ->where('lumbung_tujuan', '!=', '')
+                                    ->distinct()
+                                    ->pluck('lumbung_tujuan', 'lumbung_tujuan')
+                                    ->toArray();
+                            })
+                            ->reactive(),
+                        Select::make('filter_nama_lumbung')
+                            ->native(false)
+                            ->label('Filter Nama Lumbung')
+                            ->options(function () {
+                                // Ambil daftar nama_lumbung unik dari tabel penjualan1 (relasi)
+                                return \App\Models\Penjualan::query()
+                                    ->whereNotNull('nama_lumbung')
+                                    ->where('nama_lumbung', '!=', '')
+                                    ->distinct()
+                                    ->pluck('nama_lumbung', 'nama_lumbung')
+                                    ->toArray();
+                            })
+                            ->reactive(),
                         Select::make('dryers')
                             ->label('Dryer')
                             ->multiple()
                             ->relationship(
                                 name: 'dryers',
                                 titleAttribute: 'no_dryer',
-                                modifyQueryUsing: function (Builder $query) {
+                                modifyQueryUsing: function (Builder $query, $get) {
+                                    $selectedLumbung = $get('filter_lumbung_tujuan');
                                     // Coba ambil record dari berbagai context
                                     $currentRecordId = null;
 
@@ -107,6 +134,14 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                         // Exclude currently selected IDs from used IDs
                                         $usedLaporanIds = array_diff($usedLaporanIds, $currentlySelectedIds);
                                     }
+                                    $query = $query
+                                        ->whereNotNull('dryers.lumbung_tujuan')
+                                        ->where('dryers.lumbung_tujuan', '!=', '');
+
+                                    if ($selectedLumbung) {
+                                        $query->where('dryers.lumbung_tujuan', $selectedLumbung);
+                                    }
+
 
                                     return $query
                                         ->whereNotNull('dryers.lumbung_tujuan') // Tambahkan prefix 'dryers.'
@@ -124,7 +159,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                             ->relationship(
                                 name: 'timbanganTrontons',
                                 titleAttribute: 'kode',
-                                modifyQueryUsing: function (Builder $query) {
+                                modifyQueryUsing: function (Builder $query, $get) {
                                     // Coba ambil record dari berbagai context
                                     $currentRecordId = null;
 
@@ -162,12 +197,26 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                         $usedLaporanIds = array_diff($usedLaporanIds, $currentlySelectedIds);
                                     }
 
-                                    return $query
-                                        ->whereHas('penjualan1', function (Builder $q) {
-                                            $q->whereNotNull('nama_lumbung')
-                                                ->where('nama_lumbung', '!=', '');
-                                        })
-                                        ->whereNotIn('timbangan_trontons.id', $usedLaporanIds);
+                                    $relasiPenjualan = ['penjualan1', 'penjualan2', 'penjualan3', 'penjualan4', 'penjualan5', 'penjualan6'];
+                                    $selectedNamaLumbung = $get('filter_nama_lumbung');
+
+                                    $query = $query->where(function ($query) use ($relasiPenjualan, $selectedNamaLumbung) {
+                                        foreach ($relasiPenjualan as $index => $relasi) {
+                                            $method = $index === 0 ? 'whereHas' : 'orWhereHas';
+
+                                            $query->$method($relasi, function (Builder $q) use ($selectedNamaLumbung) {
+                                                $q->whereNotNull('nama_lumbung')
+                                                    ->where('nama_lumbung', '!=', '');
+
+                                                if ($selectedNamaLumbung) {
+                                                    $q->where('nama_lumbung', $selectedNamaLumbung);
+                                                }
+                                            });
+                                        }
+                                    });
+
+                                    $query->whereNotIn('timbangan_trontons.id', $usedLaporanIds);
+                                    return $query;
                                 }
                             )
                             ->preload()
@@ -188,7 +237,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                         Hidden::make('user_id')
                             ->label('User ID')
                             ->default(Auth::id()) // Set nilai default user yang sedang login,
-                    ])
+                    ])->columns(2)
             ]);
     }
 
