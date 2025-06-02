@@ -161,10 +161,43 @@ class Sortiran extends Model
                 }
 
                 // Logic untuk update netto_bersih (seperti sebelumnya)
+                // Handle perubahan nomor lumbung
                 if ($oldNoLumbung !== $sortiran->no_lumbung_basah) {
-                    throw ValidationException::withMessages([
-                        'no_lumbung_basah' => 'Nomor Lumbung tidak dapat diubah!',
-                    ]);
+                    // 1. Kembalikan kapasitas ke lumbung lama
+                    $oldKapasitas = KapasitasLumbungBasah::find($oldNoLumbung);
+                    if ($oldKapasitas && !$oldStatus) {
+                        $oldKapasitas->increment('kapasitas_sisa', $oldNetto);
+                    }
+
+                    // 2. Validasi lumbung baru exists
+                    $newKapasitas = KapasitasLumbungBasah::find($sortiran->no_lumbung_basah);
+                    if (!$newKapasitas) {
+                        // Rollback jika lumbung baru tidak ada
+                        if ($oldKapasitas && !$oldStatus) {
+                            $oldKapasitas->decrement('kapasitas_sisa', $oldNetto);
+                        }
+                        throw ValidationException::withMessages([
+                            'no_lumbung_basah' => 'Kapasitas Lumbung Basah tidak ditemukan.',
+                        ]);
+                    }
+
+                    // 3. Cek dan kurangi kapasitas lumbung baru
+                    if (!$newStatus && $newKapasitas->kapasitas_sisa < $newNetto) {
+                        // Rollback perubahan di lumbung lama
+                        if ($oldKapasitas && !$oldStatus) {
+                            $oldKapasitas->decrement('kapasitas_sisa', $oldNetto);
+                        }
+                        throw ValidationException::withMessages([
+                            'no_lumbung_basah' => 'Kapasitas sisa lumbung baru tidak mencukupi.',
+                        ]);
+                    }
+
+                    // 4. Kurangi kapasitas lumbung baru
+                    if (!$newStatus) {
+                        $newKapasitas->decrement('kapasitas_sisa', $newNetto);
+                    }
+
+                    return; // Selesai handle perubahan lumbung
                 }
 
                 $kapasitas = KapasitasLumbungBasah::find($oldNoLumbung);

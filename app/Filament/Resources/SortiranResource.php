@@ -321,7 +321,6 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                     ->searchable() // Biar bisa cari
                                     ->required()
                                     ->reactive()
-                                    ->disabled(fn($record) => $record !== null)
                                     ->afterStateHydrated(function ($state, callable $set) {
                                         if ($state) {
                                             $kapasitaslumbungbasah = KapasitasLumbungBasah::find($state);

@@ -72,7 +72,7 @@ class DryerResource extends Resource implements HasShieldPermissions
                                     ->content(function ($record) {
                                         // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
                                         if ($record) {
-                                            return $record->no_lb;
+                                            return $record->no_dryer;
                                         }
 
                                         // Jika sedang membuat data baru, hitung kode berikutnya
@@ -209,10 +209,15 @@ class DryerResource extends Resource implements HasShieldPermissions
                                     ->label('Hasil Kadar')
                                     ->numeric()
                                     ->placeholder('Masukkan hasil kadar'),
-                                TextInput::make('nama_barang')
+                                Select::make('nama_barang')
                                     ->label('Nama Barang')
-                                    // ->required()
-                                    ->placeholder('Masukkan jenis jagung'),
+                                    ->options([
+                                        'JGK' => 'JGK',
+                                        'JGB' => 'JGB',
+                                        'JMR' => 'JMR',
+                                    ])
+                                    ->placeholder('Pilih nama barang')
+                                    ->native(false),
                             ])->columns(2),
                         Card::make()
                             ->schema([

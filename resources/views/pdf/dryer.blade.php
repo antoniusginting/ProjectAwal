@@ -51,8 +51,8 @@
         .info-table td {
             padding: 4px 6px;
             vertical-align: top;
-            border: 1px solid #000000;
-            font-size: 10pt;
+            /* border: 1px solid #000000; */
+            font-size: 10.7pt;
         }
 
         .info-table .label {
@@ -288,7 +288,7 @@
                 <tbody>
                     <tr>
                         <td class="label">Tanggal</td>
-                        <td class="value">:{{ $dryer->created_at->format('d-m-Y') }}</td>
+                        <td class="value" width='110px'>:{{ $dryer->created_at->format('d-m-Y') }}</td>
                         <td class="label">Penanggung Jawab</td>
                         <td class="value">:{{ $dryer->pj }}</td>
                         <td class="label">Dryer/Panggangan</td>
