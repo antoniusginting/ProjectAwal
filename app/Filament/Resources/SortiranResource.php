@@ -103,7 +103,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                         $query = Pembelian::with(['mobil', 'supplier'])
                                             ->whereNotIn('id', $idSudahDisortir)
                                             ->whereNotNull('tara')
-                                            ->whereNotIn('nama_barang', ['CANGKANG', 'SEKAM', 'SALAH', 'RETUR', 'SEKAM PADI', 'BESI','LANGSIR SILO'])
+                                            ->whereNotIn('nama_barang', ['CANGKANG', 'SEKAM', 'SALAH', 'RETUR', 'SEKAM PADI', 'BESI', 'LANGSIR SILO'])
                                             ->whereNotIn('id', $idsYangDikecualikan)
                                             ->latest();
 
@@ -785,7 +785,6 @@ class SortiranResource extends Resource implements HasShieldPermissions
                 ToggleColumn::make('status')
                     ->label('Status')
                     ->extraCellAttributes(fn($record) => $record->cek === 1 ? ['style' => 'opacity: 10;'] : [])
-
                     ->alignCenter()
                     ->onIcon('heroicon-m-check')
                     ->offIcon('heroicon-m-x-mark')
@@ -820,19 +819,16 @@ class SortiranResource extends Resource implements HasShieldPermissions
                     ->searchable(),
                 TextColumn::make('pembelian.no_spb')->label('No SPB')
                     ->searchable(),
-                TextColumn::make('pembelian.netto')->label('Netto')
-                    ->searchable()
-                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                TextColumn::make('netto_bersih')->label('Netto Bersih')
+                    ->alignCenter()
+                    ->searchable(),
+                // ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 // TextColumn::make('pembelian.tara')->label('Tara')
                 //     ->searchable()
                 //     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('kapasitaslumbungbasah.no_kapasitas_lumbung')->label('No Lumbung')
                     ->searchable()
                     ->alignCenter(),
-                TextColumn::make('total_karung')->label('Total Karung')
-                    ->searchable()
-                    ->alignCenter()
-                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 ImageColumn::make('foto_jagung_1_1')
                     ->label('Foto 1')
                     ->getStateUsing(fn($record) => $record->foto_jagung_1[0] ?? null)
@@ -843,6 +839,15 @@ class SortiranResource extends Resource implements HasShieldPermissions
                     ->getStateUsing(fn($record) => $record->foto_jagung_1[1] ?? null)
                     ->url(fn($record) => asset('storage/' . ($record->foto_jagung_1[1] ?? '')))
                     ->openUrlInNewTab(),
+                ImageColumn::make('foto_jagung_1_3')
+                    ->label('Foto 3')
+                    ->getStateUsing(fn($record) => $record->foto_jagung_1[2] ?? null)
+                    ->url(fn($record) => asset('storage/' . ($record->foto_jagung_1[2] ?? '')))
+                    ->openUrlInNewTab(),
+                TextColumn::make('total_karung')->label('Total Karung')
+                    ->searchable()
+                    ->alignCenter()
+                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('keterangan')
                     ->label('Keterangan')
                     ->alignCenter(),

@@ -121,9 +121,46 @@ class Sortiran extends Model
                 $oldSortiran = $sortiran->getOriginal();
                 $oldNetto = (int) str_replace('.', '', $oldSortiran['netto_bersih'] ?? '0');
                 $oldNoLumbung = $oldSortiran['no_lumbung_basah'];
+                $oldStatus = $oldSortiran['status'] ?? false; // Status lama
+                $newStatus = $sortiran->status; // Status baru
 
                 $newNetto = (int) str_replace('.', '', $sortiran->netto_bersih);
 
+                // Jika hanya status yang berubah (toggle diklik)
+                if (
+                    $oldSortiran['netto_bersih'] === $sortiran->netto_bersih &&
+                    $oldNoLumbung === $sortiran->no_lumbung_basah &&
+                    $oldStatus !== $newStatus
+                ) {
+
+                    $kapasitas = KapasitasLumbungBasah::find($sortiran->no_lumbung_basah);
+
+                    if ($kapasitas) {
+                        if ($newStatus) {
+                            // Jika status berubah menjadi true (toggle ON), kembalikan kapasitas
+                            $kapasitas->increment('kapasitas_sisa', $oldNetto);
+                        } else {
+                            // Jika status berubah menjadi false (toggle OFF), kurangi kapasitas
+                            if ($kapasitas->kapasitas_sisa >= $oldNetto) {
+                                $kapasitas->decrement('kapasitas_sisa', $oldNetto);
+                            } else {
+                                Notification::make()
+                                    ->danger()
+                                    ->title('Kapasitas Tidak Mencukupi')
+                                    ->body('Kapasitas sisa tidak mencukupi untuk mengaktifkan kembali sortiran.')
+                                    ->persistent()
+                                    ->send();
+
+                                throw ValidationException::withMessages([
+                                    'status' => 'Kapasitas sisa tidak mencukupi untuk mengaktifkan kembali sortiran.',
+                                ]);
+                            }
+                        }
+                    }
+                    return; // Keluar dari function karena hanya status yang berubah
+                }
+
+                // Logic untuk update netto_bersih (seperti sebelumnya)
                 if ($oldNoLumbung !== $sortiran->no_lumbung_basah) {
                     throw ValidationException::withMessages([
                         'no_lumbung_basah' => 'Nomor Lumbung tidak dapat diubah!',
@@ -138,23 +175,26 @@ class Sortiran extends Model
                     ]);
                 }
 
-                // Kembalikan kapasitas lama
-                $kapasitas->increment('kapasitas_sisa', $oldNetto);
+                // Hanya update kapasitas jika status tidak aktif (false)
+                if (!$newStatus) {
+                    // Kembalikan kapasitas lama
+                    $kapasitas->increment('kapasitas_sisa', $oldNetto);
 
-                // Periksa apakah kapasitas cukup untuk nilai baru
-                if ($kapasitas->kapasitas_sisa >= $newNetto) {
-                    $kapasitas->decrement('kapasitas_sisa', $newNetto);
-                } else {
-                    Notification::make()
-                        ->danger()
-                        ->title('Kapasitas Tidak Mencukupi')
-                        ->body('Total netto yang diinput melebihi kapasitas sisa lumbung basah.')
-                        ->persistent()
-                        ->send();
+                    // Periksa apakah kapasitas cukup untuk nilai baru
+                    if ($kapasitas->kapasitas_sisa >= $newNetto) {
+                        $kapasitas->decrement('kapasitas_sisa', $newNetto);
+                    } else {
+                        Notification::make()
+                            ->danger()
+                            ->title('Kapasitas Tidak Mencukupi')
+                            ->body('Total netto yang diinput melebihi kapasitas sisa lumbung basah.')
+                            ->persistent()
+                            ->send();
 
-                    throw ValidationException::withMessages([
-                        'netto_bersih' => 'Total netto melebihi kapasitas sisa lumbung basah.',
-                    ]);
+                        throw ValidationException::withMessages([
+                            'netto_bersih' => 'Total netto melebihi kapasitas sisa lumbung basah.',
+                        ]);
+                    }
                 }
             });
         });
@@ -164,7 +204,10 @@ class Sortiran extends Model
             $kapasitas = KapasitasLumbungBasah::find($sortiran->no_lumbung_basah);
 
             if ($kapasitas) {
-                $kapasitas->increment('kapasitas_sisa', (int) str_replace('.', '', $sortiran->netto_bersih));
+                // Hanya kembalikan kapasitas jika status tidak aktif (false)
+                if (!$sortiran->status) {
+                    $kapasitas->increment('kapasitas_sisa', (int) str_replace('.', '', $sortiran->netto_bersih));
+                }
             }
         });
     }
