@@ -78,7 +78,7 @@
                         <td class="font-semibold whitespace-nowrap">Hasil Kadar</td>
                         <td class="whitespace-nowrap">: {{ $dryer->hasil_kadar }}%</td>
                         <td class="font-semibold whitespace-nowrap">Kapasitas Terpakai</td>
-                        <td>: {{ number_format($grandTotalNetto,'0',',','.') }}</td>
+                        <td>: {{ number_format($grandTotalNetto, '0', ',', '.') }}</td>
                         {{-- <td class="whitespace-nowrap">: {{ number_format($totalBerat, '0', ',', '.') }}</td> --}}
                         {{-- {{ number_format($dryer->kapasitasdryer->kapasitas_total - $totalBerat, 0, ',', '.') }} --}}
                     </tr>
@@ -106,6 +106,7 @@
                 <thead>
                     <tr class="bg-gray-100 dark:bg-gray-800">
                         <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">TGL</th>
+                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Nama Lumbung</th>
                         <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Jenis</th>
                         <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Goni</th>
                         <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Berat</th>
@@ -128,9 +129,11 @@
                             <tr>
                                 <td class="border text-center p-2 border-gray-300 dark:border-gray-700" width='50px'>
                                     {{ $sortiran->created_at->format('d/m') ?? '-' }}</td>
+                                <td class="border text-center p-2 border-gray-300 dark:border-gray-700" width='150px'>
+                                    {{ $sortiran->kapasitaslumbungbasah->no_kapasitas_lumbung }}</td>
                                 <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
                                     {{ $sortiran->pembelian->nama_barang }}</td>
-                                <td class="border p-2 border-gray-300 dark:border-gray-700 text-right" width='200px'>
+                                <td class="border p-2 border-gray-300 dark:border-gray-700 text-right" width='100px'>
                                     {{ $sortiran->total_karung ?? '-' }}
                                 </td>
                                 <td class="border text-right p-2 border-gray-300 dark:border-gray-700">
@@ -166,7 +169,7 @@
 
                         <!-- Displaying Total Netto Bersih for this group -->
                         <tr>
-                            <td colspan="2"
+                            <td colspan="3"
                                 class="text-center font-semibold p-2 border-gray-300 dark:border-gray-700">
                                 Total {{ $idSortiran }}
                             </td>

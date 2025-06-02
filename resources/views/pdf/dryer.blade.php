@@ -337,7 +337,8 @@
                 <thead>
                     <tr>
                         <th style="width: 12%;">TGL</th>
-                        <th style="width: 25%;">JENIS</th>
+                        <th style="width: 20%;">NO LUMBUNG</th>
+                        <th style="width: 20%;">JENIS</th>
                         <th style="width: 12%;">GONI</th>
                         <th style="width: 18%;">BERAT</th>
                         <th style="width: 20%;">NO SPB</th>
@@ -358,6 +359,7 @@
                         @foreach ($sortiransGroup as $index => $sortiran)
                             <tr>
                                 <td>{{ $sortiran->created_at->format('d/m') ?? '-' }}</td>
+                                <td>{{ $sortiran->kapasitaslumbungbasah->no_kapasitas_lumbung }}</td>
                                 <td>{{ $sortiran->pembelian->nama_barang }}</td>
                                 <td>{{ $sortiran->total_karung ?? '-' }}</td>
                                 <td class="text-right">{{ $sortiran->netto_bersih ?? '-' }}</td>
@@ -385,7 +387,7 @@
                             </tr>
                         @endforeach
                         <tr class="summary-row">
-                            <td colspan="2" class="text-bold">TOTAL</td>
+                            <td colspan="3" class="text-bold">TOTAL</td>
                             <td class="text-bold">{{ number_format($totalTotalKarung, 0, ',', '.') }}</td>
                             <td class="text-right text-bold">{{ number_format($totalNettoBersih, 0, ',', '.') }}</td>
                             <td colspan="2"></td>
