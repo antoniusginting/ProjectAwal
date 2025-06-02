@@ -215,6 +215,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     }),
                                 TextInput::make('nama_barang')
                                     ->default('JAGUNG KERING SUPER')
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->required()
                                     ->columnSpan(2),
                                 TextInput::make('netto')

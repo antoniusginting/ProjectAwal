@@ -8,34 +8,32 @@
     <style>
         /* RESET & BASE STYLES */
         * {
-            margin-right: 0.3cm;
-            margin-left: 0.2cm;
-            margin-top: 0.2cm;
-            margin-bottom: 0%;
+            margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
         body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 11pt;
+            line-height: 1.3;
             color: #000000;
+            background: white;
+            padding: 8mm;
         }
 
         /* CONTAINER */
         .container {
             background-color: white;
-            border-radius: 0.375rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             max-width: 100%;
             margin: 0 auto;
         }
 
         /* TABLE STYLES */
         .table-wrapper {
-            overflow-x: auto;
+            overflow-x: visible;
             max-width: 100%;
-            margin-bottom: 1rem;
+            margin-bottom: 8px;
         }
 
         table {
@@ -44,136 +42,168 @@
             text-align: left;
         }
 
-        th,
-        td {}
-
         /* Info Table Styles */
         .info-table {
-            border-spacing: 0;
+            /* border: 2px solid #000000; */
+            margin-bottom: 10px;
         }
 
         .info-table td {
-            /* padding: 0.35rem 0.25rem; */
+            padding: 4px 6px;
             vertical-align: top;
+            border: 1px solid #000000;
+            font-size: 10pt;
         }
 
         .info-table .label {
-            font-weight: 600;
+            font-weight: bold;
             white-space: nowrap;
-            width: 140px;
+            width: 100px;
             color: #000000;
-            padding-right: 0;
+            /* background-color: #f0f0f0; */
         }
 
+        .info-table .value {
+            font-weight: bold;
+            /* white-space: nowrap;  <-- Hapus ini supaya teks bisa wrap */
+            padding-left: 8px;
+            min-width: 80px;
+            word-wrap: break-word;
+            /* supaya kata panjang pecah */
+            word-break: break-word;
+            /* untuk memaksa pemecahan kata */
+            max-width: 200px;
+            /* batasi lebar kolom agar tidak terlalu lebar */
+        }
 
-        
         /* Print date */
         .print-date {
             text-align: right;
-            font-size: 14px;
+            font-size: 9pt;
             color: #000000;
             font-style: italic;
-        }
-        
-        .info-table .value {
-            white-space: nowrap;
-            padding-right: 1rem;
-            padding-left: 0.1rem;
-        }
-
-        .info-table .colon {
-            padding-left: 0;
-            width: 10px;
+            font-weight: bold;
+            margin: 8px 0;
+            border-top: 1.5px solid #000000;
+            padding-top: 4px;
         }
 
         /* HEADER STYLES */
         .report-header {
             text-align: center;
-            margin-bottom: 0.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid #4d4e50;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            /* border: 2px solid #000000; */
+            /* background-color: #f0f0f0; */
         }
 
         .report-title {
             font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-            letter-spacing: 0.05em;
+            font-weight: bold;
+            margin: 8px 0;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
         .report-subtitle {
-            font-size: 1rem;
+            font-size: 11pt;
             color: #000000;
-            font-weight: 500;
+            font-weight: normal;
         }
 
         /* DETAIL TABLE */
         .detail-table {
             border: 1px solid #000000;
-            margin-top: 0.5rem;
-            margin-bottom: 0.5rem;
+            margin: 5px 0;
+            width: 100%;
         }
 
         .detail-table th,
         .detail-table td {
             border: 1px solid #000000;
             text-align: center;
+            padding: 6px 4px;
+            font-weight: bold;
+            font-size: 10pt;
         }
 
         .detail-table th {
-            background-color: #ffffff;
-            font-size: 1rem;
-            font-weight: 600;
-        }
-
-        .detail-table tr:hover {
-            background-color: #ffffff;
+            /* background-color: #e0e0e0; */
+            font-weight: bold;
+            text-transform: uppercase;
         }
 
         .detail-table td.text-right {
             text-align: right;
-            padding-right: 0.2rem;
+            padding-right: 8px;
         }
 
         .detail-table .summary-row {
-            background-color: #ffffff;
-            font-weight: 700;
+            /* background-color: #f0f0f0; */
+            font-weight: bold;
+            /* border-top: 1.5px solid #000000; */
         }
 
         /* SIGNATURE TABLE */
         .signature-table {
-            margin-top: 0.5rem;
+            margin-top: 15px;
+            /* border: 2px solid #000000; */
         }
 
         .signature-table th,
         .signature-table td {
             text-align: center;
+            /* border: 1px solid #000000; */
+            padding: 8px;
+        }
+
+        .signature-table th {
+            /* background-color: #e0e0e0; */
+            font-weight: bold;
+            font-size: 11pt;
         }
 
         .signature-box {
-            height: 8rem;
+            height: 60px;
             position: relative;
+            padding: 8px;
         }
 
         .signature-line {
             position: absolute;
-            bottom: 0;
+            bottom: 8px;
             left: 50%;
             transform: translateX(-50%);
-            width: 10rem;
-            border-bottom: 1px solid black;
+            width: 120px;
+            border-bottom: 2px solid #000000;
         }
 
         /* DIVIDER */
         .divider {
-            border-bottom: 1px solid #000000;
-            margin: 0.5rem 0;
+            border-bottom: 1.5px solid #000000;
+            margin: 8px 0;
+        }
+
+        /* Utility Classes */
+        .text-bold {
+            font-weight: bold;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .border-thick {
+            border: 2px solid #000000;
         }
 
         /* PRINT STYLES */
         @media print {
             body {
                 background: white;
+                padding: 5mm;
+                font-size: 10pt;
+                line-height: 1.2;
             }
 
             .container {
@@ -184,15 +214,55 @@
             }
 
             .detail-table th {
-                background-color: #f3f4f6 !important;
+                background-color: #e0e0e0 !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
 
             .detail-table .summary-row {
-                background-color: #e5e7eb !important;
+                background-color: #f0f0f0 !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
+            }
+
+            .info-table .label {
+                background-color: #f0f0f0 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .report-header {
+                background-color: #f0f0f0 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .signature-table th {
+                background-color: #e0e0e0 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            /* Pastikan border tetap tercetak */
+            * {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        /* Responsif untuk layar kecil */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 4mm;
+                font-size: 10pt;
+            }
+
+            .info-table .label {
+                width: 100px;
+            }
+
+            .signature-box {
+                height: 50px;
             }
         }
     </style>
@@ -203,48 +273,10 @@
         <div class="report-header">
             <h1 class="report-title">FORM PERINTAH KERJA DRYER</h1>
         </div>
+
         <!-- Info Pengiriman -->
         <div class="table-wrapper">
             <table class="info-table">
-                {{-- @php
-                    $allSortirans = collect();
-                    $totalBerat = 0;
-                    $totalGoni = 0;
-
-                    // Collect sortirans from all lumbungs
-                    for ($i = 1; $i <= 4; $i++) {
-                        $lumbungProperty = "lumbung{$i}";
-                        if (
-                            isset($dryer->$lumbungProperty) &&
-                            $dryer->$lumbungProperty &&
-                            $dryer->$lumbungProperty->sortirans
-                        ) {
-                            foreach ($dryer->$lumbungProperty->sortirans as $sortiran) {
-                                $sortiran->lumbung_name = "Lumbung {$i}";
-                                $allSortirans->push($sortiran);
-
-                                // Sanitasi nilai berat: hanya ambil angka dan titik desimal
-                                $beratValue = $sortiran->netto_bersih;
-                                if (is_string($beratValue)) {
-                                    // Hapus ribuan format seperti 1.000 -> 1000
-                                    $beratValue = str_replace('.', '', $beratValue);
-                                    // Ganti koma desimal dengan titik jika ada
-                                    $beratValue = str_replace(',', '.', $beratValue);
-                                    // Hapus semua karakter non-numerik kecuali titik desimal
-                                    $beratValue = preg_replace('/[^0-9.]/', '', $beratValue);
-                                }
-                                $beratValue = empty($beratValue) ? 0 : (float) $beratValue;
-
-                                // Untuk goni (integer), cukup pastikan nilainya tidak null
-                                $goniValue = $sortiran->total_karung ?? 0;
-
-                                // Add to totals
-                                $totalBerat += $beratValue;
-                                $totalGoni += $goniValue;
-                            }
-                        }
-                    }
-                @endphp --}}
                 @php
                     // Hitung total netto bersih dari semua sortirans
                     $grandTotalNetto = $dryer->sortirans->sum(function ($sortiran) {
@@ -256,58 +288,60 @@
                 <tbody>
                     <tr>
                         <td class="label">Tanggal</td>
-                        <td class="value">: {{ $dryer->created_at->format('d-m-Y') }}</td>
+                        <td class="value">:{{ $dryer->created_at->format('d-m-Y') }}</td>
                         <td class="label">Penanggung Jawab</td>
-                        <td class="value">: {{ $dryer->pj }}</td>
+                        <td class="value">:{{ $dryer->pj }}</td>
                         <td class="label">Dryer/Panggangan</td>
-                        <td class="value">: {{ $dryer->kapasitasdryer->nama_kapasitas_dryer }}</td>
+                        <td class="value">:{{ $dryer->kapasitasdryer->nama_kapasitas_dryer }}</td>
                     </tr>
                     <tr>
                         <td class="label">Jam</td>
-                        <td class="value">: {{ $dryer->created_at->format('H-i-s') }}</td>
+                        <td class="value">:{{ $dryer->created_at->format('H-i-s') }}</td>
                         <td class="label">Rencana Kadar</td>
-                        <td class="value">: {{ $dryer->rencana_kadar }}%</td>
+                        <td class="value">:{{ $dryer->rencana_kadar }}%</td>
                         <td class="label">Kapasitas Dryer</td>
-                        <td class="value">: {{ number_format($dryer->kapasitasdryer->kapasitas_total, '0', ',', '.') }}
+                        <td class="value">:{{ number_format($dryer->kapasitasdryer->kapasitas_total, '0', ',', '.') }}
                         </td>
                     </tr>
                     <tr>
                         <td class="label">Operator</td>
-                        <td class="value">: {{ $dryer->operator }}</td>
+                        <td class="value">:{{ $dryer->operator }}</td>
                         <td class="label">Hasil Kadar</td>
-                        <td class="value">: {{ $dryer->hasil_kadar }}%</td>
+                        <td class="value">:{{ $dryer->hasil_kadar }}%</td>
                         <td class="label">Kapasitas Terpakai</td>
-                        <td class="value">: {{ number_format($grandTotalNetto, '0', ',', '.') }}</td>
+                        <td class="value">:{{ number_format($grandTotalNetto, '0', ',', '.') }}</td>
                     </tr>
                     <tr>
                         <td class="label">Jenis Barang</td>
-                        <td class="value">: {{ $dryer->nama_barang }}</td>
+                        <td class="value">:{{ $dryer->nama_barang }}</td>
                         <td class="label">No Dryer</td>
-                        <td class="value">: {{ $dryer->no_dryer }}</td>
+                        <td class="value">:{{ $dryer->no_dryer }}</td>
                         <td class="label">Lumbung Tujuan</td>
-                        <td class="value">: {{ $dryer->lumbung_tujuan }}</td>
+                        <td class="value">:{{ $dryer->lumbung_tujuan }}</td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
+        <!-- Print Date -->
+        <div class="print-date">
+            Print Date: {{ now()->format('d-m-Y H:i:s') }}
+        </div>
+
         <!-- Divider -->
         <div class="divider"></div>
-        <div class="print-date">
-            Print Date:
-            {{ now()->format('d-m-Y H:i:s') }}
-        </div>
+
         <!-- Tabel Detail Pengiriman -->
         <div class="table-wrapper">
             <table class="detail-table">
                 <thead>
                     <tr>
-                        <th>TGL</th>
-                        <th>Jenis</th>
-                        <th>Goni</th>
-                        <th>Berat</th>
-                        <th>No SPB</th>
-                        <th>Kadar</th>
+                        <th style="width: 12%;">TGL</th>
+                        <th style="width: 25%;">JENIS</th>
+                        <th style="width: 12%;">GONI</th>
+                        <th style="width: 18%;">BERAT</th>
+                        <th style="width: 20%;">NO SPB</th>
+                        <th style="width: 13%;">KADAR</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -351,9 +385,9 @@
                             </tr>
                         @endforeach
                         <tr class="summary-row">
-                            <td colspan="2">Total</td>
-                            <td>{{ number_format($totalTotalKarung, 0, ',', '.') }}</td>
-                            <td class="text-right">{{ number_format($totalNettoBersih, 0, ',', '.') }}</td>
+                            <td colspan="2" class="text-bold">TOTAL</td>
+                            <td class="text-bold">{{ number_format($totalTotalKarung, 0, ',', '.') }}</td>
+                            <td class="text-right text-bold">{{ number_format($totalNettoBersih, 0, ',', '.') }}</td>
                             <td colspan="2"></td>
                         </tr>
                     @endforeach
@@ -365,8 +399,8 @@
         <table class="signature-table">
             <thead>
                 <tr>
-                    <th style="width:50%;">TTD Operator</th>
-                    <th style="width:50%;">TTD Penanggung Jawab</th>
+                    <th style="width:50%;">TTD OPERATOR</th>
+                    <th style="width:50%;">TTD PENANGGUNG JAWAB</th>
                 </tr>
             </thead>
             <tbody>

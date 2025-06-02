@@ -19,7 +19,8 @@
                             {{ $laporanlumbung->created_at ? $laporanlumbung->created_at->format('h:i') : 'Tanggal kosong' }}
                         </td>
                         <td class="font-semibold whitespace-nowrap">Lumbung</td>
-                        <td class="whitespace-nowrap">: {{ $laporanlumbung->dryers->first()->lumbung_tujuan ?? '-' }}</td>
+                        <td class="whitespace-nowrap">: {{ $laporanlumbung->lumbung ?? '-' }}
+                        </td>
 
                     </tr>
                 </tbody>
@@ -157,7 +158,7 @@
             </div>
         </div> --}}
 
-        @php
+        {{-- @php
             $dryers = $laporanlumbung->dryers->sortBy('created_at')->values();
             $timbangan = $laporanlumbung->timbangantrontons->sortBy('created_at')->values();
             $max = max($dryers->count(), $timbangan->count());
@@ -182,10 +183,14 @@
                         $timbanganItem = $timbangan->get($i);
                     @endphp
                     <tr>
-                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">{{ $dryer ? $dryer->created_at->format('d-m') : '' }}</td>
-                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">{{ $dryer ? $dryer->nama_barang : '' }}</td>
-                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">{{ $dryer ? $dryer->no_dryer : '' }}</td>
-                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">{{ $timbanganItem ? $timbanganItem->kode : '-' }}</td>
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                            {{ $dryer ? $dryer->created_at->format('d-m') : '' }}</td>
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                            {{ $dryer ? $dryer->nama_barang : '' }}</td>
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                            {{ $dryer ? $dryer->no_dryer : '' }}</td>
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                            {{ $timbanganItem ? $timbanganItem->kode : '-' }}</td>
                         <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
                             {{ $timbanganItem ? number_format($timbanganItem->total_netto, 0, ',', '.') : '-' }}
                         </td>
@@ -207,7 +212,135 @@
                     <td class="border p-2 border-gray-300 dark:border-gray-700 text-sm"></td>
                 </tr>
             </tfoot>
-        </table>
+        </table> --}}
 
+
+        @php
+            $lumbungTujuan = $laporanlumbung->lumbung ?? null;
+        @endphp
+
+        @foreach ($laporanlumbung->timbangantrontons as $timbanganTronton)
+            @php
+                $allPenjualan = collect();
+                $relasiPenjualan = ['penjualan1', 'penjualan2', 'penjualan3', 'penjualan4', 'penjualan5', 'penjualan6'];
+
+                foreach ($relasiPenjualan as $relasi) {
+                    if (isset($timbanganTronton->$relasi)) {
+                        $dataRelasi = $timbanganTronton->$relasi;
+
+                        if ($dataRelasi instanceof \Illuminate\Database\Eloquent\Collection) {
+                            $allPenjualan = $allPenjualan->merge($dataRelasi);
+                        } elseif ($dataRelasi !== null) {
+                            $allPenjualan->push($dataRelasi);
+                        }
+                    }
+                }
+
+                $filteredPenjualan = $allPenjualan->where('nama_lumbung', $lumbungTujuan);
+                $totalNetto = $filteredPenjualan->sum('netto');
+            @endphp
+        @endforeach
+        @php
+            $lumbungTujuan = $laporanlumbung->lumbung ?? null;
+            $dryers = $laporanlumbung->dryers->sortBy('created_at')->values();
+            $timbangan = $laporanlumbung->timbangantrontons->sortBy('created_at')->values();
+            $max = max($dryers->count(), $timbangan->count());
+            // Hitung total keseluruhan dari filtered netto
+            $totalKeseluruhanFiltered = 0;
+        @endphp
+
+        <table class="w-full border border-collapse border-gray-300 dark:border-gray-700">
+            <thead>
+                <tr class="bg-gray-100 dark:bg-gray-800">
+                    <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">TGL</th>
+                    <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Jenis</th>
+                    <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Masuk</th>
+                    <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Keluar</th>
+                    <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Berat</th>
+                    <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">PJ</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for ($i = 0; $i < $max; $i++)
+                    @php
+                        $dryer = $dryers->get($i);
+                        $timbanganItem = $timbangan->get($i);
+
+                        // Proses untuk mendapatkan filtered penjualan jika ada timbanganItem
+                        $filteredPenjualan = collect();
+                        $totalNetto = 0;
+
+                        if ($timbanganItem) {
+                            $allPenjualan = collect();
+                            $relasiPenjualan = [
+                                'penjualan1',
+                                'penjualan2',
+                                'penjualan3',
+                                'penjualan4',
+                                'penjualan5',
+                                'penjualan6',
+                            ];
+
+                            foreach ($relasiPenjualan as $relasi) {
+                                if (isset($timbanganItem->$relasi)) {
+                                    $dataRelasi = $timbanganItem->$relasi;
+
+                                    if ($dataRelasi instanceof \Illuminate\Database\Eloquent\Collection) {
+                                        $allPenjualan = $allPenjualan->merge($dataRelasi);
+                                    } elseif ($dataRelasi !== null) {
+                                        $allPenjualan->push($dataRelasi);
+                                    }
+                                }
+                            }
+
+                            $filteredPenjualan = $allPenjualan->where('nama_lumbung', $lumbungTujuan);
+                            $totalNetto = $filteredPenjualan->sum('netto');
+
+                            // Tambahkan ke total keseluruhan
+                            $totalKeseluruhanFiltered += $totalNetto;
+                        }
+                    @endphp
+                    <tr>
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                            {{ $dryer ? $dryer->created_at->format('d-m') : '' }}
+                        </td>
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                            {{ $dryer ? $dryer->nama_barang : '' }}
+                        </td>
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                            {{ $dryer ? $dryer->no_dryer : '' }}
+                        </td>
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                            {{ $timbanganItem ? $timbanganItem->kode : '' }}
+                        </td>
+                        <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
+                            @if ($timbanganItem)
+                                @if ($filteredPenjualan->isEmpty())
+                                    -
+                                @else
+                                    {{ number_format($totalNetto, 0, ',', '.') }}
+                                @endif
+                            @endif
+                        </td>
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                            @if ($i == 0)
+                                {{ $laporanlumbung->user->name }}
+                            @endif
+                        </td>
+                    </tr>
+                @endfor
+            </tbody>
+            <tfoot>
+                <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
+                    <td colspan="4" class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                        Total Berat:
+                    </td>
+                    <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
+                        {{ number_format($totalKeseluruhanFiltered, 0, ',', '.') }}
+                    </td>
+                    <td class="border p-2 border-gray-300 dark:border-gray-700 text-sm"></td>
+                </tr>
+            </tfoot>
+        </table>
     </div>
 </x-filament-panels::page>

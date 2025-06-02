@@ -947,9 +947,7 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                     ->disabled(),
                                             ])->columnSpan(1)->collapsed(),
 
-                                    ])->columns(3)->collapsed(),
-
-
+                                    ])->columns(3)->collapsed()->visible(fn() => !optional(Auth::user())->hasAnyRole(['admin', 'adminaudit'])),
 
                                 Card::make('Timbangan Antar Pulau')
                                     ->schema([
@@ -1286,7 +1284,7 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
 
                                                     ->disabled(),
                                             ])->columnSpan(1)->collapsible(),
-                                    ])->columns(3)->collapsed(),
+                                    ])->columns(3)->collapsed()->visible(fn() => !optional(Auth::user())->hasAnyRole(['timbangan'])),
                                 // Toggle::make('status')
                                 //     ->disabled(function ($state, $record) {
                                 //         return $record && !in_array((int) $state, [0]);
@@ -1403,7 +1401,9 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                     ->searchable(),
                 TextColumn::make('penjualan1.plat_polisi')
                     ->label('Plat Polisi')
-                    ->searchable(),
+                    ->alignCenter()
+                    ->searchable()
+                    ->placeholder('LUAR'),
                 TextColumn::make('penjualan1.nama_supir')
                     ->label('Nama Supir')
                     ->searchable(),

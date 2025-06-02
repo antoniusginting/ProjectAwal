@@ -161,90 +161,76 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                             ])->columnSpan(1),
                         Card::make('Info Laporan Penjualan')
                             ->schema([
-                                Select::make('filter_nama_lumbung')
-                                    ->native(false)
-                                    ->label('Lumbung')
-                                    ->options(function () {
-                                        // Ambil daftar nama_lumbung unik dari tabel penjualan1 (relasi)
-                                        return \App\Models\Penjualan::query()
-                                            ->whereNotNull('nama_lumbung')
-                                            ->where('nama_lumbung', '!=', '')
-                                            ->distinct()
-                                            ->pluck('nama_lumbung', 'nama_lumbung')
-                                            ->toArray();
-                                    })
-                                    ->reactive(),
-                                Select::make('timbanganTrontons')
-                                    ->label('Laporan Penjualan')
-                                    ->multiple()
-                                    ->relationship(
-                                        name: 'timbanganTrontons',
-                                        titleAttribute: 'kode',
-                                        modifyQueryUsing: function (Builder $query, $get) {
-                                            // Coba ambil record dari berbagai context
-                                            $currentRecordId = null;
-
-                                            // Untuk EditRecord page
-                                            if (request()->route('record')) {
-                                                $currentRecordId = request()->route('record');
-                                            }
-
-                                            // Atau dari Livewire component
-                                            try {
-                                                $livewire = \Livewire\Livewire::current();
-                                                if ($livewire && method_exists($livewire, 'getRecord')) {
-                                                    $record = $livewire->getRecord();
-                                                    if ($record) {
-                                                        $currentRecordId = $record->getKey();
-                                                    }
-                                                }
-                                            } catch (\Exception $e) {
-                                                // Ignore error jika tidak dalam context Livewire
-                                            }
-
-                                            // Ambil semua ID yang sudah digunakan
-                                            $usedLaporanIds = DB::table('laporan_lb_has_timbangant')
-                                                ->pluck('timbangan_tronton_id')
+                                    Select::make('lumbung')
+                                        ->native(false)
+                                        ->label('Lumbung')
+                                        ->options(function () {
+                                            // Ambil daftar nama_lumbung unik dari tabel penjualan1 (relasi)
+                                            return \App\Models\Penjualan::query()
+                                                ->whereNotNull('nama_lumbung')
+                                                ->where('nama_lumbung', '!=', '')
+                                                ->distinct()
+                                                ->pluck('nama_lumbung', 'nama_lumbung')
                                                 ->toArray();
+                                        })
+                                        ->reactive(),
+                                    Select::make('timbanganTrontons')
+                                        ->label('Laporan Penjualan')
+                                        ->multiple()
+                                        ->relationship(
+                                            name: 'timbanganTrontons',
+                                            titleAttribute: 'kode',
+                                            modifyQueryUsing: function (Builder $query, $get) {
+                                                // Coba ambil record dari berbagai context
+                                                $currentRecordId = null;
 
-                                            // Jika sedang edit, ambil ID yang sudah terkait dengan record ini
-                                            if ($currentRecordId) {
-                                                $currentlySelectedIds = DB::table('laporan_lb_has_timbangant')
-                                                    ->where('laporan_lumbung_id', $currentRecordId)
-                                                    ->pluck('timbangan_tronton_id')
-                                                    ->toArray();
-
-                                                // Exclude currently selected IDs from used IDs
-                                                $usedLaporanIds = array_diff($usedLaporanIds, $currentlySelectedIds);
-                                            }
-
-                                            $relasiPenjualan = ['penjualan1', 'penjualan2', 'penjualan3', 'penjualan4', 'penjualan5', 'penjualan6'];
-                                            $selectedNamaLumbung = $get('filter_nama_lumbung');
-
-                                            $query = $query->where(function ($query) use ($relasiPenjualan, $selectedNamaLumbung) {
-                                                foreach ($relasiPenjualan as $index => $relasi) {
-                                                    $method = $index === 0 ? 'whereHas' : 'orWhereHas';
-
-                                                    $query->$method($relasi, function (Builder $q) use ($selectedNamaLumbung) {
-                                                        $q->whereNotNull('nama_lumbung')
-                                                            ->where('nama_lumbung', '!=', '');
-
-                                                        if ($selectedNamaLumbung) {
-                                                            $q->where('nama_lumbung', $selectedNamaLumbung);
-                                                        }
-                                                    });
+                                                // Untuk EditRecord page
+                                                if (request()->route('record')) {
+                                                    $currentRecordId = request()->route('record');
                                                 }
-                                            });
 
-                                            $query->whereNotIn('timbangan_trontons.id', $usedLaporanIds);
-                                            return $query;
-                                        }
-                                    )
-                                    ->preload()
-                                    ->getOptionLabelFromRecordUsing(function ($record) {
-                                        $noBk = $record->penjualan1 ? $record->penjualan1->plat_polisi : 'N/A';
-                                        return $record->kode . ' - ' . $noBk . ' - ' . ($record->penjualan1->nama_supir ?? '') . ' - ' . $record->total_netto;
-                                    }),
+                                                // Atau dari Livewire component
+                                                try {
+                                                    $livewire = \Livewire\Livewire::current();
+                                                    if ($livewire && method_exists($livewire, 'getRecord')) {
+                                                        $record = $livewire->getRecord();
+                                                        if ($record) {
+                                                            $currentRecordId = $record->getKey();
+                                                        }
+                                                    }
+                                                } catch (\Exception $e) {
+                                                    // Ignore error jika tidak dalam context Livewire
+                                                }
+
+                                                $relasiPenjualan = ['penjualan1', 'penjualan2', 'penjualan3', 'penjualan4', 'penjualan5', 'penjualan6'];
+                                                $selectedNamaLumbung = $get('lumbung');
+
+                                                $query = $query->where(function ($query) use ($relasiPenjualan, $selectedNamaLumbung) {
+                                                    foreach ($relasiPenjualan as $index => $relasi) {
+                                                        $method = $index === 0 ? 'whereHas' : 'orWhereHas';
+
+                                                        $query->$method($relasi, function (Builder $q) use ($selectedNamaLumbung) {
+                                                            $q->whereNotNull('nama_lumbung')
+                                                                ->where('nama_lumbung', '!=', '');
+
+                                                            if ($selectedNamaLumbung) {
+                                                                $q->where('nama_lumbung', $selectedNamaLumbung);
+                                                            }
+                                                        });
+                                                    }
+                                                });
+
+                                                $query->orderBy('timbangan_trontons.created_at', 'desc');
+                                                $query->limit(20);
+                                                return $query;
+                                            }
+                                        )
+                                        ->preload()
+                                        ->reactive()
+                                        ->getOptionLabelFromRecordUsing(function ($record) {
+                                            $noBk = $record->penjualan1 ? $record->penjualan1->plat_polisi : 'N/A';
+                                            return $record->kode . ' - ' . $noBk . ' - ' . ($record->penjualan1->nama_supir ?? '') . ' - ' . $record->total_netto;
+                                        }),
                             ])->columnSpan(1),
 
                         // Select::make('timbanganTrontons')
@@ -292,12 +278,12 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                     ->label(__("Lihat"))
                     ->icon('heroicon-o-eye')
                     ->url(fn($record) => self::getUrl("view-laporan-lumbung", ['record' => $record->id])),
-            ], position: ActionsPosition::BeforeColumns);
-        // ->bulkActions([
-        //     Tables\Actions\BulkActionGroup::make([
-        //         Tables\Actions\DeleteBulkAction::make(),
-        //     ]),
-        // ]);
+            ], position: ActionsPosition::BeforeColumns)
+        ->bulkActions([
+            Tables\Actions\BulkActionGroup::make([
+                Tables\Actions\DeleteBulkAction::make(),
+            ]),
+        ]);
     }
 
     public static function getRelations(): array

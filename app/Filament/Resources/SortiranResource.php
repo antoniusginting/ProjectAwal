@@ -103,7 +103,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                         $query = Pembelian::with(['mobil', 'supplier'])
                                             ->whereNotIn('id', $idSudahDisortir)
                                             ->whereNotNull('tara')
-                                            ->whereNotIn('nama_barang', ['CANGKANG', 'SEKAM', 'SALAH', 'RETUR', 'SEKAM PADI', 'BESI'])
+                                            ->whereNotIn('nama_barang', ['CANGKANG', 'SEKAM', 'SALAH', 'RETUR', 'SEKAM PADI', 'BESI','LANGSIR SILO'])
                                             ->whereNotIn('id', $idsYangDikecualikan)
                                             ->latest();
 
@@ -1017,7 +1017,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
             ])
             ->recordClasses(function ($record) {
                 return match ($record->cek) {
-                    1 => 'opacity-50',     // status = null → transparansi 50%
+                    1 => 'opacity-70',     // status = null → transparansi 50%
                     default => '',
                 };
             });

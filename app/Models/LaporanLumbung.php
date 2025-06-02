@@ -9,6 +9,7 @@ class LaporanLumbung extends Model
 {
     protected $fillable = [
         "user_id",
+        "lumbung",
     ];
     public function timbanganTrontons(): BelongsToMany
     {
