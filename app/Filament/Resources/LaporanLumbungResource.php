@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
@@ -15,6 +16,7 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\BadgeColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
@@ -174,6 +176,10 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                             ->toArray();
                                     })
                                     ->reactive(),
+                                    // ->disabled(function (callable $get, ?\Illuminate\Database\Eloquent\Model $record) {
+                                    //     // Disable saat edit, misal jika $record ada berarti edit
+                                    //     return $record !== null;
+                                    // }),
                                 Select::make('timbanganTrontons')
                                     ->label('Laporan Penjualan')
                                     ->multiple()
@@ -257,10 +263,30 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
     {
         return $table
             ->columns([
+                BadgeColumn::make('created_at')
+                    ->label('Tanggal')
+                    ->alignCenter()
+                    ->colors([
+                        'success' => fn($state) => Carbon::parse($state)->isToday(),
+                        'warning' => fn($state) => Carbon::parse($state)->isYesterday(),
+                        'gray' => fn($state) => Carbon::parse($state)->isBefore(Carbon::yesterday()),
+                    ])
+                    ->formatStateUsing(function ($state) {
+                        // Mengatur lokalitas ke Bahasa Indonesia
+                        Carbon::setLocale('id');
+
+                        return Carbon::parse($state)
+                            ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
+                            ->isoFormat('D MMMM YYYY | HH:mm:ss');
+                    }),
                 TextColumn::make('kode')
                     ->label('No Laporan')
                     ->alignCenter()
                     ->searchable(),
+                TextColumn::make('dryers.lumbung_tujuan')
+                    ->alignCenter()
+                    ->searchable()
+                    ->label('Lumbung'),
                 TextColumn::make('dryers.no_dryer')
                     ->alignCenter()
                     ->searchable()

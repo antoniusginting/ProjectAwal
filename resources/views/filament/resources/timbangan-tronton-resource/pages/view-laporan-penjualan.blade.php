@@ -18,11 +18,11 @@
                     <tr>
                         <td class="font-semibold text-left align-top whitespace-nowrap">Tanggal</td>
                         <td class="whitespace-nowrap" width='200px'>:
-                            {{ $timbangantronton->created_at->format('d-m-Y') }}
+                            {{ optional($timbangantronton->created_at)->format('d-m-Y') ?? '-' }}
                         </td>
                         <td class="font-semibold whitespace-nowrap">Jam</td>
                         <td class="whitespace-nowrap" width='200px'>:
-                            {{ $timbangantronton->created_at->format('H:i') }}
+                            {{ optional($timbangantronton->created_at)->format('H:i') ?? '-' }}
                         </td>
                         <td class="font-semibold text-center align-top whitespace-nowrap">No Penjualan</td>
                         <td class="whitespace-nowrap">: {{ $timbangantronton->kode ?? '' }}</td>

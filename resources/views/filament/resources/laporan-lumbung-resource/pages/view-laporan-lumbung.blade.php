@@ -242,8 +242,8 @@
         @endforeach
         @php
             $lumbungTujuan = $laporanlumbung->lumbung ?? null;
-            $dryers = $laporanlumbung->dryers->sortBy('created_at')->values();
-            $timbangan = $laporanlumbung->timbangantrontons->sortBy('created_at')->values();
+            $dryers = $laporanlumbung->dryers->values();
+            $timbangan = $laporanlumbung->timbangantrontons->values();
             $max = max($dryers->count(), $timbangan->count());
             // Hitung total keseluruhan dari filtered netto
             $totalKeseluruhanFiltered = 0;
