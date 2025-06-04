@@ -673,46 +673,109 @@ class DryerResource extends Resource implements HasShieldPermissions
                         //     ->getOptionLabelFromRecordUsing(function ($record) {
                         //         return $record->no_sortiran . ' - ' . ' - ' . ($record->pembelian->plat_polisi ?? '') . ' - ' . $record->pembelian->supplier->nama_supplier;
                         //     }),
+                        // Tambahkan Select untuk filter kapasitas lumbung di atas Select sortiran
+                        // SOLUSI 1: Preservasi data yang sudah dipilih dalam afterStateUpdated
+                        Select::make('filter_kapasitas_lumbung')
+                            ->native(false)
+                            ->label('Filter Kapasitas Lumbung')
+                            ->placeholder('Pilih Kapasitas Lumbung')
+                            ->options(function () {
+                                // Ambil semua kapasitas lumbung yang unik
+                                return DB::table('kapasitas_lumbung_basahs')
+                                    ->select('id', 'no_kapasitas_lumbung')
+                                    ->orderBy('no_kapasitas_lumbung')
+                                    ->where('id', '!=', 13) // Ganti 13 dengan ID yang ingin dikecualikan
+                                    ->pluck('no_kapasitas_lumbung', 'id')
+                                    ->toArray();
+                            })
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, $set, $get) {
+                                // Simpan pilihan sortirans yang sudah ada sebelum filter berubah
+                                $currentSortirans = $get('sortirans') ?? [];
+                                $set('sortirans', $currentSortirans);
+                            }),
+
                         Select::make('sortirans')
                             ->label('Sortiran')
-                            ->native(true)
                             ->multiple()
-                            ->relationship('sortirans', 'no_sortiran', function ($query, $livewire) {
-                                // Dapatkan record saat ini (untuk mode edit)
-                                $record = $livewire->getRecord();
+                            ->relationship(
+                                name: 'sortirans',
+                                titleAttribute: 'no_sortiran',
+                                modifyQueryUsing: function (Builder $query, $get, $livewire) {
+                                    $filterKapasitasLumbung = $get('filter_kapasitas_lumbung');
+                                    $currentSortirans = $get('sortirans') ?? [];
 
-                                // Dapatkan semua sortiran yang sudah ada di semua dryer
-                                $usedSortiranIds = DB::table('dryer_has_sortiran')
-                                    ->pluck('sortiran_id')
-                                    ->toArray();
+                                    // Coba ambil record dari berbagai context
+                                    $currentRecordId = null;
 
-                                // Jika dalam mode edit, kita perlu menyertakan sortiran yang sudah terkait dengan record ini
-                                if ($record) {
-                                    $currentSortiranIds = $record->sortirans()
-                                        ->select('sortirans.id')
-                                        ->pluck('sortirans.id')
+                                    // Untuk EditRecord page
+                                    if (request()->route('record')) {
+                                        $currentRecordId = request()->route('record');
+                                    }
+
+                                    // Atau dari Livewire component
+                                    try {
+                                        if ($livewire && method_exists($livewire, 'getRecord')) {
+                                            $record = $livewire->getRecord();
+                                            if ($record) {
+                                                $currentRecordId = $record->getKey();
+                                            }
+                                        }
+                                    } catch (\Exception $e) {
+                                        // Ignore error jika tidak dalam context Livewire
+                                    }
+
+                                    // Ambil semua ID sortiran yang sudah digunakan di dryer lain
+                                    $usedSortiranIds = DB::table('dryer_has_sortiran')
+                                        ->pluck('sortiran_id')
                                         ->toArray();
 
-                                    // Filter lengkap dengan tambahan filter no_lumbung_basah
-                                    return $query->where(function ($q) use ($usedSortiranIds, $currentSortiranIds) {
-                                        $q->whereNotIn('sortirans.id', $usedSortiranIds)
-                                            ->orWhereIn('sortirans.id', $currentSortiranIds);
-                                    })
-                                        ->where('sortirans.no_lumbung_basah', '!=', 13) // Filter: exclude no_lumbung_basah = 1
-                                        ->latest('sortirans.created_at');
-                                } else {
-                                    // Dalam mode create, hanya tampilkan sortiran yang belum digunakan dan bukan no_lumbung_basah = 1
-                                    return $query->whereNotIn('sortirans.id', $usedSortiranIds)
-                                        ->where('sortirans.no_lumbung_basah', '!=', 13) // Filter: exclude no_lumbung_basah = 1
-                                        ->latest('sortirans.created_at');
+                                    // Jika sedang edit, ambil ID yang sudah terkait dengan record ini
+                                    if ($currentRecordId) {
+                                        $currentlySelectedIds = DB::table('dryer_has_sortiran')
+                                            ->where('dryer_id', $currentRecordId)
+                                            ->pluck('sortiran_id')
+                                            ->toArray();
+
+                                        // Exclude currently selected IDs from used IDs
+                                        $usedSortiranIds = array_diff($usedSortiranIds, $currentlySelectedIds);
+                                    }
+
+                                    // Base query - exclude no_lumbung_basah = 13
+                                    $query = $query->where('sortirans.no_lumbung_basah', '!=', 13);
+
+                                    // Jika ada filter kapasitas lumbung yang dipilih
+                                    if ($filterKapasitasLumbung) {
+                                        // Include sortirans yang sudah dipilih sebelumnya ATAU yang sesuai dengan filter
+                                        $query->where(function ($subQuery) use ($filterKapasitasLumbung, $currentSortirans) {
+                                            // Filter berdasarkan kapasitas lumbung
+                                            $subQuery->whereHas('kapasitaslumbungbasah', function ($q) use ($filterKapasitasLumbung) {
+                                                $q->where('id', $filterKapasitasLumbung);
+                                            });
+
+                                            // Jika ada sortirans yang sudah dipilih, include mereka juga
+                                            if (!empty($currentSortirans)) {
+                                                $subQuery->orWhereIn('sortirans.id', $currentSortirans);
+                                            }
+                                        });
+                                    }
+
+                                    // Exclude sortiran yang sudah digunakan di dryer lain
+                                    $query->whereNotIn('sortirans.id', $usedSortiranIds);
+
+                                    return $query->latest('sortirans.created_at');
                                 }
-                            })
+                            )
+                            ->preload()
+                            ->reactive()
                             ->getOptionLabelFromRecordUsing(function ($record) {
                                 $noBk = $record->pembelian ? $record->pembelian->plat_polisi : 'N/A';
                                 $supplier = $record->pembelian ? $record->pembelian->supplier->nama_supplier : 'N/A';
                                 $kapasitas = $record->kapasitaslumbungbasah ? $record->kapasitaslumbungbasah->no_kapasitas_lumbung : 'N/A';
                                 return $kapasitas . ' - ' .  $record->pembelian->no_spb . ' - ' . $noBk . ' - ' . $supplier . ' - ' . $record->netto_bersih;
                             })
+                            ->disabled(fn($get) => !$get('filter_kapasitas_lumbung'))
+                            ->helperText('Pilih kapasitas lumbung terlebih dahulu untuk menampilkan sortiran')
                             ->reactive()
                             ->afterStateUpdated(function ($state, callable $set, callable $get, $livewire) {
                                 // Mendapatkan nilai kapasitas sisa awal
