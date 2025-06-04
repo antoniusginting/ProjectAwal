@@ -114,14 +114,14 @@ class KapasitasLumbungBasahResource extends Resource implements HasShieldPermiss
                 // Tables\Actions\EditAction::make(),
                 // Tables\Actions\DeleteAction::make(),
                 // Tables\Actions\ViewAction::make(),
-                Action::make('reset_kapasitas')
-                    ->label('Reset')
-                    ->action(fn($record) => $record->update([
-                        'kapasitas_sisa' => $record->kapasitas_total
-                    ]))
-                    ->requiresConfirmation()
-                    ->color('warning')
-                    ->icon('heroicon-o-arrow-path'),
+                // Action::make('reset_kapasitas')
+                //     ->label('Reset')
+                //     ->action(fn($record) => $record->update([
+                //         'kapasitas_sisa' => $record->kapasitas_total
+                //     ]))
+                //     ->requiresConfirmation()
+                //     ->color('warning')
+                //     ->icon('heroicon-o-arrow-path'),
             ]);
         // ->bulkActions([
         //     Tables\Actions\BulkActionGroup::make([

@@ -97,6 +97,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                             $selectedLumbung = $get('filter_lumbung_tujuan');
                                             $currentDryers = $get('dryers') ?? [];
 
+
                                             // Coba ambil record dari berbagai context
                                             $currentRecordId = null;
 
@@ -151,15 +152,45 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                                     }
                                                 });
                                             }
-
+                                            $query->orderBy('dryers.created_at', 'desc');
                                             return $query->whereNotIn('dryers.id', $usedLaporanIds);
                                         }
                                     )
                                     ->preload()
                                     ->reactive()
                                     ->getOptionLabelFromRecordUsing(function ($record) {
-                                        return $record->no_dryer . ' - ' . $record->lumbung_tujuan;
-                                    }),
+                                        return $record->no_dryer . ' - Dryer : ' . $record->kapasitasdryer->nama_kapasitas_dryer . ' - Lumbung Kering : ' . $record->lumbung_tujuan;
+                                    })
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get, $livewire) {
+                                        $record = $livewire->getRecord();
+                                        $isEditMode = $record !== null;
+
+                                        if ($isEditMode) {
+                                            // Dapatkan sortiran sebelumnya yang sudah terkait dengan record ini
+                                            $oldDryerIds = $record->dryers()->pluck('dryers.id')->toArray();
+                                            $oldDryers = \App\Models\Dryer::whereIn('id', $oldDryerIds)->get();
+
+                                            foreach ($oldDryers as $oldDryer) {
+                                                $oldKapasitas = \App\Models\KapasitasDryer::find($oldDryer->id_kapasitas_dryer);
+                                                if ($oldKapasitas) {
+                                                    $oldNettoValue = (int) preg_replace('/[^0-9]/', '', $oldDryer->total_netto);
+                                                    // Rollback kapasitas lama sebelum perubahan
+                                                    $oldKapasitas->decrement('kapasitas_sisa', $oldNettoValue);
+                                                }
+                                            }
+                                        }
+
+                                        // Mendapatkan semua sortiran yang dipilih saat ini
+                                        $selectedDryers = \App\Models\Dryer::whereIn('id', $state)->get();
+
+                                        foreach ($selectedDryers as $dryer) {
+                                            $kapasitas = \App\Models\KapasitasDryer::find($dryer->id_kapasitas_dryer);
+                                            if ($kapasitas) {
+                                                $nettoValue = (int) preg_replace('/[^0-9]/', '', $dryer->total_netto);
+                                                $kapasitas->increment('kapasitas_sisa', $nettoValue);
+                                            }
+                                        }
+                                    })
                             ])->columnSpan(1),
                         Card::make('Info Laporan Penjualan')
                             ->schema([
@@ -176,10 +207,10 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                             ->toArray();
                                     })
                                     ->reactive(),
-                                    // ->disabled(function (callable $get, ?\Illuminate\Database\Eloquent\Model $record) {
-                                    //     // Disable saat edit, misal jika $record ada berarti edit
-                                    //     return $record !== null;
-                                    // }),
+                                // ->disabled(function (callable $get, ?\Illuminate\Database\Eloquent\Model $record) {
+                                //     // Disable saat edit, misal jika $record ada berarti edit
+                                //     return $record !== null;
+                                // }),
                                 Select::make('timbanganTrontons')
                                     ->label('Laporan Penjualan')
                                     ->multiple()
