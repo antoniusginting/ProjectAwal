@@ -247,6 +247,7 @@
             $max = max($dryers->count(), $timbangan->count());
             // Hitung total keseluruhan dari filtered netto
             $totalKeseluruhanFiltered = 0;
+            $nilai_dryers_sum_total_netto = $dryers->sum('total_netto');
         @endphp
 
         <table class="w-full border border-collapse border-gray-300 dark:border-gray-700">
@@ -255,6 +256,7 @@
                     <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">TGL</th>
                     <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Jenis</th>
                     <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Masuk</th>
+                    <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Berat</th>
                     <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Keluar</th>
                     <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Berat</th>
                     <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">PJ</th>
@@ -310,6 +312,9 @@
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                             {{ $dryer ? $dryer->no_dryer : '' }}
                         </td>
+                        <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
+                            {{ $dryer ? $dryer->total_netto : '' }}
+                        </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                             {{ $timbanganItem ? $timbanganItem->kode : '' }}
                         </td>
@@ -332,13 +337,22 @@
             </tbody>
             <tfoot>
                 <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
-                    <td colspan="4" class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                    @php
+                        // Hitung selisih SETELAH loop selesai dan $totalKeseluruhanFilteredAccumulated sudah final
+                        $hasil_pengurangan_numeric_final = $nilai_dryers_sum_total_netto - $totalKeseluruhanFiltered;
+                    @endphp
+                    <td colspan="3" class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                         Total Berat:
                     </td>
                     <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
+                        {{ number_format($nilai_dryers_sum_total_netto, 0, ',', '.') }}
+                    </td>
+                    <td></td>
+                    <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
                         {{ number_format($totalKeseluruhanFiltered, 0, ',', '.') }}
                     </td>
-                    <td class="border p-2 border-gray-300 dark:border-gray-700 text-sm"></td>
+                    <td class="border text-center p-2 border-gray-300 dark:border-gray-700 text-sm">Selisih =
+                        {{ number_format($hasil_pengurangan_numeric_final, 0, ',', '.') }}</td>
                 </tr>
             </tfoot>
         </table>
