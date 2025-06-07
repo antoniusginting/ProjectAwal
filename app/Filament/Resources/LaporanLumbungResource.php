@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\LaporanLumbungResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\LaporanLumbungResource\RelationManagers;
+use App\Services\DryerService;
 
 class LaporanLumbungResource extends Resource implements HasShieldPermissions
 {
@@ -97,7 +98,6 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                             $selectedLumbung = $get('filter_lumbung_tujuan');
                                             $currentDryers = $get('dryers') ?? [];
 
-
                                             // Coba ambil record dari berbagai context
                                             $currentRecordId = null;
 
@@ -161,36 +161,52 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                     ->getOptionLabelFromRecordUsing(function ($record) {
                                         return $record->no_dryer . ' - Dryer : ' . $record->kapasitasdryer->nama_kapasitas_dryer . ' - Lumbung Kering : ' . $record->lumbung_tujuan;
                                     })
-                                    ->afterStateUpdated(function ($state, callable $set, callable $get, $livewire) {
-                                        $record = $livewire->getRecord();
-                                        $isEditMode = $record !== null;
-
-                                        if ($isEditMode) {
-                                            // Dapatkan sortiran sebelumnya yang sudah terkait dengan record ini
-                                            $oldDryerIds = $record->dryers()->pluck('dryers.id')->toArray();
-                                            $oldDryers = \App\Models\Dryer::whereIn('id', $oldDryerIds)->get();
-
-                                            foreach ($oldDryers as $oldDryer) {
-                                                $oldKapasitas = \App\Models\KapasitasDryer::find($oldDryer->id_kapasitas_dryer);
-                                                if ($oldKapasitas) {
-                                                    $oldNettoValue = (int) preg_replace('/[^0-9]/', '', $oldDryer->total_netto);
-                                                    // Rollback kapasitas lama sebelum perubahan
-                                                    $oldKapasitas->decrement('kapasitas_sisa', $oldNettoValue);
-                                                }
-                                            }
+                                    ->afterStateUpdated(
+                                        function ($state, callable $set, callable $get, $livewire, $old) {
+                                            app(DryerService::class)->updateStatusToCompleted(
+                                                $state ?? [],
+                                                $old ?? []
+                                            );
                                         }
+                                    )
+                                // ->saveRelationshipsUsing(function ($component, $state, $record) {
+                                //     // Sync relasi
+                                //     $record->dryers()->sync($state ?? []);
 
-                                        // Mendapatkan semua sortiran yang dipilih saat ini
-                                        $selectedDryers = \App\Models\Dryer::whereIn('id', $state)->get();
+                                //     // Update kapasitas setelah sync
+                                //     $record->updateKapasitasDryerAfterSync($state ?? []);
+                                // })
+                                // afterStateUpdated dihapus karena sudah dipindah ke model
+                                // ->afterStateUpdated(function ($state, callable $set, callable $get, $livewire) {
+                                //     $record = $livewire->getRecord();
+                                //     $isEditMode = $record !== null;
 
-                                        foreach ($selectedDryers as $dryer) {
-                                            $kapasitas = \App\Models\KapasitasDryer::find($dryer->id_kapasitas_dryer);
-                                            if ($kapasitas) {
-                                                $nettoValue = (int) preg_replace('/[^0-9]/', '', $dryer->total_netto);
-                                                $kapasitas->increment('kapasitas_sisa', $nettoValue);
-                                            }
-                                        }
-                                    })
+                                //     if ($isEditMode) {
+                                //         // Dapatkan sortiran sebelumnya yang sudah terkait dengan record ini
+                                //         $oldDryerIds = $record->dryers()->pluck('dryers.id')->toArray();
+                                //         $oldDryers = \App\Models\Dryer::whereIn('id', $oldDryerIds)->get();
+
+                                //         foreach ($oldDryers as $oldDryer) {
+                                //             $oldKapasitas = \App\Models\KapasitasDryer::find($oldDryer->id_kapasitas_dryer);
+                                //             if ($oldKapasitas) {
+                                //                 $oldNettoValue = (int) preg_replace('/[^0-9]/', '', $oldDryer->total_netto);
+                                //                 // Rollback kapasitas lama sebelum perubahan
+                                //                 $oldKapasitas->decrement('kapasitas_sisa', $oldNettoValue);
+                                //             }
+                                //         }
+                                //     }
+
+                                //     // Mendapatkan semua sortiran yang dipilih saat ini
+                                //     $selectedDryers = \App\Models\Dryer::whereIn('id', $state)->get();
+
+                                //     foreach ($selectedDryers as $dryer) {
+                                //         $kapasitas = \App\Models\KapasitasDryer::find($dryer->id_kapasitas_dryer);
+                                //         if ($kapasitas) {
+                                //             $nettoValue = (int) preg_replace('/[^0-9]/', '', $dryer->total_netto);
+                                //             $kapasitas->increment('kapasitas_sisa', $nettoValue);
+                                //         }
+                                //     }
+                                // })
                             ])->columnSpan(1),
                         Card::make('Info Laporan Penjualan')
                             ->schema([

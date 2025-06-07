@@ -2,8 +2,11 @@
 
 namespace App\Filament\Resources\DryerResource\Pages;
 
+use App\Services\DryerService;
 use Filament\Actions;
 use Filament\Actions\Action;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Notifications\Notification;
 use App\Filament\Resources\DryerResource;
 use Filament\Resources\Pages\CreateRecord;
 
@@ -33,5 +36,23 @@ class CreateDryer extends CreateRecord
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index'); // Arahkan ke daftar tabel
+    }
+
+    protected function handleRecordCreation(array $data): Model
+    {
+        $service = app(DryerService::class);
+
+        try {
+            return $service->create($data);
+        } catch (\Exception $e) {
+            Notification::make()
+                ->danger()
+                ->title('Gagal Membuat Dryer')
+                ->body($e->getMessage())
+                ->persistent()
+                ->send();
+
+            throw $e;
+        }
     }
 }

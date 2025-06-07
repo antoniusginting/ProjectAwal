@@ -72,101 +72,14 @@ class Sortiran extends Model
         return $this->belongsTo(Pembelian::class, 'id_pembelian', 'id');
     }
 
-    // // Relasi ke tabel pembelian
-    // public function kapasitas()
-    // {
-    //     return $this->belongsTo(KapasitasLumbungBasah::class, 'id_lumbung_basah', 'id');
-    // }
-
     // Relasi ke Kapasitas
     public function kapasitaslumbungbasah()
     {
         return $this->belongsTo(KapasitasLumbungBasah::class, 'no_lumbung_basah', 'id');
     }
 
-    protected static function booted()
+    public function getNettoBersihIntegerAttribute(): int
     {
-        // Event saat data dibuat
-        static::creating(function ($sortiran) {
-            // Konversi netto_bersih dari varchar ke integer (hapus titik pemisah ribuan)
-            $nettoBersih = (int) str_replace('.', '', $sortiran->netto_bersih);
-
-            // Cari data kapasitas berdasarkan ID
-            $kapasitas = KapasitasLumbungBasah::find($sortiran->no_lumbung_basah);
-
-            if (!$kapasitas) {
-                throw ValidationException::withMessages([
-                    'no_lumbung_basah' => 'Kapasitas Lumbung Basah tidak ditemukan.',
-                ]);
-            }
-
-            if ($kapasitas->kapasitas_sisa >= $nettoBersih) {
-                $kapasitas->decrement('kapasitas_sisa', $nettoBersih);
-            } else {
-                Notification::make()
-                    ->danger()
-                    ->title('Kapasitas Tidak Mencukupi')
-                    ->body('Total netto yang diinput melebihi kapasitas sisa lumbung basah.')
-                    ->persistent()
-                    ->send();
-
-                throw ValidationException::withMessages([
-                    'netto_bersih' => 'Total netto melebihi kapasitas sisa lumbung basah.',
-                ]);
-            }
-        });
-
-        // Event saat data diperbarui
-        static::updating(function ($sortiran) {
-            DB::transaction(function () use ($sortiran) {
-                $oldSortiran = $sortiran->getOriginal();
-                $oldNetto = (int) str_replace('.', '', $oldSortiran['netto_bersih'] ?? '0');
-                $oldNoLumbung = $oldSortiran['no_lumbung_basah'];
-
-                $newNetto = (int) str_replace('.', '', $sortiran->netto_bersih);
-
-                if ($oldNoLumbung !== $sortiran->no_lumbung_basah) {
-                    throw ValidationException::withMessages([
-                        'no_lumbung_basah' => 'Nomor Lumbung tidak dapat diubah!',
-                    ]);
-                }
-
-                $kapasitas = KapasitasLumbungBasah::find($oldNoLumbung);
-
-                if (!$kapasitas) {
-                    throw ValidationException::withMessages([
-                        'no_lumbung_basah' => 'Kapasitas Lumbung Basah tidak ditemukan.',
-                    ]);
-                }
-
-                // Kembalikan kapasitas lama
-                $kapasitas->increment('kapasitas_sisa', $oldNetto);
-
-                // Periksa apakah kapasitas cukup untuk nilai baru
-                if ($kapasitas->kapasitas_sisa >= $newNetto) {
-                    $kapasitas->decrement('kapasitas_sisa', $newNetto);
-                } else {
-                    Notification::make()
-                        ->danger()
-                        ->title('Kapasitas Tidak Mencukupi')
-                        ->body('Total netto yang diinput melebihi kapasitas sisa lumbung basah.')
-                        ->persistent()
-                        ->send();
-
-                    throw ValidationException::withMessages([
-                        'netto_bersih' => 'Total netto melebihi kapasitas sisa lumbung basah.',
-                    ]);
-                }
-            });
-        });
-
-        // Event saat data dihapus
-        static::deleting(function ($sortiran) {
-            $kapasitas = KapasitasLumbungBasah::find($sortiran->no_lumbung_basah);
-
-            if ($kapasitas) {
-                $kapasitas->increment('kapasitas_sisa', (int) str_replace('.', '', $sortiran->netto_bersih));
-            }
-        });
+        return (int) str_replace('.', '', $this->netto_bersih);
     }
 }

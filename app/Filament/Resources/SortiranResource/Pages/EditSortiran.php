@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources\SortiranResource\Pages;
 
-use App\Filament\Resources\SortiranResource;
 use Filament\Actions;
 use Filament\Actions\Action;
+use App\Services\SortirService;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Resources\Pages\EditRecord;
+use App\Filament\Resources\SortiranResource;
 
 class EditSortiran extends EditRecord
 {
@@ -14,7 +16,11 @@ class EditSortiran extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            Actions\DeleteAction::make()
+                ->using(function (Model $record) {
+                    $service = app(SortirService::class);
+                    return $service->delete($record);
+                }),
         ];
     }
 
@@ -35,4 +41,5 @@ class EditSortiran extends EditRecord
     {
         return $this->getResource()::getUrl('index'); // Arahkan ke daftar tabel
     }
+
 }

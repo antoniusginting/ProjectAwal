@@ -34,4 +34,9 @@ class EditLaporanLumbung extends EditRecord
     {
         return $this->getResource()::getUrl('index'); // Arahkan ke daftar tabel
     }
+    // protected function afterSave(): void
+    // {
+    //     // Update kapasitas dryer setelah record dan relasi diupdate
+    //     $this->record->updateKapasitasDryerAfterSync();
+    // }
 }

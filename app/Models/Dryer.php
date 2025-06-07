@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Notifications\Notification;
 use Illuminate\Validation\ValidationException;
@@ -23,6 +24,7 @@ class Dryer extends Model
         'hasil_kadar',
         'total_netto',
         'pj',
+        'status',
     ];
 
 
@@ -67,83 +69,8 @@ class Dryer extends Model
         return $this->belongsTo(LumbungBasah::class, 'id_lumbung_4');
     }
 
-    protected static function booted()
+   public function getTotalNettoIntegerAttribute(): int
     {
-        // Event saat data dibuat
-        static::creating(function ($dryer) {
-            $kapasitas = KapasitasDryer::find($dryer->id_kapasitas_dryer);
-
-            if (!$kapasitas) {
-                throw ValidationException::withMessages([
-                    'id_kapasitas_dryer' => 'Kapasitas Dryer tidak ditemukan.',
-                ]);
-            }
-
-            if ($kapasitas->kapasitas_sisa >= $dryer->total_netto) {
-                $kapasitas->decrement('kapasitas_sisa', $dryer->total_netto);
-            } else {
-                Notification::make()
-                    ->danger()
-                    ->title('Kapasitas Tidak Mencukupi')
-                    ->body('Total netto yang diinput melebihi kapasitas sisa Dryer.')
-                    ->persistent()
-                    ->send();
-
-                throw ValidationException::withMessages([
-                    'total_netto' => 'Total netto melebihi kapasitas sisa Dryer.',
-                ]);
-            }
-        });
-
-        // Event saat data diperbarui
-        static::updating(function ($dryer) {
-            DB::transaction(function () use ($dryer) {
-                $olddryer = $dryer->getOriginal();
-                $oldNetto = $olddryer['total_netto'] ?? 0;
-                $oldNoLumbung = $olddryer['id_kapasitas_dryer'];
-
-                if ($oldNoLumbung !== $dryer->id_kapasitas_dryer) {
-                    throw ValidationException::withMessages([
-                        'id_kapasitas_dryer' => 'Nomor Lumbung tidak dapat diubah!',
-                    ]);
-                }
-
-                $kapasitas = KapasitasDryer::find($oldNoLumbung);
-
-                if (!$kapasitas) {
-                    throw ValidationException::withMessages([
-                        'id_kapasitas_dryer' => 'Kapasitas Dryer tidak ditemukan.',
-                    ]);
-                }
-
-                // Kembalikan kapasitas lama
-                $kapasitas->increment('kapasitas_sisa', $oldNetto);
-
-                // Periksa apakah kapasitas cukup untuk nilai baru
-                if ($kapasitas->kapasitas_sisa >= $dryer->total_netto) {
-                    $kapasitas->decrement('kapasitas_sisa', $dryer->total_netto);
-                } else {
-                    Notification::make()
-                        ->danger()
-                        ->title('Kapasitas Tidak Mencukupi')
-                        ->body('Total netto yang diinput melebihi kapasitas sisa Dryer.')
-                        ->persistent()
-                        ->send();
-
-                    throw ValidationException::withMessages([
-                        'total_netto' => 'Total netto melebihi kapasitas sisa Dryer.',
-                    ]);
-                }
-            });
-        });
-
-        // Event saat data dihapus
-        static::deleting(function ($dryer) {
-            $kapasitas = KapasitasDryer::find($dryer->id_kapasitas_dryer);
-
-            if ($kapasitas) {
-                $kapasitas->increment('kapasitas_sisa', $dryer->total_netto);
-            }
-        });
+        return (int) str_replace('.', '', $this->total_netto);
     }
 }

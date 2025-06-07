@@ -3,45 +3,7 @@
         <!-- Info Pengiriman -->
         <div class="overflow-x-auto">
             <table class="w-full align-left">
-                {{-- @php
-                    $allSortirans = collect();
-                    $totalBerat = 0;
-                    $totalGoni = 0;
 
-                    // Collect sortirans from all lumbungs
-                    for ($i = 1; $i <= 4; $i++) {
-                        $lumbungProperty = "lumbung{$i}";
-                        if (
-                            isset($dryer->$lumbungProperty) &&
-                            $dryer->$lumbungProperty &&
-                            $dryer->$lumbungProperty->sortirans
-                        ) {
-                            foreach ($dryer->$lumbungProperty->sortirans as $sortiran) {
-                                $sortiran->lumbung_name = "Lumbung {$i}";
-                                $allSortirans->push($sortiran);
-
-                                // Sanitasi nilai berat: hanya ambil angka dan titik desimal
-                                $beratValue = $sortiran->netto_bersih;
-                                if (is_string($beratValue)) {
-                                    // Hapus ribuan format seperti 1.000 -> 1000
-                                    $beratValue = str_replace('.', '', $beratValue);
-                                    // Ganti koma desimal dengan titik jika ada
-                                    $beratValue = str_replace(',', '.', $beratValue);
-                                    // Hapus semua karakter non-numerik kecuali titik desimal
-                                    $beratValue = preg_replace('/[^0-9.]/', '', $beratValue);
-                                }
-                                $beratValue = empty($beratValue) ? 0 : (float) $beratValue;
-
-                                // Untuk goni (integer), cukup pastikan nilainya tidak null
-                                $goniValue = $sortiran->total_karung ?? 0;
-
-                                // Add to totals
-                                $totalBerat += $beratValue;
-                                $totalGoni += $goniValue;
-                            }
-                        }
-                    }
-                @endphp --}}
                 @php
                     // Hitung total netto bersih dari semua sortirans
                     $grandTotalNetto = $dryer->sortirans->sum(function ($sortiran) {
@@ -53,7 +15,8 @@
                 <tbody class="text-base">
                     <tr>
                         <td class="font-semibold text-left whitespace-nowrap" width='180px'>Tanggal</td>
-                        <td class="whitespace-nowrap" width='200px'>: {{ $dryer->created_at->format('d-m-Y') }}</td>
+                        <td class="whitespace-nowrap" width='200px'>: @if (!empty($dryer->pj)){{ optional($dryer->created_at)->format('d-m-Y') }}
+                            @endif</td>
                         <td class="font-semibold whitespace-nowrap" width='250px'>Penanggung Jawab</td>
                         <td class="whitespace-nowrap" width='180px'>: {{ $dryer->pj }}
                         </td>
@@ -64,9 +27,11 @@
                     </tr>
                     <tr>
                         <td class="font-semibold whitespace-nowrap">Jam</td>
-                        <td class="whitespace-nowrap">: {{ $dryer->created_at->format('H-i-s') }}</td>
+                        <td class="whitespace-nowrap">: @if (!empty($dryer->pj)){{ optional($dryer->created_at)->format('h:i:s') }}
+                            @endif</td>
                         <td class="font-semibold whitespace-nowrap">Rencana Kadar</td>
-                        <td class="whitespace-nowrap">: {{ $dryer->rencana_kadar }}% </td>
+                        <td class="whitespace-nowrap">: {{ $dryer->rencana_kadar }}@if ($dryer->rencana_kadar !== null)%
+                            @endif </td>
                         <td class="font-semibold whitespace-nowrap">Kapasitas Dryer</td>
                         <td class="whitespace-nowrap">:
                             {{ number_format($dryer->kapasitasdryer->kapasitas_total, '0', ',', '.') }}</td>
@@ -76,9 +41,10 @@
                         <td class="font-semibold whitespace-nowrap">Operator</td>
                         <td class="whitespace-nowrap">: {{ $dryer->operator }}</td>
                         <td class="font-semibold whitespace-nowrap">Hasil Kadar</td>
-                        <td class="whitespace-nowrap">: {{ $dryer->hasil_kadar }}%</td>
+                        <td class="whitespace-nowrap">: {{ $dryer->hasil_kadar }}@if ($dryer->hasil_kadar !== null)%
+                            @endif</td>
                         <td class="font-semibold whitespace-nowrap">Kapasitas Terpakai</td>
-                        <td>: {{ number_format($grandTotalNetto, '0', ',', '.') }}</td>
+                        <td>: {{ $grandTotalNetto == 0 ? '' : number_format($grandTotalNetto, 0, ',', '.') }}</td>
                         {{-- <td class="whitespace-nowrap">: {{ number_format($totalBerat, '0', ',', '.') }}</td> --}}
                         {{-- {{ number_format($dryer->kapasitasdryer->kapasitas_total - $totalBerat, 0, ',', '.') }} --}}
                     </tr>
@@ -100,122 +66,173 @@
 
         <!-- Tabel Detail Pengiriman -->
         <div class="overflow-x-auto">
-            <table class="w-full border border-collapse border-gray-300 dark:border-gray-700">
-                {{-- <div class="text-right text-sm mb-2">Tanggal: 
+            @if (!empty($dryer->pj))
+                <table class="w-full border border-collapse border-gray-300 dark:border-gray-700">
+                    {{-- <div class="text-right text-sm mb-2">Tanggal: 
                 </div> --}}
-                <thead>
-                    <tr class="bg-gray-100 dark:bg-gray-800">
-                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">TGL</th>
-                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Nama Lumbung</th>
-                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Jenis</th>
-                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Goni</th>
-                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Berat</th>
-                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">No Timbangan</th>
-                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Kadar</th>
-                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">-</th>
-                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">-</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @php
-                        $groupedSortirans = $dryer->sortirans->groupBy('id_sortiran');
-                    @endphp
-
-                    @foreach ($groupedSortirans as $idSortiran => $sortiransGroup)
+                    <thead>
+                        <tr class="bg-gray-100 dark:bg-gray-800">
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">TGL</th>
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Nama Lumbung</th>
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Jenis</th>
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Goni</th>
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Berat</th>
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">No Timbangan</th>
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Kadar</th>
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">-</th>
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">-</th>
+                        </tr>
+                    </thead>
+                    <tbody>
                         @php
-                            $totalNettoBersih = 0;
-                            $totalTotalKarung = 0;
-                            
-                            // Hitung total netto bersih untuk grup ini terlebih dahulu
-                            foreach ($sortiransGroup as $sortiran) {
-                                $nettoBersihStripped = str_replace('.', '', $sortiran->netto_bersih);
-                                $nettoBersihValue = is_numeric($nettoBersihStripped) ? floatval($nettoBersihStripped) : 0;
-                                $totalNettoBersih += $nettoBersihValue;
-                                
-                                $totalKarungStripped = str_replace('.', '', $sortiran->total_karung);
-                                $totalKarungValue = is_numeric($totalKarungStripped) ? floatval($totalKarungStripped) : 0;
-                                $totalTotalKarung += $totalKarungValue;
-                            }
+                            $groupedSortirans = $dryer->sortirans->groupBy('id_sortiran');
                         @endphp
 
-                        @foreach ($sortiransGroup as $index => $sortiran)
+                        @foreach ($groupedSortirans as $idSortiran => $sortiransGroup)
+                            @php
+                                $totalNettoBersih = 0;
+                                $totalTotalKarung = 0;
+
+                                // Hitung total netto bersih untuk grup ini terlebih dahulu
+                                foreach ($sortiransGroup as $sortiran) {
+                                    $nettoBersihStripped = str_replace('.', '', $sortiran->netto_bersih);
+                                    $nettoBersihValue = is_numeric($nettoBersihStripped)
+                                        ? floatval($nettoBersihStripped)
+                                        : 0;
+                                    $totalNettoBersih += $nettoBersihValue;
+
+                                    $totalKarungStripped = str_replace('.', '', $sortiran->total_karung);
+                                    $totalKarungValue = is_numeric($totalKarungStripped)
+                                        ? floatval($totalKarungStripped)
+                                        : 0;
+                                    $totalTotalKarung += $totalKarungValue;
+                                }
+                            @endphp
+
+                            @foreach ($sortiransGroup as $index => $sortiran)
+                                <tr>
+                                    <td class="border text-center p-2 border-gray-300 dark:border-gray-700"
+                                        width='50px'>
+                                        {{ $sortiran->created_at->format('d/m') ?? '-' }}</td>
+                                    <td class="border text-center p-2 border-gray-300 dark:border-gray-700"
+                                        width='150px'>
+                                        {{ $sortiran->kapasitaslumbungbasah->no_kapasitas_lumbung }}</td>
+                                    <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
+                                        {{ $sortiran->pembelian->nama_barang }}</td>
+                                    <td class="border p-2 border-gray-300 dark:border-gray-700 text-right"
+                                        width='100px'>
+                                        {{ $sortiran->total_karung ?? '-' }}
+                                    </td>
+                                    <td class="border text-right p-2 border-gray-300 dark:border-gray-700">
+                                        {{ $sortiran->netto_bersih ?? '-' }}
+                                    </td>
+                                    <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
+                                        {{ $sortiran->pembelian->no_spb ?? '-' }}
+                                    </td>
+                                    <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
+                                        {{ $sortiran->kadar_air ?? '-' }}%
+                                    </td>
+                                    <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
+                                        @php
+                                            // Hitung persentase untuk kolom Tes
+                                            $nettoBersihStripped = str_replace('.', '', $sortiran->netto_bersih);
+                                            $nettoBersihValue = is_numeric($nettoBersihStripped)
+                                                ? floatval($nettoBersihStripped)
+                                                : 0;
+
+                                            $percentage =
+                                                $totalNettoBersih > 0
+                                                    ? round(($nettoBersihValue / $totalNettoBersih) * 100, 1)
+                                                    : 0;
+
+                                            // Hitung CA (kadar_air * percentage)
+                                            $kadarAirValue = is_numeric($sortiran->kadar_air)
+                                                ? round(floatval($sortiran->kadar_air), 2)
+                                                : 0;
+                                            $caValue = round($kadarAirValue * $percentage, 2);
+                                        @endphp
+                                        {{ number_format($percentage, 1, ',', '.') }}%
+                                    </td>
+                                    <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
+                                        {{ number_format($caValue, 2, ',', '.') }}
+                                    </td>
+                                </tr>
+                            @endforeach
+
+                            <!-- Displaying Total Netto Bersih for this group -->
                             <tr>
-                                <td class="border text-center p-2 border-gray-300 dark:border-gray-700" width='50px'>
-                                    {{ $sortiran->created_at->format('d/m') ?? '-' }}</td>
-                                <td class="border text-center p-2 border-gray-300 dark:border-gray-700" width='150px'>
-                                    {{ $sortiran->kapasitaslumbungbasah->no_kapasitas_lumbung }}</td>
-                                <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
-                                    {{ $sortiran->pembelian->nama_barang }}</td>
-                                <td class="border p-2 border-gray-300 dark:border-gray-700 text-right" width='100px'>
-                                    {{ $sortiran->total_karung ?? '-' }}
+                                <td colspan="3"
+                                    class="text-center font-semibold p-2 border-gray-300 dark:border-gray-700">
+                                    Total {{ $idSortiran }}
                                 </td>
-                                <td class="border text-right p-2 border-gray-300 dark:border-gray-700">
-                                    {{ $sortiran->netto_bersih ?? '-' }}
+                                <td class="p-2 text-right border-gray-300 dark:border-gray-700">
+                                    {{ number_format($totalTotalKarung, 0, ',', '.') }}
                                 </td>
-                                <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
-                                    {{ $sortiran->pembelian->no_spb ?? '-' }}
+                                <td class="p-2 text-right border-gray-300 dark:border-gray-700">
+                                    {{ number_format($totalNettoBersih, 0, ',', '.') }}
                                 </td>
-                                <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
-                                    {{ $sortiran->kadar_air ?? '-' }}%
+                                <td colspan="3" class="p-2 text-center border-gray-300 dark:border-gray-700">
+
                                 </td>
-                                <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
+                                <td class="p-2 text-center border-gray-300 dark:border-gray-700">
                                     @php
-                                        // Hitung persentase untuk kolom Tes
-                                        $nettoBersihStripped = str_replace('.', '', $sortiran->netto_bersih);
-                                        $nettoBersihValue = is_numeric($nettoBersihStripped) ? floatval($nettoBersihStripped) : 0;
-                                        
-                                        $percentage = ($totalNettoBersih > 0) ? round(($nettoBersihValue / $totalNettoBersih * 100), 1) : 0;
-                                        
-                                        // Hitung CA (kadar_air * percentage)
-                                        $kadarAirValue = is_numeric($sortiran->kadar_air) ? round(floatval($sortiran->kadar_air), 2) : 0;
-                                        $caValue = round($kadarAirValue * $percentage, 2);
+                                        // Hitung total CA untuk grup ini
+                                        $totalCA = 0;
+                                        $totalCB = 0;
+                                        foreach ($sortiransGroup as $sortiran) {
+                                            $nettoBersihStripped = str_replace('.', '', $sortiran->netto_bersih);
+                                            $nettoBersihValue = is_numeric($nettoBersihStripped)
+                                                ? floatval($nettoBersihStripped)
+                                                : 0;
+                                            $percentage =
+                                                $totalNettoBersih > 0
+                                                    ? round(($nettoBersihValue / $totalNettoBersih) * 100, 1)
+                                                    : 0;
+                                            $kadarAirValue = is_numeric($sortiran->kadar_air)
+                                                ? floatval($sortiran->kadar_air)
+                                                : 0;
+                                            $caValue = $kadarAirValue * $percentage;
+                                            $cbValue = ($kadarAirValue * $percentage) / 100;
+                                            $totalCA += $caValue;
+                                            $totalCB += $cbValue;
+                                        }
                                     @endphp
-                                    {{ number_format($percentage, 1, ',', '.') }}%
-                                </td>
-                                <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
-                                    {{ number_format($caValue, 2, ',', '.') }}
+                                    {{ number_format($totalCA, 2, ',', '.') }} ==
+                                    {{ number_format($totalCB, 2, ',', '.') }}%
                                 </td>
                             </tr>
                         @endforeach
-
-                        <!-- Displaying Total Netto Bersih for this group -->
-                        <tr>
-                            <td colspan="3"
-                                class="text-center font-semibold p-2 border-gray-300 dark:border-gray-700">
-                                Total {{ $idSortiran }}
-                            </td>
-                            <td class="p-2 text-right border-gray-300 dark:border-gray-700">
-                                {{ number_format($totalTotalKarung, 0, ',', '.') }}
-                            </td>
-                            <td class="p-2 text-right border-gray-300 dark:border-gray-700">
-                                {{ number_format($totalNettoBersih, 0, ',', '.') }}
-                            </td>
-                            <td colspan="3" class="p-2 text-center border-gray-300 dark:border-gray-700">
-                                
-                            </td>
-                            <td class="p-2 text-center border-gray-300 dark:border-gray-700">
-                                @php
-                                    // Hitung total CA untuk grup ini
-                                    $totalCA = 0;
-                                    $totalCB = 0;
-                                    foreach ($sortiransGroup as $sortiran) {
-                                        $nettoBersihStripped = str_replace('.', '', $sortiran->netto_bersih);
-                                        $nettoBersihValue = is_numeric($nettoBersihStripped) ? floatval($nettoBersihStripped) : 0;
-                                        $percentage = ($totalNettoBersih > 0) ? round(($nettoBersihValue / $totalNettoBersih * 100), 1) : 0;
-                                        $kadarAirValue = is_numeric($sortiran->kadar_air) ? floatval($sortiran->kadar_air) : 0;
-                                        $caValue = $kadarAirValue * $percentage;
-                                        $cbValue = $kadarAirValue * $percentage / 100;
-                                        $totalCA += $caValue;
-                                        $totalCB += $cbValue;
-                                    }
-                                @endphp
-                                {{ number_format($totalCA, 2, ',', '.') }} == {{ number_format($totalCB, 2, ',', '.') }}%
-                            </td>
+                    </tbody>
+                </table>
+            @else
+                {{-- Contoh Tabel Alternatif Sederhana --}}
+                <table class="w-full border border-collapse border-gray-300 dark:border-gray-700">
+                    <thead>
+                        <tr class="bg-gray-100 dark:bg-gray-800">
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">TGL</th>
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Nama Lumbung</th>
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Jenis</th>
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Goni</th>
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Berat</th>
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">No Timbangan</th>
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Kadar</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @for ($i = 0; $i < 10; $i++)
+                            <tr>
+                                <td class="border text-center p-2 border-gray-300 dark:border-gray-700"></td>
+                                <td class="border text-center p-2 border-gray-300 dark:border-gray-700"></td>
+                                <td class="border text-center p-2 border-gray-300 dark:border-gray-700"></td>
+                                <td class="border text-center p-2 border-gray-300 dark:border-gray-700"></td>
+                                <td class="border text-center p-2 border-gray-300 dark:border-gray-700"></td>
+                                <td class="border text-center p-2 border-gray-300 dark:border-gray-700"></td>
+                                <td class="border text-right p-2 border-gray-300 dark:border-gray-700">%</td>
+                            </tr>
+                        @endfor
+                    </tbody>
+                </table>
+            @endif
 
-
-    </div>
+        </div>
 </x-filament-panels::page>

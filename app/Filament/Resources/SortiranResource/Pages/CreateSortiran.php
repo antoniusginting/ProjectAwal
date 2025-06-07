@@ -2,17 +2,20 @@
 
 namespace App\Filament\Resources\SortiranResource\Pages;
 
-use App\Filament\Resources\SortiranResource;
-use App\Models\Sortiran;
 use Filament\Actions;
+use App\Models\Sortiran;
 use Filament\Actions\Action;
+use App\Services\SortirService;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Resources\SortiranResource;
 
 class CreateSortiran extends CreateRecord
 {
     protected static string $resource = SortiranResource::class;
 
-     function getTitle(): string
+    function getTitle(): string
     {
         return 'Tambah Sortiran';
     }
@@ -36,8 +39,27 @@ class CreateSortiran extends CreateRecord
         ];
     }
 
-        protected function getRedirectUrl(): string
+    protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index'); // Arahkan ke daftar tabel
     }
+
+    protected function handleRecordCreation(array $data): Model
+    {
+        $service = app(SortirService::class);
+
+        try {
+            return $service->create($data);
+        } catch (\Exception $e) {
+            Notification::make()
+                ->danger()
+                ->title('Gagal Membuat Sortiran')
+                ->body($e->getMessage())
+                ->persistent()
+                ->send();
+
+            throw $e;
+        }
+    }
+
 }

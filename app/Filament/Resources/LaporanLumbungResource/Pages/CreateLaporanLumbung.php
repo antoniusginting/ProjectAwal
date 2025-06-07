@@ -33,4 +33,9 @@ class CreateLaporanLumbung extends CreateRecord
     {
         return $this->getResource()::getUrl('index'); // Arahkan ke daftar tabel
     }
+    // protected function afterCreate(): void
+    // {
+    //     // Update kapasitas dryer setelah record dan relasi dibuat
+    //     $this->record->updateKapasitasDryerAfterSync();
+    // }
 }

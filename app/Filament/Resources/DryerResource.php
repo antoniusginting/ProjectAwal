@@ -11,8 +11,9 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\LumbungBasah;
 use App\Models\KapasitasDryer;
-use Illuminate\Support\Facades\DB;
+use App\Services\SortirService;
 use Filament\Resources\Resource;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
@@ -777,42 +778,46 @@ class DryerResource extends Resource implements HasShieldPermissions
                             ->disabled(fn($get) => !$get('filter_kapasitas_lumbung'))
                             ->helperText('Pilih kapasitas lumbung terlebih dahulu untuk menampilkan sortiran')
                             ->reactive()
-                            ->afterStateUpdated(function ($state, callable $set, callable $get, $livewire) {
+                            ->afterStateUpdated(function ($state, callable $set, callable $get, $livewire,$old) {
                                 // Mendapatkan nilai kapasitas sisa awal
                                 $noDryer = $get('id_kapasitas_dryer');
                                 $kapasitasAwal = 0;
-                                $record = $livewire->getRecord();
-                                $isEditMode = $record !== null;
+                                app(SortirService::class)->updateStatusToDryer(
+                                    $state ?? [],
+                                    $old ?? []
+                                );
+                                // $record = $livewire->getRecord();
+                                // $isEditMode = $record !== null;
 
-                                if ($isEditMode) {
-                                    // Dapatkan sortiran sebelumnya yang sudah terkait dengan record ini
-                                    $oldSortiranIds = $record->sortirans()->pluck('sortirans.id')->toArray();
-                                    $oldSortirans = \App\Models\Sortiran::whereIn('id', $oldSortiranIds)->get();
+                                // if ($isEditMode) {
+                                //     // Dapatkan sortiran sebelumnya yang sudah terkait dengan record ini
+                                //     $oldSortiranIds = $record->sortirans()->pluck('sortirans.id')->toArray();
+                                //     $oldSortirans = \App\Models\Sortiran::whereIn('id', $oldSortiranIds)->get();
 
-                                    foreach ($oldSortirans as $oldSortiran) {
-                                        $oldKapasitas = \App\Models\KapasitasLumbungBasah::find($oldSortiran->no_lumbung_basah);
-                                        if ($oldKapasitas) {
-                                            $oldNettoValue = (int) preg_replace('/[^0-9]/', '', $oldSortiran->netto_bersih);
-                                            // Rollback kapasitas lama sebelum perubahan
-                                            $oldKapasitas->decrement('kapasitas_sisa', $oldNettoValue);
-                                        }
-                                    }
-                                }
+                                //     foreach ($oldSortirans as $oldSortiran) {
+                                //         $oldKapasitas = \App\Models\KapasitasLumbungBasah::find($oldSortiran->no_lumbung_basah);
+                                //         if ($oldKapasitas) {
+                                //             $oldNettoValue = (int) preg_replace('/[^0-9]/', '', $oldSortiran->netto_bersih);
+                                //             // Rollback kapasitas lama sebelum perubahan
+                                //             $oldKapasitas->decrement('kapasitas_sisa', $oldNettoValue);
+                                //         }
+                                //     }
+                                // }
 
-                                // Mendapatkan semua sortiran yang dipilih saat ini
-                                $selectedSortirans = \App\Models\Sortiran::whereIn('id', $state)->get();
+                                // // Mendapatkan semua sortiran yang dipilih saat ini
+                                // $selectedSortirans = \App\Models\Sortiran::whereIn('id', $state)->get();
 
-                                foreach ($selectedSortirans as $sortiran) {
-                                    // Update status menjadi TRUE
-                                    // $sortiran->update(['status' => 1]);
+                                // foreach ($selectedSortirans as $sortiran) {
+                                //     // Update status menjadi TRUE
+                                //     // $sortiran->update(['status' => 1]);
 
-                                    // Mengembalikan kapasitas ke lumbung basah
-                                    $kapasitas = \App\Models\KapasitasLumbungBasah::find($sortiran->no_lumbung_basah);
-                                    if ($kapasitas) {
-                                        $nettoValue = (int) preg_replace('/[^0-9]/', '', $sortiran->netto_bersih);
-                                        $kapasitas->increment('kapasitas_sisa', $nettoValue);
-                                    }
-                                }
+                                //     // Mengembalikan kapasitas ke lumbung basah
+                                //     $kapasitas = \App\Models\KapasitasLumbungBasah::find($sortiran->no_lumbung_basah);
+                                //     if ($kapasitas) {
+                                //         $nettoValue = (int) preg_replace('/[^0-9]/', '', $sortiran->netto_bersih);
+                                //         $kapasitas->increment('kapasitas_sisa', $nettoValue);
+                                //     }
+                                // }
 
                                 // Dapatkan record saat ini (untuk mode edit)
                                 $record = $livewire->getRecord();
