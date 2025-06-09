@@ -106,7 +106,7 @@ class DryerService
                     if ($kapasitas) {
                         $kapasitas->increment('kapasitas_sisa', $dryer->total_netto_integer);
                     }
-                    $dryer->update(['status' => 'processing']);
+                    $dryer->update(['status' => 'completed']);
                 }
             }
 
@@ -120,7 +120,7 @@ class DryerService
                     if ($kapasitas) {
                         $kapasitas->decrement('kapasitas_sisa', $dryer->total_netto_integer);
                     }
-                    $dryer->update(['status' => 'completed']); // atau status default lainnya
+                    $dryer->update(['status' => 'processing']); // atau status default lainnya
                 }
             }
         });
