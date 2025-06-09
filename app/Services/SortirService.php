@@ -43,6 +43,70 @@ class SortirService
     /**
      * Update sortiran
      */
+    public function update(Sortiran $sortiran, array $data): Sortiran
+    {
+        return DB::transaction(function () use ($sortiran, $data) {
+            $newNettoBersih = $this->parseNettoBersih($data['netto_bersih']);
+            $oldNettoBersih = $sortiran->netto_bersih_integer;
+            $oldNoLumbung = $sortiran->no_lumbung_basah;
+            $newNoLumbung = $data['no_lumbung_basah'];
+
+            // Jika nomor lumbung berubah
+            if ($oldNoLumbung != $newNoLumbung) {
+                // Kembalikan kapasitas ke lumbung lama
+                $oldKapasitas = $this->getKapasitasLumbung($oldNoLumbung);
+                if ($oldKapasitas) {
+                    $oldKapasitas->increment('kapasitas_sisa', $oldNettoBersih);
+                }
+
+                // Validasi dan kurangi kapasitas lumbung baru
+                $newKapasitas = $this->getKapasitasLumbung($newNoLumbung);
+                $this->validateKapasitasAda($newKapasitas, $newNoLumbung);
+
+                // Validasi kapasitas mencukupi
+                if ($newKapasitas->kapasitas_sisa < $newNettoBersih) {
+                    $this->throwKapasitasNotification();
+                    throw ValidationException::withMessages([
+                        'netto_bersih' => 'Total netto melebihi kapasitas sisa lumbung basah.',
+                    ]);
+                }
+
+                // Kurangi kapasitas lumbung baru
+                $newKapasitas->decrement('kapasitas_sisa', $newNettoBersih);
+            }
+            // Jika nomor lumbung sama tapi netto berubah
+            else if ($oldNettoBersih != $newNettoBersih) {
+                $kapasitas = $this->getKapasitasLumbung($oldNoLumbung);
+                $this->validateKapasitasAda($kapasitas, $oldNoLumbung);
+
+                // Hitung selisih netto
+                $selisihNetto = $newNettoBersih - $oldNettoBersih;
+
+                // Jika netto bertambah, validasi kapasitas
+                if ($selisihNetto > 0) {
+                    if ($kapasitas->kapasitas_sisa < $selisihNetto) {
+                        $this->throwKapasitasNotification();
+                        throw ValidationException::withMessages([
+                            'netto_bersih' => 'Total netto melebihi kapasitas sisa lumbung basah.',
+                        ]);
+                    }
+                    // Kurangi kapasitas sesuai selisih
+                    $kapasitas->decrement('kapasitas_sisa', $selisihNetto);
+                }
+                // Jika netto berkurang, kembalikan selisih ke kapasitas
+                else if ($selisihNetto < 0) {
+                    $kapasitas->increment('kapasitas_sisa', abs($selisihNetto));
+                }
+            }
+
+            // Update data sortiran
+            $sortiran->update($data);
+
+            return $sortiran->fresh();
+        });
+    }
+
+
     // Di SortirService
     public function updateStatusToDryer(array $newSortirIds, array $oldSortirIds = []): void
     {

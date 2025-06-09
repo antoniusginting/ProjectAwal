@@ -12,7 +12,26 @@ use App\Filament\Resources\SortiranResource;
 class EditSortiran extends EditRecord
 {
     protected static string $resource = SortiranResource::class;
+    protected function handleRecordUpdate(Model $record, array $data): Model
+    {
+        $service = app(\App\Services\SortirService::class);
 
+        try {
+            /** @var \App\Models\Sortiran $updatedSortiran */
+            $updatedSortiran = $service->update($record, $data);
+
+            return $updatedSortiran;
+        } catch (\Exception $e) {
+            \Filament\Notifications\Notification::make()
+                ->danger()
+                ->title('Gagal Mengubah Dryer')
+                ->body($e->getMessage())
+                ->persistent()
+                ->send();
+
+            throw $e;
+        }
+    }
     protected function getHeaderActions(): array
     {
         return [
@@ -41,5 +60,4 @@ class EditSortiran extends EditRecord
     {
         return $this->getResource()::getUrl('index'); // Arahkan ke daftar tabel
     }
-
 }

@@ -781,13 +781,14 @@ class SortiranResource extends Resource implements HasShieldPermissions
             ->defaultPaginationPageOption(5)
             ->paginated([5, 10, 15])
             ->columns([
-                ToggleColumn::make('status')
-                    ->label('Status')
-                    ->extraCellAttributes(fn($record) => $record->cek === 1 ? ['style' => 'opacity: 10;'] : [])
-                    ->alignCenter()
-                    ->onIcon('heroicon-m-check')
-                    ->offIcon('heroicon-m-x-mark')
-                    ->disabled(fn() => !optional(Auth::user())->hasAnyRole(['admin', 'super_admin', 'adminaudit'])),
+
+                // ToggleColumn::make('statuss')
+                //     ->label('Status')
+                //     ->extraCellAttributes(fn($record) => $record->cek === 1 ? ['style' => 'opacity: 10;'] : [])
+                //     ->alignCenter()
+                //     ->onIcon('heroicon-m-check')
+                //     ->offIcon('heroicon-m-x-mark')
+                //     ->disabled(fn() => !optional(Auth::user())->hasAnyRole(['admin', 'super_admin', 'adminaudit'])),
                 // ToggleColumn::make('cek')
                 //     ->label('Check')
                 //     ->alignCenter()
@@ -810,6 +811,18 @@ class SortiranResource extends Resource implements HasShieldPermissions
                             ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
                             ->isoFormat('D MMMM YYYY | HH:mm:ss');
                     }),
+                BadgeColumn::make('status')
+                    ->label('Status')
+                    ->alignCenter()
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'available' => 'Tersedia',
+                        'in_dryer' => 'Dalam Dryer',
+                        default => $state,
+                    })
+                    ->colors([
+                        'primary' => 'available',
+                        'danger' => 'in_dryer',
+                    ]),
                 TextColumn::make('no_sortiran')
                     ->searchable()
                     ->label('No Sortiran')

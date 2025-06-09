@@ -778,7 +778,7 @@ class DryerResource extends Resource implements HasShieldPermissions
                             ->disabled(fn($get) => !$get('filter_kapasitas_lumbung'))
                             ->helperText('Pilih kapasitas lumbung terlebih dahulu untuk menampilkan sortiran')
                             ->reactive()
-                            ->afterStateUpdated(function ($state, callable $set, callable $get, $livewire,$old) {
+                            ->afterStateUpdated(function ($state, callable $set, callable $get, $livewire, $old) {
                                 // Mendapatkan nilai kapasitas sisa awal
                                 $noDryer = $get('id_kapasitas_dryer');
                                 $kapasitasAwal = 0;
@@ -786,38 +786,6 @@ class DryerResource extends Resource implements HasShieldPermissions
                                     $state ?? [],
                                     $old ?? []
                                 );
-                                // $record = $livewire->getRecord();
-                                // $isEditMode = $record !== null;
-
-                                // if ($isEditMode) {
-                                //     // Dapatkan sortiran sebelumnya yang sudah terkait dengan record ini
-                                //     $oldSortiranIds = $record->sortirans()->pluck('sortirans.id')->toArray();
-                                //     $oldSortirans = \App\Models\Sortiran::whereIn('id', $oldSortiranIds)->get();
-
-                                //     foreach ($oldSortirans as $oldSortiran) {
-                                //         $oldKapasitas = \App\Models\KapasitasLumbungBasah::find($oldSortiran->no_lumbung_basah);
-                                //         if ($oldKapasitas) {
-                                //             $oldNettoValue = (int) preg_replace('/[^0-9]/', '', $oldSortiran->netto_bersih);
-                                //             // Rollback kapasitas lama sebelum perubahan
-                                //             $oldKapasitas->decrement('kapasitas_sisa', $oldNettoValue);
-                                //         }
-                                //     }
-                                // }
-
-                                // // Mendapatkan semua sortiran yang dipilih saat ini
-                                // $selectedSortirans = \App\Models\Sortiran::whereIn('id', $state)->get();
-
-                                // foreach ($selectedSortirans as $sortiran) {
-                                //     // Update status menjadi TRUE
-                                //     // $sortiran->update(['status' => 1]);
-
-                                //     // Mengembalikan kapasitas ke lumbung basah
-                                //     $kapasitas = \App\Models\KapasitasLumbungBasah::find($sortiran->no_lumbung_basah);
-                                //     if ($kapasitas) {
-                                //         $nettoValue = (int) preg_replace('/[^0-9]/', '', $sortiran->netto_bersih);
-                                //         $kapasitas->increment('kapasitas_sisa', $nettoValue);
-                                //     }
-                                // }
 
                                 // Dapatkan record saat ini (untuk mode edit)
                                 $record = $livewire->getRecord();
@@ -894,20 +862,6 @@ class DryerResource extends Resource implements HasShieldPermissions
                             })
                             ->preload()
                             ->searchable(),
-
-                        // PERBAIKAN: Field total_netto dengan format display tapi simpan sebagai integer
-                        // TextInput::make('total_netto')
-                        //     ->label('Kapasitas Terpakai')
-                        //     ->placeholder('Otomatis terhitung')
-                        //     ->readOnly()
-                        //     ->formatStateUsing(function ($state) {
-                        //         // Format untuk display dengan pemisah ribuan
-                        //         return $state ? number_format($state, 0, ',', '.') : '0';
-                        //     })
-                        //     ->dehydrateStateUsing(function ($state) {
-                        //         // Hapus format sebelum disimpan ke database
-                        //         return (int) str_replace(['.', ','], '', $state ?? '0');
-                        //     }),
                     ])
             ]);
     }
@@ -934,6 +888,18 @@ class DryerResource extends Resource implements HasShieldPermissions
                             ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
                             ->isoFormat('D MMMM YYYY | HH:mm:ss');
                     }),
+                BadgeColumn::make('status')
+                    ->label('Status')
+                    ->alignCenter()
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'processing' => 'Dalam Dryer',
+                        'completed' => 'Selesai',
+                        default => $state,
+                    })
+                    ->colors([
+                        'primary' => 'completed',
+                        'danger' => 'processing',
+                    ]),
                 TextColumn::make('no_dryer')
                     ->label('No Dryer')
                     ->searchable()

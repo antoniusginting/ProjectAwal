@@ -169,6 +169,8 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                             );
                                         }
                                     )
+                                    ->preload()
+                                    ->searchable(),
                                 // ->saveRelationshipsUsing(function ($component, $state, $record) {
                                 //     // Sync relasi
                                 //     $record->dryers()->sync($state ?? []);
