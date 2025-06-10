@@ -13,7 +13,7 @@ class ListSilos extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()->label(''),
+            Actions\CreateAction::make()->label('Tambah'),
         ];
     }
 }
