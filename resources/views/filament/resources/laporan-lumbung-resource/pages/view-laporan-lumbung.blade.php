@@ -313,7 +313,7 @@
                             {{ $dryer ? $dryer->no_dryer : '' }}
                         </td>
                         <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
-                            {{ $dryer ? $dryer->total_netto : '' }}
+                            {{ $dryer && $dryer->total_netto ? number_format($dryer->total_netto, 0, ',', '.') : '' }}
                         </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                             {{ $timbanganItem ? $timbanganItem->kode : '' }}
