@@ -62,7 +62,21 @@ class SupplierResource extends Resource implements HasShieldPermissions
                                     ->required()
                                     ->autocomplete('off')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
-                                    ->placeholder('Masukkan Nama Supplier'),
+                                    ->placeholder('Masukkan Nama Supplier')
+                                    ->unique(
+                                        table: 'suppliers', // Sesuaikan dengan nama tabel Anda
+                                        column: 'nama_supplier',
+                                        ignoreRecord: true, // Ignore record saat ini jika sedang edit
+                                        modifyRuleUsing: function ($rule, $get) {
+                                            // Modifikasi rule untuk case-insensitive
+                                            return $rule->where(function ($query) use ($get) {
+                                                $query->whereRaw('UPPER(nama_supplier) = ?', [strtoupper($get('nama_supplier'))]);
+                                            });
+                                        }
+                                    )
+                                    ->validationMessages([
+                                        'unique' => 'Nama supplier sudah ada dalam database!',
+                                    ]),
 
                                 Select::make('jenis_supplier')
                                     ->label('Jenis Supplier')
@@ -127,30 +141,29 @@ class SupplierResource extends Resource implements HasShieldPermissions
                     ->searchable(),
                 TextColumn::make('no_ktp')
                     ->label('No KTP')
-                    ->visible(fn () => optional(Auth::user())->hasAnyRole(['Admin','super_admin','Purchasing']))
+                    ->visible(fn() => optional(Auth::user())->hasAnyRole(['Admin', 'super_admin', 'Purchasing']))
                     ->searchable(),
                 TextColumn::make('npwp')
                     ->label('NPWP')
-                    ->visible(fn () => optional(Auth::user())->hasAnyRole(['Admin','super_admin','Purchasing']))
+                    ->visible(fn() => optional(Auth::user())->hasAnyRole(['Admin', 'super_admin', 'Purchasing']))
                     ->searchable(),
                 TextColumn::make('no_rek')
                     ->label('No Rekening')
-                    ->visible(fn () => optional(Auth::user())->hasAnyRole(['Admin','super_admin','Purchasing']))
+                    ->visible(fn() => optional(Auth::user())->hasAnyRole(['Admin', 'super_admin', 'Purchasing']))
                     ->searchable(),
                 TextColumn::make('nama_bank')
                     ->label('Nama Bank')
-                    ->visible(fn () => optional(Auth::user())->hasAnyRole(['Admin','super_admin','Purchasing']))
+                    ->visible(fn() => optional(Auth::user())->hasAnyRole(['Admin', 'super_admin', 'Purchasing']))
                     ->searchable(),
                 TextColumn::make('atas_nama_bank')
                     ->label('Atas nama')
-                    ->visible(fn () => optional(Auth::user())->hasAnyRole(['Admin','super_admin','Purchasing']))
+                    ->visible(fn() => optional(Auth::user())->hasAnyRole(['Admin', 'super_admin', 'Purchasing']))
                     ->searchable(),
             ])
             ->filters([
                 //
             ])
-            ->actions([
-            ])
+            ->actions([])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     // Tables\Actions\DeleteBulkAction::make(),
