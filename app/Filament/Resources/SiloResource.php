@@ -27,7 +27,10 @@ class SiloResource extends Resource
 {
     protected static ?string $model = Silo::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-archive-box-arrow-down';
+    protected static ?string $navigationGroup = 'Kapasitas';
+    protected static ?int $navigationSort = 3;
+    protected static ?string $navigationLabel = 'Silo';
 
     public static function form(Form $form): Form
     {
@@ -218,7 +221,7 @@ class SiloResource extends Resource
                 Tables\Actions\Action::make('view-penjualan')
                     ->label(__("Lihat"))
                     ->icon('heroicon-o-eye')
-                // ->url(fn($record) => self::getUrl("view-penjualan", ['record' => $record->id])),
+                    ->url(fn($record) => self::getUrl("view-silo", ['record' => $record->id])),
             ], position: ActionsPosition::BeforeColumns);
         // ->bulkActions([
         //     Tables\Actions\BulkActionGroup::make([
@@ -240,6 +243,7 @@ class SiloResource extends Resource
             'index' => Pages\ListSilos::route('/'),
             'create' => Pages\CreateSilo::route('/create'),
             'edit' => Pages\EditSilo::route('/{record}/edit'),
+            'view-silo' => Pages\ViewSilo::route('/{record}/view-silo'),
         ];
     }
 }

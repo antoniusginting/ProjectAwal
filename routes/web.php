@@ -34,3 +34,6 @@ Route::get('/print-dryer/{id}',[DryerController::class,'printDryerRecord'])->nam
 
 //Print Timbangan Laporan Lumbung
 Route::get('/print-laporanlumbung/{id}',[LaporanLumbungController::class,'printLaporanLumbungRecord'])->name('PRINT.LAPORANLUMBUNG');
+
+// //Print Silo
+// Route::get('/print-silo/{id}',[SiloController::class,'printLaporanLumbungRecord'])->name('PRINT.LAPORANLUMBUNG');
