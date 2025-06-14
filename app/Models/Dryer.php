@@ -25,6 +25,7 @@ class Dryer extends Model
         'total_netto',
         'pj',
         'status',
+        'no_cc',
     ];
 
 

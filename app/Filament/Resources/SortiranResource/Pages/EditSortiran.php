@@ -5,6 +5,7 @@ namespace App\Filament\Resources\SortiranResource\Pages;
 use Filament\Actions;
 use Filament\Actions\Action;
 use App\Services\SortirService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\SortiranResource;
@@ -30,6 +31,15 @@ class EditSortiran extends EditRecord
                 ->send();
 
             throw $e;
+        }
+    }
+    protected function afterSave(): void
+    {
+        $user = Auth::user();
+
+        // Cek apakah user memiliki role yang tepat
+        if ($user->hasAnyRole(['super_admin'])) {
+            $this->record->update(['cek' => false]);
         }
     }
     protected function getHeaderActions(): array

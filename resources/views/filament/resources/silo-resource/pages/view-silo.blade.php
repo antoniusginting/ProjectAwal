@@ -47,8 +47,9 @@
             // Hitung summary
             $totalStokDanBerat = $silo->stok + $totalBerat1;
             $stokSisa = $totalStokDanBerat - $totalBeratTrontonFiltered;
+            $persenan = ($totalBeratTrontonFiltered / $totalStokDanBerat) * 100;
         @endphp
-
+        {{-- <div class="grid grid-cols-1 md:grid-cols-3 gap-4"> --}}
         {{-- Summary Dashboard - Layout 1 Baris --}}
         <div class="bg-white dark:bg-gray-800 p-6 rounded-lg mb-6 shadow-md border">
             <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Ringkasan Stok {{ $silo->nama }}
@@ -70,6 +71,13 @@
                         {{ number_format($totalBerat1, 0, ',', '.') }}
                     </p>
                 </div>
+                <!-- Total Stok -->
+                <div class="flex-1 text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Stok</p>
+                    <p class="text-xl font-bold text-green-600 dark:text-green-400">
+                        {{ number_format($totalStokDanBerat, 0, ',', '.') }}
+                    </p>
+                </div>
 
                 <!-- Total Keluar -->
                 <div class="flex-1 text-center p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
@@ -86,6 +94,15 @@
                     <p
                         class="text-xl font-bold {{ $stokSisa >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
                         {{ number_format($stokSisa, 0, ',', '.') }}
+                    </p>
+                </div>
+                <!-- Persenan -->
+                <div
+                    class="flex-1 text-center p-3 {{ $persenan >= 0 ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-red-50 dark:bg-red-900/20' }} rounded-lg">
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Persenan</p>
+                    <p
+                        class="text-xl font-bold {{ $persenan >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                        {{ number_format($persenan, 2) }} %
                     </p>
                 </div>
             </div>

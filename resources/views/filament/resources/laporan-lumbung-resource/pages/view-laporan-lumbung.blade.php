@@ -156,7 +156,10 @@
                 <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
                     @php
                         // Hitung selisih SETELAH loop selesai dan $totalKeseluruhanFilteredAccumulated sudah final
-                        $hasil_pengurangan_numeric_final = $nilai_dryers_sum_total_netto - $totalKeseluruhanFiltered;
+                        // $hasil_pengurangan_numeric_final = $nilai_dryers_sum_total_netto - $totalKeseluruhanFiltered;
+
+                        $hasil_pengurangan_numeric_final =
+                            ($totalKeseluruhanFiltered / $nilai_dryers_sum_total_netto) * 100;
                     @endphp
                     <td colspan="3" class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                         Total Berat:
@@ -168,8 +171,8 @@
                     <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
                         {{ number_format($totalKeseluruhanFiltered, 0, ',', '.') }}
                     </td>
-                    <td class="border text-center p-2 border-gray-300 dark:border-gray-700 text-sm">Selisih =
-                        {{ number_format($hasil_pengurangan_numeric_final, 0, ',', '.') }}</td>
+                    <td class="border text-center p-2 border-gray-300 dark:border-gray-700 text-sm">
+                        {{ number_format($hasil_pengurangan_numeric_final, 2) }} %</td>
                 </tr>
             </tfoot>
         </table>

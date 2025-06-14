@@ -16,6 +16,7 @@ use Filament\Resources\Resource;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
+use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
@@ -29,6 +30,7 @@ use Filament\Resources\Pages\CreateRecord;
 use Filament\Tables\Enums\ActionsPosition;
 use App\Filament\Resources\DryerResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\DryerResource\Pages\EditDryer;
 use App\Filament\Resources\DryerResource\RelationManagers;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
@@ -219,6 +221,19 @@ class DryerResource extends Resource implements HasShieldPermissions
                                     ])
                                     ->placeholder('Pilih nama barang')
                                     ->native(false),
+                                TextInput::make('no_cc')
+                                    ->placeholder('**** **** **** ****')
+                                    ->label('Nomor CC')
+                                    ->columnSpanFull()
+                                    ->prefixIcon('heroicon-o-credit-card')
+                                    ->maxLength(19)
+                                    ->visible(fn() => !optional(Auth::user())->hasAnyRole(['timbangan'])), // diilangkan pada user timbangan
+                                // ->extraInputAttributes([
+                                //     'class' => 'font-mono tracking-wider text-center',
+                                //     'style' => 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: 2px solid #4f46e5;'
+                                // ])
+                                // ->hint('Nomor tidak dapat diubah setelah disimpan')
+                                // ->hintColor('warning'),
                             ])->columns(2),
                         Card::make()
                             ->schema([
@@ -915,6 +930,33 @@ class DryerResource extends Resource implements HasShieldPermissions
     public static function table(Table $table): Table
     {
         return $table
+            ->recordUrl(function (Dryer $record): ?string {
+                $user = Auth::user();
+
+                // 1) Super admin bisa edit semua kondisi
+                if ($user && $user->hasRole('super_admin')) {
+                    return EditDryer::getUrl(['record' => $record]);
+                }
+
+                // 2) Admin1 hanya bisa edit jika tara belum ada
+                if ($user && $user->hasRole('admin')) {
+                    if (!$record->no_cc) {
+                        return EditDryer::getUrl(['record' => $record]);
+                    }
+                    return null;
+                }
+
+                // // 3) Admin2 hanya bisa edit jika no_spb belum ada
+                // if ($user && $user->hasRole('admin')) {
+                //     if (!$record->no_spb) {  // Sesuaikan dengan struktur data BK
+                //         return EditPembelian::getUrl(['record' => $record]);
+                //     }
+                //     return null;
+                // }
+
+                // 4) Role lainnya tidak bisa edit
+                return null;
+            })
             ->defaultPaginationPageOption(10)
             ->defaultSort('no_dryer', 'desc')
             ->columns([

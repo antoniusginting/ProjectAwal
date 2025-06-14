@@ -1003,7 +1003,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                         $user = Auth::user();
 
                         // Cek apakah user memiliki role 'admin' atau 'adminaudit'
-                        if ($user->hasAnyRole(['admin', 'adminaudit'])) {
+                        if ($user->hasAnyRole(['admin', 'adminaudit','super_admin'])) {
                             $record->update(['cek' => true]);
                         }
                         return redirect(self::getUrl('view-sortiran', ['record' => $record->id]));

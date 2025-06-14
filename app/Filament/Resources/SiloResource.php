@@ -62,22 +62,23 @@ class SiloResource extends Resource
                             ->schema([
                                 // TextInput::make('laporan_lumbung_sebelumnya')
                                 //     ->label('laporan lumbung sebelumnya'),
+                                // Opsi 1: Hanya tampilkan data yang field lumbung-nya KOSONG (null/empty)
                                 Select::make('laporanLumbungs')
                                     ->label('Laporan Lumbung')
                                     ->multiple()
                                     ->relationship(
                                         name: 'laporanLumbungs',
-                                        titleAttribute: 'nama', // atau field lain yang ingin ditampilkan
+                                        titleAttribute: 'nama',
                                         modifyQueryUsing: function (Builder $query) {
-                                            return $query->orderBy('created_at', 'desc');
+                                            return $query->orderBy('created_at', 'desc')
+                                                ->whereNull('lumbung'); // atau ->where('lumbung', '');
                                         }
                                     )
                                     ->preload()
                                     ->searchable()
                                     ->getOptionLabelFromRecordUsing(function ($record) {
-                                        // Sesuaikan dengan field yang ada di model LaporanLumbung
                                         return $record->kode . ' - ' . $record->created_at->format('d/m/Y');
-                                    })
+                                    }),
                             ])->columnSpan(1),
                         Card::make('PENJUALAN')
                             ->schema([
@@ -204,8 +205,8 @@ class SiloResource extends Resource
                             ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
                             ->isoFormat('D MMMM YYYY | HH:mm:ss');
                     }),
-                TextColumn::make('stok_awal'),
-                TextColumn::make('nama'),
+                TextColumn::make('stok')->label('Stok Awal'),
+                TextColumn::make('nama')->label('Nama Silo'),
                 TextColumn::make('laporanLumbungs.kode')
                     ->alignCenter()
                     ->label('No IO'),
@@ -217,6 +218,7 @@ class SiloResource extends Resource
             ->filters([
                 //
             ])
+            ->defaultSort('created_at', 'desc') // Megurutkan created_at terakhir menjadi pertama pada tabel
             ->actions([
                 Tables\Actions\Action::make('view-penjualan')
                     ->label(__("Lihat"))
