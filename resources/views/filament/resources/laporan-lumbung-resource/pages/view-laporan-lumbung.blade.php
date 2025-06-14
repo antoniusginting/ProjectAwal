@@ -145,9 +145,7 @@
                             @endif
                         </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                            @if ($i == 0)
-                                {{ $laporanlumbung->user->name }}
-                            @endif
+                            {{ $timbanganItem ? $timbanganItem->user->name : '' }}
                         </td>
                     </tr>
                 @endfor
