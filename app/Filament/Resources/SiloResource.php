@@ -71,7 +71,7 @@ class SiloResource extends Resource
                                         titleAttribute: 'nama',
                                         modifyQueryUsing: function (Builder $query) {
                                             return $query->orderBy('created_at', 'desc')
-                                                ->whereNull('lumbung'); // atau ->where('lumbung', '');
+                                                ->where('status_silo', true); // contoh filter lain
                                         }
                                     )
                                     ->preload()

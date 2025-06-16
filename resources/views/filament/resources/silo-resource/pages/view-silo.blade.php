@@ -37,11 +37,7 @@
             // Hitung total berat dari laporan lumbung
             $totalBerat1 = 0;
             foreach ($silo->laporanlumbungs as $laporan) {
-                if ($laporan->dryers->count() > 0) {
-                    $totalBerat1 += $laporan->dryers->sum('total_netto');
-                } else {
-                    $totalBerat1 += $laporan->berat_dryer ?? 0;
-                }
+                $totalBerat1 += $laporan->hasil ?? 0;
             }
 
             // Hitung summary
@@ -153,11 +149,12 @@
                                 @endif
                             </td>
                             <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
-                                @if ($laporan->dryers->count() > 0)
+                                {{-- @if ($laporan->dryers->count() > 0)
                                     {{ number_format($laporan->dryers->sum('total_netto'), 0, ',', '.') }}
                                 @else
                                     {{ $laporan->berat_dryer ? number_format($laporan->berat_dryer) : '-' }}
-                                @endif
+                                @endif --}}
+                                {{ number_format($laporan->hasil, 0, ',', '.') }}
                             </td>
                         </tr>
                     @empty

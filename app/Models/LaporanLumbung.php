@@ -10,6 +10,10 @@ class LaporanLumbung extends Model
     protected $fillable = [
         "user_id",
         "lumbung",
+        "berat_dryer",
+        "berat_penjualan",
+        "hasil",
+        "status_silo",
     ];
     public function timbanganTrontons(): BelongsToMany
     {

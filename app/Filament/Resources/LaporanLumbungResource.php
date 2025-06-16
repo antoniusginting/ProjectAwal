@@ -8,12 +8,15 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\LaporanLumbung;
+use App\Services\DryerService;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Grid;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
@@ -24,7 +27,6 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\LaporanLumbungResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\LaporanLumbungResource\RelationManagers;
-use App\Services\DryerService;
 
 class LaporanLumbungResource extends Resource implements HasShieldPermissions
 {
@@ -55,18 +57,40 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
             ->schema([
                 Card::make()
                     ->schema([
-                        Placeholder::make('next_id')
-                            ->label('No Laporan Lumbung')
-                            ->content(function ($record) {
-                                // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
-                                if ($record) {
-                                    return $record->kode;
-                                }
+                        Grid::make(5)
+                            ->schema([
+                                Placeholder::make('next_id')
+                                    ->label('No Laporan Lumbung')
+                                    ->content(function ($record) {
+                                        // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
+                                        if ($record) {
+                                            return $record->kode;
+                                        }
 
-                                // Jika sedang membuat data baru, hitung kode berikutnya
-                                $nextId = (LaporanLumbung::max('id') ?? 0) + 1;
-                                return 'IO' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
-                            })->columnSpanFull(),
+                                        // Jika sedang membuat data baru, hitung kode berikutnya
+                                        $nextId = (LaporanLumbung::max('id') ?? 0) + 1;
+                                        return 'IO' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+                                    }),
+                                TextInput::make('berat_dryer')
+                                    ->label('Berat Dryer')
+                                    ->numeric()
+                                    ->readOnly(), // Opsional: buat readonly karena dihitung otomatis
+
+
+                                TextInput::make('berat_penjualan')
+                                    ->label('Berat Penjualan')
+                                    ->numeric()
+                                    ->readOnly(), // Opsional: buat readonly karena dihitung otomatis
+
+                                TextInput::make('hasil')
+                                    ->label('Hasil')
+                                    ->numeric()
+                                    ->readOnly(),
+                                Toggle::make('status_silo')
+                                    ->helperText('Klik jika ke silo')
+                                    ->onIcon('heroicon-m-check')
+                                    ->offIcon('heroicon-m-x-mark')
+                            ]),
                         Card::make('Info Dryer')
                             ->schema([
                                 Select::make('filter_lumbung_tujuan')
@@ -167,6 +191,22 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                                 $state ?? [],
                                                 $old ?? []
                                             );
+                                            // Hitung total netto dari dryer yang dipilih
+                                            if (!empty($state)) {
+                                                // Ambil model Dryer (sesuaikan dengan nama model Anda)
+                                                $totalNetto = \App\Models\Dryer::whereIn('id', $state)
+                                                    ->sum('total_netto');
+
+                                                // Set nilai ke field berat_dryer
+                                                $set('berat_dryer', $totalNetto);
+                                            } else {
+                                                // Jika tidak ada dryer yang dipilih, set ke 0
+                                                $set('berat_dryer', 0);
+                                            }
+                                            // Hitung hasil setelah berat_dryer berubah
+                                            $totalDryer = (float) ($get('berat_dryer') ?? 0);
+                                            $beratPenjualan = (float) ($get('berat_penjualan') ?? 0);
+                                            $set('hasil', $totalDryer - $beratPenjualan);
                                         }
                                     )->preload()
                                     ->searchable(),
@@ -288,6 +328,57 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                     ->getOptionLabelFromRecordUsing(function ($record) {
                                         $noBk = $record->penjualan1 ? $record->penjualan1->plat_polisi : 'N/A';
                                         return $record->kode . ' - ' . $noBk . ' - ' . ($record->penjualan1->nama_supir ?? '') . ' - ' . $record->total_netto;
+                                    })
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        if (!empty($state)) {
+                                            $selectedLumbung = $get('lumbung'); // Ambil lumbung yang dipilih
+                                            $totalNetto = 0;
+
+                                            // Loop melalui setiap timbangan yang dipilih
+                                            foreach ($state as $timbanganId) {
+                                                // Ambil record timbangan dengan relasi penjualan
+                                                $timbangan = \App\Models\TimbanganTronton::with([
+                                                    'penjualan1',
+                                                    'penjualan2',
+                                                    'penjualan3',
+                                                    'penjualan4',
+                                                    'penjualan5',
+                                                    'penjualan6'
+                                                ])->find($timbanganId);
+
+                                                if ($timbangan) {
+                                                    // Array relasi penjualan
+                                                    $relasiPenjualan = ['penjualan1', 'penjualan2', 'penjualan3', 'penjualan4', 'penjualan5', 'penjualan6'];
+
+                                                    // Loop melalui setiap relasi penjualan
+                                                    foreach ($relasiPenjualan as $relasi) {
+                                                        $penjualan = $timbangan->$relasi;
+
+                                                        // Jika penjualan ada dan nama_lumbung sesuai dengan yang dipilih
+                                                        if (
+                                                            $penjualan &&
+                                                            $penjualan->nama_lumbung &&
+                                                            $penjualan->nama_lumbung === $selectedLumbung
+                                                        ) {
+
+                                                            // Tambahkan netto penjualan ke total
+                                                            $totalNetto += $penjualan->netto ?? 0;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            // Set nilai ke field berat_penjualan
+                                            $set('berat_penjualan', $totalNetto);
+                                        } else {
+                                            // Jika tidak ada timbangan yang dipilih, set ke 0
+                                            $set('berat_penjualan', 0);
+                                        }
+
+                                        // Hitung hasil setelah berat_penjualan berubah
+                                        $totalDryer = (float) ($get('berat_dryer') ?? 0);
+                                        $beratPenjualan = (float) ($get('berat_penjualan') ?? 0);
+                                        $set('hasil', $totalDryer - $beratPenjualan);
                                     }),
                             ])->columnSpan(1),
 
