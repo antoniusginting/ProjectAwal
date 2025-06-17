@@ -43,7 +43,8 @@
             // Hitung summary
             $totalStokDanBerat = $silo->stok + $totalBerat1;
             $stokSisa = $totalStokDanBerat - $totalBeratTrontonFiltered;
-            $persenan = ($totalBeratTrontonFiltered / $totalStokDanBerat) * 100;
+            $persenan = $totalStokDanBerat != 0 ? ($totalBeratTrontonFiltered / $totalStokDanBerat) * 100 : 0;
+
         @endphp
         {{-- <div class="grid grid-cols-1 md:grid-cols-3 gap-4"> --}}
         {{-- Summary Dashboard - Layout 1 Baris --}}

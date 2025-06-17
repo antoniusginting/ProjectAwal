@@ -22,10 +22,10 @@ class CreateLaporanLumbung extends CreateRecord
             Action::make('save')
                 ->label('Tambah')
                 ->action(fn() => $this->create()), // Gunakan method bawaan Filament
-            Action::make('cancel')
-                ->label('Batal')
-                ->color('gray')
-                ->url(LaporanLumbungResource::getUrl('index')), // Redirect ke tabel utama
+            // Action::make('cancel')
+            //     ->label('Batal')
+            //     ->color('gray')
+            //     ->url(LaporanLumbungResource::getUrl('index')), // Redirect ke tabel utama
         ];
     }
 

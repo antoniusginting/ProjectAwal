@@ -49,10 +49,10 @@ class EditDryer extends EditRecord
             Action::make('save')
                 ->label('Ubah')
                 ->action(fn() => $this->save()), // Menggunakan fungsi simpan manual
-            Action::make('cancel')
-                ->label('Batal')
-                ->color('gray')
-                ->url(DryerResource::getUrl('index')),
+            // Action::make('cancel')
+            //     ->label('Batal')
+            //     ->color('gray')
+            //     ->url(DryerResource::getUrl('index')),
         ];
     }
     protected function getRedirectUrl(): string

@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\LaporanLumbungResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\LaporanLumbungResource\RelationManagers;
+use Filament\Tables\Columns\IconColumn;
 
 class LaporanLumbungResource extends Resource implements HasShieldPermissions
 {
@@ -55,7 +56,9 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
     {
         return $form
             ->schema([
-                Card::make()
+                Card::make('Warning')
+                    ->icon('heroicon-o-information-circle')
+                    ->description('Harus disimpan sebelum keluar pada halaman ini')
                     ->schema([
                         Grid::make(5)
                             ->schema([
@@ -418,6 +421,13 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                             ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
                             ->isoFormat('D MMMM YYYY | HH:mm:ss');
                     }),
+                IconColumn::make('status_silo')
+                    ->label('Silo')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger'),
                 TextColumn::make('kode')
                     ->label('No Laporan')
                     ->alignCenter()
