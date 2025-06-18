@@ -18,8 +18,12 @@
                         <td class="whitespace-nowrap">:
                             {{ $laporanlumbung->created_at ? $laporanlumbung->created_at->format('h:i') : 'Tanggal kosong' }}
                         </td>
-                        <td class="font-semibold whitespace-nowrap">Lumbung</td>
-                        <td class="whitespace-nowrap">: {{ $laporanlumbung->lumbung ?? '-' }}
+                        <td class="font-semibold whitespace-nowrap">
+                            {{ $laporanlumbung->status_silo ? 'Lumbung' : 'Lumbung' }}
+                        </td>
+                        <td class="whitespace-nowrap">:
+                            {{ $laporanlumbung->status_silo ?? ($laporanlumbung->lumbung ?? '-') }}
+                        </td>
                         </td>
 
                     </tr>
@@ -156,8 +160,13 @@
                         // Hitung selisih SETELAH loop selesai dan $totalKeseluruhanFilteredAccumulated sudah final
                         // $hasil_pengurangan_numeric_final = $nilai_dryers_sum_total_netto - $totalKeseluruhanFiltered;
 
-                        $hasil_pengurangan_numeric_final =
-                            ($totalKeseluruhanFiltered / $nilai_dryers_sum_total_netto) * 100;
+                        // Cek apakah nilai_dryers_sum_total_netto tidak 0 sebelum pembagian
+                        if ($nilai_dryers_sum_total_netto > 0) {
+                            $hasil_pengurangan_numeric_final =
+                                ($totalKeseluruhanFiltered / $nilai_dryers_sum_total_netto) * 100;
+                        } else {
+                            $hasil_pengurangan_numeric_final = 0; // atau bisa juga 'N/A'
+                        }
                     @endphp
                     <td colspan="3" class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                         Total Berat:

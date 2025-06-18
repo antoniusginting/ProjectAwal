@@ -29,9 +29,10 @@ class Pembelian extends Model
         'jumlah_karung',
         'foto',
     ];
-    
+
     // Relasi ke User
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class, 'user_id');
     }
     // Relasi ke Mobil
@@ -40,10 +41,14 @@ class Pembelian extends Model
         return $this->belongsTo(Mobil::class, 'id_mobil', 'id');
     }
 
-     // Relasi ke tabel supplier
-     public function supplier()
-     {
-         return $this->belongsTo(Supplier::class, 'id_supplier', 'id');
-     }
-
+    // Relasi ke tabel supplier
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class, 'id_supplier', 'id');
+    }
+    // Relationship ke Sortiran
+    public function sortiran()
+    {
+        return $this->hasMany(Sortiran::class, 'id_pembelian');
+    }
 }

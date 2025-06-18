@@ -316,6 +316,17 @@ class PembelianResource extends Resource implements HasShieldPermissions
                             ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
                             ->isoFormat('D MMMM YYYY | HH:mm:ss');
                     }),
+                // TextColumn::make('sortiran.no_sortiran')
+                //     ->label('Status Sortiran')
+                //     ->getStateUsing(function ($record) {
+                //         // Menggunakan withCount untuk efisiensi query
+                //         $count = $record->sortiran_count ?? $record->sortiran()->count();
+                //         return $count > 0 ? 'Sudah Disortir' : 'Belum Disortir';
+                //     })
+                //     ->badge()
+                //     ->alignCenter()
+                //     ->color(fn($state) => $state === 'Sudah Disortir' ? 'success' : 'warning')
+                //     ->icon(fn($state) => $state === 'Sudah Disortir' ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle'),
                 TextColumn::make('no_spb')
                     ->searchable()
                     ->copyable()

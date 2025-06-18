@@ -197,6 +197,16 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                         // Hitung updated netto bersih
                                         $updatedNettoBersih = max(0, $nettoPembelian - $beratTungkul);
 
+                                        // Cek jika netto bersih kosong (nilai di bawah 0 sebelum max())
+                                        if (($nettoPembelian - $beratTungkul) < 0) {
+                                            // Tampilkan notifikasi
+                                                Notification::make()
+                                                ->title('Peringatan!')
+                                                ->body('Berat tungkul melebihi netto pembelian. Netto bersih telah diset ke 0.')
+                                                ->warning()
+                                                ->send();
+                                        }
+
                                         // Perbaharui tampilan atau nilai netto_bersih dengan format ribuan
                                         $set('netto_bersih', number_format($updatedNettoBersih, 0, ',', '.'));
                                     }),

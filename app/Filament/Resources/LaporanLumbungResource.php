@@ -89,10 +89,14 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                     ->label('Hasil')
                                     ->numeric()
                                     ->readOnly(),
-                                Toggle::make('status_silo')
-                                    ->helperText('Klik jika ke silo')
-                                    ->onIcon('heroicon-m-check')
-                                    ->offIcon('heroicon-m-x-mark')
+                                Select::make('status_silo')
+                                    ->native(false)
+                                    ->label('Status silo')
+                                    ->options([
+                                        'SILO BESAR' => 'SILO BESAR',
+                                        'SILO STAFFEL A' => 'SILO STAFFEL A',
+                                        'SILO STAFFEL B' => 'SILO STAFFEL B',
+                                    ])
                             ]),
                         Card::make('Info Dryer')
                             ->schema([
@@ -213,44 +217,6 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                         }
                                     )->preload()
                                     ->searchable(),
-                                // ->saveRelationshipsUsing(function ($component, $state, $record) {
-                                //     // Sync relasi
-                                //     $record->dryers()->sync($state ?? []);
-
-                                //     // Update kapasitas setelah sync
-                                //     $record->updateKapasitasDryerAfterSync($state ?? []);
-                                // })
-                                // afterStateUpdated dihapus karena sudah dipindah ke model
-                                // ->afterStateUpdated(function ($state, callable $set, callable $get, $livewire) {
-                                //     $record = $livewire->getRecord();
-                                //     $isEditMode = $record !== null;
-
-                                //     if ($isEditMode) {
-                                //         // Dapatkan sortiran sebelumnya yang sudah terkait dengan record ini
-                                //         $oldDryerIds = $record->dryers()->pluck('dryers.id')->toArray();
-                                //         $oldDryers = \App\Models\Dryer::whereIn('id', $oldDryerIds)->get();
-
-                                //         foreach ($oldDryers as $oldDryer) {
-                                //             $oldKapasitas = \App\Models\KapasitasDryer::find($oldDryer->id_kapasitas_dryer);
-                                //             if ($oldKapasitas) {
-                                //                 $oldNettoValue = (int) preg_replace('/[^0-9]/', '', $oldDryer->total_netto);
-                                //                 // Rollback kapasitas lama sebelum perubahan
-                                //                 $oldKapasitas->decrement('kapasitas_sisa', $oldNettoValue);
-                                //             }
-                                //         }
-                                //     }
-
-                                //     // Mendapatkan semua sortiran yang dipilih saat ini
-                                //     $selectedDryers = \App\Models\Dryer::whereIn('id', $state)->get();
-
-                                //     foreach ($selectedDryers as $dryer) {
-                                //         $kapasitas = \App\Models\KapasitasDryer::find($dryer->id_kapasitas_dryer);
-                                //         if ($kapasitas) {
-                                //             $nettoValue = (int) preg_replace('/[^0-9]/', '', $dryer->total_netto);
-                                //             $kapasitas->increment('kapasitas_sisa', $nettoValue);
-                                //         }
-                                //     }
-                                // })
                             ])->columnSpan(1),
                         Card::make('Info Laporan Penjualan')
                             ->schema([
@@ -385,15 +351,6 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                     }),
                             ])->columnSpan(1),
 
-                        // Select::make('timbanganTrontons')
-                        //     ->label('Laporan Penjualan')
-                        //     ->multiple()
-                        //     ->relationship('timbanganTrontons', 'kode') // ganti dengan field yang ingin ditampilkan
-                        //     ->preload()
-                        //     ->getOptionLabelFromRecordUsing(function ($record) {
-                        //         $noBk = $record->penjualan1 ? $record->penjualan1->plat_polisi : 'N/A';
-                        //         return $record->kode . ' - ' . $noBk . ' - ' . ($record->penjualan1->nama_supir ?? '') . ' - ' . $record->total_netto;
-                        //     }),
                         Hidden::make('user_id')
                             ->label('User ID')
                             ->default(Auth::id()) // Set nilai default user yang sedang login,
@@ -421,13 +378,20 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                             ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
                             ->isoFormat('D MMMM YYYY | HH:mm:ss');
                     }),
-                IconColumn::make('status_silo')
+                TextColumn::make('status_silo')
                     ->label('Silo')
-                    ->boolean()
-                    ->trueIcon('heroicon-o-check-circle')
-                    ->falseIcon('heroicon-o-x-circle')
-                    ->trueColor('success')
-                    ->falseColor('danger'),
+                    ->default('-')
+                    ->alignCenter()
+                    ->badge()
+                    ->color(function ($state) {
+                        return match ($state) {
+                            'SILO BESAR' => 'primary',
+                            'SILO STAFFEL A' => 'primary',
+                            'SILO STAFFEL B' => 'primary',
+                            '-' => 'primary',
+                            default => 'primary'
+                        };
+                    }),
                 TextColumn::make('kode')
                     ->label('No Laporan')
                     ->alignCenter()
