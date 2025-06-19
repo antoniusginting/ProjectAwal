@@ -17,6 +17,7 @@
         body {
             font-family: 'Courier New', Courier, monospace;
             font-size: 11pt;
+            font-weight: 900;
             line-height: 1.3;
             color: #000000;
             background: white;
@@ -45,7 +46,6 @@
 
         /* Info Table Styles */
         .info-table {
-            /* border: 2px solid #000000; */
             margin-bottom: 10px;
         }
 
@@ -59,16 +59,25 @@
         .info-table .label {
             font-weight: bold;
             white-space: nowrap;
-            width: 100px;
+            width: 180px;
             color: #000000;
-            /* background-color: #f0f0f0; */
         }
 
         .info-table .value {
-            font-weight: bold;
+            font-weight: bolder;
+            min-width: 20px;
+        }
+
+        .info-table .label-right {
+            font-weight: bolder;
+            color: #000000;
+        }
+
+        .info-table .value-right {
+            font-weight: bolder;
             white-space: nowrap;
             padding-left: 8px;
-            min-width: 80px;
+            width: 180px;
         }
 
         /* Print date */
@@ -78,9 +87,6 @@
             color: #000000;
             font-style: italic;
             font-weight: bold;
-            /* margin: 8px 0; */
-            /* border-top: 1.5px solid #000000; */
-            /* padding-top: 4px; */
         }
 
         /* HEADER STYLES */
@@ -88,8 +94,6 @@
             text-align: center;
             margin-bottom: 12px;
             padding-bottom: 8px;
-            /* border: 2px solid #000000; */
-            /* background-color: #f0f0f0; */
         }
 
         .report-title {
@@ -118,42 +122,55 @@
             border: 1px solid #000000;
             text-align: center;
             padding: 6px 4px;
-            font-weight: bold;
+            font-weight: normal;
             font-size: 10pt;
         }
 
         .detail-table th {
-            /* background-color: #e0e0e0; */
             font-weight: bold;
             text-transform: uppercase;
         }
 
         .detail-table td.text-right {
             text-align: right;
+            font-weight: bolder;
+            padding-right: 8px;
+        }
+        .detail-table td.text-center {
+            text-align: center;
+            font-weight: bolder;
             padding-right: 8px;
         }
 
         .detail-table .summary-row {
-            /* background-color: #f0f0f0; */
-            font-weight: bold;
-            /* border-top: 1.5px solid #000000; */
+            font-weight: bolder;
+        }
+
+        .detail-table .summary-row td {
+            font-weight: bolder;
+        }
+
+        /* SPB Row Styling */
+        .spb-row {
+            background-color: #ffffff;
+        }
+
+        .spb-row td {
+            background-color: #ffffff;
         }
 
         /* SIGNATURE TABLE */
         .signature-table {
             margin-top: 15px;
-            /* border: 2px solid #000000; */
         }
 
         .signature-table th,
         .signature-table td {
             text-align: center;
-            /* border: 1px solid #000000; */
             padding: 8px;
         }
 
         .signature-table th {
-            /* background-color: #e0e0e0; */
             font-weight: bold;
             font-size: 11pt;
         }
@@ -184,9 +201,9 @@
             font-weight: bold;
         }
 
-        .text-center {
+        /* .text-center {
             text-align: center;
-        }
+        } */
 
         .border-thick {
             border: 2px solid #000000;
@@ -216,6 +233,12 @@
 
             .detail-table .summary-row {
                 background-color: #f0f0f0 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .spb-row {
+                background-color: #dbeafe !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
@@ -276,10 +299,10 @@
                         <td class="label">Tanggal</td>
                         <td class="value">
                             :
-                            {{ $laporanlumbung->created_at ? $laporanlumbung->created_at->format('d-m-Y') : 'Tanggal kosong' }}
+                            {{ $laporanlumbung->created_at ? $laporanlumbung->created_at->format('d-m-y') : 'Tanggal kosong' }}
                         </td>
-                        <td class="label">No Laporan</td>
-                        <td class="value">
+                        <td class="label-right">No Laporan</td>
+                        <td class="value-right">
                             : {{ $laporanlumbung->kode }}
                         </td>
                     </tr>
@@ -289,9 +312,11 @@
                             :
                             {{ $laporanlumbung->created_at ? $laporanlumbung->created_at->format('h:i') : 'Tanggal kosong' }}
                         </td>
-                        <td class="label">Lumbung</td>
-                        <td class="value">
-                            : {{ $laporanlumbung->dryers->first()->lumbung_tujuan ?? '-' }}
+                        <td class="label-right">
+                            {{ $laporanlumbung->status_silo ? 'Lumbung' : 'Lumbung' }}
+                        </td>
+                        <td class="value-right">
+                            : {{ $laporanlumbung->lumbung ?? '-' }}
                         </td>
                     </tr>
                 </tbody>
@@ -308,153 +333,6 @@
                 {{ now()->format('d-m-Y H:i:s') }}
             </div>
             <div class="divider"></div>
-            {{-- @php
-                $totalKeseluruhan = $laporanlumbung->dryers
-                    ->flatMap(fn($dryer) => $dryer->timbangantrontons)
-                    ->sum('total_netto');
-            @endphp
-
-            <table class="detail-table">
-                <thead>
-                    <tr>
-                        <th>TGL</th>
-                        <th>Jenis</th>
-                        <th>Masuk</th>
-                        <th>Keluar</th>
-                        <th>Berat</th>
-                        <th>PJ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($laporanlumbung->dryers as $dryer)
-                        @php
-                            $count = $dryer->timbangantrontons->count();
-                            $rowspan = $count > 0 ? $count : 1;
-                            $totalBerat = $dryer->timbangantrontons->sum('total_netto');
-                        @endphp
-
-                        @if ($count > 0)
-                            @foreach ($dryer->timbangantrontons as $index => $timbangan)
-                                <tr>
-                                    @if ($index === 0)
-                                        <td class="center" rowspan="{{ $rowspan }}">
-                                            {{ $dryer->created_at ? $dryer->created_at->format('d-m') : '-' }}
-                                        </td>
-                                        <td class="center" rowspan="{{ $rowspan }}">
-                                            {{ $dryer->nama_barang }}
-                                        </td>
-                                        <td class="center" rowspan="{{ $rowspan }}">
-                                            {{ $dryer->no_dryer }}
-                                        </td>
-                                    @endif
-
-                                    <td class="center">
-                                        {{ $timbangan->kode }}
-                                    </td>
-                                    <td class="right">
-                                        {{ number_format($timbangan->total_netto, 0, ',', '.') }}
-                                    </td>
-
-                                    @if ($index === 0)
-                                        <td class="center" rowspan="{{ $rowspan }}">
-                                            {{ $laporanlumbung->user->name }}
-                                        </td>
-                                    @endif
-                                </tr>
-                            @endforeach
-
-                            {{-- Baris Total Berat per Dryer --}}
-            {{-- <tr>
-                <td colspan="3"></td>
-                <td class="center font-semibold">Total Berat</td>
-                <td class="right font-semibold">
-                    {{ number_format($totalBerat, 0, ',', '.') }}
-                </td>
-                <td></td>
-            </tr>
-        @else --}}
-            {{-- Jika tidak ada data --}}
-            {{-- <tr>
-                <td class="center">
-                    {{ $dryer->created_at ? $dryer->created_at->format('d-m') : '-' }}
-                </td>
-                <td class="center">{{ $dryer->nama_barang }}</td>
-                <td class="center">{{ $dryer->no_dryer }}</td>
-                <td class="center" colspan="2">Tidak ada data timbangan tronton</td>
-                <td class="center">{{ $laporan_lumbung->user->name }}</td>
-            </tr>
-            @endif
-            @endforeach
-            </tbody>
-            <tfoot class="table-footer">
-                <tr>
-                    <td colspan="4" class="center">Total Keseluruhan Berat</td>
-                    <td class="right">
-                        {{ number_format($totalKeseluruhan, 0, ',', '.') }}
-                    </td>
-                    <td></td>
-                </tr>
-            </tfoot>
-            </table> --}}
-{{-- 
-            @php
-                $dryers = $laporanlumbung->dryers->sortBy('created_at')->values();
-                $timbangan = $laporanlumbung->timbangantrontons->sortBy('created_at')->values();
-                $max = max($dryers->count(), $timbangan->count());
-                $totalKeseluruhan = $laporanlumbung->timbangantrontons->sum('total_netto');
-            @endphp
-
-            <table class="detail-table">
-                <thead>
-                    <tr>
-                        <th>TGL</th>
-                        <th>Jenis</th>
-                        <th>Masuk</th>
-                        <th>Keluar</th>
-                        <th>Berat</th>
-                        <th>PJ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for ($i = 0; $i < $max; $i++)
-                        @php
-                            $dryer = $dryers->get($i);
-                            $timbanganItem = $timbangan->get($i);
-                        @endphp
-                        <tr>
-                            <td class="center">
-                                {{ $dryer ? $dryer->created_at->format('d-m') : '' }}</td>
-                            <td class="center">
-                                {{ $dryer ? $dryer->nama_barang : '' }}</td>
-                            <td class="center">
-                                {{ $dryer ? $dryer->no_dryer : '' }}</td>
-                            <td class="center">
-                                {{ $timbanganItem ? $timbanganItem->kode : '-' }}</td>
-                            <td class="right">
-                                {{ $timbanganItem ? number_format($timbanganItem->total_netto, 0, ',', '.') : '-' }}
-                            </td>
-                            <td class="center">
-                                @if ($i == 0)
-                                    {{ $laporanlumbung->user->name }}
-                                @endif
-                            </td>
-                        </tr>
-                    @endfor
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="4" class="center">
-                            Total Berat:</td>
-                        <td class="right">
-                            {{ number_format($totalKeseluruhan, 0, ',', '.') }}
-                        </td>
-                        <td class="border p-2 border-gray-300 dark:border-gray-700 text-sm"></td>
-                    </tr>
-                </tfoot>
-            </table> --}}
-
-
-
             @php
                 $lumbungTujuan = $laporanlumbung->lumbung ?? null;
             @endphp
@@ -489,19 +367,27 @@
             @endforeach
             @php
                 $lumbungTujuan = $laporanlumbung->lumbung ?? null;
-                $dryers = $laporanlumbung->dryers->sortBy('created_at')->values();
-                $timbangan = $laporanlumbung->timbangantrontons->sortBy('created_at')->values();
+                $dryers = $laporanlumbung->dryers->values();
+                $timbangan = $laporanlumbung->timbangantrontons->values();
                 $max = max($dryers->count(), $timbangan->count());
                 // Hitung total keseluruhan dari filtered netto
                 $totalKeseluruhanFiltered = 0;
+                $nilai_dryers_sum_total_netto = $dryers->sum('total_netto');
+
+                // Hitung total netto dari relasi penjualans yang baru (di luar loop)
+                $totalNettoPenjualansBaru = $laporanlumbung->penjualans->sum('netto') ?? 0;
+
+                // Total gabungan dideklarasikan di sini
+                $totalGabungan = 0;
             @endphp
 
             <table class="detail-table">
                 <thead>
-                    <tr >
+                    <tr>
                         <th>TGL</th>
                         <th>Jenis</th>
                         <th>Masuk</th>
+                        <th>Berat</th>
                         <th>Keluar</th>
                         <th>Berat</th>
                         <th>PJ</th>
@@ -548,16 +434,19 @@
                             }
                         @endphp
                         <tr>
-                            <td class="center">
+                            <td class="text-center">
                                 {{ $dryer ? $dryer->created_at->format('d-m') : '' }}
                             </td>
-                            <td class="center">
+                            <td class="text-center">
                                 {{ $dryer ? $dryer->nama_barang : '' }}
                             </td>
-                            <td class="center">
+                            <td class="text-center">
                                 {{ $dryer ? $dryer->no_dryer : '' }}
                             </td>
-                            <td class="center">
+                            <td class="text-right">
+                                {{ $dryer && $dryer->total_netto ? number_format($dryer->total_netto, 0, ',', '.') : '' }}
+                            </td>
+                            <td class="text-center">
                                 {{ $timbanganItem ? $timbanganItem->kode : '' }}
                             </td>
                             <td class="text-right">
@@ -569,23 +458,79 @@
                                     @endif
                                 @endif
                             </td>
-                            <td class="center">
-                                @if ($i == 0)
-                                    {{ $laporanlumbung->user->name }}
-                                @endif
+                            <td class="text-center">
+                                {{ $timbanganItem ? $timbanganItem->user->name : '' }}
                             </td>
                         </tr>
                     @endfor
                 </tbody>
+
+                <!-- Baris untuk menampilkan No SPB -->
+                @if ($laporanlumbung->penjualans->isNotEmpty())
+                    @php
+                        // Filter penjualan yang memiliki no_spb
+                        $penjualanWithSpb = $laporanlumbung->penjualans->filter(function ($penjualan) {
+                            return !empty($penjualan->no_spb);
+                        });
+                    @endphp
+
+                    @if ($penjualanWithSpb->isNotEmpty())
+                        @foreach ($penjualanWithSpb as $index => $penjualan)
+                            <tr class="spb-row">
+                                <td colspan="3" class="text-center text-bold">
+                                    @if ($index == 0)
+                                        No SPB Langsir:
+                                    @endif
+                                </td>
+                                <td></td>
+                                <td class="text-center">
+                                    {{ $penjualan->no_spb }}
+                                </td>
+                                <td class="text-right">
+                                    {{ $penjualan->netto ? number_format($penjualan->netto, 0, ',', '.') : '-' }}
+                                </td>
+                                <td class="text-center">
+                                    {{ $penjualan->user->name ?? '-' }}
+                                </td>
+                            </tr>
+                        @endforeach
+                    @endif
+                @endif
+
+                @php
+                    // Hitung total gabungan setelah loop selesai
+                    $totalGabungan = $totalKeseluruhanFiltered + $totalNettoPenjualansBaru;
+                @endphp
+
                 <tfoot>
-                    <tr >
-                        <td colspan="4" >
+                    <tr class="summary-row">
+                        @php
+                            // Hitung selisih SETELAH loop selesai dan $totalKeseluruhanFilteredAccumulated sudah final
+                            // $hasil_pengurangan_numeric_final = $nilai_dryers_sum_total_netto - $totalKeseluruhanFiltered;
+
+                            // Cek apakah nilai_dryers_sum_total_netto tidak 0 sebelum pembagian
+                            if ($nilai_dryers_sum_total_netto > 0) {
+                                $hasil_pengurangan_numeric_final =
+                                    ($totalGabungan / $nilai_dryers_sum_total_netto) * 100;
+                            } else {
+                                $hasil_pengurangan_numeric_final = 0; // atau bisa juga 'N/A'
+                            }
+                        @endphp
+                        <td colspan="3" class="text-center">
                             Total Berat:
                         </td>
                         <td class="text-right">
-                            {{ number_format($totalKeseluruhanFiltered, 0, ',', '.') }}
+                            {{ number_format($nilai_dryers_sum_total_netto, 0, ',', '.') }}
                         </td>
-                        <td class="border p-2 border-gray-300 dark:border-gray-700 text-sm"></td>
+                        <td class="text-center">
+                            {{ $laporanlumbung->status_silo ?? '-' }}
+                        </td>
+                        <td class="text-right">
+                            {{ number_format($totalGabungan, 0, ',', '.') }}
+                        </td>
+                        <td class="text-center">
+                            {{ number_format($hasil_pengurangan_numeric_final, 2) }} %
+                        </td>
                     </tr>
                 </tfoot>
             </table>

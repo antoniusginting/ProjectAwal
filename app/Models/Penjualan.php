@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Penjualan extends Model
 {
@@ -22,12 +23,14 @@ class Penjualan extends Model
         'jam_keluar',
         'no_lumbung',
         'nama_lumbung',
+        'status_timbangan',
         'jumlah_karung',
         'user_id'
     ];
 
     // Relasi ke User
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class, 'user_id');
     }
     // Relasi ke Mobil
@@ -36,10 +39,14 @@ class Penjualan extends Model
         return $this->belongsTo(Mobil::class, 'id_mobil', 'id');
     }
 
-     // Relasi ke tabel supplier
-     public function supplier()
-     {
-         return $this->belongsTo(Supplier::class, 'id_supplier', 'id');
-     }
-
+    // Relasi ke tabel supplier
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class, 'id_supplier', 'id');
+    }
+    public function laporanLumbungs(): BelongsToMany
+    {
+        return $this->belongsToMany(LaporanLumbung::class, 'laporan_lumbungs_has_penjualans')
+            ->withTimestamps();
+    }
 }

@@ -5,6 +5,8 @@ namespace App\Filament\Resources;
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\LaporanLumbung;
@@ -17,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
@@ -27,7 +30,6 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\LaporanLumbungResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\LaporanLumbungResource\RelationManagers;
-use Filament\Tables\Columns\IconColumn;
 
 class LaporanLumbungResource extends Resource implements HasShieldPermissions
 {
@@ -75,18 +77,15 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                         return 'IO' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
                                     }),
                                 TextInput::make('berat_dryer')
-                                    ->label('Berat Dryer')
+                                    ->label('Berat Dryer')->suffix('Kg')
                                     ->numeric()
                                     ->readOnly(), // Opsional: buat readonly karena dihitung otomatis
-
-
                                 TextInput::make('berat_penjualan')
-                                    ->label('Berat Penjualan')
+                                    ->label('Berat Penjualan')->suffix('Kg')
                                     ->numeric()
                                     ->readOnly(), // Opsional: buat readonly karena dihitung otomatis
-
                                 TextInput::make('hasil')
-                                    ->label('Hasil')
+                                    ->label('Hasil')->suffix('Kg')
                                     ->numeric()
                                     ->readOnly(),
                                 Select::make('status_silo')
@@ -96,7 +95,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                         'SILO BESAR' => 'SILO BESAR',
                                         'SILO STAFFEL A' => 'SILO STAFFEL A',
                                         'SILO STAFFEL B' => 'SILO STAFFEL B',
-                                    ])
+                                    ])->live()->reactive(),
                             ]),
                         Card::make('Info Dryer')
                             ->schema([
@@ -354,7 +353,69 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                         Hidden::make('user_id')
                             ->label('User ID')
                             ->default(Auth::id()) // Set nilai default user yang sedang login,
-                    ])->columns(2)
+                    ])->columns(2),
+                Card::make('Info Timbangan Langsir')
+                    ->schema([
+
+                        // TextInput::make('berat_penjualan')
+                        //     ->label('Berat Penjualan')
+                        //     ->numeric()
+                        //     ->readOnly(), // Opsional: buat readonly karena dihitung otomatis
+                        // TextInput::make('hasil')
+                        //     ->label('Hasil')
+                        //     ->numeric()
+                        //     ->readOnly(),
+                        Select::make('penjualan_ids')
+                            ->label('Timbangan Langsir')
+                            ->placeholder('Pilih ID timbangan langsir')
+                            ->multiple()
+                            ->relationship(
+                                name: 'penjualans',
+                                titleAttribute: 'no_spb',
+                                modifyQueryUsing: function ($query, $get) {
+                                    $currentLaporanId = $get('id');
+
+                                    return $query
+                                        ->where('status_timbangan', 'LANGSIR')
+                                        ->whereNotNull('netto')
+                                        ->where('netto', '>', 0)
+                                        ->whereDoesntHave('laporanLumbungs', function ($subQuery) use ($currentLaporanId) {
+                                            if ($currentLaporanId) {
+                                                $subQuery->where('laporan_lumbung_id', '!=', $currentLaporanId);
+                                            }
+                                        });
+                                }
+                            )
+                            ->getOptionLabelFromRecordUsing(fn($record) => "{$record->no_spb} - {$record->nama_supir} - {$record->netto}")
+                            ->searchable()
+                            ->columnSpan(3)
+                            ->live()
+                            ->afterStateUpdated(function (Set $set, $state) {
+                                if (empty($state)) {
+                                    $set('berat_langsir', 0);
+                                    return;
+                                }
+
+                                // Ambil data penjualan dengan select hanya kolom yang dibutuhkan
+                                $penjualans = \App\Models\Penjualan::select('netto')
+                                    ->whereIn('id', $state)
+                                    ->get();
+
+                                $totalNetto = $penjualans->sum('netto');
+                                // Simpan nilai asli (integer) tanpa format
+                                $set('berat_langsir', $totalNetto);
+                            })
+                            ->preload(),
+
+                        TextInput::make('berat_langsir')
+                            ->label('Total Netto')
+                            ->columnSpan(1)
+                            ->numeric()
+                            // ->formatStateUsing(fn($state) => $state ? number_format($state, 0, ',', '.') : '0') // Format hanya untuk display
+                            ->readOnly()
+                            ->suffix('Kg'), // Opsional: tambah satuan
+                    ])->columns(4)
+                // ->visible(fn(Get $get) => filled($get('status_silo'))) // Muncul live ketika ada pilihan,
             ]);
     }
 
@@ -396,18 +457,61 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                     ->label('No Laporan')
                     ->alignCenter()
                     ->searchable(),
-                TextColumn::make('dryers.lumbung_tujuan')
+                TextColumn::make('lumbung')
                     ->alignCenter()
                     ->searchable()
                     ->label('Lumbung'),
                 TextColumn::make('dryers.no_dryer')
                     ->alignCenter()
                     ->searchable()
-                    ->label('Dryer'),
-                TextColumn::make('timbanganTrontons.kode')
+                    ->label('Dryer')
+                    ->getStateUsing(function ($record) {
+                        $dryer = $record->dryers->pluck('no_dryer');
+
+                        if ($dryer->count() <= 3) {
+                            return $dryer->implode(', ');
+                        }
+
+                        return $dryer->take(3)->implode(', ') . '...';
+                    })
+                    ->tooltip(function ($record) {
+                        $dryer = $record->dryers->pluck('no_dryer');
+                        return $dryer->implode(', ');
+                    }),
+                TextColumn::make('penjualans.no_spb')
                     ->searchable()
                     ->alignCenter()
-                    ->label('No Laporan Penjualan'),
+                    ->label('No Langsir')
+                    ->getStateUsing(function ($record) {
+                        $nospb = $record->penjualans->pluck('no_spb');
+
+                        if ($nospb->count() <= 3) {
+                            return $nospb->implode(', ');
+                        }
+
+                        return $nospb->take(3)->implode(', ') . '...';
+                    })
+                    ->tooltip(function ($record) {
+                        $nospb = $record->penjualans->pluck('no_spb');
+                        return $nospb->implode(', ');
+                    }),
+                TextColumn::make('timbanganTrontons_kode')
+                    ->label('No Laporan Penjualan')
+                    ->searchable()
+                    ->alignCenter()
+                    ->getStateUsing(function ($record) {
+                        $kodes = $record->timbanganTrontons->pluck('kode');
+
+                        if ($kodes->count() <= 3) {
+                            return $kodes->implode(', ');
+                        }
+
+                        return $kodes->take(3)->implode(', ') . '...';
+                    })
+                    ->tooltip(function ($record) {
+                        $kodes = $record->timbanganTrontons->pluck('kode');
+                        return $kodes->implode(', ');
+                    }),
                 TextColumn::make('user.name')
                     ->alignCenter()
                     ->label('PJ'),

@@ -22,7 +22,7 @@
                             {{ $laporanlumbung->status_silo ? 'Lumbung' : 'Lumbung' }}
                         </td>
                         <td class="whitespace-nowrap">:
-                            {{ $laporanlumbung->status_silo ?? ($laporanlumbung->lumbung ?? '-') }}
+                            {{ $laporanlumbung->lumbung ?? '-' }}
                         </td>
                         </td>
 
@@ -69,6 +69,12 @@
             // Hitung total keseluruhan dari filtered netto
             $totalKeseluruhanFiltered = 0;
             $nilai_dryers_sum_total_netto = $dryers->sum('total_netto');
+
+            // Hitung total netto dari relasi penjualans yang baru (di luar loop)
+            $totalNettoPenjualansBaru = $laporanlumbung->penjualans->sum('netto') ?? 0;
+
+            // Total gabungan dideklarasikan di sini
+            $totalGabungan = 0;
         @endphp
 
         <table class="w-full border border-collapse border-gray-300 dark:border-gray-700">
@@ -154,6 +160,47 @@
                     </tr>
                 @endfor
             </tbody>
+
+            <!-- Baris untuk menampilkan No SPB -->
+            @if ($laporanlumbung->penjualans->isNotEmpty())
+                @php
+                    // Filter penjualan yang memiliki no_spb
+                    $penjualanWithSpb = $laporanlumbung->penjualans->filter(function ($penjualan) {
+                        return !empty($penjualan->no_spb);
+                    });
+                @endphp
+
+                @if ($penjualanWithSpb->isNotEmpty())
+                    <tbody>
+                        @foreach ($penjualanWithSpb as $index => $penjualan)
+                            <tr class="bg-blue-50 dark:bg-blue-900/20">
+                                <td colspan="3"
+                                    class="border p-2 text-center font-semibold border-gray-300 dark:border-gray-700 text-sm">
+                                    @if ($index == 0)
+                                        No SPB Langsir:
+                                    @endif
+                                </td>
+                                <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm"></td>
+                                <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                                    {{ $penjualan->no_spb }}
+                                </td>
+                                <td class="border text-right p-2 border-gray-300 dark:border-gray-700 text-sm">
+                                    {{ $penjualan->netto ? number_format($penjualan->netto, 0, ',', '.') : '-' }}
+                                </td>
+                                <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                                    {{ $penjualan->user->name ?? '-' }}
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                @endif
+            @endif
+
+            @php
+                // Hitung total gabungan setelah loop selesai
+                $totalGabungan = $totalKeseluruhanFiltered + $totalNettoPenjualansBaru;
+            @endphp
+
             <tfoot>
                 <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
                     @php
@@ -162,8 +209,7 @@
 
                         // Cek apakah nilai_dryers_sum_total_netto tidak 0 sebelum pembagian
                         if ($nilai_dryers_sum_total_netto > 0) {
-                            $hasil_pengurangan_numeric_final =
-                                ($totalKeseluruhanFiltered / $nilai_dryers_sum_total_netto) * 100;
+                            $hasil_pengurangan_numeric_final = ($totalGabungan / $nilai_dryers_sum_total_netto) * 100;
                         } else {
                             $hasil_pengurangan_numeric_final = 0; // atau bisa juga 'N/A'
                         }
@@ -174,9 +220,10 @@
                     <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
                         {{ number_format($nilai_dryers_sum_total_netto, 0, ',', '.') }}
                     </td>
-                    <td></td>
+                    <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                        {{ $laporanlumbung->status_silo ?? '-' }}</td>
                     <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
-                        {{ number_format($totalKeseluruhanFiltered, 0, ',', '.') }}
+                        {{ number_format($totalGabungan, 0, ',', '.') }}
                     </td>
                     <td class="border text-center p-2 border-gray-300 dark:border-gray-700 text-sm">
                         {{ number_format($hasil_pengurangan_numeric_final, 2) }} %</td>

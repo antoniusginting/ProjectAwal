@@ -14,10 +14,16 @@ class LaporanLumbung extends Model
         "berat_penjualan",
         "hasil",
         "status_silo",
+        "berat_langsir",
     ];
     public function timbanganTrontons(): BelongsToMany
     {
         return $this->belongsToMany(TimbanganTronton::class, 'laporan_lb_has_timbangant')
+            ->withTimestamps();
+    }
+    public function penjualans(): BelongsToMany
+    {
+        return $this->belongsToMany(Penjualan::class, 'laporan_lumbungs_has_penjualans')
             ->withTimestamps();
     }
     // Relasi ke User

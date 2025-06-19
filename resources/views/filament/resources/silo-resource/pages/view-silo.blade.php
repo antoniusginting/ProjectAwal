@@ -34,10 +34,17 @@
             // Hitung total
             $totalBeratTrontonFiltered = $timbanganFiltered->sum('total_netto_filtered');
 
-            // Hitung total berat dari laporan lumbung
+            // Hitung total berat dari laporan lumbung dengan prioritas field
             $totalBerat1 = 0;
             foreach ($silo->laporanlumbungs as $laporan) {
-                $totalBerat1 += $laporan->hasil ?? 0;
+                // Jika berat_langsir ada nilai dan tidak 0, gunakan berat_langsir
+                if (!empty($laporan->berat_langsir) && $laporan->berat_langsir > 0) {
+                    $totalBerat1 += $laporan->berat_langsir;
+                }
+                // Jika berat_langsir null atau 0, gunakan hasil
+                else {
+                    $totalBerat1 += $laporan->hasil ?? 0;
+                }
             }
 
             // Hitung summary
@@ -121,14 +128,14 @@
                 <tbody>
                     @forelse($silo->laporanlumbungs as $laporan)
                         @php
-                            // Hitung berat untuk kolom pertama
-                            $beratKolom1 = 0;
-                            if ($laporan->dryers->count() > 0) {
-                                $beratKolom1 = $laporan->dryers->sum('total_netto');
-                            } else {
-                                $beratKolom1 = $laporan->berat_dryer ?? 0;
-                            }
-
+                            // // Hitung berat untuk kolom pertama
+                            // $beratKolom1 = 0;
+                            // if ($laporan->dryers->count() > 0) {
+                            //     $beratKolom1 = $laporan->dryers->sum('total_netto');
+                            // } else {
+                            //     $beratKolom1 = $laporan->berat_dryer ?? 0;
+                            // }
+                            $beratKolom1 = $laporan->berat_langsir ?? 0;
                             // Hitung berat untuk kolom kedua
                             $beratKolom2 = $laporan->berat_penjualan ?? 0;
                         @endphp
@@ -155,7 +162,11 @@
                                 @else
                                     {{ $laporan->berat_dryer ? number_format($laporan->berat_dryer) : '-' }}
                                 @endif --}}
-                                {{ number_format($laporan->hasil, 0, ',', '.') }}
+                                @if (!empty($laporan->berat_langsir) && $laporan->berat_langsir > 0)
+                                    {{ number_format($laporan->berat_langsir, 0, ',', '.') }}
+                                @else
+                                    {{ number_format($laporan->hasil ?? 0, 0, ',', '.') }}
+                                @endif
                             </td>
                         </tr>
                     @empty

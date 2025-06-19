@@ -252,11 +252,13 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state)),
                                 TextInput::make('jumlah_karung')
                                     ->numeric()
+                                    ->columnSpan(2)
                                     ->label('Jumlah Karung')
                                     ->autocomplete('off')
                                     ->placeholder('Masukkan Jumlah Karung'),
                                 Select::make('brondolan') // Gantilah 'tipe' dengan nama field di database
                                     ->label('Satuan Muatan')
+                                    ->columnSpan(2)
                                     ->options([
                                         'GONI' => 'GONI',
                                         'CURAH' => 'CURAH',
@@ -264,6 +266,17 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->placeholder('Pilih Satuan Timbangan')
                                     ->native(false) // Mengunakan dropdown modern
                                     ->required(), // Opsional: Atur default value
+                                Select::make('status_timbangan')
+                                    ->label('Status Timbangan')
+                                    ->columnSpan(2)
+                                    ->options([
+                                        'JUAL' => 'JUAL',
+                                        'LANGSIR' => 'LANGSIR',
+                                    ])
+                                    ->default('JUAL')
+                                    ->placeholder('-- Pilih Status Timbangan --')
+                                    ->native(false)
+                                    ->required(),
                                 TextInput::make('no_container')
                                     ->label('No Container')
                                     ->placeholder('Masukkan no container')
@@ -329,6 +342,9 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                             ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
                             ->isoFormat('D MMMM YYYY | HH:mm:ss');
                     }),
+                TextColumn::make('status_timbangan')
+                    ->alignCenter()
+                    ->label('Status'),
                 TextColumn::make('no_spb')
                     ->searchable()
                     ->copyable()

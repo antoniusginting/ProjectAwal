@@ -60,9 +60,7 @@ class SiloResource extends Resource
                             }),
                         Card::make('STOK BESAR')
                             ->schema([
-                                // TextInput::make('laporan_lumbung_sebelumnya')
-                                //     ->label('laporan lumbung sebelumnya'),
-                                // Opsi 1: Hanya tampilkan data yang field lumbung-nya KOSONG (null/empty)
+                            
                                 Select::make('laporanLumbungs')
                                     ->label('Laporan Lumbung')
                                     ->multiple()
@@ -83,28 +81,6 @@ class SiloResource extends Resource
                             ])->columnSpan(1),
                         Card::make('PENJUALAN')
                             ->schema([
-                                // TextInput::make('laporan_penjualan_sebelumnya')
-                                //     ->label('Laporan Penjualan Sebelumnya')
-                                //     ->disabled() // Disable karena ini akan diisi otomatis
-                                //     ->dehydrated()
-                                //     ->reactive(),
-
-                                // Select::make('lumbung')
-                                //     ->native(false)
-                                //     ->dehydrated()
-                                //     ->label('Lumbung')
-                                //     ->options(function () {
-                                //         $excludedLumbung = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
-                                //         return \App\Models\Penjualan::query()
-                                //             ->whereNotNull('nama_lumbung')
-                                //             ->where('nama_lumbung', '!=', '')
-                                //             ->whereNotIn('nama_lumbung', $excludedLumbung)
-                                //             ->distinct()
-                                //             ->pluck('nama_lumbung', 'nama_lumbung')
-                                //             ->toArray();
-                                //     })
-                                //     ->reactive(),
-
 
                                 Select::make('timbanganTrontons')
                                     ->label('Laporan Penjualan')
