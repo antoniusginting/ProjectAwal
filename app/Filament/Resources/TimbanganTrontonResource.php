@@ -90,7 +90,9 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                             ->whereNotNull('bruto')         // bruto tidak boleh null
                             ->where('bruto', '!=', '')      // bruto tidak boleh kosong string (jika perlu)
                             ->orderByDesc('created_at')
-                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT', 'TAMPUNGAN SILO BESAR','LANGSIR','ISI MINYAK'])
+                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT', 'TAMPUNGAN SILO BESAR', 'LANGSIR', 'ISI MINYAK'])
+                            ->whereNotNull('status_timbangan')
+                                                            ->where('status_timbangan', '!=', 'langsir')
                             ->get()
                             ->mapWithKeys(function ($penjualan) {
                                 // Menggabungkan plat polisi dan nama supir sebagai label
@@ -130,7 +132,7 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
 
                         // Combine both sets of IDs to exclude
                         $allUsedIds = array_merge($usedIds, $currentFormIds);
-                        $excludedBarang = ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT', 'TAMPUNGAN SILO BESAR','LANGSIR','ISI MINYAK'];
+                        $excludedBarang = ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT', 'TAMPUNGAN SILO BESAR', 'LANGSIR', 'ISI MINYAK'];
                         // Prefill data dari Penjualan berdasarkan plat_polisi yang dipilih, but exclude used IDs
                         $records = Penjualan::where('plat_polisi', $state)
                             ->whereNotIn('id', $allUsedIds)
@@ -230,7 +232,9 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                         return $penjualanQuery
                                                             ->latest()
                                                             ->with(['mobil', 'supplier'])
-                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT', 'TAMPUNGAN SILO BESAR','LANGSIR','ISI MINYAK'])
+                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT', 'TAMPUNGAN SILO BESAR', 'LANGSIR', 'ISI MINYAK'])
+                                                            ->whereNotNull('status_timbangan')
+                                                            ->where('status_timbangan', '!=', 'langsir')
                                                             ->get()
                                                             ->mapWithKeys(function ($item) {
                                                                 return [
@@ -340,7 +344,9 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                         return $penjualanQuery
                                                             ->latest()
                                                             ->with(['mobil', 'supplier'])
-                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT', 'TAMPUNGAN SILO BESAR','LANGSIR','ISI MINYAK'])
+                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT', 'TAMPUNGAN SILO BESAR', 'LANGSIR', 'ISI MINYAK'])
+                                                            ->whereNotNull('status_timbangan')
+                                                            ->where('status_timbangan', '!=', 'langsir')
                                                             ->get()
                                                             ->mapWithKeys(function ($item) {
                                                                 return [
@@ -469,7 +475,9 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                         return $penjualanQuery
                                                             ->latest()
                                                             ->with(['mobil', 'supplier'])
-                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT', 'TAMPUNGAN SILO BESAR','LANGSIR','ISI MINYAK'])
+                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT', 'TAMPUNGAN SILO BESAR', 'LANGSIR', 'ISI MINYAK'])
+                                                            ->whereNotNull('status_timbangan')
+                                                            ->where('status_timbangan', '!=', 'langsir')
                                                             ->get()
                                                             ->mapWithKeys(function ($item) {
                                                                 return [
@@ -598,7 +606,9 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                         return $penjualanQuery
                                                             ->latest()
                                                             ->with(['mobil', 'supplier'])
-                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT', 'TAMPUNGAN SILO BESAR','LANGSIR','ISI MINYAK'])
+                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT', 'TAMPUNGAN SILO BESAR', 'LANGSIR', 'ISI MINYAK'])
+                                                            ->whereNotNull('status_timbangan')
+                                                            ->where('status_timbangan', '!=', 'langsir')
                                                             ->get()
                                                             ->mapWithKeys(function ($item) {
                                                                 return [
@@ -727,7 +737,9 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                         return $penjualanQuery
                                                             ->latest()
                                                             ->with(['mobil', 'supplier'])
-                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT', 'TAMPUNGAN SILO BESAR','LANGSIR','ISI MINYAK'])
+                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT', 'TAMPUNGAN SILO BESAR', 'LANGSIR', 'ISI MINYAK'])
+                                                            ->whereNotNull('status_timbangan')
+                                                            ->where('status_timbangan', '!=', 'langsir')
                                                             ->get()
                                                             ->mapWithKeys(function ($item) {
                                                                 return [
@@ -857,7 +869,9 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                         return $penjualanQuery
                                                             ->latest()
                                                             ->with(['mobil', 'supplier'])
-                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT', 'TAMPUNGAN SILO BESAR','LANGSIR','ISI MINYAK'])
+                                                            ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT', 'TAMPUNGAN SILO BESAR', 'LANGSIR', 'ISI MINYAK'])
+                                                            ->whereNotNull('status_timbangan')
+                                                            ->where('status_timbangan', '!=', 'langsir')
                                                             ->get()
                                                             ->mapWithKeys(function ($item) {
                                                                 return [
