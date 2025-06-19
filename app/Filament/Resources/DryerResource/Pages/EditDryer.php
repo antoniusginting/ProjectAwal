@@ -8,6 +8,7 @@ use App\Services\DryerService;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\DryerResource;
+use App\Services\SortirService;
 
 class EditDryer extends EditRecord
 {
@@ -43,17 +44,55 @@ class EditDryer extends EditRecord
         ];
     }
 
-    protected function getFormActions(): array
+    // protected function getFormActions(): array
+    // {
+    //     return [
+    //         Action::make('save')
+    //             ->label('Ubah')
+    //             ->action(fn() => $this->save()), // Menggunakan fungsi simpan manual
+    //         // Action::make('cancel')
+    //         //     ->label('Batal')
+    //         //     ->color('gray')
+    //         //     ->url(DryerResource::getUrl('index')),
+    //     ];
+    // }
+    // protected function getRedirectUrl(): string
+    // {
+    //     return $this->getResource()::getUrl('index'); // Arahkan ke daftar tabel
+    // }
+    
+    // protected function getHeaderActions(): array
+    // {
+    //     return [
+    //         Actions\DeleteAction::make(),
+    //     ];
+    // }
+
+    
+    // Property untuk menyimpan dryer asli sebelum edit
+    public $originalSortirans = [];
+
+    protected function mutateFormDataBeforeFill(array $data): array
     {
-        return [
-            Action::make('save')
-                ->label('Ubah')
-                ->action(fn() => $this->save()), // Menggunakan fungsi simpan manual
-            // Action::make('cancel')
-            //     ->label('Batal')
-            //     ->color('gray')
-            //     ->url(DryerResource::getUrl('index')),
-        ];
+        // Simpan dryer asli sebelum form diisi
+        $record = $this->getRecord();
+        $this->originalSortirans = $record->sortirans->pluck('id')->toArray();
+
+        return $data;
+    }
+
+    protected function afterSave(): void
+    {
+        $record = $this->getRecord();
+
+        // Ambil dryer yang baru dipilih
+        $newSortirans = $record->sortirans->pluck('id')->toArray();
+
+        // Update status dengan membandingkan dryer lama dan baru
+        app(SortirService::class)->updateStatusToDryer(
+            $newSortirans,           // Dryer yang baru dipilih
+            $this->originalSortirans // Dryer yang lama
+        );
     }
     protected function getRedirectUrl(): string
     {

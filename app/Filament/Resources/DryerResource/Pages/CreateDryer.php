@@ -2,9 +2,10 @@
 
 namespace App\Filament\Resources\DryerResource\Pages;
 
-use App\Services\DryerService;
 use Filament\Actions;
 use Filament\Actions\Action;
+use App\Services\DryerService;
+use App\Services\SortirService;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Notifications\Notification;
 use App\Filament\Resources\DryerResource;
@@ -33,10 +34,6 @@ class CreateDryer extends CreateRecord
         ];
     }
 
-    protected function getRedirectUrl(): string
-    {
-        return $this->getResource()::getUrl('index'); // Arahkan ke daftar tabel
-    }
 
     protected function handleRecordCreation(array $data): Model
     {
@@ -54,5 +51,23 @@ class CreateDryer extends CreateRecord
 
             throw $e;
         }
+    }
+
+
+
+
+    
+
+    protected function afterCreate(): void
+    {
+        $record = $this->getRecord();
+        $selectedSortirans = $record->sortirans->pluck('id')->toArray();
+
+        // Update status dryers yang dipilih
+        app(SortirService::class)->updateStatusToDryer($selectedSortirans, []);
+    }
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index'); // Arahkan ke daftar tabel
     }
 }

@@ -193,10 +193,10 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                     })
                                     ->afterStateUpdated(
                                         function ($state, callable $set, callable $get, $livewire, $old) {
-                                            app(DryerService::class)->updateStatusToCompleted(
-                                                $state ?? [],
-                                                $old ?? []
-                                            );
+                                            // app(DryerService::class)->updateStatusToCompleted(
+                                            //     $state ?? [],
+                                            //     $old ?? []
+                                            // );
                                             // Hitung total netto dari dryer yang dipilih
                                             if (!empty($state)) {
                                                 // Ambil model Dryer (sesuaikan dengan nama model Anda)

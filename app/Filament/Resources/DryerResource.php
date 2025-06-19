@@ -363,10 +363,10 @@ class DryerResource extends Resource implements HasShieldPermissions
                                         // Mendapatkan nilai kapasitas sisa awal
                                         $noDryer = $get('id_kapasitas_dryer');
                                         $kapasitasAwal = 0;
-                                        app(SortirService::class)->updateStatusToDryer(
-                                            $state ?? [],
-                                            $old ?? []
-                                        );
+                                        // app(SortirService::class)->updateStatusToDryer(
+                                        //     $state ?? [],
+                                        //     $old ?? []
+                                        // );
 
 
                                         // Dapatkan record saat ini (untuk mode edit)

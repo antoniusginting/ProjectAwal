@@ -4,6 +4,7 @@ namespace App\Filament\Resources\LaporanLumbungResource\Pages;
 
 use Filament\Actions;
 use Filament\Actions\Action;
+use App\Services\DryerService;
 use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\LaporanLumbungResource;
 
@@ -16,26 +17,16 @@ class CreateLaporanLumbung extends CreateRecord
         return 'Tambah Laporan Lumbung';
     }
 
-    protected function getFormActions(): array
+    protected function afterCreate(): void
     {
-        return [
-            Action::make('save')
-                ->label('Tambah')
-                ->action(fn() => $this->create()), // Gunakan method bawaan Filament
-            // Action::make('cancel')
-            //     ->label('Batal')
-            //     ->color('gray')
-            //     ->url(LaporanLumbungResource::getUrl('index')), // Redirect ke tabel utama
-        ];
-    }
+        $record = $this->getRecord();
+        $selectedDryers = $record->dryers->pluck('id')->toArray();
 
+        // Update status dryers yang dipilih
+        app(DryerService::class)->updateStatusToCompleted($selectedDryers, []);
+    }
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index'); // Arahkan ke daftar tabel
     }
-    // protected function afterCreate(): void
-    // {
-    //     // Update kapasitas dryer setelah record dan relasi dibuat
-    //     $this->record->updateKapasitasDryerAfterSync();
-    // }
 }
