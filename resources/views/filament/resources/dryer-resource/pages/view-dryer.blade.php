@@ -244,10 +244,10 @@
             <br>
             <br>
             <!-- Header Simple -->
-            <div class="bg-white border-b-2 border-blue-500 p-4 mb-4">
-                <h2 class="text-2xl font-bold text-gray-800 text-center">TABEL RANGKUMAN DATA SORTIRAN</h2>
+            {{-- <div class="bg-white border-b-2 border-blue-500 p-4 mb-4">
+                <h2 class="text-2xl font-bold text-gray-800 text-center">TABEL RANGKUMAN DATA SORTIRAN</h2> --}}
                 {{-- <p class="text-gray-600 text-center mt-1">Rekapitulasi Data Sortiran Jagung</p> --}}
-            </div>
+            {{-- </div>
             <table class="w-full border border-collapse border-gray-300 dark:border-gray-700">
                 <thead>
                     <tr class="bg-gray-100 dark:bg-gray-800">
@@ -287,9 +287,9 @@
                                         ];
                                     }
                                 }
-                            @endphp
+                            @endphp --}}
 
-                            @if (count($kualitasData) > 0)
+                            {{-- @if (count($kualitasData) > 0)
                                 @foreach ($kualitasData as $kIndex => $data)
                                     <tr>
                                         @if ($kIndex == 0)
@@ -361,6 +361,140 @@
                         @endforeach
                     @endforeach
                 </tbody>
-            </table>
+            </table> --}}
+
+
+
+            <!-- Tabel Rangkuman berdasarkan Kualitas dan X1-X10 -->
+            <div class="mt-6">
+                <h3 class="text-lg font-semibold mb-4">Rangkuman Berdasarkan Kualitas Jagung dan X1-X10</h3>
+
+                @php
+                    $rangkumanData = [];
+                    $groupedSortirans = $dryer->sortirans->groupBy('id_sortiran');
+
+                    foreach ($groupedSortirans as $idSortiran => $sortiransGroup) {
+                        foreach ($sortiransGroup as $sortiran) {
+                            for ($i = 1; $i <= 6; $i++) {
+                                $kualitas = $sortiran->{"kualitas_jagung_$i"};
+                                $x1_10 = $sortiran->{"x1_x10_$i"};
+                                $jumlah_karung = $sortiran->{"jumlah_karung_$i"};
+                                $tonaseRaw = $sortiran->{"tonase_$i"};
+
+                                // Normalisasi nilai tonase dari varchar (contoh: "1.250,75")
+                                $cleanedTonase = str_replace(['.', ','], ['', '.'], $tonaseRaw);
+                                $tonaseFloat = is_numeric($cleanedTonase) ? (float) $cleanedTonase : 0;
+
+                                if ($kualitas !== null && $kualitas !== '') {
+                                    $key = $kualitas . '|' . ($x1_10 ?? 'null');
+
+                                    if (!isset($rangkumanData[$key])) {
+                                        $rangkumanData[$key] = [
+                                            'kualitas' => $kualitas,
+                                            'x1_10' => $x1_10,
+                                            'total_karung' => 0,
+                                            'total_tonase' => 0,
+                                            'count' => 0,
+                                        ];
+                                    }
+
+                                    $rangkumanData[$key]['total_karung'] += (int) $jumlah_karung;
+                                    $rangkumanData[$key]['total_tonase'] += $tonaseFloat;
+                                    $rangkumanData[$key]['count']++;
+                                }
+                            }
+                        }
+                    }
+
+                    // Kelompokkan berdasarkan kualitas
+                    $groupedByKualitas = [];
+                    foreach ($rangkumanData as $data) {
+                        $kualitas = $data['kualitas'];
+                        if (!isset($groupedByKualitas[$kualitas])) {
+                            $groupedByKualitas[$kualitas] = [];
+                        }
+                        $groupedByKualitas[$kualitas][] = $data;
+                    }
+
+                    ksort($groupedByKualitas);
+                @endphp
+
+                <table class="w-full border border-collapse border-gray-300 dark:border-gray-700">
+                    <thead>
+                        <tr class="bg-gray-300 dark:bg-gray-800">
+                            <th class="border p-2 text-sm">Jenis Jagung</th>
+                            <th class="border p-2 text-sm">X1-X10</th>
+                            <th class="border p-2 text-sm">Frekuensi</th>
+                            <th class="border p-2 text-sm">Total Karung</th>
+                            <th class="border p-2 text-sm">Total Tonase</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($groupedByKualitas as $kualitas => $dataGroup)
+                            @php
+                                $totalKarungKualitas = 0;
+                                $totalTonaseKualitas = 0;
+                                $totalFrekuensiKualitas = 0;
+                            @endphp
+
+                            @foreach ($dataGroup as $index => $data)
+                                @php
+                                    $totalKarungKualitas += $data['total_karung'];
+                                    $totalTonaseKualitas += $data['total_tonase'];
+                                    $totalFrekuensiKualitas += $data['count'];
+                                @endphp
+
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    @if ($index == 0)
+                                        <td class="border text-center p-2 font-medium"
+                                            rowspan="{{ count($dataGroup) + 1 }}">
+                                            {{ $kualitas }}
+                                        </td>
+                                    @endif
+
+                                    <td class="border text-center p-2">{{ $data['x1_10'] ?? '-' }}</td>
+                                    <td class="border text-center p-2">{{ $data['count'] }}</td>
+                                    <td class="border text-center p-2">
+                                        {{ number_format($data['total_karung'], 0, ',', '.') }}
+                                    </td>
+                                    <td class="border text-center p-2">
+                                        {{ number_format($data['total_tonase'], 0, ',', '.') }}
+                                    </td>
+                                </tr>
+                            @endforeach
+
+                            <tr class="bg-gray-100 dark:bg-blue-900/20 font-semibold">
+                                <td class="border text-center p-2 italic">Subtotal</td>
+                                <td class="border text-center p-2">{{ $totalFrekuensiKualitas }}</td>
+                                <td class="border text-center p-2">
+                                    {{ number_format($totalKarungKualitas, 0, ',', '.') }}
+                                </td>
+                                <td class="border text-center p-2">
+                                    {{ number_format($totalTonaseKualitas, 0, ',', '.') }}
+                                </td>
+                            </tr>
+                        @endforeach
+
+                        @php
+                            $grandTotalKarung = array_sum(array_column($rangkumanData, 'total_karung'));
+                            $grandTotalTonase = array_sum(array_column($rangkumanData, 'total_tonase'));
+                            $grandTotalFrekuensi = array_sum(array_column($rangkumanData, 'count'));
+                        @endphp
+
+                        <tr class="bg-gray-200 dark:bg-green-900/30 font-bold">
+                            <td class="border text-center p-2" colspan="2">GRAND TOTAL</td>
+                            <td class="border text-center p-2">{{ $grandTotalFrekuensi }}</td>
+                            <td class="border text-center p-2">
+                                {{ number_format($grandTotalKarung, 0, ',', '.') }}
+                            </td>
+                            <td class="border text-center p-2">
+                                {{ number_format($grandTotalTonase, 0, ',', '.') }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+
         </div>
 </x-filament-panels::page>
