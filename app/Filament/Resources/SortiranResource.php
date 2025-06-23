@@ -200,7 +200,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                         // Cek jika netto bersih kosong (nilai di bawah 0 sebelum max())
                                         if (($nettoPembelian - $beratTungkul) < 0) {
                                             // Tampilkan notifikasi
-                                                Notification::make()
+                                            Notification::make()
                                                 ->title('Peringatan!')
                                                 ->body('Berat tungkul melebihi netto pembelian. Netto bersih telah diset ke 0.')
                                                 ->warning()
@@ -791,7 +791,6 @@ class SortiranResource extends Resource implements HasShieldPermissions
             ->defaultPaginationPageOption(5)
             ->paginated([5, 10, 15])
             ->columns([
-
                 // ToggleColumn::make('statuss')
                 //     ->label('Status')
                 //     ->extraCellAttributes(fn($record) => $record->cek === 1 ? ['style' => 'opacity: 10;'] : [])
@@ -837,9 +836,9 @@ class SortiranResource extends Resource implements HasShieldPermissions
                     ->searchable()
                     ->label('No Sortiran')
                     ->alignCenter(),
-                TextColumn::make('pembelian.supplier.nama_supplier')->label('Nama Supplier')
-                    ->searchable(),
                 TextColumn::make('pembelian.no_spb')->label('No SPB')
+                    ->searchable(),
+                TextColumn::make('pembelian.supplier.nama_supplier')->label('Nama Supplier')
                     ->searchable(),
                 TextColumn::make('netto_bersih')->label('Netto Bersih')
                     ->alignCenter()
@@ -875,24 +874,27 @@ class SortiranResource extends Resource implements HasShieldPermissions
                     ->searchable()
                     ->alignCenter()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                TextColumn::make('kadar_air')
+                    ->alignCenter()
+                    ->suffix('%'),
                 TextColumn::make('keterangan')
                     ->label('Keterangan')
                     ->alignCenter(),
                 //Jagung 1
-                TextColumn::make('kualitas_jagung_1')
-                    ->label('Kualitas Jagung 1'),
-                TextColumn::make('x1_x10_1')
-                    ->label('X1 - X10 1')
-                    ->alignCenter(),
-                TextColumn::make('jumlah_karung_1')
-                    ->label('Jumlah Karung 1')
-                    ->alignCenter(),
-                TextColumn::make('tonase_1')
-                    ->label('Tonase 1'),
+                // TextColumn::make('kualitas_jagung_1')
+                //     ->label('Kualitas Jagung 1'),
+                // TextColumn::make('x1_x10_1')
+                //     ->label('X1 - X10 1')
+                //     ->alignCenter(),
+                // TextColumn::make('jumlah_karung_1')
+                //     ->label('Jumlah Karung 1')
+                //     ->alignCenter(),
+                // TextColumn::make('tonase_1')
+                //     ->label('Tonase 1'),
 
                 //Jagung 2
-                TextColumn::make('kualitas_jagung_2')
-                    ->label('Kualitas Jagung 2'),
+                // TextColumn::make('kualitas_jagung_2')
+                //     ->label('Kualitas Jagung 2'),
                 // ImageColumn::make('foto_jagung_2_1')
                 //     ->label('Foto 1')
                 //     ->getStateUsing(fn($record) => $record->foto_jagung_2[0] ?? null)
@@ -903,18 +905,18 @@ class SortiranResource extends Resource implements HasShieldPermissions
                 //     ->getStateUsing(fn($record) => $record->foto_jagung_2[1] ?? null)
                 //     ->url(fn($record) => asset('storage/' . ($record->foto_jagung_2[1] ?? '')))
                 //     ->openUrlInNewTab(),
-                TextColumn::make('x1_x10_2')
-                    ->label('X1 - X10 2')
-                    ->alignCenter(),
-                TextColumn::make('jumlah_karung_2')
-                    ->label('Jumlah Karung 2')
-                    ->alignCenter(),
-                TextColumn::make('tonase_2')
-                    ->label('Tonase 2'),
+                // TextColumn::make('x1_x10_2')
+                //     ->label('X1 - X10 2')
+                //     ->alignCenter(),
+                // TextColumn::make('jumlah_karung_2')
+                //     ->label('Jumlah Karung 2')
+                //     ->alignCenter(),
+                // TextColumn::make('tonase_2')
+                //     ->label('Tonase 2'),
 
                 //Jagung 3
-                TextColumn::make('kualitas_jagung_3')
-                    ->label('Kualitas Jagung 3'),
+                // TextColumn::make('kualitas_jagung_3')
+                //     ->label('Kualitas Jagung 3'),
                 // ImageColumn::make('foto_jagung_3_1')
                 //     ->label('Foto 1')
                 //     ->getStateUsing(fn($record) => $record->foto_jagung_3[0] ?? null)
@@ -925,17 +927,17 @@ class SortiranResource extends Resource implements HasShieldPermissions
                 //     ->getStateUsing(fn($record) => $record->foto_jagung_3[1] ?? null)
                 //     ->url(fn($record) => asset('storage/' . ($record->foto_jagung_3[1] ?? '')))
                 //     ->openUrlInNewTab(),
-                TextColumn::make('x1_x10_3')
-                    ->label('X1 - X10 3')
-                    ->alignCenter(),
-                TextColumn::make('jumlah_karung_3')
-                    ->label('Jumlah Karung 3')
-                    ->alignCenter(),
-                TextColumn::make('tonase_3')
-                    ->label('Tonase 3'),
+                // TextColumn::make('x1_x10_3')
+                //     ->label('X1 - X10 3')
+                //     ->alignCenter(),
+                // TextColumn::make('jumlah_karung_3')
+                //     ->label('Jumlah Karung 3')
+                //     ->alignCenter(),
+                // TextColumn::make('tonase_3')
+                //     ->label('Tonase 3'),
                 //Jagung 4
-                TextColumn::make('kualitas_jagung_4')
-                    ->label('Kualitas Jagung 4'),
+                // TextColumn::make('kualitas_jagung_4')
+                //     ->label('Kualitas Jagung 4'),
                 // ImageColumn::make('foto_jagung_4_1')
                 //     ->label('Foto 1')
                 //     ->getStateUsing(fn($record) => $record->foto_jagung_4[0] ?? null)
@@ -946,17 +948,17 @@ class SortiranResource extends Resource implements HasShieldPermissions
                 //     ->getStateUsing(fn($record) => $record->foto_jagung_4[1] ?? null)
                 //     ->url(fn($record) => asset('storage/' . ($record->foto_jagung_4[1] ?? '')))
                 //     ->openUrlInNewTab(),
-                TextColumn::make('x1_x10_4')
-                    ->label('X1 - X10 4')
-                    ->alignCenter(),
-                TextColumn::make('jumlah_karung_4')
-                    ->label('Jumlah Karung 4')
-                    ->alignCenter(),
-                TextColumn::make('tonase_4')
-                    ->label('Tonase 4'),
+                // TextColumn::make('x1_x10_4')
+                //     ->label('X1 - X10 4')
+                //     ->alignCenter(),
+                // TextColumn::make('jumlah_karung_4')
+                //     ->label('Jumlah Karung 4')
+                //     ->alignCenter(),
+                // TextColumn::make('tonase_4')
+                //     ->label('Tonase 4'),
                 //Jagung 5
-                TextColumn::make('kualitas_jagung_5')
-                    ->label('Kualitas Jagung 5'),
+                // TextColumn::make('kualitas_jagung_5')
+                //     ->label('Kualitas Jagung 5'),
                 // ImageColumn::make('foto_jagung_5_1')
                 //     ->label('Foto 1')
                 //     ->getStateUsing(fn($record) => $record->foto_jagung_5[0] ?? null)
@@ -967,17 +969,17 @@ class SortiranResource extends Resource implements HasShieldPermissions
                 //     ->getStateUsing(fn($record) => $record->foto_jagung_5[1] ?? null)
                 //     ->url(fn($record) => asset('storage/' . ($record->foto_jagung_5[1] ?? '')))
                 //     ->openUrlInNewTab(),
-                TextColumn::make('x1_x10_5')
-                    ->label('X1 - X10 5')
-                    ->alignCenter(),
-                TextColumn::make('jumlah_karung_5')
-                    ->label('Jumlah Karung 5')
-                    ->alignCenter(),
-                TextColumn::make('tonase_5')
-                    ->label('Tonase 6'),
+                // TextColumn::make('x1_x10_5')
+                //     ->label('X1 - X10 5')
+                //     ->alignCenter(),
+                // TextColumn::make('jumlah_karung_5')
+                //     ->label('Jumlah Karung 5')
+                //     ->alignCenter(),
+                // TextColumn::make('tonase_5')
+                //     ->label('Tonase 6'),
                 //Jagung 6
-                TextColumn::make('kualitas_jagung_6')
-                    ->label('Kualitas Jagung 6'),
+                // TextColumn::make('kualitas_jagung_6')
+                //     ->label('Kualitas Jagung 6'),
                 // ImageColumn::make('foto_jagung_6_1')
                 //     ->label('Foto 1')
                 //     ->getStateUsing(fn($record) => $record->foto_jagung_6[0] ?? null)
@@ -988,16 +990,15 @@ class SortiranResource extends Resource implements HasShieldPermissions
                 //     ->getStateUsing(fn($record) => $record->foto_jagung_6[1] ?? null)
                 //     ->url(fn($record) => asset('storage/' . ($record->foto_jagung_6[1] ?? '')))
                 //     ->openUrlInNewTab(),
-                TextColumn::make('x1_x10_6')
-                    ->label('X1 - X10 6')
-                    ->alignCenter(),
-                TextColumn::make('jumlah_karung_6')
-                    ->label('Jumlah Karung 6')
-                    ->alignCenter(),
-                TextColumn::make('tonase_6')
-                    ->label('Tonase 6'),
-                TextColumn::make('kadar_air')
-                    ->suffix('%'),
+                // TextColumn::make('x1_x10_6')
+                //     ->label('X1 - X10 6')
+                //     ->alignCenter(),
+                // TextColumn::make('jumlah_karung_6')
+                //     ->label('Jumlah Karung 6')
+                //     ->alignCenter(),
+                // TextColumn::make('tonase_6')
+                //     ->label('Tonase 6'),
+
                 TextColumn::make('user.name')
                     ->label('User')
             ])->defaultSort('no_sortiran', 'desc')
@@ -1024,11 +1025,11 @@ class SortiranResource extends Resource implements HasShieldPermissions
                         return redirect(self::getUrl('view-sortiran', ['record' => $record->id]));
                     }),
             ], position: ActionsPosition::BeforeColumns)
-            ->bulkActions([
-                // Tables\Actions\BulkActionGroup::make([
-                Tables\Actions\DeleteBulkAction::make(),
-                // ]),
-            ])
+            // ->bulkActions([
+            //     // Tables\Actions\BulkActionGroup::make([
+            //     Tables\Actions\DeleteBulkAction::make(),
+            //     // ]),
+            // ])
             ->filters([
                 Filter::make('pilih_tanggal')
                     ->form([

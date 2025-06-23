@@ -87,8 +87,8 @@
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Berat</th>
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">No Timbangan</th>
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Kadar</th>
-                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">-</th>
-                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">-</th>
+                            {{-- <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">-</th>
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">-</th> --}}
                         </tr>
                     </thead>
                     <tbody>
@@ -140,7 +140,7 @@
                                     <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
                                         {{ $sortiran->kadar_air ?? '-' }}%
                                     </td>
-                                    <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
+                                    {{-- <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
                                         @php
                                             // Hitung persentase untuk kolom Tes
                                             $nettoBersihStripped = str_replace('.', '', $sortiran->netto_bersih);
@@ -160,10 +160,10 @@
                                             $caValue = round($kadarAirValue * $percentage, 2);
                                         @endphp
                                         {{ number_format($percentage, 1, ',', '.') }}%
-                                    </td>
-                                    <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
+                                    </td> --}}
+                                    {{-- <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
                                         {{ number_format($caValue, 2, ',', '.') }}
-                                    </td>
+                                    </td> --}}
                                 </tr>
                             @endforeach
 
@@ -179,7 +179,7 @@
                                 <td class="p-2 text-right border-gray-300 dark:border-gray-700">
                                     {{ number_format($totalNettoBersih, 0, ',', '.') }}
                                 </td>
-                                <td colspan="3" class="p-2 text-center border-gray-300 dark:border-gray-700">
+                                <td colspan="1" class="p-2 text-center border-gray-300 dark:border-gray-700">
 
                                 </td>
                                 <td class="p-2 text-center border-gray-300 dark:border-gray-700">
@@ -205,7 +205,7 @@
                                             $totalCB += $cbValue;
                                         }
                                     @endphp
-                                    {{ number_format($totalCA, 2, ',', '.') }} ==
+                                    {{-- {{ number_format($totalCA, 2, ',', '.') }} == --}}
                                     {{ number_format($totalCB, 2, ',', '.') }}%
                                 </td>
                             </tr>

@@ -13,10 +13,6 @@ class Dryer extends Model
 {
     protected $fillable = [
         'id_kapasitas_dryer',
-        'id_lumbung_1',
-        'id_lumbung_2',
-        'id_lumbung_3',
-        'id_lumbung_4',
         'operator',
         'nama_barang',
         'lumbung_tujuan',

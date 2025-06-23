@@ -122,24 +122,24 @@ class KapasitasLumbungBasahResource extends Resource implements HasShieldPermiss
                 //     ->requiresConfirmation()
                 //     ->color('warning')
                 //     ->icon('heroicon-o-arrow-path'),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\BulkAction::make('reset_kapasitas')
-                        ->label('Reset Kapasitas')
-                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
-                            foreach ($records as $record) {
-                                $record->update([
-                                    'kapasitas_sisa' => $record->kapasitas_total,
-                                ]);
-                            }
-                        })
-                        ->requiresConfirmation()
-                        ->color('warning')
-                        ->icon('heroicon-o-arrow-path'),
-                ])
             ]);
+            // ->bulkActions([
+            //     Tables\Actions\BulkActionGroup::make([
+            //         Tables\Actions\DeleteBulkAction::make(),
+            //         Tables\Actions\BulkAction::make('reset_kapasitas')
+            //             ->label('Reset Kapasitas')
+            //             ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+            //                 foreach ($records as $record) {
+            //                     $record->update([
+            //                         'kapasitas_sisa' => $record->kapasitas_total,
+            //                     ]);
+            //                 }
+            //             })
+            //             ->requiresConfirmation()
+            //             ->color('warning')
+            //             ->icon('heroicon-o-arrow-path'),
+            //     ])
+            // ]);
     }
 
     public static function getRelations(): array

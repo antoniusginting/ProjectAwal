@@ -30,7 +30,13 @@
                         </div>
                         <div class="flex items-center">
                             <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Tanggal</p>
-                            <p class="text-gray-600 dark:text-gray-400">: {{ $sortiran->created_at }}</p>
+                            <p class="text-gray-600 dark:text-gray-400">: {{ $sortiran->created_at->format('d-m-Y') }}
+                            </p>
+                        </div>
+                        <div class="flex items-center">
+                            <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Jam</p>
+                            <p class="text-gray-600 dark:text-gray-400">: {{ $sortiran->created_at->format('h:i') }}
+                            </p>
                         </div>
                         <div class="flex items-center">
                             <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Berat Tungkul</p>
@@ -60,13 +66,17 @@
                             </p>
                         </div>
                         <div class="flex items-center">
-                            <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Lumbung Basah</p>
+                            <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Lumbung</p>
                             <p class="text-gray-600 dark:text-gray-400">:
                                 {{ $sortiran->kapasitaslumbungbasah->no_kapasitas_lumbung }}</p>
                         </div>
                         <div class="flex items-center">
                             <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Netto Bersih</p>
                             <p class="text-gray-600 dark:text-gray-400">: {{ $sortiran->netto_bersih }}</p>
+                        </div>
+                        <div class="flex items-center">
+                            <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Keterangan</p>
+                            <p class="text-gray-600 dark:text-gray-400">: {{ $sortiran->keterangan }}</p>
                         </div>
                     </div>
                 </div>

@@ -58,9 +58,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
     {
         return $form
             ->schema([
-                Card::make('Warning')
-                    ->icon('heroicon-o-information-circle')
-                    ->description('Harus disimpan sebelum keluar pada halaman ini')
+                Card::make()
                     ->schema([
                         Grid::make(5)
                             ->schema([
@@ -78,14 +76,17 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                     }),
                                 TextInput::make('berat_dryer')
                                     ->label('Berat Dryer')->suffix('Kg')
+                                    ->placeholder('Terhitung otomatis')
                                     ->numeric()
                                     ->readOnly(), // Opsional: buat readonly karena dihitung otomatis
                                 TextInput::make('berat_penjualan')
                                     ->label('Berat Penjualan')->suffix('Kg')
+                                    ->placeholder('Terhitung otomatis')
                                     ->numeric()
                                     ->readOnly(), // Opsional: buat readonly karena dihitung otomatis
                                 TextInput::make('hasil')
                                     ->label('Hasil')->suffix('Kg')
+                                    ->placeholder('Terhitung otomatis')
                                     ->numeric()
                                     ->readOnly(),
                                 Select::make('status_silo')
@@ -415,7 +416,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                             ->readOnly()
                             ->suffix('Kg'), // Opsional: tambah satuan
                     ])->columns(4)
-                // ->visible(fn(Get $get) => filled($get('status_silo'))) // Muncul live ketika ada pilihan,
+                ->visible(fn(Get $get) => filled($get('status_silo'))) // Muncul live ketika ada pilihan,
             ]);
     }
 
@@ -525,12 +526,12 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                     ->label(__("Lihat"))
                     ->icon('heroicon-o-eye')
                     ->url(fn($record) => self::getUrl("view-laporan-lumbung", ['record' => $record->id])),
-            ], position: ActionsPosition::BeforeColumns)
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ], position: ActionsPosition::BeforeColumns);
+            // ->bulkActions([
+            //     Tables\Actions\BulkActionGroup::make([
+            //         Tables\Actions\DeleteBulkAction::make(),
+            //     ]),
+            // ]);
     }
 
     public static function getRelations(): array
