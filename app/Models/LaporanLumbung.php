@@ -21,11 +21,39 @@ class LaporanLumbung extends Model
         return $this->belongsToMany(TimbanganTronton::class, 'laporan_lb_has_timbangant')
             ->withTimestamps();
     }
+
+    // Untuk penjualan masuk
+    public function penjualanMasuk(): BelongsToMany
+    {
+        return $this->belongsToMany(Penjualan::class, 'laporan_lumbungs_has_penjualans')
+            ->withPivot('tipe_penjualan')
+            ->wherePivot('tipe_penjualan', 'masuk')
+            ->withTimestamps();
+    }
+
+    // Untuk penjualan keluar
+    public function penjualanKeluar(): BelongsToMany
+    {
+        return $this->belongsToMany(Penjualan::class, 'laporan_lumbungs_has_penjualans')
+            ->withPivot('tipe_penjualan')
+            ->wherePivot('tipe_penjualan', 'keluar')
+            ->withTimestamps();
+    }
+
+    // Tetap bisa pakai yang general
     public function penjualans(): BelongsToMany
     {
         return $this->belongsToMany(Penjualan::class, 'laporan_lumbungs_has_penjualans')
+            ->withPivot('tipe_penjualan')
             ->withTimestamps();
     }
+
+
+    // public function penjualans(): BelongsToMany
+    // {
+    //     return $this->belongsToMany(Penjualan::class, 'laporan_lumbungs_has_penjualans')
+    //         ->withTimestamps();
+    // }
     // Relasi ke User
     public function user()
     {

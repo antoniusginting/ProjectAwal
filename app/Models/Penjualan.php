@@ -25,6 +25,7 @@ class Penjualan extends Model
         'nama_lumbung',
         'status_timbangan',
         'jumlah_karung',
+        'silo',
         'user_id'
     ];
 

@@ -60,7 +60,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
             ->schema([
                 Card::make()
                     ->schema([
-                        Grid::make(5)
+                        Grid::make(2)
                             ->schema([
                                 Placeholder::make('next_id')
                                     ->label('No Laporan Lumbung')
@@ -74,28 +74,32 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                         $nextId = (LaporanLumbung::max('id') ?? 0) + 1;
                                         return 'IO' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
                                     }),
-                                TextInput::make('berat_dryer')
-                                    ->label('Berat Dryer')->suffix('Kg')
-                                    ->placeholder('Terhitung otomatis')
-                                    ->numeric()
-                                    ->readOnly(), // Opsional: buat readonly karena dihitung otomatis
-                                TextInput::make('berat_penjualan')
-                                    ->label('Berat Penjualan')->suffix('Kg')
-                                    ->placeholder('Terhitung otomatis')
-                                    ->numeric()
-                                    ->readOnly(), // Opsional: buat readonly karena dihitung otomatis
-                                TextInput::make('hasil')
-                                    ->label('Hasil')->suffix('Kg')
-                                    ->placeholder('Terhitung otomatis')
-                                    ->numeric()
-                                    ->readOnly(),
+                                // TextInput::make('berat_dryer')
+                                //     ->label('Berat Dryer')->suffix('Kg')
+                                //     ->placeholder('Terhitung otomatis')
+                                //     ->numeric()
+                                //     ->readOnly(), // Opsional: buat readonly karena dihitung otomatis
+                                // TextInput::make('berat_penjualan')
+                                //     ->label('Berat Penjualan')->suffix('Kg')
+                                //     ->placeholder('Terhitung otomatis')
+                                //     ->numeric()
+                                //     ->readOnly(), // Opsional: buat readonly karena dihitung otomatis
+                                // TextInput::make('hasil')
+                                //     ->label('Hasil')->suffix('Kg')
+                                //     ->placeholder('Terhitung otomatis')
+                                //     ->numeric()
+                                //     ->readOnly(),
                                 Select::make('status_silo')
                                     ->native(false)
+                                    ->hint('Pilih status silo ketika timbangan langsir ( MASUK )')
+                                    ->hintColor('warning')
+                                    ->disabled(fn(Get $get) => $get('tipe_penjualan') !== 'masuk') // Disable jika bukan 'masuk'
                                     ->label('Status silo')
                                     ->options([
-                                        'SILO BESAR' => 'SILO BESAR',
                                         'SILO STAFFEL A' => 'SILO STAFFEL A',
                                         'SILO STAFFEL B' => 'SILO STAFFEL B',
+                                        'SILO 2500' => 'SILO 2500',
+                                        'SILO 1800' => 'SILO 1800',
                                     ])->live()->reactive(),
                             ]),
                         Card::make('Info Dryer')
@@ -374,22 +378,16 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                 name: 'penjualans',
                                 titleAttribute: 'no_spb',
                                 modifyQueryUsing: function ($query, $get) {
-                                    $currentLaporanId = $get('id');
-
+                                    // Hapus filter existing data untuk mengizinkan input data yang sama berulang kali
                                     return $query
                                         ->where('status_timbangan', 'LANGSIR')
                                         ->whereNotNull('netto')
-                                        ->where('netto', '>', 0)
-                                        ->whereDoesntHave('laporanLumbungs', function ($subQuery) use ($currentLaporanId) {
-                                            if ($currentLaporanId) {
-                                                $subQuery->where('laporan_lumbung_id', '!=', $currentLaporanId);
-                                            }
-                                        });
+                                        ->where('netto', '>', 0);
                                 }
                             )
                             ->getOptionLabelFromRecordUsing(fn($record) => "{$record->no_spb} - {$record->nama_supir} - {$record->netto}")
                             ->searchable()
-                            ->columnSpan(3)
+                            ->columnSpan(2)
                             ->live()
                             ->afterStateUpdated(function (Set $set, $state) {
                                 if (empty($state)) {
@@ -407,16 +405,31 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                 $set('berat_langsir', $totalNetto);
                             })
                             ->preload(),
+                        Select::make('tipe_penjualan')
+                            ->label('MASUK/KELUAR')
+                            ->native(false)
+                            ->options([
+                                'masuk' => 'MASUK',
+                                'keluar' => 'KELUAR',
+                            ])
+                            ->live()
+                            ->columnSpan(1)
+                            ->afterStateUpdated(function (Set $set, $state) {
+                                // Reset status_silo ketika bukan masuk
+                                if ($state !== 'masuk') {
+                                    $set('status_silo', null);
+                                }
+                            }),
 
                         TextInput::make('berat_langsir')
-                            ->label('Total Netto')
+                            ->label('Total berat')
                             ->columnSpan(1)
                             ->numeric()
                             // ->formatStateUsing(fn($state) => $state ? number_format($state, 0, ',', '.') : '0') // Format hanya untuk display
                             ->readOnly()
                             ->suffix('Kg'), // Opsional: tambah satuan
                     ])->columns(4)
-                ->visible(fn(Get $get) => filled($get('status_silo'))) // Muncul live ketika ada pilihan,
+                //->visible(fn(Get $get) => filled($get('status_silo'))) // Muncul live ketika ada pilihan,
             ]);
     }
 
@@ -527,11 +540,11 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                     ->icon('heroicon-o-eye')
                     ->url(fn($record) => self::getUrl("view-laporan-lumbung", ['record' => $record->id])),
             ], position: ActionsPosition::BeforeColumns);
-            // ->bulkActions([
-            //     Tables\Actions\BulkActionGroup::make([
-            //         Tables\Actions\DeleteBulkAction::make(),
-            //     ]),
-            // ]);
+        // ->bulkActions([
+        //     Tables\Actions\BulkActionGroup::make([
+        //         Tables\Actions\DeleteBulkAction::make(),
+        //     ]),
+        // ]);
     }
 
     public static function getRelations(): array

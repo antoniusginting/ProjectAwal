@@ -367,7 +367,7 @@
 
             <!-- Tabel Rangkuman berdasarkan Kualitas dan X1-X10 -->
             <div class="mt-6">
-                <h3 class="text-lg font-semibold mb-4">Rangkuman Berdasarkan Kualitas Jagung dan X1-X10</h3>
+                <h3 class="text-lg font-semibold mb-4">Rangkuman Sortiran</h3>
 
                 @php
                     $rangkumanData = [];

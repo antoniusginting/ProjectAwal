@@ -5,13 +5,15 @@ namespace App\Filament\Resources;
 use Carbon\Carbon;
 use Filament\Tables;
 use App\Models\Mobil;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use App\Models\Supplier;
 use Filament\Forms\Form;
 use App\Models\Penjualan;
 use Filament\Tables\Table;
+
 use Filament\Resources\Resource;
 use function Laravel\Prompts\text;
-
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Filters\Filter;
@@ -23,9 +25,9 @@ use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
 use Illuminate\Database\Eloquent\Builder;
+
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
-
 use App\Filament\Resources\PenjualanResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\PenjualanResource\Pages\EditPenjualan;
@@ -268,7 +270,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->required(), // Opsional: Atur default value
                                 Select::make('status_timbangan')
                                     ->label('Status Timbangan')
-                                    ->columnSpan(2)
+                                    ->columnSpan(fn(Get $get) => $get('status_timbangan') === 'LANGSIR' ? 1 : 2) // Dynamic column span
                                     ->options([
                                         'JUAL' => 'JUAL',
                                         'LANGSIR' => 'LANGSIR',
@@ -276,7 +278,26 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->default('JUAL')
                                     ->placeholder('-- Pilih Status Timbangan --')
                                     ->native(false)
+                                    ->reactive()
+                                    ->afterStateUpdated(function (Set $set, $state) {
+                                        // Reset field silo ketika bukan LANGSIR
+                                        if ($state !== 'LANGSIR') {
+                                            $set('silo', null);
+                                        }
+                                    })
                                     ->required(),
+                                Select::make('silo')
+                                    ->label('Silo')
+                                    ->columnSpan(1)
+                                    ->options([
+                                        'SILO STAFFEL A' => 'SILO STAFFEL A',
+                                        'SILO STAFFEL B' => 'SILO STAFFEL B',
+                                        'SILO 2500' => 'SILO 2500',
+                                        'SILO 1800' => 'SILO 1800',
+                                    ])
+                                    ->placeholder('-- Pilih Silo --')
+                                    ->native(false)
+                                    ->visible(fn(Get $get) => $get('status_timbangan') === 'LANGSIR'),
                                 TextInput::make('no_container')
                                     ->label('No Container')
                                     ->placeholder('Masukkan no container')

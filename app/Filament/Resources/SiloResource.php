@@ -48,9 +48,10 @@ class SiloResource extends Resource
                             ->native(false)
                             ->required()
                             ->options([
-                                'SILO BESAR' => 'SILO BESAR',
                                 'SILO STAFFEL A' => 'SILO STAFFEL A',
                                 'SILO STAFFEL B' => 'SILO STAFFEL B',
+                                'SILO 2500' => 'SILO 2500',
+                                'SILO 1800' => 'SILO 1800',
                             ])
                             ->label('SILO')
                             ->placeholder('Pilih silo')
@@ -60,7 +61,7 @@ class SiloResource extends Resource
                             }),
                         Card::make('STOK BESAR')
                             ->schema([
-                            
+
                                 Select::make('laporanLumbungs')
                                     ->label('Laporan Lumbung')
                                     ->multiple()
@@ -76,7 +77,7 @@ class SiloResource extends Resource
                                     ->preload()
                                     ->searchable()
                                     ->getOptionLabelFromRecordUsing(function ($record) {
-                                        return $record->kode . ' - ' . $record->created_at->format('d/m/Y');
+                                        return $record->kode . ' - ' . $record->status_silo . ' - ' . $record->created_at->format('d/m/Y');
                                     }),
                             ])->columnSpan(1),
                         Card::make('PENJUALAN')

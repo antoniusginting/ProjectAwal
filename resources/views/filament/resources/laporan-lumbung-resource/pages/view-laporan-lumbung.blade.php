@@ -22,7 +22,7 @@
                             {{ $laporanlumbung->status_silo ? 'Lumbung' : 'Lumbung' }}
                         </td>
                         <td class="whitespace-nowrap">:
-                            {{ $laporanlumbung->lumbung ?? '-' }}
+                            {{ $laporanlumbung->lumbung ?? ($laporanlumbung->status_silo ?? '-') }}
                         </td>
                         </td>
 
@@ -73,6 +73,8 @@
             // Hitung total netto dari relasi penjualans yang baru (di luar loop)
             $totalNettoPenjualansBaru = $laporanlumbung->penjualans->sum('netto') ?? 0;
 
+            // //Hitung total langsir masuk
+            // $nilai_langsir_masuk = $laporanlumbung->penjualans->sum
             // Total gabungan dideklarasikan di sini
             $totalGabungan = 0;
         @endphp
@@ -164,25 +166,59 @@
             <!-- Baris untuk menampilkan No SPB -->
             @if ($laporanlumbung->penjualans->isNotEmpty())
                 @php
-                    // Filter penjualan yang memiliki no_spb
-                    $penjualanWithSpb = $laporanlumbung->penjualans->filter(function ($penjualan) {
-                        return !empty($penjualan->no_spb);
+                    // Filter dan kelompokkan penjualan berdasarkan tipe_penjualan
+                    $penjualanMasuk = $laporanlumbung->penjualans->filter(function ($penjualan) {
+                        return !empty($penjualan->no_spb) && $penjualan->pivot->tipe_penjualan === 'masuk';
+                    });
+
+                    $penjualanKeluar = $laporanlumbung->penjualans->filter(function ($penjualan) {
+                        return !empty($penjualan->no_spb) && $penjualan->pivot->tipe_penjualan === 'keluar';
                     });
                 @endphp
 
-                @if ($penjualanWithSpb->isNotEmpty())
+                <!-- Tampilkan No SPB untuk tipe MASUK -->
+                @if ($penjualanMasuk->isNotEmpty())
                     <tbody>
-                        @foreach ($penjualanWithSpb as $index => $penjualan)
-                            <tr class="bg-blue-50 dark:bg-blue-900/20">
-                                <td colspan="3"
+                        @foreach ($penjualanMasuk as $index => $penjualan)
+                            <tr class="bg-green-50 dark:bg-green-900/20">
+                                <td colspan="2"
                                     class="border p-2 text-center font-semibold border-gray-300 dark:border-gray-700 text-sm">
                                     @if ($index == 0)
-                                        No SPB Langsir:
+                                        No SPB Masuk:
+                                    @endif
+                                </td>
+                                <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                                    {{ $penjualan->no_spb }}
+                                </td>
+                                <td class="border text-right p-2 border-gray-300 dark:border-gray-700 text-sm">
+                                    {{ $penjualan->netto ? number_format($penjualan->netto, 0, ',', '.') : '-' }}
+                                </td>
+                                <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm"></td>
+                                <td class="border text-right p-2 border-gray-300 dark:border-gray-700 text-sm"></td>
+                                <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                                    {{ $penjualan->user->name ?? '-' }}
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                @endif
+
+                <!-- Tampilkan No SPB untuk tipe KELUAR -->
+                @if ($penjualanKeluar->isNotEmpty())
+                    <tbody>
+                        @foreach ($penjualanKeluar as $index => $penjualan)
+                            <tr class="bg-blue-50 dark:bg-blue-900/20">
+                                <td colspan="2"
+                                    class="border p-2 text-center font-semibold border-gray-300 dark:border-gray-700 text-sm">
+                                    @if ($index == 0)
+                                        No SPB Keluar:
                                     @endif
                                 </td>
                                 <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm"></td>
-                                <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                                    {{ $penjualan->no_spb }}
+                                <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm"></td>
+                                <td width="250px"
+                                    class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                                    {{ $penjualan->no_spb }} - {{ $penjualan->silo }}
                                 </td>
                                 <td class="border text-right p-2 border-gray-300 dark:border-gray-700 text-sm">
                                     {{ $penjualan->netto ? number_format($penjualan->netto, 0, ',', '.') : '-' }}
@@ -218,15 +254,24 @@
                         Total Berat:
                     </td>
                     <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
-                        {{ number_format($nilai_dryers_sum_total_netto, 0, ',', '.') }}
+                        {{-- {{ number_format($nilai_dryers_sum_total_netto, 0, ',', '.') }} --}}
+                        {{ $laporanlumbung->lumbung
+                            ? number_format($nilai_dryers_sum_total_netto, 0, ',', '.')
+                            : number_format($totalNettoPenjualansBaru, 0, ',', '.') }}
                     </td>
-                    <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                        {{ $laporanlumbung->status_silo ?? '-' }}</td>
+                    <td></td>
+                    {{-- <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                        {{ $laporanlumbung->status_silo ?? '-' }}</td> --}}
                     <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
-                        {{ number_format($totalGabungan, 0, ',', '.') }}
+                        @if ($laporanlumbung->lumbung)
+                            {{ number_format($totalGabungan, 0, ',', '.') }}
+                        @endif
                     </td>
                     <td class="border text-center p-2 border-gray-300 dark:border-gray-700 text-sm">
-                        {{ number_format($hasil_pengurangan_numeric_final, 2) }} %</td>
+                        @if ($laporanlumbung->lumbung)
+                            {{ number_format($hasil_pengurangan_numeric_final, 2) }} %
+                        @endif
+                    </td>
                 </tr>
             </tfoot>
         </table>
