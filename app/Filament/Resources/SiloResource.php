@@ -77,7 +77,7 @@ class SiloResource extends Resource
                                     ->preload()
                                     ->searchable()
                                     ->getOptionLabelFromRecordUsing(function ($record) {
-                                        return $record->kode . ' - ' . $record->status_silo . ' - ' . $record->created_at->format('d/m/Y');
+                                        return $record->kode . ' - ' . $record->status_silo . ' - BERAT : ' . $record->berat_langsir . ' - ' . $record->created_at->format('d/m/Y');
                                     }),
                             ])->columnSpan(1),
                         Card::make('PENJUALAN')

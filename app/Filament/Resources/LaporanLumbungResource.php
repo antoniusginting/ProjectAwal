@@ -91,6 +91,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                 //     ->readOnly(),
                                 Select::make('status_silo')
                                     ->native(false)
+                                    ->placeholder('Pilih silo')
                                     ->hint('Pilih status silo ketika timbangan langsir ( MASUK )')
                                     ->hintColor('warning')
                                     ->disabled(fn(Get $get) => $get('tipe_penjualan') !== 'masuk') // Disable jika bukan 'masuk'
@@ -106,6 +107,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                             ->schema([
                                 Select::make('filter_lumbung_tujuan')
                                     ->native(false)
+                                    ->disabled(fn(Get $get) => $get('tipe_penjualan') === 'masuk') // Disable jika 'masuk'
                                     ->label('Lumbung')
                                     ->options(function () {
                                         // Ambil daftar nama_lumbung unik dari tabel penjualan1 (relasi)
@@ -126,6 +128,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                 Select::make('dryers')
                                     ->label('Dryer')
                                     ->multiple()
+                                    ->disabled(fn(Get $get) => $get('tipe_penjualan') === 'masuk') // Disable jika 'masuk'
                                     ->relationship(
                                         name: 'dryers',
                                         titleAttribute: 'no_dryer',
@@ -210,9 +213,13 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
 
                                                 // Set nilai ke field berat_dryer
                                                 $set('berat_dryer', $totalNetto);
+                                                // Set tipe_penjualan otomatis ke 'keluar' ketika dryer dipilih
+                                                $set('tipe_penjualan', 'keluar');
                                             } else {
                                                 // Jika tidak ada dryer yang dipilih, set ke 0
                                                 $set('berat_dryer', 0);
+                                                // Reset tipe_penjualan ketika tidak ada dryer yang dipilih
+                                                $set('tipe_penjualan', null);
                                             }
                                             // Hitung hasil setelah berat_dryer berubah
                                             $totalDryer = (float) ($get('berat_dryer') ?? 0);
@@ -226,12 +233,13 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                             ->schema([
                                 Select::make('lumbung')
                                     ->native(false)
+                                    ->disabled(fn(Get $get) => $get('tipe_penjualan') === 'masuk') // Disable jika 'masuk'
                                     ->label('Lumbung')
                                     ->options(function () {
-                                        // Ambil daftar nama_lumbung unik dari tabel penjualan1 (relasi)
                                         return \App\Models\Penjualan::query()
                                             ->whereNotNull('nama_lumbung')
                                             ->where('nama_lumbung', '!=', '')
+                                            ->whereNotIn('nama_lumbung', ['SILO STAFFEL A', 'SILO STAFFEL B', 'SILO BESAR', 'SILO 2500', 'SILO 1800']) // Tambahkan kondisi ini
                                             ->distinct()
                                             ->pluck('nama_lumbung', 'nama_lumbung')
                                             ->toArray();
@@ -243,6 +251,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                 // }),
                                 Select::make('timbanganTrontons')
                                     ->label('Laporan Penjualan')
+                                    ->disabled(fn(Get $get) => $get('tipe_penjualan') === 'masuk') // Disable jika 'masuk'
                                     ->multiple()
                                     ->relationship(
                                         name: 'timbanganTrontons',
@@ -382,10 +391,11 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                     return $query
                                         ->where('status_timbangan', 'LANGSIR')
                                         ->whereNotNull('netto')
-                                        ->where('netto', '>', 0);
+                                        ->where('netto', '>', 0)
+                                        ->orderBy('id', 'desc'); // Urutkan berdasarkan ID terbaru
                                 }
                             )
-                            ->getOptionLabelFromRecordUsing(fn($record) => "{$record->no_spb} - {$record->nama_supir} - {$record->netto}")
+                            ->getOptionLabelFromRecordUsing(fn($record) => "{$record->no_spb} - {$record->nama_supir} - {$record->no_lumbung} - {$record->nama_lumbung} - {$record->silo} - {$record->netto}")
                             ->searchable()
                             ->columnSpan(2)
                             ->live()
@@ -428,7 +438,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                             // ->formatStateUsing(fn($state) => $state ? number_format($state, 0, ',', '.') : '0') // Format hanya untuk display
                             ->readOnly()
                             ->suffix('Kg'), // Opsional: tambah satuan
-                    ])->columns(4)
+                    ])->columns(4)->collapsed()
                 //->visible(fn(Get $get) => filled($get('status_silo'))) // Muncul live ketika ada pilihan,
             ]);
     }
