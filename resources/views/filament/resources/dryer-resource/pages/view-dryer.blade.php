@@ -58,11 +58,11 @@
                     </tr>
                     <tr>
                         <td class="font-semibold whitespace-nowrap">Jenis Barang</td>
-                        <td class="whitespace-nowrap">: {{ $dryer->nama_barang }}</td>
+                        <td class="whitespace-nowrap">: {{ $dryer->nama_barang ?? '-' }}</td>
                         <td class="font-semibold whitespace-nowrap">No Dryer</td>
-                        <td class="whitespace-nowrap">: {{ $dryer->no_dryer }}</td>
+                        <td class="whitespace-nowrap">: {{ $dryer->no_dryer ?? '-' }}</td>
                         <td class="font-semibold whitespace-nowrap">Lumbung Tujuan</td>
-                        <td class="whitespace-nowrap">: {{ $dryer->lumbung_tujuan }} </td>
+                        <td class="whitespace-nowrap">: {{ $dryer->lumbung_tujuan ?? '-' }} </td>
                     </tr>
                 </tbody>
             </table>
@@ -126,7 +126,7 @@
                                         width='150px'>
                                         {{ $sortiran->kapasitaslumbungbasah->no_kapasitas_lumbung }}</td>
                                     <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
-                                        {{ $sortiran->pembelian->nama_barang }}</td>
+                                        {{ $sortiran->pembelian->nama_barang ?? 'JAGUNG KERING SUPER' }}</td>
                                     <td class="border p-2 border-gray-300 dark:border-gray-700 text-right"
                                         width='100px'>
                                         {{ $sortiran->total_karung ?? '-' }}
@@ -135,7 +135,28 @@
                                         {{ $sortiran->netto_bersih ?? '-' }}
                                     </td>
                                     <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
-                                        {{ $sortiran->pembelian->no_spb ?? '-' }}
+                                        @php
+                                            // Logic untuk menentukan no_spb
+                                            $noSpb = '-';
+
+                                            // Cek apakah pembelian no_spb ada dan tidak null
+                                            if ($sortiran->pembelian && !empty($sortiran->pembelian->no_spb)) {
+                                                $noSpb = $sortiran->pembelian->no_spb;
+                                            } else {
+                                                // Jika pembelian no_spb null, ambil dari penjualan
+                                                if ($sortiran->penjualans && $sortiran->penjualans->count() > 0) {
+                                                    // Ambil semua no_spb dari penjualan dan gabungkan
+                                                    $penjualanSpbs = $sortiran->penjualans
+                                                        ->pluck('no_spb')
+                                                        ->filter()
+                                                        ->unique();
+                                                    if ($penjualanSpbs->count() > 0) {
+                                                        $noSpb = $penjualanSpbs->implode(', ');
+                                                    }
+                                                }
+                                            }
+                                        @endphp
+                                        {{ $noSpb }}
                                     </td>
                                     <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
                                         {{ $sortiran->kadar_air ?? '-' }}%
@@ -246,7 +267,7 @@
             <!-- Header Simple -->
             {{-- <div class="bg-white border-b-2 border-blue-500 p-4 mb-4">
                 <h2 class="text-2xl font-bold text-gray-800 text-center">TABEL RANGKUMAN DATA SORTIRAN</h2> --}}
-                {{-- <p class="text-gray-600 text-center mt-1">Rekapitulasi Data Sortiran Jagung</p> --}}
+            {{-- <p class="text-gray-600 text-center mt-1">Rekapitulasi Data Sortiran Jagung</p> --}}
             {{-- </div>
             <table class="w-full border border-collapse border-gray-300 dark:border-gray-700">
                 <thead>
@@ -289,7 +310,7 @@
                                 }
                             @endphp --}}
 
-                            {{-- @if (count($kualitasData) > 0)
+            {{-- @if (count($kualitasData) > 0)
                                 @foreach ($kualitasData as $kIndex => $data)
                                     <tr>
                                         @if ($kIndex == 0)

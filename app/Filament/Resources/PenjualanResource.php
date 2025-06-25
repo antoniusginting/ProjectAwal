@@ -287,16 +287,26 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     })
                                     ->required(),
                                 Select::make('silo')
-                                    ->label('Silo')
+                                    ->label('KE')
                                     ->columnSpan(1)
                                     ->options([
                                         'SILO STAFFEL A' => 'SILO STAFFEL A',
                                         'SILO STAFFEL B' => 'SILO STAFFEL B',
                                         'SILO 2500' => 'SILO 2500',
                                         'SILO 1800' => 'SILO 1800',
+                                        '1' => 'LUMBUNG BASAH 1',
+                                        '2' => 'LUMBUNG BASAH 2',
+                                        '3' => 'LUMBUNG BASAH 3',
+                                        '4' => 'LUMBUNG BASAH 4',
+                                        '5' => 'LUMBUNG BASAH 5',
+                                        '6' => 'LUMBUNG BASAH 6',
+                                        '7' => 'LUMBUNG BASAH 7',
+                                        '8' => 'LUMBUNG BASAH 8',
+                                        '9' => 'LUMBUNG BASAH 9',
                                     ])
-                                    ->placeholder('-- Pilih Silo --')
-                                    ->native(false)
+                                    ->placeholder('-- Pilih salah satu opsi --')
+                                    ->native(true)
+                                    ->extraAttributes(['class' => 'top-dropdown'])
                                     ->visible(fn(Get $get) => $get('status_timbangan') === 'LANGSIR'),
                                 TextInput::make('no_container')
                                     ->label('No Container')

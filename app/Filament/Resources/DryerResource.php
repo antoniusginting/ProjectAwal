@@ -226,12 +226,12 @@ class DryerResource extends Resource implements HasShieldPermissions
                             // ->prefixIcon('heroicon-o-credit-card')
                             ->maxLength(19)
                             ->visible(fn() => !optional(Auth::user())->hasAnyRole(['timbangan'])) // diilangkan pada user timbangan
-                        // ->extraInputAttributes([
-                        //     'class' => 'font-mono tracking-wider text-center',
-                        //     'style' => 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: 2px solid #4f46e5;'
-                        // ])
-                        ->hint('Setelah nomor pesanan disimpan, maka data tidak dapat diubah')
-                        ->hintColor('warning'),
+                            // ->extraInputAttributes([
+                            //     'class' => 'font-mono tracking-wider text-center',
+                            //     'style' => 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: 2px solid #4f46e5;'
+                            // ])
+                            ->hint('Setelah nomor pesanan disimpan, maka data tidak dapat diubah')
+                            ->hintColor('warning'),
                     ])->columns(2),
                 Card::make()
                     ->schema([
@@ -348,10 +348,12 @@ class DryerResource extends Resource implements HasShieldPermissions
                             ->preload()
                             ->reactive()
                             ->getOptionLabelFromRecordUsing(function ($record) {
-                                $noBk = $record->pembelian ? $record->pembelian->plat_polisi : 'N/A';
-                                $supplier = $record->pembelian ? $record->pembelian->supplier->nama_supplier : 'N/A';
+                                $noBk = $record->pembelian ? $record->pembelian->plat_polisi : '';
+                                $supplier = $record->pembelian ? $record->pembelian->supplier->nama_supplier : '';
                                 $kapasitas = $record->kapasitaslumbungbasah ? $record->kapasitaslumbungbasah->no_kapasitas_lumbung : 'N/A';
-                                return $kapasitas . ' - ' .  $record->pembelian->no_spb . ' - ' . $noBk . ' - ' . $supplier . ' - ' . $record->netto_bersih;
+                                $noSpb = $record->pembelian ? $record->pembelian->no_spb : 'LANGSIR';
+
+                                return $kapasitas . ' - ' . $noSpb . ' - ' . $noBk . ' - ' . $supplier . ' - ' . $record->netto_bersih;
                             })
                             // ->disabled(fn($get) => !$get('filter_kapasitas_lumbung'))
                             ->reactive()
@@ -553,24 +555,46 @@ class DryerResource extends Resource implements HasShieldPermissions
                     ->label('Hasil Kadar')
                     ->searchable()
                     ->alignCenter(),
+                // Versi yang menampilkan semua penjualan.no_spb jika pembelian.no_spb null
                 TextColumn::make('sortirans')
                     ->alignCenter()
                     ->label('No SPB')
                     ->formatStateUsing(function ($record) {
                         $text = $record->sortirans->map(function ($sortiran) {
-                            return $sortiran->pembelian->no_spb;
-                        })->implode(', ');
+                            // Cek apakah pembelian.no_spb ada
+                            if (!empty($sortiran->pembelian?->no_spb)) {
+                                return $sortiran->pembelian->no_spb;
+                            }
 
-                        // Batasi jumlah karakter dan tambahkan ellipsis
+                            // Fallback ke semua penjualan.no_spb
+                            $penjualanSpbs = $sortiran->penjualans->pluck('no_spb')->filter();
+
+                            if ($penjualanSpbs->isEmpty()) {
+                                return 'N/A';
+                            }
+
+                            // Jika ada banyak penjualan, tampilkan maksimal 3 dengan logic seperti sebelumnya
+                            if ($penjualanSpbs->count() <= 3) {
+                                return $penjualanSpbs->implode(', ');
+                            }
+
+                            return $penjualanSpbs->take(3)->implode(', ') . '...';
+                        })->implode(' | '); // Gunakan separator berbeda untuk membedakan antar sortiran
+
+                        // Batasi jumlah karakter total
                         return \Illuminate\Support\Str::limit($text, 30, '...');
                     })
-                    // Tambahkan ini untuk batasi lebar kolom dengan CSS
                     ->extraAttributes(['class' => 'max-w-md truncate'])
-                    // Tambahkan tooltip untuk melihat konten lengkap saat hover
                     ->tooltip(function ($record) {
                         return $record->sortirans->map(function ($sortiran) {
-                            return $sortiran->pembelian->no_spb;
-                        })->implode(', ');
+                            if (!empty($sortiran->pembelian?->no_spb)) {
+                                return $sortiran->pembelian->no_spb;
+                            }
+
+                            // Untuk tooltip, tampilkan semua penjualan.no_spb tanpa batasan
+                            $penjualanSpbs = $sortiran->penjualans->pluck('no_spb')->filter();
+                            return $penjualanSpbs->isEmpty() ? 'N/A' : $penjualanSpbs->implode(', ');
+                        })->implode(' | ');
                     }),
                 TextColumn::make('total_netto')
                     ->alignCenter()
@@ -587,11 +611,11 @@ class DryerResource extends Resource implements HasShieldPermissions
                 //
             ]);
 
-            // ->bulkActions([
-            //     Tables\Actions\BulkActionGroup::make([
-            //         Tables\Actions\DeleteBulkAction::make(),
-            //     ]),
-            // ]);
+        // ->bulkActions([
+        //     Tables\Actions\BulkActionGroup::make([
+        //         Tables\Actions\DeleteBulkAction::make(),
+        //     ]),
+        // ]);
     }
 
     public static function getRelations(): array
