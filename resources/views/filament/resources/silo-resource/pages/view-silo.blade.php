@@ -34,6 +34,10 @@
             // Hitung total
             $totalBeratTrontonFiltered = $timbanganFiltered->sum('total_netto_filtered');
 
+            // Data untuk pagination
+            $laporanLumbungTotal = $silo->laporanlumbungs->count();
+            $laporanPenjualanTotal = $timbanganFiltered->count();
+
             // Hitung total berat dari laporan lumbung dengan prioritas field
             $totalBerat1 = 0;
             foreach ($silo->laporanlumbungs as $laporan) {
@@ -53,11 +57,13 @@
             $persenan = $totalStokDanBerat != 0 ? ($totalBeratTrontonFiltered / $totalStokDanBerat) * 100 : 0;
 
         @endphp
-        {{-- <div class="grid grid-cols-1 md:grid-cols-3 gap-4"> --}}
+
         {{-- Summary Dashboard - Layout 1 Baris --}}
         <div class="bg-white dark:bg-gray-800 p-6 rounded-lg mb-6 shadow-md border">
-            <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Ringkasan Stok {{ $silo->nama }}
-            </h3>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Ringkasan Stok {{ $silo->nama }}
+                </h3>
+            </div>
 
             <div class="flex flex-row gap-4">
                 <!-- Stok Awal -->
@@ -113,9 +119,24 @@
         </div>
         <!-- Divider -->
         <div class="border-b border-gray-300 dark:border-gray-700"></div>
+
         {{-- Tabel 1: Laporan Lumbung --}}
-        <div class="mb-6">
-            <h3 class="text-lg font-semibold mb-3">Laporan Lumbung</h3>
+        <div class="mb-6" id="laporan-lumbung">
+            <div class="flex justify-between items-center mb-3">
+                <div class="flex items-center gap-3">
+                    <h3 class="text-lg font-semibold">Laporan Lumbung</h3>
+
+                </div>
+                {{-- To Bottom Button --}}
+                <button onclick="scrollToLaporanPenjualan()"
+                    class="px-3 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-md transition-colors duration-200 flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                    </svg>
+                    Ke Laporan Penjualan
+                </button>
+            </div>
             <table class="w-full border border-collapse border-gray-300 dark:border-gray-700">
                 <thead>
                     <tr class="bg-gray-100 dark:bg-gray-800">
@@ -125,22 +146,14 @@
                         <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Berat</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @forelse($silo->laporanlumbungs as $laporan)
+                <tbody id="lumbung-tbody">
+                    @foreach ($silo->laporanlumbungs as $index => $laporan)
                         @php
-                            // // Hitung berat untuk kolom pertama
-                            // $beratKolom1 = 0;
-                            // if ($laporan->dryers->count() > 0) {
-                            //     $beratKolom1 = $laporan->dryers->sum('total_netto');
-                            // } else {
-                            //     $beratKolom1 = $laporan->berat_dryer ?? 0;
-                            // }
                             $beratKolom1 = $laporan->berat_langsir ?? 0;
-                            // Hitung berat untuk kolom kedua
                             $beratKolom2 = $laporan->berat_penjualan ?? 0;
                         @endphp
 
-                        <tr>
+                        <tr class="lumbung-row {{ $index >= 5 ? 'hidden' : '' }}" data-index="{{ $index }}">
                             <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                                 {{ \Carbon\Carbon::parse($laporan->created_at)->format('d/m/Y') }}
                             </td>
@@ -157,11 +170,6 @@
                                 @endif
                             </td>
                             <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
-                                {{-- @if ($laporan->dryers->count() > 0)
-                                    {{ number_format($laporan->dryers->sum('total_netto'), 0, ',', '.') }}
-                                @else
-                                    {{ $laporan->berat_dryer ? number_format($laporan->berat_dryer) : '-' }}
-                                @endif --}}
                                 @if (!empty($laporan->berat_langsir) && $laporan->berat_langsir > 0)
                                     {{ number_format($laporan->berat_langsir, 0, ',', '.') }}
                                 @else
@@ -169,14 +177,16 @@
                                 @endif
                             </td>
                         </tr>
-                    @empty
+                    @endforeach
+
+                    @if ($silo->laporanlumbungs->count() == 0)
                         <tr>
-                            <td colspan="5"
+                            <td colspan="4"
                                 class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm text-gray-500">
                                 Tidak ada data laporan lumbung
                             </td>
                         </tr>
-                    @endforelse
+                    @endif
                 </tbody>
                 <tfoot>
                     <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
@@ -189,11 +199,30 @@
                     </tr>
                 </tfoot>
             </table>
-        </div>
 
+            {{-- Dropdown untuk memilih jumlah data --}}
+            <div class="mt-3 flex justify-center">
+                <div class="flex items-center gap-2">
+                    <label class="text-sm text-gray-600 dark:text-gray-400">Tampilkan:</label>
+                    <select id="lumbung-per-page" onchange="changeLumbungPerPage()"
+                        class="px-6 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="5">5</option>
+                        <option value="15">15</option>
+                        <option value="25">25</option>
+                        <option value="all">Semua</option>
+                    </select>
+                    <span
+                        class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                        <span id="showing-lumbung">5</span>
+                        dari {{ $laporanLumbungTotal }} data
+                    </span>
+                </div>
+            </div>
+        </div>
 
         <!-- Divider -->
         <div class="border-b border-gray-300 dark:border-gray-700"></div>
+
         {{-- Tabel 2: Timbangan Trontons --}}
         @php
             // Fungsi untuk mengambil netto berdasarkan nama lumbung
@@ -222,8 +251,22 @@
             $totalBeratTrontonFiltered = 0;
         @endphp
 
-        <div class="mb-6">
-            <h3 class="text-lg font-semibold mb-3">Laporan Penjualan</h3>
+        <div class="mb-6" id="laporan-penjualan">
+            <div class="flex justify-between items-center mb-3">
+                <div class="flex items-center gap-3">
+                    <h3 class="text-lg font-semibold">Laporan Penjualan</h3>
+
+                </div>
+                {{-- Back to Top Button --}}
+                <button onclick="scrollToTop()"
+                    class="px-3 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-md transition-colors duration-200 flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                    </svg>
+                    Ke Laporan Lumbung
+                </button>
+            </div>
             <table class="w-full border border-collapse border-gray-300 dark:border-gray-700">
                 <thead>
                     <tr class="bg-gray-100 dark:bg-gray-800">
@@ -232,7 +275,8 @@
                         <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Total Netto</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="penjualan-tbody">
+                    @php $penjualanIndex = 0; @endphp
                     @forelse($silo->timbanganTrontons as $timbangan)
                         @php
                             // Ambil netto yang sesuai dengan nama silo
@@ -241,7 +285,8 @@
                         @endphp
 
                         @if ($nettoFiltered > 0)
-                            <tr>
+                            <tr class="penjualan-row {{ $penjualanIndex >= 5 ? 'hidden' : '' }}"
+                                data-index="{{ $penjualanIndex }}">
                                 <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                                     {{ \Carbon\Carbon::parse($timbangan->created_at)->format('d/m/Y') }}
                                 </td>
@@ -252,6 +297,7 @@
                                     {{ number_format($nettoFiltered, 0, ',', '.') }}
                                 </td>
                             </tr>
+                            @php $penjualanIndex++; @endphp
                         @endif
                     @empty
                         <tr>
@@ -273,7 +319,8 @@
                 </tbody>
                 <tfoot>
                     <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
-                        <td colspan="2" class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                        <td colspan="2"
+                            class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                             Total Berat:
                         </td>
                         <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
@@ -282,7 +329,109 @@
                     </tr>
                 </tfoot>
             </table>
-        </div>
 
+            {{-- Dropdown untuk memilih jumlah data --}}
+            <div class="mt-3 flex justify-center">
+                <div class="flex items-center gap-2">
+                    <label class="text-sm text-gray-600 dark:text-gray-400">Tampilkan:</label>
+                    <select id="penjualan-per-page" onchange="changePenjualanPerPage()"
+                        class="px-6 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="5">5</option>
+                        <option value="15">15</option>
+                        <option value="25">25</option>
+                        <option value="all">Semua</option>
+                    </select>
+                    <span
+                        class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                        <span id="showing-penjualan">5</span>
+                        dari {{ $laporanPenjualanTotal }} data
+                    </span>
+                </div>
+            </div>
+        </div>
     </div>
+
+    {{-- JavaScript untuk Scroll Functions dan Dropdown Pagination --}}
+    <script>
+        function scrollToLaporanPenjualan() {
+            const element = document.getElementById('laporan-penjualan');
+            if (element) {
+                element.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
+
+        function scrollToLaporanLumbung() {
+            const element = document.getElementById('laporan-lumbung');
+            if (element) {
+                element.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Fungsi untuk mengubah jumlah data yang ditampilkan pada Laporan Lumbung
+        function changeLumbungPerPage() {
+            const select = document.getElementById('lumbung-per-page');
+            const selectedValue = select.value;
+            const rows = document.querySelectorAll('.lumbung-row');
+            const showingCount = document.getElementById('showing-lumbung');
+
+            let limit = selectedValue === 'all' ? rows.length : parseInt(selectedValue);
+            let visibleCount = 0;
+
+            rows.forEach((row, index) => {
+                if (selectedValue === 'all' || index < limit) {
+                    row.classList.remove('hidden');
+                    visibleCount++;
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+
+            showingCount.textContent = visibleCount;
+        }
+
+        // Fungsi untuk mengubah jumlah data yang ditampilkan pada Laporan Penjualan
+        function changePenjualanPerPage() {
+            const select = document.getElementById('penjualan-per-page');
+            const selectedValue = select.value;
+            const rows = document.querySelectorAll('.penjualan-row');
+            const showingCount = document.getElementById('showing-penjualan');
+
+            let limit = selectedValue === 'all' ? rows.length : parseInt(selectedValue);
+            let visibleCount = 0;
+
+            rows.forEach((row, index) => {
+                if (selectedValue === 'all' || index < limit) {
+                    row.classList.remove('hidden');
+                    visibleCount++;
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+
+            showingCount.textContent = visibleCount;
+        }
+
+        // Inisialisasi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set initial count for showing data
+            const lumbungRows = document.querySelectorAll('.lumbung-row:not(.hidden)');
+            const penjualanRows = document.querySelectorAll('.penjualan-row:not(.hidden)');
+
+            document.getElementById('showing-lumbung').textContent = lumbungRows.length;
+            document.getElementById('showing-penjualan').textContent = penjualanRows.length;
+        });
+    </script>
 </x-filament-panels::page>

@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Filament\Forms;
 use App\Models\Silo;
 use Filament\Tables;
+use Filament\Forms\Get;
 use Filament\Forms\Form;
 use App\Models\Penjualan;
 use Filament\Tables\Table;
@@ -15,8 +16,8 @@ use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\BadgeColumn;
 
+use Filament\Tables\Columns\BadgeColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Enums\ActionsPosition;
 use App\Filament\Resources\SiloResource\Pages;
@@ -58,7 +59,8 @@ class SiloResource extends Resource
                             ->disabled(function (callable $get, ?\Illuminate\Database\Eloquent\Model $record) {
                                 // Disable saat edit, misal jika $record ada berarti edit
                                 return $record !== null;
-                            }),
+                            })
+                            ->live(),
                         Card::make('STOK BESAR')
                             ->schema([
 
@@ -68,10 +70,15 @@ class SiloResource extends Resource
                                     ->relationship(
                                         name: 'laporanLumbungs',
                                         titleAttribute: 'nama',
-                                        modifyQueryUsing: function (Builder $query) {
+                                        modifyQueryUsing: function (Builder $query, Get $get) {
+                                            $selectedSilo = $get('nama'); // Ambil nilai dari select nama
+
                                             return $query->orderBy('created_at', 'desc')
                                                 ->whereNotNull('status_silo')
-                                                ->where('status_silo', '!=', ''); // memastikan tidak kosong
+                                                ->where('status_silo', '!=', '')
+                                                ->when($selectedSilo, function ($query) use ($selectedSilo) {
+                                                    return $query->where('status_silo', $selectedSilo);
+                                                });
                                         }
                                     )
                                     ->preload()

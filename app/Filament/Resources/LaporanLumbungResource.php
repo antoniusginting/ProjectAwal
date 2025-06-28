@@ -387,12 +387,21 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                 name: 'penjualans',
                                 titleAttribute: 'no_spb',
                                 modifyQueryUsing: function ($query, $get) {
-                                    // Hapus filter existing data untuk mengizinkan input data yang sama berulang kali
-                                    return $query
+                                    $statusSilo = $get('status_silo');
+
+                                    // Base query
+                                    $query = $query
                                         ->where('status_timbangan', 'LANGSIR')
                                         ->whereNotNull('netto')
                                         ->where('netto', '>', 0)
                                         ->orderBy('id', 'desc'); // Urutkan berdasarkan ID terbaru
+
+                                    // Filter berdasarkan status_silo jika dipilih
+                                    if ($statusSilo) {
+                                        $query->where('silo', $statusSilo);
+                                    }
+
+                                    return $query;
                                 }
                             )
                             ->getOptionLabelFromRecordUsing(fn($record) => "{$record->no_spb} - {$record->nama_supir} - {$record->no_lumbung} - {$record->nama_lumbung} - {$record->silo} - {$record->netto}")
