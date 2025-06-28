@@ -11,11 +11,16 @@ class EditSilo extends EditRecord
 {
     protected static string $resource = SiloResource::class;
 
-     protected function getHeaderActions(): array
+    protected function getHeaderActions(): array
     {
         return [
             Actions\DeleteAction::make(),
         ];
+    }
+    // Ubah judul halaman "Create Kapasitas lumbung basah" menjadi "Tambah Kapasitas lumbung basah"
+    function getTitle(): string
+    {
+        return 'Edit Silo/Kontrak';
     }
     protected function getFormActions(): array
     {
@@ -33,5 +38,4 @@ class EditSilo extends EditRecord
     {
         return $this->getResource()::getUrl('index'); // Arahkan ke daftar tabel
     }
-
 }

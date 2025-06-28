@@ -18,7 +18,7 @@ class ViewSilo extends Page
     public $silo;
     function getTitle(): string
     {
-        return 'View Kapasitas Silo';
+        return 'View Kapasitas Silo & Kontrak';
     }
     public function mount($record)
     {

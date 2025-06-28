@@ -31,7 +31,7 @@ class SiloResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-archive-box-arrow-down';
     protected static ?string $navigationGroup = 'Kapasitas';
     protected static ?int $navigationSort = 3;
-    protected static ?string $navigationLabel = 'Silo';
+    protected static ?string $navigationLabel = 'Silo & Kontrak';
 
     public static function form(Form $form): Form
     {
@@ -53,9 +53,12 @@ class SiloResource extends Resource
                                 'SILO STAFFEL B' => 'SILO STAFFEL B',
                                 'SILO 2500' => 'SILO 2500',
                                 'SILO 1800' => 'SILO 1800',
+                                'MAKASAR' => 'MAKASAR',
+                                'ADI KARANG ANYER' => 'ADI KARANG ANYER',
+                                'ACVED' => 'ACVED',
                             ])
-                            ->label('SILO')
-                            ->placeholder('Pilih silo')
+                            ->label('STOK')
+                            ->placeholder('Pilih Stok')
                             ->disabled(function (callable $get, ?\Illuminate\Database\Eloquent\Model $record) {
                                 // Disable saat edit, misal jika $record ada berarti edit
                                 return $record !== null;
@@ -116,19 +119,40 @@ class SiloResource extends Resource
                                             }
 
                                             $relasiPenjualan = ['penjualan1', 'penjualan2', 'penjualan3', 'penjualan4', 'penjualan5', 'penjualan6'];
-                                            $selectedNamaLumbung = $get('nama');
+                                            $relasiLuar = ['luar1', 'luar2', 'luar3'];
+                                            $selectedNama = $get('nama');
 
-                                            $query = $query->where(function ($query) use ($relasiPenjualan, $selectedNamaLumbung) {
-                                                foreach ($relasiPenjualan as $index => $relasi) {
-                                                    $method = $index === 0 ? 'whereHas' : 'orWhereHas';
-                                                    $query->$method($relasi, function (Builder $q) use ($selectedNamaLumbung) {
-                                                        $q->whereNotNull('nama_lumbung')
-                                                            ->where('nama_lumbung', '!=', '');
-                                                        if ($selectedNamaLumbung) {
-                                                            $q->where('nama_lumbung', $selectedNamaLumbung);
-                                                        }
-                                                    });
-                                                }
+                                            $query = $query->where(function ($query) use ($relasiPenjualan, $relasiLuar, $selectedNama) {
+                                                // Logic 1: Cek nama_lumbung dari relasi penjualan
+                                                $query->where(function ($subQuery) use ($relasiPenjualan, $selectedNama) {
+                                                    foreach ($relasiPenjualan as $index => $relasi) {
+                                                        $method = $index === 0 ? 'whereHas' : 'orWhereHas';
+                                                        $subQuery->$method($relasi, function (Builder $q) use ($selectedNama) {
+                                                            $q->whereNotNull('nama_lumbung')
+                                                                ->where('nama_lumbung', '!=', '');
+                                                            if ($selectedNama) {
+                                                                $q->where('nama_lumbung', $selectedNama);
+                                                            }
+                                                        });
+                                                    }
+                                                });
+
+                                                // Logic 2: Atau cek nama_supplier dari relasi luar->supplier
+                                                $query->orWhere(function ($subQuery) use ($relasiLuar, $selectedNama) {
+                                                    foreach ($relasiLuar as $index => $relasi) {
+                                                        $method = $index === 0 ? 'whereHas' : 'orWhereHas';
+                                                        $subQuery->$method($relasi, function (Builder $q) use ($selectedNama) {
+                                                            // Cek apakah ada relasi supplier
+                                                            $q->whereHas('supplier', function (Builder $supplierQuery) use ($selectedNama) {
+                                                                $supplierQuery->whereNotNull('nama_supplier')
+                                                                    ->where('nama_supplier', '!=', '');
+                                                                if ($selectedNama) {
+                                                                    $supplierQuery->where('nama_supplier', $selectedNama);
+                                                                }
+                                                            });
+                                                        });
+                                                    }
+                                                });
                                             });
 
                                             $query->where(function ($q) {
@@ -143,8 +167,9 @@ class SiloResource extends Resource
                                     ->preload()
                                     ->reactive()
                                     ->getOptionLabelFromRecordUsing(function ($record) {
-                                        $noBk = $record->penjualan1 ? $record->penjualan1->plat_polisi : 'N/A';
-                                        return $record->kode . ' - ' . $noBk . ' - ' . ($record->penjualan1->nama_supir ?? '') . ' - ' . $record->total_netto;
+                                        $noBk = $record->penjualan1 ? $record->penjualan1->plat_polisi : ($record->luar1 ? $record->luar1->no_container : 'N/A');
+                                        $supir = $record->penjualan1 ? $record->penjualan1->nama_supir : ($record->luar1 ? $record->luar1->kode_segel : 'N/A');
+                                        return $record->kode . ' - ' . $noBk . ' - ' . $supir . ' - ' . $record->total_netto;
                                     })
                                     ->afterStateUpdated(function ($state, $set, $get) {
                                         // Ambil data laporan penjualan sebelumnya
@@ -194,11 +219,46 @@ class SiloResource extends Resource
                 TextColumn::make('nama')->label('Nama Silo'),
                 TextColumn::make('laporanLumbungs.kode')
                     ->alignCenter()
-                    ->label('No IO'),
-                TextColumn::make('timbanganTrontons.kode')
                     ->searchable()
+                    ->label('NO IO')
+                    ->getStateUsing(function ($record) {
+                        $laporanlumbung = $record->laporanlumbungs->pluck('kode');
+
+                        if ($laporanlumbung->count() <= 3) {
+                            return $laporanlumbung->implode(', ');
+                        }
+
+                        return $laporanlumbung->take(3)->implode(', ') . '...';
+                    })
+                    ->tooltip(function ($record) {
+                        $laporanlumbung = $record->laporanlumbungs->pluck('kode');
+                        return $laporanlumbung->implode(', ');
+                    }),
+                TextColumn::make('timbanganTrontons.kode')
                     ->alignCenter()
-                    ->label('No Laporan Penjualan'),
+                    ->searchable()
+                    ->label('NO Laporan Penjualan')
+                    ->getStateUsing(function ($record) {
+                        $timbangantronton = $record->timbangantrontons->pluck('kode');
+
+                        if ($timbangantronton->count() <= 3) {
+                            return $timbangantronton->implode(', ');
+                        }
+
+                        return $timbangantronton->take(3)->implode(', ') . '...';
+                    })
+                    ->tooltip(function ($record) {
+                        $timbangantronton = $record->timbangantrontons->pluck('kode');
+                        return $timbangantronton->implode(', ');
+                    }),
+                // TextColumn::make('laporanLumbungs.kode')
+                //     ->alignCenter()
+                //     ->label('No IO'),
+                
+                // TextColumn::make('timbanganTrontons.kode')
+                //     ->searchable()
+                //     ->alignCenter()
+                //     ->label('No Laporan Penjualan'),
             ])
             ->filters([
                 //

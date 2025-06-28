@@ -14,7 +14,7 @@ class CreateSilo extends CreateRecord
     // Ubah judul halaman "Create Kapasitas lumbung basah" menjadi "Tambah Kapasitas lumbung basah"
     function getTitle(): string
     {
-        return 'Tambah Informasi Silo';
+        return 'Tambah Silo/Kontrak';
     }
 
     protected function getFormActions(): array
