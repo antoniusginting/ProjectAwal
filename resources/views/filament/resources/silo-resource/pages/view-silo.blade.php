@@ -69,6 +69,11 @@
                 }
             }
 
+            // Jika tidak ada total berat dari laporan lumbung, gunakan stock luar
+            if ($totalBerat1 == 0) {
+                $totalBerat1 = $silo->stockLuar()->sum('quantity');
+            }
+
             // Hitung summary
             $totalStokDanBerat = $silo->stok + $totalBerat1;
             $stokSisa = $totalStokDanBerat - $totalBeratTrontonFiltered;
@@ -377,6 +382,9 @@
                     </div>
                 </div>
             </div>
+
+
+
             {{-- TABEL JIKA LUAR --}}
         @else
             {{-- Summary Dashboard - Layout 1 Baris --}}
@@ -439,6 +447,66 @@
                     </div>
                 </div>
             </div>
+            <!-- Divider -->
+            <div class="border-b border-gray-300 dark:border-gray-700"></div>
+
+            <div class="flex justify-between items-center mb-3">
+                <div class="flex items-center gap-3">
+                    <h3 class="text-lg font-semibold">Penambahan Stok</h3>
+
+                </div>
+                {{-- To Bottom Button --}}
+                {{-- <button onclick="scrollToLaporanPenjualan()"
+                        class="px-3 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs rounded-md transition-colors duration-200 flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                        </svg>
+                        Ke Laporan Penjualan
+                    </button> --}}
+            </div>
+            <table class="w-full border border-collapse border-gray-300 dark:border-gray-700">
+                <thead>
+                    <tr class="bg-gray-100 dark:bg-gray-800">
+                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Tanggal</th>
+                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Keterangan</th>
+                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Stock</th>
+                    </tr>
+                </thead>
+                <tbody id="lumbung-tbody">
+                    @foreach ($silo->stockLuar as $index => $stok)
+                        @php
+                            $beratKolom1 = $stok->quantity ?? 0;
+                        @endphp
+
+                        <tr class="lumbung-row {{ $index >= 5 ? 'hidden' : '' }}" data-index="{{ $index }}">
+                            <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                                {{ \Carbon\Carbon::parse($stok->created_at)->format('d/m/Y') }}
+                            </td>
+                            <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                                {{ $stok->notes }}
+                            </td>
+                            <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
+                                {{ number_format($stok->quantity, 0, ',', '.') }}
+                            </td>
+                        </tr>
+                    @endforeach
+
+                </tbody>
+                <tfoot>
+                    <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
+                        <td colspan="2"
+                            class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                            Total Berat:
+                        </td>
+                        <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
+                            {{ number_format($totalBerat1, 0, ',', '.') }}
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+
+
             <!-- Divider -->
             <div class="border-b border-gray-300 dark:border-gray-700"></div>
             {{-- Tabel 2: Timbangan Trontons - Data Luar --}}

@@ -12,6 +12,17 @@ class Silo extends Model
         'nama',
     ];
 
+    public function stockLuar()
+    {
+        return $this->hasMany(StockLuar::class);
+    }
+
+    // // Method untuk menghitung total stok (stok awal + semua penambahan)
+    // public function getTotalStockAttribute()
+    // {
+    //     return $this->stok + $this->stockAdditions()->sum('quantity');
+    // }
+
     public function timbanganTrontons(): BelongsToMany
     {
         return $this->belongsToMany(TimbanganTronton::class, 'silos_has_timbangan_trontons')

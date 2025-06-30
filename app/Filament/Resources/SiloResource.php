@@ -13,11 +13,14 @@ use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use function Laravel\Prompts\text;
 use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Repeater;
+
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
-
 use Filament\Tables\Columns\BadgeColumn;
+use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Enums\ActionsPosition;
 use App\Filament\Resources\SiloResource\Pages;
@@ -42,9 +45,14 @@ class SiloResource extends Resource
                 Card::make()
                     ->schema([
                         TextInput::make('stok')
-                            ->numeric()
                             ->label('Stok Awal')
-                            ->placeholder('Masukkan stok awal'),
+                            ->placeholder('Masukkan stok awal')
+                            ->live() // Memastikan perubahan langsung terjadi di Livewire
+                            ->extraAttributes([
+                                'x-data' => '{}',
+                                'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
+                            ])
+                            ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)), // Hapus titik sebelum dikirim ke database
                         Select::make('nama')
                             ->native(false)
                             ->required()
@@ -70,6 +78,17 @@ class SiloResource extends Resource
                                 Select::make('laporanLumbungs')
                                     ->label('Laporan Lumbung')
                                     ->multiple()
+                                    ->disabled(function (callable $get) {
+                                        $selectedNama = $get('nama');
+
+                                        // Disable jika user memilih salah satu dari opsi silo
+                                        return !in_array($selectedNama, [
+                                            'SILO STAFFEL A',
+                                            'SILO STAFFEL B',
+                                            'SILO 2500',
+                                            'SILO 1800'
+                                        ]);
+                                    })
                                     ->relationship(
                                         name: 'laporanLumbungs',
                                         titleAttribute: 'nama',
@@ -191,7 +210,57 @@ class SiloResource extends Resource
                                         }
                                     }),
                             ])->columnSpan(1)
-                    ])->columns(2)
+                    ])->columns(2),
+                Card::make('Penambahan Stock')
+                    ->schema([
+                        // Repeater untuk stock additions
+                        Repeater::make('stockLuar')
+                            ->label('')
+                            ->relationship()
+                            ->schema([
+                                Grid::make(3)
+                                    ->schema([
+                                        TextInput::make('quantity')
+                                            ->label('Jumlah')
+                                            ->placeholder('Masukkan jumlah')
+                                            ->required()
+                                            ->live(),
+                                        // ->extraAttributes([
+                                        //     'x-data' => '{}',
+                                        //     'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
+                                        // ])
+                                        // ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)), // Hapus titik sebelum dikirim ke database
+
+                                        DatePicker::make('date_added')
+                                            ->label('Tanggal')
+                                            ->default(now())
+                                            ->required(),
+
+                                        TextInput::make('notes')
+                                            ->label('Catatan')
+                                            ->placeholder('Catatan penambahan'),
+                                    ])
+                            ])
+                            ->addActionLabel('Tambah Stok')
+                            ->collapsible()
+                            ->columns(2)
+                            ->collapsed()
+                            ->itemLabel(
+                                fn(array $state): ?string =>
+                                isset($state['quantity']) && isset($state['date_added'])
+                                    ? number_format($state['quantity'], 0, ',', '.') . ' - ' . date('d/m/Y', strtotime($state['date_added']))
+                                    : 'Penambahan Stok Baru'
+                            ),
+                    ])->collapsed()
+                    ->visible(
+                        fn(Get $get): bool =>
+                        in_array($get('nama'), [
+                            'SILO STAFFEL A',
+                            'SILO STAFFEL B',
+                            'SILO 2500',
+                            'SILO 1800'
+                        ])
+                    ),
             ]);
     }
 
@@ -215,11 +284,13 @@ class SiloResource extends Resource
                             ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
                             ->isoFormat('D MMMM YYYY | HH:mm:ss');
                     }),
-                TextColumn::make('stok')->label('Stok Awal'),
+                TextColumn::make('stok')->label('Stok Awal')
+                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('nama')->label('Nama Silo'),
                 TextColumn::make('laporanLumbungs.kode')
                     ->alignCenter()
                     ->searchable()
+                    ->placeholder('-----')
                     ->label('NO IO')
                     ->getStateUsing(function ($record) {
                         $laporanlumbung = $record->laporanlumbungs->pluck('kode');
@@ -254,7 +325,7 @@ class SiloResource extends Resource
                 // TextColumn::make('laporanLumbungs.kode')
                 //     ->alignCenter()
                 //     ->label('No IO'),
-                
+
                 // TextColumn::make('timbanganTrontons.kode')
                 //     ->searchable()
                 //     ->alignCenter()

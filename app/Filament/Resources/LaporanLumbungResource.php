@@ -105,19 +105,21 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                             ]),
                         Card::make('Info Dryer')
                             ->schema([
-                                Select::make('filter_lumbung_tujuan')
+                                Select::make('lumbung_kering')
                                     ->native(false)
                                     ->disabled(fn(Get $get) => $get('tipe_penjualan') === 'masuk') // Disable jika 'masuk'
-                                    ->label('Lumbung')
-                                    ->options(function () {
-                                        // Ambil daftar nama_lumbung unik dari tabel penjualan1 (relasi)
-                                        return \App\Models\Dryer::query()
-                                            ->whereNotNull('lumbung_tujuan')
-                                            ->where('lumbung_tujuan', '!=', '')
-                                            ->distinct()
-                                            ->pluck('lumbung_tujuan', 'lumbung_tujuan')
-                                            ->toArray();
-                                    })
+                                    ->label('Lumbung Kering')
+                                    ->options([
+                                        'A' => 'A',
+                                        'B' => 'B',
+                                        'C' => 'C',
+                                        'D' => 'D',
+                                        'E' => 'E',
+                                        'F' => 'F',
+                                        'G' => 'G',
+                                        'H' => 'H',
+                                        'I' => 'I',
+                                    ])
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, $set, $get) {
                                         // Simpan pilihan dryers yang sudah ada sebelum filter berubah
@@ -133,7 +135,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                         name: 'dryers',
                                         titleAttribute: 'no_dryer',
                                         modifyQueryUsing: function (Builder $query, $get) {
-                                            $selectedLumbung = $get('filter_lumbung_tujuan');
+                                            $selectedLumbung = $get('lumbung_kering');
                                             $currentDryers = $get('dryers') ?? [];
 
                                             // Coba ambil record dari berbagai context
@@ -233,18 +235,48 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                             ->schema([
                                 Select::make('lumbung')
                                     ->native(false)
-                                    ->disabled(fn(Get $get) => $get('tipe_penjualan') === 'masuk') // Disable jika 'masuk'
+                                    ->disabled(fn(Get $get) => $get('tipe_penjualan') === 'masuk')
                                     ->label('Lumbung')
                                     ->options(function () {
                                         return \App\Models\Penjualan::query()
                                             ->whereNotNull('nama_lumbung')
                                             ->where('nama_lumbung', '!=', '')
-                                            ->whereNotIn('nama_lumbung', ['SILO STAFFEL A', 'SILO STAFFEL B', 'SILO BESAR', 'SILO 2500', 'SILO 1800']) // Tambahkan kondisi ini
+                                            ->whereNotIn('nama_lumbung', [
+                                                'SILO STAFFEL A',
+                                                'SILO STAFFEL B',
+                                                'SILO BESAR',
+                                                'SILO 2500',
+                                                'SILO 1800'
+                                            ])
                                             ->distinct()
                                             ->pluck('nama_lumbung', 'nama_lumbung')
                                             ->toArray();
                                     })
-                                    ->reactive(),
+                                    ->reactive()
+                                    ->afterStateHydrated(function (Select $component, $state) {
+                                        // Jika state kosong dan ada nilai default dari tab, gunakan nilai default
+                                        if (empty($state) && request()->has('activeTab')) {
+                                            $activeTab = request()->get('activeTab');
+                                            if (str_starts_with($activeTab, 'lumbung_')) {
+                                                $lumbungCode = strtoupper(str_replace('lumbung_', '', $activeTab));
+                                                $lumbungMapping = [
+                                                    'A' => 'A', // Sesuaikan dengan nama yang ada di database
+                                                    'B' => 'B',
+                                                    'C' => 'C',
+                                                    'D' => 'D',
+                                                    'E' => 'E',
+                                                    'F' => 'F',
+                                                    'G' => 'G',
+                                                    'H' => 'H',
+                                                    'I' => 'I',
+                                                ];
+
+                                                if (isset($lumbungMapping[$lumbungCode])) {
+                                                    $component->state($lumbungMapping[$lumbungCode]);
+                                                }
+                                            }
+                                        }
+                                    }),
                                 // ->disabled(function (callable $get, ?\Illuminate\Database\Eloquent\Model $record) {
                                 //     // Disable saat edit, misal jika $record ada berarti edit
                                 //     return $record !== null;

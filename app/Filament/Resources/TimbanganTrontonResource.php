@@ -1020,21 +1020,15 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                         if ($state) {
                                                             $luar = Luar::find($state);
                                                             $set('nama_barang_7', $luar?->nama_barang);
-                                                            $set('bruto7', $luar?->bruto);
-                                                            $set('tara7', $luar?->tara);
                                                             $set('netto7', $luar?->netto);
                                                         }
                                                     })
                                                     ->afterStateUpdated(function ($state, callable $set, $get) {
                                                         $luar = Luar::find($state);
                                                         $set('kode_segel_7', $luar?->plat_polisi ?? 'Plat tidak ditemukan');
-                                                        $set('bruto7', $luar?->bruto);
-                                                        $set('tara7', $luar?->tara);
                                                         $set('netto7', $luar?->netto);
                                                         $set('nama_barang_7', $luar?->nama_barang);
                                                         $set('total_netto', self::hitungTotalNetto($get)); // Update total_netto
-                                                        $set('bruto_akhir', self::getBrutoAkhir($get));
-                                                        $set('tara_awal', self::getTaraAwal($get));
                                                     }),
 
 
@@ -1119,8 +1113,6 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                         if ($state) {
                                                             $luar = Luar::find($state);
                                                             $set('nama_barang_8', $luar?->nama_barang);
-                                                            $set('bruto8', $luar?->bruto);
-                                                            $set('tara8', $luar?->tara);
                                                             $netto8 = $luar?->netto ?? 0;
                                                             $set('netto8', $netto8);
                                                             // Simpan nilai awal untuk perhitungan selanjutnya
@@ -1130,8 +1122,6 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                     ->afterStateUpdated(function ($state, callable $set, $get) {
                                                         $luar = Luar::find($state);
                                                         $set('kode_segel8', $luar?->kode_segel ?? 'kode segel tidak ditemukan');
-                                                        $set('bruto8', $luar?->bruto);
-                                                        $set('tara8', $luar?->tara);
                                                         $set('nama_barang_8', $luar?->nama_barang);
                                                         $newNetto = $luar?->netto ?? 0;
                                                         // Ambil nilai netto sebelumnya, jika belum ada asumsikan 0
@@ -1236,8 +1226,6 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                         if ($state) {
                                                             $luar = Luar::find($state);
                                                             $set('nama_barang_9', $luar?->nama_barang);
-                                                            $set('bruto9', $luar?->bruto);
-                                                            $set('tara9', $luar?->tara);
                                                             $netto9 = $luar?->netto ?? 0;
                                                             $set('netto9', $netto9);
                                                             // Simpan nilai awal untuk perhitungan selanjutnya
@@ -1247,8 +1235,6 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                     ->afterStateUpdated(function ($state, callable $set, $get) {
                                                         $luar = Luar::find($state);
                                                         $set('kode_segel9', $luar?->kode_segel ?? 'kode segel tidak ditemukan');
-                                                        $set('bruto9', $luar?->bruto);
-                                                        $set('tara9', $luar?->tara);
                                                         $set('nama_barang_9', $luar?->nama_barang);
                                                         $newNetto = $luar?->netto ?? 0;
                                                         // Ambil nilai netto sebelumnya, jika belum ada asumsikan 0
