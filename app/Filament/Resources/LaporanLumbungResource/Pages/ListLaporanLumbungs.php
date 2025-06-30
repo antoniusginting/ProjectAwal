@@ -13,29 +13,15 @@ class ListLaporanLumbungs extends ListRecords
 {
     protected static string $resource = LaporanLumbungResource::class;
 
+    function getTitle(): string
+    {
+        return 'View Lumbung Kering';
+    }
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()
-                ->label('Tambah Data')
-                ->mutateFormDataUsing(function (array $data): array {
-                    // Mendapatkan tab yang aktif saat ini
-                    $activeTab = $this->activeTab ?? 'semua';
+            Actions\CreateAction::make()->label('Tambah Data'),
 
-                    // Jika tab adalah salah satu lumbung (bukan 'semua'), set nilai default
-                    if (str_starts_with($activeTab, 'lumbung_')) {
-                        $lumbungCode = strtoupper(str_replace('lumbung_', '', $activeTab));
-
-                        // Mapping kode lumbung ke nama lumbung yang sesuai
-                        $lumbungMapping = $this->getLumbungMapping();
-
-                        if (isset($lumbungMapping[$lumbungCode])) {
-                            $data['lumbung'] = $lumbungMapping[$lumbungCode];
-                        }
-                    }
-
-                    return $data;
-                }),
         ];
     }
 
@@ -43,16 +29,25 @@ class ListLaporanLumbungs extends ListRecords
     {
         $tabs = [
             'semua' => Tab::make('Semua Data')
-                ->badge(LaporanLumbung::count()),
+                ->badge(LaporanLumbung::count())
+                ->badgeColor('primary'),
         ];
 
         // Definisi lumbung A sampai I
         $lumbungList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
 
         foreach ($lumbungList as $lumbungCode) {
-            $count = LaporanLumbung::where('lumbung', $lumbungCode)->count();
+            // Ambil data terakhir berdasarkan created_at untuk lumbung ini
+            $latestRecord = LaporanLumbung::where('lumbung', $lumbungCode)
+                ->latest('created_at')
+                ->first();
+
+            // Tentukan badge dan icon berdasarkan status data terakhir
+            $badgeInfo = $this->getBadgeInfo($latestRecord);
+
             $tabs['lumbung_' . strtolower($lumbungCode)] = Tab::make('LK ' . $lumbungCode)
-                ->badge($count)
+                ->badge($badgeInfo['icon'])
+                ->badgeColor($badgeInfo['color'])
                 ->modifyQueryUsing(function (Builder $query) use ($lumbungCode) {
                     return $query->where('lumbung', $lumbungCode);
                 });
@@ -62,21 +57,28 @@ class ListLaporanLumbungs extends ListRecords
     }
 
     /**
-     * Mapping kode lumbung ke nama lumbung yang sesuai
-     * Sesuaikan dengan data yang ada di database Anda
+     * Menentukan icon dan warna badge berdasarkan status data terakhir
      */
-    protected function getLumbungMapping(): array
+    private function getBadgeInfo($latestRecord): array
     {
-        return [
-            'A' => 'LUMBUNG A', // Sesuaikan dengan nama yang ada di database
-            'B' => 'LUMBUNG B',
-            'C' => 'LUMBUNG C',
-            'D' => 'LUMBUNG D',
-            'E' => 'LUMBUNG E',
-            'F' => 'LUMBUNG F',
-            'G' => 'LUMBUNG G',
-            'H' => 'LUMBUNG H',
-            'I' => 'LUMBUNG I',
-        ];
+        if (!$latestRecord) {
+            return [
+                'icon' => '?',      // Atau '—' atau '∅'
+                'color' => 'gray'
+            ];
+        }
+
+        // true = tutup (danger), false = buka (success)
+        if ($latestRecord->status) {
+            return [
+                'icon' => '✓',     // Icon tutup - bisa juga '🔒' atau '●'
+                'color' => 'success'
+            ]; 
+        } else {
+            return [
+                'icon' => '✕',     // Icon buka - bisa juga '🔓' atau '●'  
+                'color' => 'danger'
+            ];
+        }
     }
 }

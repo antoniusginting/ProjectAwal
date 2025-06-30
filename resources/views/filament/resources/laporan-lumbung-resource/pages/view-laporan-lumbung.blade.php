@@ -268,7 +268,7 @@
                         @endif
                     </td>
                     <td class="border text-center p-2 border-gray-300 dark:border-gray-700 text-sm">
-                        @if ($laporanlumbung->lumbung)
+                        @if ($laporanlumbung->lumbung && $laporanlumbung->status)
                             {{ number_format($hasil_pengurangan_numeric_final, 2) }} %
                         @endif
                     </td>

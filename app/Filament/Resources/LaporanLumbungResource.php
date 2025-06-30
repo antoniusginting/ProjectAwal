@@ -34,6 +34,7 @@ use App\Filament\Resources\LaporanLumbungResource\RelationManagers;
 class LaporanLumbungResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = LaporanLumbung::class;
+    protected static ?string $navigationLabel = 'Lumbung Kering';
     public static function getPermissionPrefixes(): array
     {
         return [
@@ -395,7 +396,12 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                         $set('hasil', $totalDryer - $beratPenjualan);
                                     }),
                             ])->columnSpan(1),
-
+                        Toggle::make('status')
+                            ->label('Status')
+                            ->helperText('Aktifkan untuk menutup, nonaktifkan untuk membuka')
+                            ->default(false) // Default false (buka)
+                            ->onColor('danger') // Warna merah saat true (tutup)
+                            ->offColor('success'), // Warna hijau saat false (buka)
                         Hidden::make('user_id')
                             ->label('User ID')
                             ->default(Auth::id()) // Set nilai default user yang sedang login,
@@ -504,6 +510,11 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                             ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
                             ->isoFormat('D MMMM YYYY | HH:mm:ss');
                     }),
+                TextColumn::make('status')
+                    ->label('Status')
+                    ->badge()
+                    ->formatStateUsing(fn($state) => $state ? 'Tutup' : 'Buka')
+                    ->color(fn($state) => $state ? 'success' : 'danger'),
                 TextColumn::make('status_silo')
                     ->label('Silo')
                     ->default('-')

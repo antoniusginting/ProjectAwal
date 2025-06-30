@@ -15,6 +15,7 @@ class LaporanLumbung extends Model
         "hasil",
         "status_silo",
         "berat_langsir",
+        "status",
     ];
     public function timbanganTrontons(): BelongsToMany
     {

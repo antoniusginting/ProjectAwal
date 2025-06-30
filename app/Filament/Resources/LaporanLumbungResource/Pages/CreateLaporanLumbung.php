@@ -14,7 +14,7 @@ class CreateLaporanLumbung extends CreateRecord
 
     function getTitle(): string
     {
-        return 'Tambah Laporan Lumbung';
+        return 'Tambah Lumbung Kering';
     }
     protected function getFormActions(): array
     {
