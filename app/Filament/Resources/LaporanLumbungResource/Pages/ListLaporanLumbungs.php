@@ -8,6 +8,7 @@ use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Components\Tab;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Notifications\Notification;
 
 class ListLaporanLumbungs extends ListRecords
 {
@@ -17,11 +18,20 @@ class ListLaporanLumbungs extends ListRecords
     {
         return 'View Lumbung Kering';
     }
+
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()->label('Tambah Data'),
-
+            Actions\CreateAction::make()
+                ->label('Tambah Data')
+                ->visible(fn () => $this->canCreateRecord())
+                ->before(function () {
+                    // Double check sebelum create untuk keamanan
+                    if (!$this->canCreateRecord()) {
+                        $this->showLumbungStatusNotification();
+                        $this->halt(); // Stop the action
+                    }
+                }),
         ];
     }
 
@@ -80,5 +90,68 @@ class ListLaporanLumbungs extends ListRecords
                 'color' => 'success'
             ];
         }
+    }
+
+    /**
+     * Mengecek apakah user dapat membuat record baru berdasarkan tab aktif
+     */
+    private function canCreateRecord(): bool
+    {
+        $activeTab = $this->activeTab ?? 'semua';
+        
+        // Jika di tab "Semua Data", allow create
+        if ($activeTab === 'semua') {
+            return true;
+        }
+
+        // Extract lumbung code dari tab name (format: lumbung_a, lumbung_b, etc.)
+        if (str_starts_with($activeTab, 'lumbung_')) {
+            $lumbungCode = strtoupper(str_replace('lumbung_', '', $activeTab));
+            
+            // Ambil record terakhir untuk lumbung ini
+            $latestRecord = LaporanLumbung::where('lumbung', $lumbungCode)
+                ->latest('created_at')
+                ->first();
+
+            // Jika tidak ada record sama sekali, allow create
+            if (!$latestRecord) {
+                return true;
+            }
+
+            // Jika status = 1 (tutup), allow create
+            // Jika status = 0 (buka), deny create
+            return (bool) $latestRecord->status;
+        }
+
+        return true;
+    }
+
+    /**
+     * Menampilkan notifikasi ketika lumbung masih terbuka
+     */
+    private function showLumbungStatusNotification(): void
+    {
+        $activeTab = $this->activeTab ?? 'semua';
+        
+        if (str_starts_with($activeTab, 'lumbung_')) {
+            $lumbungCode = strtoupper(str_replace('lumbung_', '', $activeTab));
+            
+            Notification::make()
+                ->title('Tidak dapat menambah data')
+                ->body("Lumbung {$lumbungCode} masih dalam status terbuka. Tutup lumbung terlebih dahulu sebelum menambah data baru.")
+                ->danger()
+                ->duration(5000)
+                ->send();
+        }
+    }
+
+    /**
+     * Override method untuk handle tab changes dan update create button visibility
+     */
+    public function updatedActiveTab(): void
+    {
+        // Refresh halaman atau update state setelah tab berubah
+        // Ini akan memicu re-evaluation dari getHeaderActions()
+        $this->dispatch('tab-changed');
     }
 }

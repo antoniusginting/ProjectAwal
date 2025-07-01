@@ -139,7 +139,12 @@
                             {{ $dryer ? $dryer->nama_barang : '' }}
                         </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                            {{ $dryer ? $dryer->no_dryer : '' }}
+                            @if ($dryer)
+                                <a href="{{ route('filament.admin.resources.dryers.view-dryer', $dryer->id) }}"
+                                    class="">
+                                    {{ $dryer->no_dryer }}
+                                </a>
+                            @endif
                         </td>
                         <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
                             {{ $dryer && $dryer->total_netto ? number_format($dryer->total_netto, 0, ',', '.') : '' }}
