@@ -514,7 +514,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                     ->label('Status')
                     ->badge()
                     ->formatStateUsing(fn($state) => $state ? 'Tutup' : 'Buka')
-                    ->color(fn($state) => $state ? 'success' : 'danger'),
+                    ->color(fn($state) => $state ? 'danger' : 'success'),
                 TextColumn::make('status_silo')
                     ->label('Silo')
                     ->default('-')

@@ -351,7 +351,7 @@
                     <thead>
                         <tr>
                             <th style="width: 12%;">TGL</th>
-                            <th style="width: 20%;">NO LUMBUNG</th>
+                            <th style="width: 20%;">LUMBUNG</th>
                             <th style="width: 20%;">JENIS</th>
                             <th style="width: 12%;">GONI</th>
                             <th style="width: 18%;">BERAT</th>

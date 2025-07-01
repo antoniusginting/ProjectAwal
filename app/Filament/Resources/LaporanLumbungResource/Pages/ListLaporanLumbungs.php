@@ -71,13 +71,13 @@ class ListLaporanLumbungs extends ListRecords
         // true = tutup (danger), false = buka (success)
         if ($latestRecord->status) {
             return [
-                'icon' => '✓',     // Icon tutup - bisa juga '🔒' atau '●'
-                'color' => 'success'
+                'icon' => '✕',     // Icon tutup - bisa juga '🔒' atau '●'
+                'color' => 'danger'
             ]; 
         } else {
             return [
-                'icon' => '✕',     // Icon buka - bisa juga '🔓' atau '●'  
-                'color' => 'danger'
+                'icon' => '✓',     // Icon buka - bisa juga '🔓' atau '●'  
+                'color' => 'success'
             ];
         }
     }

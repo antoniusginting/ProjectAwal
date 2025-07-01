@@ -81,12 +81,14 @@
                     <thead>
                         <tr class="bg-gray-100 dark:bg-gray-800">
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">TGL</th>
-                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Nama Lumbung</th>
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Lumbung</th>
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Nama Supplier</th>
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Jenis</th>
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Goni</th>
-                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Berat</th>
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Netto</th>
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">No Timbangan</th>
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Kadar</th>
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">N * K</th>
                             {{-- <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">-</th>
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">-</th> --}}
                         </tr>
@@ -100,6 +102,8 @@
                             @php
                                 $totalNettoBersih = 0;
                                 $totalTotalKarung = 0;
+                                $totalPercentage = 0;
+                                $persen = 0;
 
                                 // Hitung total netto bersih untuk grup ini terlebih dahulu
                                 foreach ($sortiransGroup as $sortiran) {
@@ -125,6 +129,8 @@
                                     <td class="border text-center p-2 border-gray-300 dark:border-gray-700"
                                         width='150px'>
                                         {{ $sortiran->kapasitaslumbungbasah->no_kapasitas_lumbung }}</td>
+                                    <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
+                                        {{$sortiran->pembelian->supplier->nama_supplier}}</td>
                                     <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
                                         {{ $sortiran->pembelian->nama_barang ?? 'JAGUNG KERING SUPER' }}</td>
                                     <td class="border p-2 border-gray-300 dark:border-gray-700 text-right"
@@ -161,7 +167,7 @@
                                     <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
                                         {{ $sortiran->kadar_air ?? '-' }}%
                                     </td>
-                                    {{-- <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
+                                    <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
                                         @php
                                             // Hitung persentase untuk kolom Tes
                                             $nettoBersihStripped = str_replace('.', '', $sortiran->netto_bersih);
@@ -171,20 +177,21 @@
 
                                             $percentage =
                                                 $totalNettoBersih > 0
-                                                    ? round(($nettoBersihValue / $totalNettoBersih) * 100, 1)
+                                                    ? round($nettoBersihValue * $sortiran->kadar_air)
                                                     : 0;
+                                            $totalPercentage += $percentage;
+
+                                            $persen = $totalPercentage / $totalNettoBersih;
 
                                             // Hitung CA (kadar_air * percentage)
-                                            $kadarAirValue = is_numeric($sortiran->kadar_air)
-                                                ? round(floatval($sortiran->kadar_air), 2)
-                                                : 0;
-                                            $caValue = round($kadarAirValue * $percentage, 2);
+                                            // $kadarAirValue = is_numeric($sortiran->kadar_air)
+                                            //     ? round(floatval($sortiran->kadar_air), 2)
+                                            //     : 0;
+                                            // $caValue = round($kadarAirValue * $percentage, 2);
+
                                         @endphp
-                                        {{ number_format($percentage, 1, ',', '.') }}%
-                                    </td> --}}
-                                    {{-- <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
-                                        {{ number_format($caValue, 2, ',', '.') }}
-                                    </td> --}}
+                                        {{ number_format($percentage, 0, ',', '.') }}
+                                    </td>
                                 </tr>
                             @endforeach
 
@@ -200,10 +207,13 @@
                                 <td class="p-2 text-right border-gray-300 dark:border-gray-700">
                                     {{ number_format($totalNettoBersih, 0, ',', '.') }}
                                 </td>
-                                <td colspan="1" class="p-2 text-center border-gray-300 dark:border-gray-700">
-
+                                <td colspan="3" class="p-2 text-center border-gray-300 dark:border-gray-700">
+                                    
                                 </td>
-                                <td class="p-2 text-center border-gray-300 dark:border-gray-700">
+                                <td colspan="1" class="p-2 text-center border-gray-300 dark:border-gray-700">
+                                    {{ number_format($persen, 2, ',', '.') }}%
+                                </td>
+                                {{-- <td class="p-2 text-center border-gray-300 dark:border-gray-700">
                                     @php
                                         // Hitung total CA untuk grup ini
                                         $totalCA = 0;
@@ -225,10 +235,10 @@
                                             $totalCA += $caValue;
                                             $totalCB += $cbValue;
                                         }
-                                    @endphp
-                                    {{-- {{ number_format($totalCA, 2, ',', '.') }} == --}}
-                                    {{ number_format($totalCB, 2, ',', '.') }}%
-                                </td>
+                                    @endphp --}}
+                                {{-- {{ number_format($totalCA, 2, ',', '.') }} == --}}
+                                {{-- {{ number_format($totalCB, 2, ',', '.') }}%
+                                </td> --}}
                             </tr>
                         @endforeach
                     </tbody>
