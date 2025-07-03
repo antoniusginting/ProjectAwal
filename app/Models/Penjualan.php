@@ -26,7 +26,8 @@ class Penjualan extends Model
         'status_timbangan',
         'jumlah_karung',
         'silo',
-        'user_id'
+        'user_id',
+        'laporan_lumbung_id',
     ];
 
     // Relasi ke User
@@ -45,9 +46,16 @@ class Penjualan extends Model
     {
         return $this->belongsTo(Supplier::class, 'id_supplier', 'id');
     }
-    public function laporanLumbungs(): BelongsToMany
+    // public function laporanLumbungs(): BelongsToMany
+    // {
+    //     return $this->belongsToMany(LaporanLumbung::class, 'laporan_lumbungs_has_penjualans')
+    //         ->withTimestamps();
+    // }
+
+    // Relasi ke laporan lumbung
+    public function laporanLumbung()
     {
-        return $this->belongsToMany(LaporanLumbung::class, 'laporan_lumbungs_has_penjualans')
-            ->withTimestamps();
+        return $this->belongsTo(LaporanLumbung::class, 'laporan_lumbung_id');
     }
+
 }

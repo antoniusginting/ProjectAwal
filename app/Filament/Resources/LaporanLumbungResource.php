@@ -115,16 +115,16 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                         'SILO 1800' => 'SILO 1800',
                                     ])
                                     ->live()
-                                    ->reactive()
-                                    ->afterStateUpdated(function (Set $set, $state) {
-                                        // Jika status_silo dipilih (tidak kosong), set tipe_penjualan ke 'masuk'
-                                        if (!empty($state)) {
-                                            $set('tipe_penjualan', 'MASUK');
-                                        }
-                                    }),
+                                    ->reactive(),
+                                // ->afterStateUpdated(function (Set $set, $state) {
+                                //     // Jika status_silo dipilih (tidak kosong), set tipe_penjualan ke 'masuk'
+                                //     if (!empty($state)) {
+                                //         $set('tipe_penjualan', 'MASUK');
+                                //     }
+                                // }),
                             ]),
                         Card::make('Info Dryer')
-                            ->visible(fn(Get $get) => $get('tipe_penjualan') === 'keluar')
+                            // ->visible(fn(Get $get) => $get('tipe_penjualan') === 'keluar')
                             ->schema([
                                 Group::make([
                                     // Field select yang bisa berubah menjadi readonly saat edit
@@ -166,11 +166,11 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                         })
                                         ->suffixIcon('heroicon-s-lock-closed') // Selalu tampilkan lock icon
                                         ->helperText('Lumbung kering tidak dapat diubah.')
-                                        ->reactive()
-                                        ->afterStateUpdated(function ($state, $set, $get) {
-                                            // Reset dryer selection ketika lumbung berubah
-                                            $set('dryers', []);
-                                        }),
+                                        ->reactive(),
+                                    // ->afterStateUpdated(function ($state, $set, $get) {
+                                    //     // Reset dryer selection ketika lumbung berubah
+                                    //     $set('dryers', []);
+                                    // }),
                                 ])
                                     ->columns(1),
 
@@ -445,101 +445,101 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                             ->label('User ID')
                             ->default(Auth::id()) // Set nilai default user yang sedang login,
                     ])->columns(2),
-                Card::make('Info Timbangan Langsir')
-                    ->schema([
+                // Card::make('Info Timbangan Langsir')
+                //     ->schema([
 
-                        // TextInput::make('berat_penjualan')
-                        //     ->label('Berat Penjualan')
-                        //     ->numeric()
-                        //     ->readOnly(), // Opsional: buat readonly karena dihitung otomatis
-                        // TextInput::make('hasil')
-                        //     ->label('Hasil')
-                        //     ->numeric()
-                        //     ->readOnly(),
-                        Select::make('penjualan_ids')
-                            ->label('Timbangan Langsir')
-                            ->placeholder('Pilih ID timbangan langsir')
-                            ->multiple()
-                            ->relationship(
-                                name: 'penjualans',
-                                titleAttribute: 'no_spb',
-                                modifyQueryUsing: function ($query, $get) {
-                                    $statusSilo = $get('status_silo');
+                // TextInput::make('berat_penjualan')
+                //     ->label('Berat Penjualan')
+                //     ->numeric()
+                //     ->readOnly(), // Opsional: buat readonly karena dihitung otomatis
+                // TextInput::make('hasil')
+                //     ->label('Hasil')
+                //     ->numeric()
+                //     ->readOnly(),
+                // Select::make('penjualan_ids')
+                //     ->label('Timbangan Langsir')
+                //     ->placeholder('Pilih ID timbangan langsir')
+                //     ->multiple()
+                //     ->relationship(
+                //         name: 'penjualans',
+                //         titleAttribute: 'no_spb',
+                //         modifyQueryUsing: function ($query, $get) {
+                //             $statusSilo = $get('status_silo');
 
-                                    // Base query
-                                    $query = $query
-                                        ->where('status_timbangan', 'LANGSIR')
-                                        ->whereNotNull('netto')
-                                        ->where('netto', '>', 0)
-                                        ->orderBy('id', 'desc'); // Urutkan berdasarkan ID terbaru
+                //             // Base query
+                //             $query = $query
+                //                 ->where('status_timbangan', 'LANGSIR')
+                //                 ->whereNotNull('netto')
+                //                 ->where('netto', '>', 0)
+                //                 ->orderBy('id', 'desc'); // Urutkan berdasarkan ID terbaru
 
-                                    // Filter berdasarkan status_silo jika dipilih
-                                    if ($statusSilo) {
-                                        $query->where('silo', $statusSilo);
-                                    }
+                //             // Filter berdasarkan status_silo jika dipilih
+                //             if ($statusSilo) {
+                //                 $query->where('silo', $statusSilo);
+                //             }
 
-                                    return $query;
-                                }
-                            )
-                            ->getOptionLabelFromRecordUsing(fn($record) => "{$record->no_spb} - {$record->nama_supir} - {$record->no_lumbung} - {$record->nama_lumbung} - {$record->silo} - {$record->netto}")
-                            ->searchable()
-                            ->columnSpan(2)
-                            ->live()
-                            ->afterStateUpdated(function (Set $set, $state) {
-                                if (empty($state)) {
-                                    $set('berat_langsir', 0);
-                                    return;
-                                }
+                //             return $query;
+                //         }
+                //     )
+                //     ->getOptionLabelFromRecordUsing(fn($record) => "{$record->no_spb} - {$record->nama_supir} - {$record->no_lumbung} - {$record->nama_lumbung} - {$record->silo} - {$record->netto}")
+                //     ->searchable()
+                //     ->columnSpan(2)
+                //     ->live()
+                //     ->afterStateUpdated(function (Set $set, $state) {
+                //         if (empty($state)) {
+                //             $set('berat_langsir', 0);
+                //             return;
+                //         }
 
-                                // Ambil data penjualan dengan select hanya kolom yang dibutuhkan
-                                $penjualans = \App\Models\Penjualan::select('netto')
-                                    ->whereIn('id', $state)
-                                    ->get();
+                //         // Ambil data penjualan dengan select hanya kolom yang dibutuhkan
+                //         $penjualans = \App\Models\Penjualan::select('netto')
+                //             ->whereIn('id', $state)
+                //             ->get();
 
-                                $totalNetto = $penjualans->sum('netto');
-                                // Simpan nilai asli (integer) tanpa format
-                                $set('berat_langsir', $totalNetto);
-                            })
-                            ->preload(),
+                //         $totalNetto = $penjualans->sum('netto');
+                //         // Simpan nilai asli (integer) tanpa format
+                //         $set('berat_langsir', $totalNetto);
+                //     })
+                //     ->preload(),
 
-                        Select::make('tipe_penjualan')
-                            ->label('MASUK/KELUAR')
-                            ->native(false)
-                            ->options([
-                                'masuk' => 'MASUK',
-                                'keluar' => 'KELUAR',
-                            ])
-                            ->live()
-                            ->columnSpan(1)
-                            ->default(function () {
-                                // Default untuk create mode
-                                return request()->get('lumbung') !== null ? 'keluar' : 'masuk';
-                            })
-                            ->afterStateHydrated(function ($component, $state, $context, Get $get) {
-                                // Untuk edit mode - set berdasarkan nilai lumbung di database
-                                if ($context === 'edit') {
-                                    $lumbungValue = $get('lumbung');
-                                    $newValue = !empty($lumbungValue) ? 'keluar' : 'masuk';
-                                    $component->state($newValue);
-                                }
-                            })
-                            ->disabled()
-                            ->dehydrated()
-                            ->afterStateUpdated(function (Set $set, $state) {
-                                // Reset status_silo ketika bukan masuk
-                                if ($state !== 'masuk') {
-                                    $set('status_silo', null);
-                                }
-                            }),
+                // Select::make('tipe_penjualan')
+                //     ->label('MASUK/KELUAR')
+                //     ->native(false)
+                //     ->options([
+                //         'masuk' => 'MASUK',
+                //         'keluar' => 'KELUAR',
+                //     ])
+                //     ->live()
+                //     ->columnSpan(1)
+                //     ->default(function () {
+                //         // Default untuk create mode
+                //         return request()->get('lumbung') !== null ? 'keluar' : 'masuk';
+                //     })
+                //     ->afterStateHydrated(function ($component, $state, $context, Get $get) {
+                //         // Untuk edit mode - set berdasarkan nilai lumbung di database
+                //         if ($context === 'edit') {
+                //             $lumbungValue = $get('lumbung');
+                //             $newValue = !empty($lumbungValue) ? 'keluar' : 'masuk';
+                //             $component->state($newValue);
+                //         }
+                //     })
+                //     ->disabled()
+                //     ->dehydrated()
+                //     ->afterStateUpdated(function (Set $set, $state) {
+                //         // Reset status_silo ketika bukan masuk
+                //         if ($state !== 'masuk') {
+                //             $set('status_silo', null);
+                //         }
+                //     }),
 
-                        TextInput::make('berat_langsir')
-                            ->label('Total berat')
-                            ->columnSpan(1)
-                            ->numeric()
-                            // ->formatStateUsing(fn($state) => $state ? number_format($state, 0, ',', '.') : '0') // Format hanya untuk display
-                            ->readOnly()
-                            ->suffix('Kg'), // Opsional: tambah satuan
-                    ])->columns(4)->collapsed()
+                // TextInput::make('berat_langsir')
+                //     ->label('Total berat')
+                //     ->columnSpan(1)
+                //     ->numeric()
+                //     // ->formatStateUsing(fn($state) => $state ? number_format($state, 0, ',', '.') : '0') // Format hanya untuk display
+                //     ->readOnly()
+                //     ->suffix('Kg'), // Opsional: tambah satuan
+                // ])->columns(4)->collapsed()
                 //->visible(fn(Get $get) => filled($get('status_silo'))) // Muncul live ketika ada pilihan,
             ]);
     }
@@ -627,7 +627,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                 TextColumn::make('penjualans.no_spb')
                     ->searchable()
                     ->alignCenter()
-                    ->label('No Langsir')
+                    ->label('No Penjualan')
                     ->getStateUsing(function ($record) {
                         $nospb = $record->penjualans->pluck('no_spb');
 
@@ -641,8 +641,8 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                         $nospb = $record->penjualans->pluck('no_spb');
                         return $nospb->implode(', ');
                     }),
-                TextColumn::make('timbanganTrontons_kode')
-                    ->label('No Laporan Penjualan')
+                TextColumn::make('caca')
+                    ->label('No Langsir')
                     ->searchable()
                     ->alignCenter()
                     ->getStateUsing(function ($record) {

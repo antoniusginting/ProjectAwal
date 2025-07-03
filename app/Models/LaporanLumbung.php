@@ -23,6 +23,10 @@ class LaporanLumbung extends Model
     {
         return $this->hasMany(Dryer::class);
     }
+    public function penjualans()
+    {
+        return $this->hasMany(Penjualan::class);
+    }
 
     public function timbanganTrontons(): BelongsToMany
     {
@@ -49,12 +53,12 @@ class LaporanLumbung extends Model
     }
 
     // Tetap bisa pakai yang general
-    public function penjualans(): BelongsToMany
-    {
-        return $this->belongsToMany(Penjualan::class, 'laporan_lumbungs_has_penjualans')
-            ->withPivot('tipe_penjualan')
-            ->withTimestamps();
-    }
+    // public function penjualans(): BelongsToMany
+    // {
+    //     return $this->belongsToMany(Penjualan::class, 'laporan_lumbungs_has_penjualans')
+    //         ->withPivot('tipe_penjualan')
+    //         ->withTimestamps();
+    // }
 
 
     // public function penjualans(): BelongsToMany

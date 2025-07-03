@@ -12,6 +12,7 @@ use Filament\Forms\Form;
 use App\Models\Penjualan;
 use Filament\Tables\Table;
 
+use App\Models\LaporanLumbung;
 use Filament\Resources\Resource;
 use function Laravel\Prompts\text;
 use Filament\Forms\Components\Card;
@@ -24,8 +25,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
-use Illuminate\Database\Eloquent\Builder;
 
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
 use App\Filament\Resources\PenjualanResource\Pages;
@@ -226,11 +227,11 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->columnSpan(2)
                                     ->placeholder('Otomatis Terhitung')
                                     ->numeric(),
-                                TextInput::make('nama_lumbung')
-                                    ->placeholder('Masukkan Nama Lumbung')
-                                    ->autocomplete('off')
-                                    ->columnSpan(2)
-                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state)),
+                                // TextInput::make('nama_lumbung')
+                                //     ->placeholder('Masukkan Nama Lumbung')
+                                //     ->autocomplete('off')
+                                //     ->columnSpan(2)
+                                //     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state)),
                                 Select::make('keterangan') // Gantilah 'tipe' dengan nama field di database
                                     ->label('Timbangan ke-')
                                     ->columnSpan(2)
@@ -247,10 +248,39 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     // ->inlineLabel() // Membuat label sebelah kiri
                                     ->native(false) // Mengunakan dropdown modern
                                     ->required(), // Opsional: Atur default value
-                                TextInput::make('no_lumbung')
-                                    ->placeholder('Masukkan No Lumbung')
-                                    ->columnSpan(2)
+                                Select::make('laporan_lumbung_id')
+                                    ->label('Lumbung Tujuan')
+                                    ->options(function () {
+                                        return LaporanLumbung::whereNull('status_silo')
+                                            ->where('status', false)
+                                            ->get()
+                                            ->mapWithKeys(function ($item) {
+                                                return [
+                                                    $item->id => $item->kode . ' - ' . $item->lumbung
+                                                ];
+                                            });
+                                    })
+                                    ->searchable()
+                                    ->preload()
+                                    ->nullable()
+                                    ->placeholder('Pilih Laporan Lumbung')
+                                    ->reactive()
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        if ($state) {
+                                            $laporanLumbung = LaporanLumbung::find($state);
+                                            if ($laporanLumbung) {
+                                                $set('nama_lumbung', strtoupper($laporanLumbung->lumbung));
+                                            }
+                                        } else {
+                                            $set('nama_lumbung', null);
+                                        }
+                                    }),
+
+                                TextInput::make('nama_lumbung')
+                                    ->readOnly()
+                                    ->placeholder('Masukkan Nama Lumbung')
                                     ->autocomplete('off')
+                                    ->columnSpan(1)
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state)),
                                 TextInput::make('jumlah_karung')
                                     ->numeric()
@@ -268,46 +298,46 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->placeholder('Pilih Satuan Timbangan')
                                     ->native(false) // Mengunakan dropdown modern
                                     ->required(), // Opsional: Atur default value
-                                Select::make('status_timbangan')
-                                    ->label('Status Timbangan')
-                                    ->columnSpan(fn(Get $get) => $get('status_timbangan') === 'LANGSIR' ? 1 : 2) // Dynamic column span
-                                    ->options([
-                                        'JUAL' => 'JUAL',
-                                        'LANGSIR' => 'LANGSIR',
-                                    ])
-                                    ->default('JUAL')
-                                    ->placeholder('-- Pilih Status Timbangan --')
-                                    ->native(false)
-                                    ->reactive()
-                                    ->afterStateUpdated(function (Set $set, $state) {
-                                        // Reset field silo ketika bukan LANGSIR
-                                        if ($state !== 'LANGSIR') {
-                                            $set('silo', null);
-                                        }
-                                    })
-                                    ->required(),
-                                Select::make('silo')
-                                    ->label('KE')
-                                    ->columnSpan(1)
-                                    ->options([
-                                        'SILO STAFFEL A' => 'SILO STAFFEL A',
-                                        'SILO STAFFEL B' => 'SILO STAFFEL B',
-                                        'SILO 2500' => 'SILO 2500',
-                                        'SILO 1800' => 'SILO 1800',
-                                        '1' => 'LUMBUNG BASAH 1',
-                                        '2' => 'LUMBUNG BASAH 2',
-                                        '3' => 'LUMBUNG BASAH 3',
-                                        '4' => 'LUMBUNG BASAH 4',
-                                        '5' => 'LUMBUNG BASAH 5',
-                                        '6' => 'LUMBUNG BASAH 6',
-                                        '7' => 'LUMBUNG BASAH 7',
-                                        '8' => 'LUMBUNG BASAH 8',
-                                        '9' => 'LUMBUNG BASAH 9',
-                                    ])
-                                    ->placeholder('-- Pilih salah satu opsi --')
-                                    ->native(true)
-                                    ->extraAttributes(['class' => 'top-dropdown'])
-                                    ->visible(fn(Get $get) => $get('status_timbangan') === 'LANGSIR'),
+                                // Select::make('status_timbangan')
+                                //     ->label('Status Timbangan')
+                                //     ->columnSpan(fn(Get $get) => $get('status_timbangan') === 'LANGSIR' ? 1 : 2) // Dynamic column span
+                                //     ->options([
+                                //         'JUAL' => 'JUAL',
+                                //         'LANGSIR' => 'LANGSIR',
+                                //     ])
+                                //     ->default('JUAL')
+                                //     ->placeholder('-- Pilih Status Timbangan --')
+                                //     ->native(false)
+                                //     ->reactive()
+                                //     ->afterStateUpdated(function (Set $set, $state) {
+                                //         // Reset field silo ketika bukan LANGSIR
+                                //         if ($state !== 'LANGSIR') {
+                                //             $set('silo', null);
+                                //         }
+                                //     })
+                                //     ->required(),
+                                // Select::make('silo')
+                                //     ->label('KE')
+                                //     ->columnSpan(1)
+                                //     ->options([
+                                //         'SILO STAFFEL A' => 'SILO STAFFEL A',
+                                //         'SILO STAFFEL B' => 'SILO STAFFEL B',
+                                //         'SILO 2500' => 'SILO 2500',
+                                //         'SILO 1800' => 'SILO 1800',
+                                //         '1' => 'LUMBUNG BASAH 1',
+                                //         '2' => 'LUMBUNG BASAH 2',
+                                //         '3' => 'LUMBUNG BASAH 3',
+                                //         '4' => 'LUMBUNG BASAH 4',
+                                //         '5' => 'LUMBUNG BASAH 5',
+                                //         '6' => 'LUMBUNG BASAH 6',
+                                //         '7' => 'LUMBUNG BASAH 7',
+                                //         '8' => 'LUMBUNG BASAH 8',
+                                //         '9' => 'LUMBUNG BASAH 9',
+                                //     ])
+                                //     ->placeholder('-- Pilih salah satu opsi --')
+                                //     ->native(true)
+                                //     ->extraAttributes(['class' => 'top-dropdown'])
+                                //     ->visible(fn(Get $get) => $get('status_timbangan') === 'LANGSIR'),
                                 TextInput::make('no_container')
                                     ->label('No Container')
                                     ->placeholder('Masukkan no container')
