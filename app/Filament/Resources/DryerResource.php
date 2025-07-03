@@ -11,6 +11,7 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\LumbungBasah;
 use App\Models\KapasitasDryer;
+use App\Models\LaporanLumbung;
 use App\Services\SortirService;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\DB;
@@ -133,60 +134,80 @@ class DryerResource extends Resource implements HasShieldPermissions
                                 $set('kapasitas_sisa_akhir', $formattedSisa); // Reset kapasitas sisa akhir ke nilai awal
                             }),
 
-                        Select::make('lumbung_tujuan')
+
+                        Select::make('laporan_lumbung_id')
                             ->label('Lumbung Tujuan')
-                            ->options(function (callable $get) {
-                                $selectedId = $get('id_kapasitas_dryer');
-                                if (!$selectedId) {
-                                    // Jika belum pilih kapasitas dryer, tampilkan semua opsi
-                                    return [];
-                                }
-
-                                // Cari nama kapasitas dryer berdasarkan ID yang dipilih
-                                $namaKapasitas = KapasitasDryer::where('id', $selectedId)->value('nama_kapasitas_dryer');
-
-                                if (in_array($namaKapasitas, ['A', 'B', 'D'])) {
-                                    return [
-                                        'A' => 'A',
-                                        'B' => 'B',
-                                        'C' => 'C',
-                                        'D' => 'D',
-                                        'E' => 'E',
-                                    ];
-                                }
-                                if (in_array($namaKapasitas, ['A1', 'A2'])) {
-                                    return [
-                                        'F' => 'F',
-                                        'G' => 'G',
-                                        'H' => 'H',
-                                        'I' => 'I',
-                                    ];
-                                }
-                                if ($namaKapasitas === 'LSU') {
-                                    return [
-                                        'S' => 'SILO BESAR',
-                                        'F' => 'F',
-                                        'G' => 'G',
-                                        'H' => 'H',
-                                        'I' => 'I',
-                                    ];
-                                }
-
-                                // Default opsi lengkap
-                                return [
-                                    'A' => 'A',
-                                    'B' => 'B',
-                                    'C' => 'C',
-                                    'D' => 'D',
-                                    'E' => 'E',
-                                    'F' => 'F',
-                                    'G' => 'G',
-                                    'H' => 'H',
-                                    'I' => 'I',
-                                ];
+                            ->options(function () {
+                                return LaporanLumbung::whereNull('status_silo')
+                                    ->where('status', false)
+                                    ->get()
+                                    ->mapWithKeys(function ($item) {
+                                        return [
+                                            $item->id => $item->kode . ' - ' . $item->lumbung
+                                        ];
+                                    });
                             })
-                            ->placeholder('Pilih lumbung kering')
-                            ->native(false),
+                            ->searchable()
+                            ->preload()
+                            ->nullable()
+                            ->placeholder('Pilih Laporan Lumbung'),
+
+
+
+                        // Select::make('lumbung_tujuan')
+                        //     ->label('Lumbung Tujuan')
+                        //     ->options(function (callable $get) {
+                        //         $selectedId = $get('id_kapasitas_dryer');
+                        //         if (!$selectedId) {
+                        //             // Jika belum pilih kapasitas dryer, tampilkan semua opsi
+                        //             return [];
+                        //         }
+
+                        //         // Cari nama kapasitas dryer berdasarkan ID yang dipilih
+                        //         $namaKapasitas = KapasitasDryer::where('id', $selectedId)->value('nama_kapasitas_dryer');
+
+                        //         if (in_array($namaKapasitas, ['A', 'B', 'D'])) {
+                        //             return [
+                        //                 'A' => 'A',
+                        //                 'B' => 'B',
+                        //                 'C' => 'C',
+                        //                 'D' => 'D',
+                        //                 'E' => 'E',
+                        //             ];
+                        //         }
+                        //         if (in_array($namaKapasitas, ['A1', 'A2'])) {
+                        //             return [
+                        //                 'F' => 'F',
+                        //                 'G' => 'G',
+                        //                 'H' => 'H',
+                        //                 'I' => 'I',
+                        //             ];
+                        //         }
+                        //         if ($namaKapasitas === 'LSU') {
+                        //             return [
+                        //                 'S' => 'SILO BESAR',
+                        //                 'F' => 'F',
+                        //                 'G' => 'G',
+                        //                 'H' => 'H',
+                        //                 'I' => 'I',
+                        //             ];
+                        //         }
+
+                        //         // Default opsi lengkap
+                        //         return [
+                        //             'A' => 'A',
+                        //             'B' => 'B',
+                        //             'C' => 'C',
+                        //             'D' => 'D',
+                        //             'E' => 'E',
+                        //             'F' => 'F',
+                        //             'G' => 'G',
+                        //             'H' => 'H',
+                        //             'I' => 'I',
+                        //         ];
+                        //     })
+                        //     ->placeholder('Pilih lumbung kering')
+                        //     ->native(false),
 
                         TextInput::make('pj')
                             ->label('PenanggungJawab')
@@ -531,10 +552,20 @@ class DryerResource extends Resource implements HasShieldPermissions
                 TextColumn::make('kapasitasdryer.nama_kapasitas_dryer')
                     ->label('Nama Dryer')
                     ->alignCenter(),
-                TextColumn::make('lumbung_tujuan')
+                TextColumn::make('laporan_info')
                     ->label('Tujuan')
+                    ->getStateUsing(function ($record) {
+                        if ($record->laporanLumbung) {
+                            return $record->laporanLumbung->kode . ' - ' . $record->laporanLumbung->lumbung;
+                        }
+                        return '-';
+                    })
                     ->searchable()
                     ->alignCenter(),
+                // TextColumn::make('lumbung_tujuan')
+                //     ->label('Tujuan')
+                //     ->searchable()
+                //     ->alignCenter(),
                 TextColumn::make('nama_barang')
                     ->label('Nama Barang')
                     ->searchable()

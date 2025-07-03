@@ -22,7 +22,14 @@ class Dryer extends Model
         'pj',
         'status',
         'no_cc',
+        'laporan_lumbung_id',
     ];
+
+    // Relasi ke laporan lumbung
+    public function laporanLumbung()
+    {
+        return $this->belongsTo(LaporanLumbung::class, 'laporan_lumbung_id');
+    }
 
 
     public function sortirans(): BelongsToMany

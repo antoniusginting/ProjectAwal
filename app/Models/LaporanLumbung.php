@@ -17,6 +17,13 @@ class LaporanLumbung extends Model
         "berat_langsir",
         "status",
     ];
+
+
+    public function dryers()
+    {
+        return $this->hasMany(Dryer::class);
+    }
+
     public function timbanganTrontons(): BelongsToMany
     {
         return $this->belongsToMany(TimbanganTronton::class, 'laporan_lb_has_timbangant')
@@ -60,11 +67,13 @@ class LaporanLumbung extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-    public function dryers(): BelongsToMany
-    {
-        return $this->belongsToMany(Dryer::class, 'laporan_lumbung_has_dryers', 'laporan_lumbung_id', 'dryer_id')
-            ->withTimestamps();
-    }
+
+    // RELASI KE MANY TO MANY
+    // public function dryers(): BelongsToMany
+    // {
+    //     return $this->belongsToMany(Dryer::class, 'laporan_lumbung_has_dryers', 'laporan_lumbung_id', 'dryer_id')
+    //         ->withTimestamps();
+    // }
 
     // // Property untuk menyimpan dryer IDs sebelum update
     // protected $originalDryerIds = null;

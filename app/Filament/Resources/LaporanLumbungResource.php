@@ -174,105 +174,105 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                 ])
                                     ->columns(1),
 
-                                Select::make('dryers')
-                                    ->label('Dryer')
-                                    ->multiple()
-                                    ->disabled(fn(Get $get) => $get('tipe_penjualan') === 'masuk') // Disable jika 'masuk'
-                                    ->relationship(
-                                        name: 'dryers',
-                                        titleAttribute: 'no_dryer',
-                                        modifyQueryUsing: function (Builder $query, $get) {
-                                            $selectedLumbung = $get('lumbung_display') ?: $get('lumbung');
-                                            $currentDryers = $get('dryers') ?? [];
+                                // Select::make('dryers')
+                                //     ->label('Dryer')
+                                //     ->multiple()
+                                //     ->disabled(fn(Get $get) => $get('tipe_penjualan') === 'masuk') // Disable jika 'masuk'
+                                //     ->relationship(
+                                //         name: 'dryers',
+                                //         titleAttribute: 'no_dryer',
+                                //         modifyQueryUsing: function (Builder $query, $get) {
+                                //             $selectedLumbung = $get('lumbung_display') ?: $get('lumbung');
+                                //             $currentDryers = $get('dryers') ?? [];
 
-                                            // Coba ambil record dari berbagai context
-                                            $currentRecordId = null;
+                                //             // Coba ambil record dari berbagai context
+                                //             $currentRecordId = null;
 
-                                            // Untuk EditRecord page
-                                            if (request()->route('record')) {
-                                                $currentRecordId = request()->route('record');
-                                            }
+                                //             // Untuk EditRecord page
+                                //             if (request()->route('record')) {
+                                //                 $currentRecordId = request()->route('record');
+                                //             }
 
-                                            // Atau dari Livewire component
-                                            try {
-                                                $livewire = \Livewire\Livewire::current();
-                                                if ($livewire && method_exists($livewire, 'getRecord')) {
-                                                    $record = $livewire->getRecord();
-                                                    if ($record) {
-                                                        $currentRecordId = $record->getKey();
-                                                    }
-                                                }
-                                            } catch (\Exception $e) {
-                                                // Ignore error jika tidak dalam context Livewire
-                                            }
+                                //             // Atau dari Livewire component
+                                //             try {
+                                //                 $livewire = \Livewire\Livewire::current();
+                                //                 if ($livewire && method_exists($livewire, 'getRecord')) {
+                                //                     $record = $livewire->getRecord();
+                                //                     if ($record) {
+                                //                         $currentRecordId = $record->getKey();
+                                //                     }
+                                //                 }
+                                //             } catch (\Exception $e) {
+                                //                 // Ignore error jika tidak dalam context Livewire
+                                //             }
 
-                                            // Ambil semua ID yang sudah digunakan
-                                            $usedLaporanIds = DB::table('laporan_lumbung_has_dryers')
-                                                ->pluck('dryer_id')
-                                                ->toArray();
+                                //             // Ambil semua ID yang sudah digunakan
+                                //             $usedLaporanIds = DB::table('laporan_lumbung_has_dryers')
+                                //                 ->pluck('dryer_id')
+                                //                 ->toArray();
 
-                                            // Jika sedang edit, ambil ID yang sudah terkait dengan record ini
-                                            if ($currentRecordId) {
-                                                $currentlySelectedIds = DB::table('laporan_lumbung_has_dryers')
-                                                    ->where('laporan_lumbung_id', $currentRecordId)
-                                                    ->pluck('dryer_id')
-                                                    ->toArray();
+                                //             // Jika sedang edit, ambil ID yang sudah terkait dengan record ini
+                                //             if ($currentRecordId) {
+                                //                 $currentlySelectedIds = DB::table('laporan_lumbung_has_dryers')
+                                //                     ->where('laporan_lumbung_id', $currentRecordId)
+                                //                     ->pluck('dryer_id')
+                                //                     ->toArray();
 
-                                                // Exclude currently selected IDs from used IDs
-                                                $usedLaporanIds = array_diff($usedLaporanIds, $currentlySelectedIds);
-                                            }
+                                //                 // Exclude currently selected IDs from used IDs
+                                //                 $usedLaporanIds = array_diff($usedLaporanIds, $currentlySelectedIds);
+                                //             }
 
-                                            // Base query
-                                            $query = $query
-                                                ->whereNotNull('dryers.lumbung_tujuan')
-                                                ->where('dryers.lumbung_tujuan', '!=', '');
+                                //             // Base query
+                                //             $query = $query
+                                //                 ->whereNotNull('dryers.lumbung_tujuan')
+                                //                 ->where('dryers.lumbung_tujuan', '!=', '');
 
-                                            // Jika ada filter lumbung yang dipilih
-                                            if ($selectedLumbung) {
-                                                // Include dryers yang sudah dipilih sebelumnya ATAU yang sesuai dengan filter
-                                                $query->where(function ($subQuery) use ($selectedLumbung, $currentDryers) {
-                                                    $subQuery->where('dryers.lumbung_tujuan', $selectedLumbung);
+                                //             // Jika ada filter lumbung yang dipilih
+                                //             if ($selectedLumbung) {
+                                //                 // Include dryers yang sudah dipilih sebelumnya ATAU yang sesuai dengan filter
+                                //                 $query->where(function ($subQuery) use ($selectedLumbung, $currentDryers) {
+                                //                     $subQuery->where('dryers.lumbung_tujuan', $selectedLumbung);
 
-                                                    // Jika ada dryers yang sudah dipilih, include mereka juga
-                                                    if (!empty($currentDryers)) {
-                                                        $subQuery->orWhereIn('dryers.id', $currentDryers);
-                                                    }
-                                                });
-                                            }
-                                            $query->orderBy('dryers.created_at', 'desc');
-                                            return $query->whereNotIn('dryers.id', $usedLaporanIds);
-                                        }
-                                    )
-                                    ->preload()
-                                    ->reactive()
-                                    ->getOptionLabelFromRecordUsing(function ($record) {
-                                        return $record->no_dryer . ' - Dryer : ' . $record->kapasitasdryer->nama_kapasitas_dryer . ' - Lumbung Kering : ' . $record->lumbung_tujuan;
-                                    })
-                                    ->afterStateUpdated(
-                                        function ($state, callable $set, callable $get, $livewire, $old) {
-                                            // app(DryerService::class)->updateStatusToCompleted(
-                                            //     $state ?? [],
-                                            //     $old ?? []
-                                            // );
-                                            // Hitung total netto dari dryer yang dipilih
-                                            if (!empty($state)) {
-                                                // Ambil model Dryer (sesuaikan dengan nama model Anda)
-                                                $totalNetto = \App\Models\Dryer::whereIn('id', $state)
-                                                    ->sum('total_netto');
+                                //                     // Jika ada dryers yang sudah dipilih, include mereka juga
+                                //                     if (!empty($currentDryers)) {
+                                //                         $subQuery->orWhereIn('dryers.id', $currentDryers);
+                                //                     }
+                                //                 });
+                                //             }
+                                //             $query->orderBy('dryers.created_at', 'desc');
+                                //             return $query->whereNotIn('dryers.id', $usedLaporanIds);
+                                //         }
+                                //     )
+                                //     ->preload()
+                                //     ->reactive()
+                                //     ->getOptionLabelFromRecordUsing(function ($record) {
+                                //         return $record->no_dryer . ' - Dryer : ' . $record->kapasitasdryer->nama_kapasitas_dryer . ' - Lumbung Kering : ' . $record->lumbung_tujuan;
+                                //     })
+                                //     ->afterStateUpdated(
+                                //         function ($state, callable $set, callable $get, $livewire, $old) {
+                                //             // app(DryerService::class)->updateStatusToCompleted(
+                                //             //     $state ?? [],
+                                //             //     $old ?? []
+                                //             // );
+                                //             // Hitung total netto dari dryer yang dipilih
+                                //             if (!empty($state)) {
+                                //                 // Ambil model Dryer (sesuaikan dengan nama model Anda)
+                                //                 $totalNetto = \App\Models\Dryer::whereIn('id', $state)
+                                //                     ->sum('total_netto');
 
-                                                // Set nilai ke field berat_dryer
-                                                $set('berat_dryer', $totalNetto);
-                                            } else {
-                                                // Jika tidak ada dryer yang dipilih, set ke 0
-                                                $set('berat_dryer', 0);
-                                            }
-                                            // Hitung hasil setelah berat_dryer berubah
-                                            $totalDryer = (float) ($get('berat_dryer') ?? 0);
-                                            $beratPenjualan = (float) ($get('berat_penjualan') ?? 0);
-                                            $set('hasil', $totalDryer - $beratPenjualan);
-                                        }
-                                    )->preload()
-                                    ->searchable(),
+                                //                 // Set nilai ke field berat_dryer
+                                //                 $set('berat_dryer', $totalNetto);
+                                //             } else {
+                                //                 // Jika tidak ada dryer yang dipilih, set ke 0
+                                //                 $set('berat_dryer', 0);
+                                //             }
+                                //             // Hitung hasil setelah berat_dryer berubah
+                                //             $totalDryer = (float) ($get('berat_dryer') ?? 0);
+                                //             $beratPenjualan = (float) ($get('berat_penjualan') ?? 0);
+                                //             $set('hasil', $totalDryer - $beratPenjualan);
+                                //         }
+                                //     )->preload()
+                                //     ->searchable(),
                             ])->columnSpan(2),
                         // Card::make('Info Laporan Penjualan')
                         //     ->schema([

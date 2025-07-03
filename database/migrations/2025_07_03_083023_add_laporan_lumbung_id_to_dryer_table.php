@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('dryers', function (Blueprint $table) {
-            //
+            //Foreign key ke laporan lumbung
+            $table->unsignedBigInteger('laporan_lumbung_id')->nullable();
+            $table->foreign('laporan_lumbung_id')->references('id')->on('laporan_lumbungs')->onDelete('cascade');
         });
     }
 
