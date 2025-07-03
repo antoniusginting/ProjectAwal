@@ -339,9 +339,29 @@ class TransferResource extends Resource
                             ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
                             ->isoFormat('D MMMM YYYY | HH:mm:ss');
                     }),
-                TextColumn::make('status_transfer')
+
+                TextColumn::make('laporanLumbungKeluar.kode')
                     ->alignCenter()
-                    ->label('Status'),
+                    ->label('No IO Keluar')
+                    ->formatStateUsing(function ($record) {
+                        if ($record->laporanLumbungKeluar) {
+                            return $record->laporanLumbungKeluar->kode . ' - ' . $record->laporanLumbungKeluar->lumbung;
+                        }
+                        return '-';
+                    }),
+                TextColumn::make('laporanLumbungMasuk.kode')
+                    ->alignCenter()
+                    ->label('No IO Masuk')
+                    ->formatStateUsing(function ($record) {
+                        if ($record->laporanLumbungMasuk) {
+                            $kode = $record->laporanLumbungMasuk->kode;
+                            $lumbung = $record->laporanLumbungMasuk->lumbung
+                                ? $record->laporanLumbungMasuk->lumbung
+                                : $record->laporanLumbungMasuk->status_silo;
+                            return $kode . ' - ' . $lumbung;
+                        }
+                        return '-';
+                    }),
                 TextColumn::make('kode')
                     ->searchable()
                     ->alignCenter()
@@ -362,12 +382,12 @@ class TransferResource extends Resource
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('netto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                TextColumn::make('laporanLumbung.kode')
-                    ->label('No Lumbung')
-                    ->alignCenter(),
-                TextColumn::make('nama_lumbung')
-                    ->searchable()
-                    ->alignCenter(),
+                // TextColumn::make('laporanLumbung.kode')
+                //     ->label('No Lumbung')
+                //     ->alignCenter(),
+                // TextColumn::make('nama_lumbung')
+                //     ->searchable()
+                //     ->alignCenter(),
                 TextColumn::make('nama_barang')
                     ->searchable(),
                 TextColumn::make('jam_masuk')
