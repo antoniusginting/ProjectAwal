@@ -28,38 +28,38 @@ class CreateLaporanLumbung extends CreateRecord
                 ->url(LaporanLumbungResource::getUrl('index')), // Redirect ke tabel utama
         ];
     }
-    protected function afterCreate(): void
-    {
-        $this->syncPenjualanWithTipe();
+    // protected function afterCreate(): void
+    // {
+    //     $this->syncPenjualanWithTipe();
 
-        $record = $this->getRecord();
-        $selectedDryers = $record->dryers->pluck('id')->toArray();
+    //     $record = $this->getRecord();
+    //     $selectedDryers = $record->dryers->pluck('id')->toArray();
 
-        // Update status dryers yang dipilih
-        app(DryerService::class)->updateStatusToCompleted($selectedDryers, []);
-    }
+    //     // Update status dryers yang dipilih
+    //     app(DryerService::class)->updateStatusToCompleted($selectedDryers, []);
+    // }
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index'); // Arahkan ke daftar tabel
     }
 
     //MENAMBAHKAN FIELD tipe_penjualan PADA PIVOT
-    private function syncPenjualanWithTipe(): void
-    {
-        $record = $this->record;
-        $penjualanIds = $this->data['penjualan_ids'] ?? [];
-        $tipe = $this->data['tipe_penjualan'] ?? 'masuk';
+    // private function syncPenjualanWithTipe(): void
+    // {
+    //     $record = $this->record;
+    //     $penjualanIds = $this->data['penjualan_ids'] ?? [];
+    //     $tipe = $this->data['tipe_penjualan'] ?? 'masuk';
 
-        // Sync dengan pivot data
-        $syncData = [];
-        foreach ($penjualanIds as $id) {
-            $syncData[$id] = [
-                'tipe_penjualan' => $tipe,
-                'created_at' => now(),
-                'updated_at' => now()
-            ];
-        }
+    //     // Sync dengan pivot data
+    //     $syncData = [];
+    //     foreach ($penjualanIds as $id) {
+    //         $syncData[$id] = [
+    //             'tipe_penjualan' => $tipe,
+    //             'created_at' => now(),
+    //             'updated_at' => now()
+    //         ];
+    //     }
 
-        $record->penjualans()->sync($syncData);
-    }
+    //     $record->penjualans()->sync($syncData);
+    // }
 }

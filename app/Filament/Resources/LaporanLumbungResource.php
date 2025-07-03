@@ -31,6 +31,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\LaporanLumbungResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\LaporanLumbungResource\RelationManagers;
+use App\Models\Silo;
 
 class LaporanLumbungResource extends Resource implements HasShieldPermissions
 {
@@ -100,22 +101,58 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                 //     ->placeholder('Terhitung otomatis')
                                 //     ->numeric()
                                 //     ->readOnly(),
-                                Select::make('status_silo')
-                                    ->native(false)
-                                    ->placeholder('Pilih silo')
-                                    ->label('Status silo')
-                                    ->disabled(function (Get $get) {
-                                        // Disable jika field 'lumbung' memiliki value (tidak null/empty)
-                                        return !empty($get('lumbung'));
-                                    })
-                                    ->options([
-                                        'SILO STAFFEL A' => 'SILO STAFFEL A',
-                                        'SILO STAFFEL B' => 'SILO STAFFEL B',
-                                        'SILO 2500' => 'SILO 2500',
-                                        'SILO 1800' => 'SILO 1800',
-                                    ])
-                                    ->live()
-                                    ->reactive(),
+                                Grid::make()
+                                    ->schema([
+                                      
+                                        Select::make('silo_id')
+                                            ->label('Kode')
+                                            ->options(function () {
+                                                return Silo::whereIn('nama', [
+                                                    'SILO STAFFEL A',
+                                                    'SILO STAFFEL B',
+                                                    'SILO 2500',
+                                                    'SILO 1800'
+                                                ])
+                                                    ->get()
+                                                    ->mapWithKeys(function ($item) {
+                                                        return [
+                                                            $item->id => $item->id . ' - ' . $item->nama
+                                                        ];
+                                                    });
+                                            })
+                                            ->searchable()
+                                            ->preload()
+                                            ->nullable()
+                                            ->placeholder('Pilih')
+                                            ->reactive()
+                                            ->afterStateUpdated(function ($state, callable $set) {
+                                                if ($state) {
+                                                    // Ambil data silo berdasarkan ID yang dipilih
+                                                    $silo = Silo::find($state);
+                                                    if ($silo) {
+                                                        $set('status_silo', $silo->nama); // Set status sesuai nama silo
+                                                    }
+                                                } else {
+                                                    $set('status_silo', null);
+                                                }
+                                            }),
+
+                                        Select::make('status_silo')
+                                            ->native(false)
+                                            ->placeholder('Otomatis')
+                                            ->label('Status silo')
+                                            ->disabled()
+                                            ->dehydrated() // Memastikan field tetap terkirim meskipun disabled
+                                            ->options([
+                                                'SILO STAFFEL A' => 'SILO STAFFEL A',
+                                                'SILO STAFFEL B' => 'SILO STAFFEL B',
+                                                'SILO 2500' => 'SILO 2500',
+                                                'SILO 1800' => 'SILO 1800',
+                                            ])
+                                            ->live()
+                                            ->reactive(),
+
+                                    ])->columnSpan(1)
                                 // ->afterStateUpdated(function (Set $set, $state) {
                                 //     // Jika status_silo dipilih (tidak kosong), set tipe_penjualan ke 'masuk'
                                 //     if (!empty($state)) {

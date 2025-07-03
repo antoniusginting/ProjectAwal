@@ -17,8 +17,14 @@ class LaporanLumbung extends Model
         "status_silo",
         "berat_langsir",
         "status",
+        "silo_id",
     ];
 
+    // Relasi ke silo
+    public function silos()
+    {
+        return $this->belongsTo(Silo::class, 'silo_id');
+    }
 
     public function dryers()
     {
@@ -29,11 +35,11 @@ class LaporanLumbung extends Model
         return $this->hasMany(Penjualan::class);
     }
 
-    public function timbanganTrontons(): BelongsToMany
-    {
-        return $this->belongsToMany(TimbanganTronton::class, 'laporan_lb_has_timbangant')
-            ->withTimestamps();
-    }
+    // public function timbanganTrontons(): BelongsToMany
+    // {
+    //     return $this->belongsToMany(TimbanganTronton::class, 'laporan_lb_has_timbangant')
+    //         ->withTimestamps();
+    // }
 
     // Transfer yang keluar dari lumbung ini (lumbung sebagai asal)
     public function transferKeluar(): HasMany

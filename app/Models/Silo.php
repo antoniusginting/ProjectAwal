@@ -12,6 +12,11 @@ class Silo extends Model
         'nama',
     ];
 
+
+    public function laporanLumbungs()
+    {
+        return $this->hasMany(LaporanLumbung::class);
+    }
     public function stockLuar()
     {
         return $this->hasMany(StockLuar::class);
@@ -29,9 +34,9 @@ class Silo extends Model
             ->withTimestamps();
     }
 
-    public function laporanLumbungs(): BelongsToMany
-    {
-        return $this->belongsToMany(LaporanLumbung::class, 'silos_has_laporan_lumbungs')
-            ->withTimestamps();
-    }
+    // public function laporanLumbungs(): BelongsToMany
+    // {
+    //     return $this->belongsToMany(LaporanLumbung::class, 'silos_has_laporan_lumbungs')
+    //         ->withTimestamps();
+    // }
 }
