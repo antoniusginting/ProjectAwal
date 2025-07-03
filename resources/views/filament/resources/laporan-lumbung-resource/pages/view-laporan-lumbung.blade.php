@@ -31,19 +31,14 @@
         <div class="border-b border-gray-300 dark:border-gray-700"></div>
 
         @php
-            /**
-             * Inisialisasi variabel untuk perhitungan
-             */
-            $lumbungTujuan = $laporanlumbung->lumbung;
+            // Inisialisasi variabel untuk perhitungan
             $dryers = $laporanlumbung->dryers->values();
-            $timbangan = $laporanlumbung->timbangantrontons->values();
             $penjualanFiltered = $laporanlumbung->penjualans->filter(fn($p) => !empty($p->no_spb));
-            
+
             // Tentukan jumlah baris maksimum untuk tabel
-            $maxRows = max($dryers->count(), $timbangan->count(), $penjualanFiltered->count());
-            
+            $maxRows = max($dryers->count(), $penjualanFiltered->count());
+
             // Variabel untuk tracking total
-            $totalKeseluruhanFiltered = 0;
             $totalNettoPenjualansBaru = $penjualanFiltered->sum('netto');
         @endphp
 
@@ -67,17 +62,8 @@
                     @php
                         // Ambil data untuk baris ini
                         $dryer = $dryers->get($i);
-                        $timbanganItem = $timbangan->get($i);
                         $penjualanItem = $penjualanFiltered->get($penjualanIndex);
-                        
-                        // Hitung total netto dari timbangan untuk lumbung tujuan
-                        $totalNettoTimbangan = 0;
-                        if ($timbanganItem && $lumbungTujuan) {
-                            $filteredPenjualan = $this->getFilteredPenjualanFromTimbangan($timbanganItem, $lumbungTujuan);
-                            $totalNettoTimbangan = $filteredPenjualan->sum('netto');
-                            $totalKeseluruhanFiltered += $totalNettoTimbangan;
-                        }
-                        
+
                         // Update index penjualan jika ada item
                         if ($penjualanItem) {
                             $penjualanIndex++;
@@ -98,12 +84,12 @@
                         {{-- Kolom Masuk (No Dryer) --}}
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                             @if ($dryer)
-                                <a href="{{ route('filament.admin.resources.dryers.view-dryer', $dryer->id) }}" 
-                                   target="_blank" class="text-blue-600 hover:text-blue-800">
+                                <a href="{{ route('filament.admin.resources.dryers.view-dryer', $dryer->id) }}"
+                                    target="_blank" class="text-blue-600 hover:text-blue-800">
                                     {{ $dryer->no_dryer }}
                                 </a>
                             @else
-                                
+                                -
                             @endif
                         </td>
 
@@ -114,9 +100,7 @@
 
                         {{-- Kolom Keluar (Kode/SPB) --}}
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                            @if ($timbanganItem)
-                                {{ $timbanganItem->kode }}
-                            @elseif ($penjualanItem)
+                            @if ($penjualanItem)
                                 {{ $penjualanItem->no_spb }}
                                 @if ($penjualanItem->silo)
                                     - {{ $penjualanItem->silo }}
@@ -128,16 +112,14 @@
 
                         {{-- Kolom Berat Keluar --}}
                         <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
-                            @if ($timbanganItem)
-                                {{ $totalNettoTimbangan > 0 ? number_format($totalNettoTimbangan, 0, ',', '.') : '-' }}
-                            @elseif ($penjualanItem)
+                            @if ($penjualanItem)
                                 {{ $penjualanItem->netto ? number_format($penjualanItem->netto, 0, ',', '.') : '-' }}
                             @endif
                         </td>
 
                         {{-- Kolom Penanggung Jawab --}}
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                            {{ $timbanganItem?->user->name ?: ($penjualanItem?->user->name ?: '') }}
+                            {{ $penjualanItem?->user->name ?: '' }}
                         </td>
                     </tr>
                 @endfor
@@ -147,10 +129,10 @@
                     @php $penjualanItem = $penjualanFiltered->get($j); @endphp
                     <tr>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                            {{-- {{ $penjualanItem->created_at->format('d-m') }} --}}
+                            {{ $penjualanItem->created_at->format('d-m') }}
                         </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                            
+                            -
                         </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">-</td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">-</td>
@@ -173,7 +155,7 @@
             {{-- Footer dengan Total --}}
             @php
                 $totalMasuk = $dryers->sum('total_netto');
-                $totalKeluar = $totalKeseluruhanFiltered + $totalNettoPenjualansBaru;
+                $totalKeluar = $totalNettoPenjualansBaru;
                 $persentaseKeluar = $totalMasuk > 0 ? ($totalKeluar / $totalMasuk) * 100 : 0;
             @endphp
 

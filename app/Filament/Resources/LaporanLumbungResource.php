@@ -641,12 +641,12 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                         $nospb = $record->penjualans->pluck('no_spb');
                         return $nospb->implode(', ');
                     }),
-                TextColumn::make('caca')
-                    ->label('No Langsir')
+                TextColumn::make('transferKeluar.kode')
+                    ->label('No Transfer Keluar')
                     ->searchable()
                     ->alignCenter()
                     ->getStateUsing(function ($record) {
-                        $kodes = $record->timbanganTrontons->pluck('kode');
+                        $kodes = $record->transferKeluar->pluck('kode');
 
                         if ($kodes->count() <= 3) {
                             return $kodes->implode(', ');
@@ -655,7 +655,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                         return $kodes->take(3)->implode(', ') . '...';
                     })
                     ->tooltip(function ($record) {
-                        $kodes = $record->timbanganTrontons->pluck('kode');
+                        $kodes = $record->transferKeluar->pluck('kode');
                         return $kodes->implode(', ');
                     }),
                 TextColumn::make('user.name')

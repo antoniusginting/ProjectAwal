@@ -249,7 +249,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->native(false) // Mengunakan dropdown modern
                                     ->required(), // Opsional: Atur default value
                                 Select::make('laporan_lumbung_id')
-                                    ->label('Lumbung Tujuan')
+                                    ->label('No Lumbung')
                                     ->options(function () {
                                         return LaporanLumbung::whereNull('status_silo')
                                             ->where('status', false)

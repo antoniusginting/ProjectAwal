@@ -14,6 +14,7 @@ use App\Models\LaporanLumbung;
 use Illuminate\Support\Carbon;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Radio;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
@@ -25,6 +26,7 @@ use Filament\Forms\Components\Placeholder;
 use App\Filament\Resources\TransferResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TransferResource\RelationManagers;
+use Filament\Forms\Components\Grid;
 
 class TransferResource extends Resource
 {
@@ -190,10 +192,112 @@ class TransferResource extends Resource
                                     ->default('JAGUNG KERING SUPER')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->required()
-                                    ->columnSpan(1),
+                                    ->columnSpan(2),
+
+                                TextInput::make('netto')
+                                    ->label('Netto')
+                                    ->readOnly()
+                                    ->columnSpan(2)
+                                    ->placeholder('Otomatis Terhitung')
+                                    ->numeric(),
+
+                                Grid::make()
+                                    ->schema([
+                                        Radio::make('tipe')
+                                            ->label('Tipe Transfer')
+                                            ->options([
+                                                'masuk' => 'Masuk',
+                                                'keluar' => 'Keluar'
+                                            ])
+                                            ->default('masuk')
+                                            ->inline()
+                                            ->reactive(),
+
+                                        // Select untuk Lumbung Masuk
+                                        Select::make('laporan_lumbung_masuk_id')
+                                            ->label('No Lumbung Masuk')
+                                            ->options(function () {
+                                                return LaporanLumbung::whereNotNull('status_silo')
+                                                    ->where('status', false)
+                                                    ->get()
+                                                    ->mapWithKeys(function ($item) {
+                                                        $label = $item->kode . ' - ';
+                                                        $label .= $item->lumbung ? $item->lumbung : $item->status_silo;
+                                                        return [
+                                                            $item->id => $label
+                                                        ];
+                                                    });
+                                            })
+                                            ->searchable()
+                                            ->preload()
+                                            ->nullable()
+                                            ->placeholder('Pilih Laporan Lumbung Masuk')
+                                            ->visible(fn(Get $get) => $get('tipe') === 'masuk'),
+
+
+                                        // Select untuk Lumbung Keluar
+                                        Select::make('laporan_lumbung_keluar_id')
+                                            ->label('No Lumbung Keluar')
+                                            ->options(function () {
+                                                return LaporanLumbung::whereNull('status_silo')
+                                                    ->where('status', false)
+                                                    ->get()
+                                                    ->mapWithKeys(function ($item) {
+                                                        return [
+                                                            $item->id => $item->kode . ' - ' . $item->lumbung
+                                                        ];
+                                                    });
+                                            })
+                                            ->searchable()
+                                            ->preload()
+                                            ->nullable()
+                                            ->placeholder('Pilih Laporan Lumbung Keluar')
+                                            ->visible(fn(Get $get) => $get('tipe') === 'keluar'),
+                                    ])->columnSpan(2),
+                                // TextInput::make('nama_lumbung')
+                                //     ->readOnly()
+                                //     ->placeholder('Otomatis terisi')
+                                //     ->autocomplete('off')
+                                //     ->columnSpan(1)
+                                //     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state)),
+
+                                // Select::make('status_transfer')
+                                //     ->label('Status Transfer')
+                                //     ->columnSpan(fn(Get $get) => $get('status_transfer') === 'MASUK' ? 1 : 2) // Dynamic column span
+                                //     ->options([
+                                //         'MASUK' => 'MASUK',
+                                //         'KELUAR' => 'KELUAR',
+                                //     ])
+                                //     ->placeholder('-- Pilih Status Transfer --')
+                                //     ->native(false)
+                                //     ->reactive()
+                                //     ->required(),
+                                // Select::make('silo')
+                                //     ->label('KE')
+                                //     ->columnSpan(1)
+                                //     ->options([
+                                //         'SILO STAFFEL A' => 'SILO STAFFEL A',
+                                //         'SILO STAFFEL B' => 'SILO STAFFEL B',
+                                //         'SILO 2500' => 'SILO 2500',
+                                //         'SILO 1800' => 'SILO 1800',
+                                //         '1' => 'LUMBUNG BASAH 1',
+                                //         '2' => 'LUMBUNG BASAH 2',
+                                //         '3' => 'LUMBUNG BASAH 3',
+                                //         '4' => 'LUMBUNG BASAH 4',
+                                //         '5' => 'LUMBUNG BASAH 5',
+                                //         '6' => 'LUMBUNG BASAH 6',
+                                //         '7' => 'LUMBUNG BASAH 7',
+                                //         '8' => 'LUMBUNG BASAH 8',
+                                //         '9' => 'LUMBUNG BASAH 9',
+                                //     ])
+                                //     ->placeholder('-- Pilih salah satu opsi --')
+                                //     ->native(true)
+                                //     ->extraAttributes(['class' => 'top-dropdown'])
+                                //     ->visible(fn(Get $get) => $get('status_transfer') === 'MASUK'),
+
                                 Select::make('keterangan') // Gantilah 'tipe' dengan nama field di database
                                     ->label('Timbangan ke-')
-                                    ->columnSpan(1)
+                                    ->columnSpan(2)
                                     ->options([
                                         '1' => 'Timbangan ke-1',
                                         '2' => 'Timbangan ke-2',
@@ -207,83 +311,7 @@ class TransferResource extends Resource
                                     // ->inlineLabel() // Membuat label sebelah kiri
                                     ->native(false) // Mengunakan dropdown modern
                                     ->required(), // Opsional: Atur default value
-                                TextInput::make('netto')
-                                    ->label('Netto')
-                                    ->readOnly()
-                                    ->columnSpan(2)
-                                    ->placeholder('Otomatis Terhitung')
-                                    ->numeric(),
-
-                                Select::make('laporan_lumbung_id')
-                                    ->label('No Lumbung')
-                                    ->options(function () {
-                                        return LaporanLumbung::whereNull('status_silo')
-                                            ->where('status', false)
-                                            ->get()
-                                            ->mapWithKeys(function ($item) {
-                                                return [
-                                                    $item->id => $item->kode . ' - ' . $item->lumbung
-                                                ];
-                                            });
-                                    })
-                                    ->searchable()
-                                    ->preload()
-                                    ->nullable()
-                                    ->placeholder('Pilih Laporan Lumbung')
-                                    ->reactive()
-                                    ->afterStateUpdated(function ($state, callable $set) {
-                                        if ($state) {
-                                            $laporanLumbung = LaporanLumbung::find($state);
-                                            if ($laporanLumbung) {
-                                                $set('nama_lumbung', strtoupper($laporanLumbung->lumbung));
-                                            }
-                                        } else {
-                                            $set('nama_lumbung', null);
-                                        }
-                                    }),
-
-                                TextInput::make('nama_lumbung')
-                                    ->readOnly()
-                                    ->placeholder('Otomatis terisi')
-                                    ->autocomplete('off')
-                                    ->columnSpan(1)
-                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state)),
-
-                                Select::make('status_transfer')
-                                    ->label('Status Transfer')
-                                    ->columnSpan(fn(Get $get) => $get('status_transfer') === 'MASUK' ? 1 : 2) // Dynamic column span
-                                    ->options([
-                                        'MASUK' => 'MASUK',
-                                        'KELUAR' => 'KELUAR',
-                                    ])
-                                    ->placeholder('-- Pilih Status Transfer --')
-                                    ->native(false)
-                                    ->reactive()
-                                    ->required(),
-                                Select::make('silo')
-                                    ->label('KE')
-                                    ->columnSpan(1)
-                                    ->options([
-                                        'SILO STAFFEL A' => 'SILO STAFFEL A',
-                                        'SILO STAFFEL B' => 'SILO STAFFEL B',
-                                        'SILO 2500' => 'SILO 2500',
-                                        'SILO 1800' => 'SILO 1800',
-                                        '1' => 'LUMBUNG BASAH 1',
-                                        '2' => 'LUMBUNG BASAH 2',
-                                        '3' => 'LUMBUNG BASAH 3',
-                                        '4' => 'LUMBUNG BASAH 4',
-                                        '5' => 'LUMBUNG BASAH 5',
-                                        '6' => 'LUMBUNG BASAH 6',
-                                        '7' => 'LUMBUNG BASAH 7',
-                                        '8' => 'LUMBUNG BASAH 8',
-                                        '9' => 'LUMBUNG BASAH 9',
-                                    ])
-                                    ->placeholder('-- Pilih salah satu opsi --')
-                                    ->native(true)
-                                    ->extraAttributes(['class' => 'top-dropdown'])
-                                    ->visible(fn(Get $get) => $get('status_transfer') === 'MASUK'),
                             ])->columns(4)
-
                     ]),
                 Hidden::make('user_id')
                     ->label('User ID')

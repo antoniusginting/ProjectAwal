@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class LaporanLumbung extends Model
@@ -34,23 +35,35 @@ class LaporanLumbung extends Model
             ->withTimestamps();
     }
 
-    // Untuk penjualan masuk
-    public function penjualanMasuk(): BelongsToMany
+    // Transfer yang keluar dari lumbung ini (lumbung sebagai asal)
+    public function transferKeluar(): HasMany
     {
-        return $this->belongsToMany(Penjualan::class, 'laporan_lumbungs_has_penjualans')
-            ->withPivot('tipe_penjualan')
-            ->wherePivot('tipe_penjualan', 'masuk')
-            ->withTimestamps();
+        return $this->hasMany(Transfer::class, 'laporan_lumbung_keluar_id');
     }
 
-    // Untuk penjualan keluar
-    public function penjualanKeluar(): BelongsToMany
+    // Transfer yang masuk ke lumbung ini (lumbung sebagai tujuan)
+    public function transferMasuk(): HasMany
     {
-        return $this->belongsToMany(Penjualan::class, 'laporan_lumbungs_has_penjualans')
-            ->withPivot('tipe_penjualan')
-            ->wherePivot('tipe_penjualan', 'keluar')
-            ->withTimestamps();
+        return $this->hasMany(Transfer::class, 'laporan_lumbung_masuk_id');
     }
+
+    // Untuk penjualan masuk
+    // public function penjualanMasuk(): BelongsToMany
+    // {
+    //     return $this->belongsToMany(Penjualan::class, 'laporan_lumbungs_has_penjualans')
+    //         ->withPivot('tipe_penjualan')
+    //         ->wherePivot('tipe_penjualan', 'masuk')
+    //         ->withTimestamps();
+    // }
+
+    // // Untuk penjualan keluar
+    // public function penjualanKeluar(): BelongsToMany
+    // {
+    //     return $this->belongsToMany(Penjualan::class, 'laporan_lumbungs_has_penjualans')
+    //         ->withPivot('tipe_penjualan')
+    //         ->wherePivot('tipe_penjualan', 'keluar')
+    //         ->withTimestamps();
+    // }
 
     // Tetap bisa pakai yang general
     // public function penjualans(): BelongsToMany
