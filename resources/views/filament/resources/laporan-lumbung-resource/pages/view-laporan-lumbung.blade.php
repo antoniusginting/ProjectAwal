@@ -140,7 +140,7 @@
                         </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                             @if ($dryer)
-                                <a href="{{ route('filament.admin.resources.dryers.view-dryer', $dryer->id) }}"
+                                <a href="{{ route('filament.admin.resources.dryers.view-dryer', $dryer->id) }}" target="blank"
                                     class="">
                                     {{ $dryer->no_dryer }}
                                 </a>

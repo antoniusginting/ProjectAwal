@@ -1,6 +1,10 @@
 <x-filament-panels::page>
     <div class="p-6 bg-white dark:bg-gray-900 rounded-md shadow-md space-y-6 text-gray-900 dark:text-gray-200">
         <!-- Info Pengiriman -->
+        @php
+            $hasilPengurangan = $dryer->getHasilPenguranganNumericFinal();
+        @endphp
+        {{ number_format($hasilPengurangan, 2) }}%
         <div class="overflow-x-auto">
             <table class="w-full align-left">
 
@@ -130,7 +134,7 @@
                                         width='150px'>
                                         {{ $sortiran->kapasitaslumbungbasah->no_kapasitas_lumbung }}</td>
                                     <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
-                                        {{$sortiran->pembelian->supplier->nama_supplier}}</td>
+                                        {{ $sortiran->pembelian->supplier->nama_supplier ?? '-' }}</td>
                                     <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
                                         {{ $sortiran->pembelian->nama_barang ?? 'JAGUNG KERING SUPER' }}</td>
                                     <td class="border p-2 border-gray-300 dark:border-gray-700 text-right"
@@ -140,14 +144,16 @@
                                     <td class="border text-right p-2 border-gray-300 dark:border-gray-700">
                                         {{ $sortiran->netto_bersih ?? '-' }}
                                     </td>
-                                    <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
+                                    <td class="border text-center p-2 border-gray-300 dark:border-gray-700" >
                                         @php
                                             // Logic untuk menentukan no_spb
                                             $noSpb = '-';
+                                            $isFromPembelian = false; // Flag untuk menentukan apakah SPB dari pembelian
 
                                             // Cek apakah pembelian no_spb ada dan tidak null
                                             if ($sortiran->pembelian && !empty($sortiran->pembelian->no_spb)) {
                                                 $noSpb = $sortiran->pembelian->no_spb;
+                                                $isFromPembelian = true; // Set flag true karena dari pembelian
                                             } else {
                                                 // Jika pembelian no_spb null, ambil dari penjualan
                                                 if ($sortiran->penjualans && $sortiran->penjualans->count() > 0) {
@@ -158,11 +164,20 @@
                                                         ->unique();
                                                     if ($penjualanSpbs->count() > 0) {
                                                         $noSpb = $penjualanSpbs->implode(', ');
+                                                        $isFromPembelian = false; // Set flag false karena dari penjualan
                                                     }
                                                 }
                                             }
                                         @endphp
-                                        {{ $noSpb }}
+
+                                        {{-- Tampilkan hyperlink hanya jika dari pembelian --}}
+                                        @if ($isFromPembelian && $noSpb !== '-')
+                                            <a  href="{{ route('filament.admin.resources.sortirans.view-sortiran', $sortiran->id) }} " target="blank">
+                                                {{ $noSpb }}
+                                            </a>
+                                        @else
+                                            {{ $noSpb }}
+                                        @endif
                                     </td>
                                     <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
                                         {{ $sortiran->kadar_air ?? '-' }}%
@@ -204,11 +219,14 @@
                                 <td class="p-2 text-right border-gray-300 dark:border-gray-700">
                                     {{ number_format($totalTotalKarung, 0, ',', '.') }}
                                 </td>
+                                <td colspan="1" class="p-2 text-center border-gray-300 dark:border-gray-700">
+
+                                </td>
                                 <td class="p-2 text-right border-gray-300 dark:border-gray-700">
                                     {{ number_format($totalNettoBersih, 0, ',', '.') }}
                                 </td>
-                                <td colspan="3" class="p-2 text-center border-gray-300 dark:border-gray-700">
-                                    
+                                <td colspan="2" class="p-2 text-center border-gray-300 dark:border-gray-700">
+
                                 </td>
                                 <td colspan="1" class="p-2 text-center border-gray-300 dark:border-gray-700">
                                     {{ number_format($persen, 2, ',', '.') }}%

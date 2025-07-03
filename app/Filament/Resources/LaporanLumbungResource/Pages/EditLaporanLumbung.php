@@ -26,12 +26,12 @@ class EditLaporanLumbung extends EditRecord
                 ->url(LaporanLumbungResource::getUrl('index')),
         ];
     }
-    // protected function getHeaderActions(): array
-    // {
-    //     return [
-    //         Actions\DeleteAction::make(),
-    //     ];
-    // }
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\DeleteAction::make(),
+        ];
+    }
     // Property untuk menyimpan dryer asli sebelum edit
     public $originalDryers = [];
 
