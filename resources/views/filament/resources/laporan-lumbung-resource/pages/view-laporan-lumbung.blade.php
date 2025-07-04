@@ -131,7 +131,9 @@
                                         {{ $itemMasuk->data->no_dryer }}
                                     </a>
                                 @elseif ($itemMasuk->type == 'transfer_masuk')
-                                    {{ $itemMasuk->data->kode ?? 'Transfer' }}
+                                    <a href="{{ route('filament.admin.resources.transfers.view-transfer', $itemMasuk->data->id) }}"
+                                        target="_blank" class="text-blue-600 hover:text-blue-800">
+                                        {{ $itemMasuk->data->kode ?? 'Transfer' }}</a>
                                 @endif
                             @else
                                 -
@@ -153,13 +155,18 @@
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                             @if ($itemKeluar)
                                 @if ($itemKeluar->type == 'penjualan')
-                                    {{ $itemKeluar->data->no_spb }}
+                                    <a href="{{ route('filament.admin.resources.penjualans.view-penjualan', $itemKeluar->data->id) }}"
+                                        target="_blank" class="text-blue-600 hover:text-blue-800">
+                                        {{ $itemKeluar->data->no_spb }}
+                                    </a>
                                     @if ($itemKeluar->data->silo)
                                         - {{ $itemKeluar->data->silo }}
                                     @endif
                                 @elseif ($itemKeluar->type == 'transfer_keluar')
-                                    {{ $itemKeluar->data->kode }} -
-                                    {{ $itemKeluar->data->laporanLumbungMasuk->status_silo ?? $itemKeluar->data->laporanLumbungMasuk->lumbung }}
+                                    <a href="{{ route('filament.admin.resources.transfers.view-transfer', $itemKeluar->data->id) }}"
+                                        target="_blank" class="text-blue-600 hover:text-blue-800">
+                                        {{ $itemKeluar->data->kode }} -
+                                        {{ $itemKeluar->data->laporanLumbungMasuk->status_silo ?? $itemKeluar->data->laporanLumbungMasuk->lumbung }}</a>
                                 @endif
                             @else
                                 -

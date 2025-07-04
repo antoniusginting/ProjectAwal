@@ -10,8 +10,6 @@
         <!-- Divider -->
         <div class="border-b border-gray-300 dark:border-gray-700"></div>
 
-
-
         <!-- Info Pengiriman -->
         <div class="overflow-x-auto">
 
@@ -21,20 +19,23 @@
                         <td class="font-semibold text-left align-top whitespace-nowrap">Tanggal</td>
                         <td class="whitespace-nowrap">: {{ $penjualan->created_at->format('d-m-Y') }}</td>
                         <td class="font-semibold whitespace-nowrap">Nama Lumbung</td>
-                        <td class="whitespace-nowrap">: {{ $penjualan->nama_lumbung}}</td>
+                        <td class="whitespace-nowrap">: {{ $penjualan->nama_lumbung ?? '' }} {{$penjualan->silos->nama ?? ''}}</td>
                         <td class="font-semibold whitespace-nowrap">Jam Masuk</td>
-                        <td class="whitespace-nowrap">: {{ $penjualan->jam_masuk}}</td>
+                        <td class="whitespace-nowrap">: {{ $penjualan->jam_masuk }}</td>
                         <td class="font-semibold text-left align-top whitespace-nowrap">Container</td>
-                        <td class="whitespace-nowrap">: {{ $penjualan->no_container ?: '-'}}</td>
+                        <td class="whitespace-nowrap">: {{ $penjualan->no_container ?: '-' }}</td>
                     </tr>
                     <tr>
                         <td class="font-semibold whitespace-nowrap">Operator</td>
                         <td class="whitespace-nowrap">: {{ $penjualan->user->name }}</td>
-
                         <td class="font-semibold text-left align-top whitespace-nowrap">No Lumbung</td>
-                        <td class="whitespace-nowrap">: {{ $penjualan->no_lumbung }}</td>
+                        <td class="whitespace-nowrap">: <a
+                                href="{{ route('filament.admin.resources.laporan-lumbungs.view-laporan-lumbung', $penjualan->laporanLumbung->id ?? '') }}"
+                                target="_blank"
+                                class="text-blue-600 hover:text-blue-800">{{ $penjualan->laporanLumbung->kode ??  ($penjualan->silos->nama ?? '-')  }}</a>
+                        </td>
                         <td class="font-semibold whitespace-nowrap">Jam Keluar</td>
-                        <td class="whitespace-nowrap">: {{ $penjualan->jam_keluar}}</td>
+                        <td class="whitespace-nowrap">: {{ $penjualan->jam_keluar }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -59,26 +60,31 @@
                 </thead>
                 <tbody class="text-sm">
                     <tr>
-                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap" rowspan="3">
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap"
+                            rowspan="3">
                             {{ $penjualan->no_spb }}
                         </td>
-                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap" rowspan="3">
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap"
+                            rowspan="3">
                             {{ $penjualan->plat_polisi }}
                         </td>
-                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap" rowspan="3">
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap"
+                            rowspan="3">
                             {{ $penjualan->nama_supir }}
                         </td>
-                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap" rowspan="3">
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap"
+                            rowspan="3">
                             @if ($penjualan->brondolan == 'GONI')
-                            @php
-                                $adaGoni = true;
-                            @endphp
-                            {{ $penjualan->jumlah_karung }} - {{ $penjualan->brondolan }}
-                        @else
-                            {{ $penjualan->brondolan }}
-                        @endif
+                                @php
+                                    $adaGoni = true;
+                                @endphp
+                                {{ $penjualan->jumlah_karung }} - {{ $penjualan->brondolan }}
+                            @else
+                                {{ $penjualan->brondolan }}
+                            @endif
                         </td>
-                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap" rowspan="3">
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap"
+                            rowspan="3">
                             {{ $penjualan->nama_barang }}
                         </td>
                         <td class="border p-2 border-gray-300 dark:border-gray-700 whitespace-nowrap">Bruto</td>

@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Print | Penjualan</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         /* Gaya dasar halaman dengan ukuran font lebih kecil */
         body {
@@ -172,7 +177,7 @@
                     <td class="label">Tanggal</td>
                     <td>: {{ $penjualan->created_at->format('d-m-Y') }}</td>
                     <td class="label">Nama Lumbung</td>
-                    <td>: {{ $penjualan->nama_lumbung }}</td>
+                    <td>: {{ $penjualan->nama_lumbung ?? ''}} {{$penjualan->silos->nama ?? ''}}</td>
                     <td class="label">Jam Masuk</td>
                     <td>: {{ $penjualan->jam_masuk }}</td>
                 </tr>
@@ -180,7 +185,7 @@
                     <td class="label">Operator</td>
                     <td>: {{ $penjualan->user->name }}</td>
                     <td class="label">No Lumbung</td>
-                    <td>: {{ $penjualan->no_lumbung }}</td>
+                    <td>: {{ $penjualan->laporanLumbung->kode ?? ($penjualan->silos->nama ?? '-') }}</td>
                     <td class="label">Jam Keluar</td>
                     <td>: {{ $penjualan->jam_keluar }}</td>
                 </tr>

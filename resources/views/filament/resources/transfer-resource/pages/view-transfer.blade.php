@@ -21,8 +21,13 @@
                         <td class="font-semibold text-left align-top whitespace-nowrap">Tanggal</td>
                         <td class="whitespace-nowrap">: {{ $transfer->created_at->format('d-m-Y') }}</td>
                         <td class="font-semibold text-left align-top whitespace-nowrap">No IO Keluar</td>
-                        <td class="whitespace-nowrap">: {{ $transfer->laporanLumbungKeluar->kode ?? '-' }} -
-                            {{ $transfer->laporanLumbungKeluar->lumbung ?? '-' }}</td>
+                        <td class="whitespace-nowrap">: <a
+                                href="{{ route('filament.admin.resources.laporan-lumbungs.view-laporan-lumbung', $transfer->laporanLumbungKeluar->id ?? '') }}"
+                                target="_blank"
+                                class="text-blue-600 hover:text-blue-800"
+                                >{{ $transfer->laporanLumbungKeluar->kode ?? '-' }}
+                                -
+                                {{ $transfer->laporanLumbungKeluar->lumbung ?? '-' }} </a></td>
                         <td class="font-semibold whitespace-nowrap">Jam Masuk</td>
                         <td class="whitespace-nowrap">: {{ $transfer->jam_masuk }}</td>
                     </tr>
@@ -30,8 +35,11 @@
                         <td class="font-semibold whitespace-nowrap">Operator</td>
                         <td class="whitespace-nowrap">: {{ $transfer->user->name }}</td>
                         <td class="font-semibold whitespace-nowrap">No IO Masuk</td>
-                        <td class="whitespace-nowrap">: {{ $transfer->laporanLumbungMasuk->kode }} -
-                            {{ $transfer->laporanLumbungMasuk->status_silo ?? ($transfer->laporanLumbungMasuk->lumbung ?? '-') }}
+                        <td class="whitespace-nowrap">: <a
+                                href="{{ route('filament.admin.resources.laporan-lumbungs.view-laporan-lumbung', $transfer->laporanLumbungMasuk->id ?? '') }}"
+                                target="_blank"
+                                class="text-blue-600 hover:text-blue-800">{{ $transfer->laporanLumbungMasuk->kode }} -
+                                {{ $transfer->laporanLumbungMasuk->status_silo ?? ($transfer->laporanLumbungMasuk->lumbung ?? '-') }}</a>
                         </td>
                         <td class="font-semibold whitespace-nowrap">Jam Keluar</td>
                         <td class="whitespace-nowrap">: {{ $transfer->jam_keluar }}</td>
@@ -117,6 +125,7 @@
                 <div class="mt-4 border-b border-gray-300 dark:border-gray-700 w-56 mx-auto"></div>
             </div>
         </div>
+
 
     </div>
 </x-filament-panels::page>

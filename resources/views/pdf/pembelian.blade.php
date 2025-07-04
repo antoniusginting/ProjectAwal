@@ -13,6 +13,12 @@
             --light-bg: #ffffff;
         }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         /* Gaya dasar halaman dengan ukuran font lebih kecil */
         body {
             font-family: 'Courier New', Courier, monospace;

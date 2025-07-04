@@ -59,7 +59,7 @@ class Penjualan extends Model
         return $this->belongsTo(LaporanLumbung::class, 'laporan_lumbung_id');
     }
     // Relasi ke silo
-    public function silo()
+    public function silos()
     {
         return $this->belongsTo(Silo::class, 'silo_id');
     }
