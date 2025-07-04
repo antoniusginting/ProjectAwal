@@ -72,45 +72,45 @@ class SiloResource extends Resource
                                 return $record !== null;
                             })
                             ->live(),
-                        Card::make('STOK BESAR')
-                            ->schema([
+                        // Card::make('STOK BESAR')
+                        //     ->schema([
 
-                                Select::make('laporanLumbungs')
-                                    ->label('Laporan Lumbung')
-                                    ->multiple()
-                                    ->disabled(function (callable $get) {
-                                        $selectedNama = $get('nama');
+                                // Select::make('laporanLumbungs')
+                                //     ->label('Laporan Lumbung')
+                                //     ->multiple()
+                                //     ->disabled(function (callable $get) {
+                                //         $selectedNama = $get('nama');
 
-                                        // Disable jika user memilih salah satu dari opsi silo
-                                        return !in_array($selectedNama, [
-                                            'SILO STAFFEL A',
-                                            'SILO STAFFEL B',
-                                            'SILO 2500',
-                                            'SILO 1800'
-                                        ]);
-                                    })
-                                    ->relationship(
-                                        name: 'laporanLumbungs',
-                                        titleAttribute: 'nama',
-                                        modifyQueryUsing: function (Builder $query, Get $get) {
-                                            $selectedSilo = $get('nama'); // Ambil nilai dari select nama
+                                //         // Disable jika user memilih salah satu dari opsi silo
+                                //         return !in_array($selectedNama, [
+                                //             'SILO STAFFEL A',
+                                //             'SILO STAFFEL B',
+                                //             'SILO 2500',
+                                //             'SILO 1800'
+                                //         ]);
+                                //     })
+                                //     ->relationship(
+                                //         name: 'laporanLumbungs',
+                                //         titleAttribute: 'nama',
+                                //         modifyQueryUsing: function (Builder $query, Get $get) {
+                                //             $selectedSilo = $get('nama'); // Ambil nilai dari select nama
 
-                                            return $query->orderBy('created_at', 'desc')
-                                                ->whereNotNull('status_silo')
-                                                ->where('status_silo', '!=', '')
-                                                ->when($selectedSilo, function ($query) use ($selectedSilo) {
-                                                    return $query->where('status_silo', $selectedSilo);
-                                                });
-                                        }
-                                    )
-                                    ->preload()
-                                    ->searchable()
-                                    ->getOptionLabelFromRecordUsing(function ($record) {
-                                        return $record->kode . ' - ' . $record->status_silo . ' - BERAT : ' . $record->berat_langsir . ' - ' . $record->created_at->format('d/m/Y');
-                                    }),
-                            ])->columnSpan(1),
-                        Card::make('PENJUALAN')
-                            ->schema([
+                                //             return $query->orderBy('created_at', 'desc')
+                                //                 ->whereNotNull('status_silo')
+                                //                 ->where('status_silo', '!=', '')
+                                //                 ->when($selectedSilo, function ($query) use ($selectedSilo) {
+                                //                     return $query->where('status_silo', $selectedSilo);
+                                //                 });
+                                //         }
+                                //     )
+                                //     ->preload()
+                                //     ->searchable()
+                                //     ->getOptionLabelFromRecordUsing(function ($record) {
+                                //         return $record->kode . ' - ' . $record->status_silo . ' - BERAT : ' . $record->berat_langsir . ' - ' . $record->created_at->format('d/m/Y');
+                                //     }),
+                            // ])->columnSpan(1),
+                        // Card::make('PENJUALAN')
+                        //     ->schema([
 
                                 // Select::make('timbanganTrontons')
                                 //     ->label('Laporan Penjualan')
@@ -209,58 +209,58 @@ class SiloResource extends Resource
                                 //             $set('laporan_penjualan_sebelumnya', implode(',', $allKodes));
                                 //         }
                                 //     }),
-                            ])->columnSpan(1)
+                            // ])->columnSpan(1)
                     ])->columns(2),
-                Card::make('Penambahan Stock')
-                    ->schema([
-                        // Repeater untuk stock additions
-                        Repeater::make('stockLuar')
-                            ->label('')
-                            ->relationship()
-                            ->schema([
-                                Grid::make(3)
-                                    ->schema([
-                                        TextInput::make('quantity')
-                                            ->label('Jumlah')
-                                            ->placeholder('Masukkan jumlah')
-                                            ->required()
-                                            ->live(),
-                                        // ->extraAttributes([
-                                        //     'x-data' => '{}',
-                                        //     'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
-                                        // ])
-                                        // ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)), // Hapus titik sebelum dikirim ke database
+                // Card::make('Penambahan Stock')
+                //     ->schema([
+                //         // Repeater untuk stock additions
+                //         Repeater::make('stockLuar')
+                //             ->label('')
+                //             ->relationship()
+                //             ->schema([
+                //                 Grid::make(3)
+                //                     ->schema([
+                //                         TextInput::make('quantity')
+                //                             ->label('Jumlah')
+                //                             ->placeholder('Masukkan jumlah')
+                //                             ->required()
+                //                             ->live(),
+                //                         // ->extraAttributes([
+                //                         //     'x-data' => '{}',
+                //                         //     'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
+                //                         // ])
+                //                         // ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)), // Hapus titik sebelum dikirim ke database
 
-                                        DatePicker::make('date_added')
-                                            ->label('Tanggal')
-                                            ->default(now())
-                                            ->required(),
+                //                         DatePicker::make('date_added')
+                //                             ->label('Tanggal')
+                //                             ->default(now())
+                //                             ->required(),
 
-                                        TextInput::make('notes')
-                                            ->label('Catatan')
-                                            ->placeholder('Catatan penambahan'),
-                                    ])
-                            ])
-                            ->addActionLabel('Tambah Stok')
-                            ->collapsible()
-                            ->columns(2)
-                            ->collapsed()
-                            ->itemLabel(
-                                fn(array $state): ?string =>
-                                isset($state['quantity']) && isset($state['date_added'])
-                                    ? number_format($state['quantity'], 0, ',', '.') . ' - ' . date('d/m/Y', strtotime($state['date_added']))
-                                    : 'Penambahan Stok Baru'
-                            ),
-                    ])->collapsed()
-                    ->visible(
-                        fn(Get $get): bool =>
-                        in_array($get('nama'), [
-                            'SILO STAFFEL A',
-                            'SILO STAFFEL B',
-                            'SILO 2500',
-                            'SILO 1800'
-                        ])
-                    ),
+                //                         TextInput::make('notes')
+                //                             ->label('Catatan')
+                //                             ->placeholder('Catatan penambahan'),
+                //                     ])
+                //             ])
+                //             ->addActionLabel('Tambah Stok')
+                //             ->collapsible()
+                //             ->columns(2)
+                //             ->collapsed()
+                //             ->itemLabel(
+                //                 fn(array $state): ?string =>
+                //                 isset($state['quantity']) && isset($state['date_added'])
+                //                     ? number_format($state['quantity'], 0, ',', '.') . ' - ' . date('d/m/Y', strtotime($state['date_added']))
+                //                     : 'Penambahan Stok Baru'
+                //             ),
+                //     ])->collapsed()
+                //     ->visible(
+                //         fn(Get $get): bool =>
+                //         in_array($get('nama'), [
+                //             'SILO STAFFEL A',
+                //             'SILO STAFFEL B',
+                //             'SILO 2500',
+                //             'SILO 1800'
+                //         ])
+                //     ),
             ]);
     }
 

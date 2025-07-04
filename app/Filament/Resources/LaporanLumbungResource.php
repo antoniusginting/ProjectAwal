@@ -633,7 +633,8 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                 TextColumn::make('lumbung')
                     ->alignCenter()
                     ->searchable()
-                    ->label('Lumbung'),
+                    ->label('Lumbung')
+                    ->placeholder('- TRANSFER -'),
                 TextColumn::make('dryers.no_dryer')
                     ->alignCenter()
                     ->searchable()
@@ -683,6 +684,23 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                     })
                     ->tooltip(function ($record) {
                         $kodes = $record->transferKeluar->pluck('kode');
+                        return $kodes->implode(', ');
+                    }),
+                TextColumn::make('transferMasuk.kode')
+                    ->label('No Transfer Masuk')
+                    ->searchable()
+                    ->alignCenter()
+                    ->getStateUsing(function ($record) {
+                        $kodes = $record->transferMasuk->pluck('kode');
+
+                        if ($kodes->count() <= 3) {
+                            return $kodes->implode(', ');
+                        }
+
+                        return $kodes->take(3)->implode(', ') . '...';
+                    })
+                    ->tooltip(function ($record) {
+                        $kodes = $record->transferMasuk->pluck('kode');
                         return $kodes->implode(', ');
                     }),
                 TextColumn::make('user.name')

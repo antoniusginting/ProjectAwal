@@ -218,11 +218,10 @@ class TransferResource extends Resource
                                             ->label('No Lumbung Masuk')
                                             ->options(function () {
                                                 return LaporanLumbung::whereNotNull('status_silo')
-                                                    ->where('status', false)
+                                                    ->where('status', '!=', true)
                                                     ->get()
                                                     ->mapWithKeys(function ($item) {
-                                                        $label = $item->kode . ' - ';
-                                                        $label .= $item->lumbung ? $item->lumbung : $item->status_silo;
+                                                        $label = $item->kode . ' - ' . $item->status_silo;
                                                         return [
                                                             $item->id => $label
                                                         ];

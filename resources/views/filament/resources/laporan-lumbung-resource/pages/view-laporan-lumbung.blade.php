@@ -119,7 +119,6 @@
                             @if ($itemMasuk && $itemMasuk->type == 'dryer')
                                 {{ $itemMasuk->data->nama_barang }}
                             @elseif ($itemMasuk && $itemMasuk->type == 'transfer_masuk')
-                                
                             @endif
                         </td>
 
@@ -159,7 +158,8 @@
                                         - {{ $itemKeluar->data->silo }}
                                     @endif
                                 @elseif ($itemKeluar->type == 'transfer_keluar')
-                                    {{ $itemKeluar->data->kode ?? 'Transfer' }}
+                                    {{ $itemKeluar->data->kode }} -
+                                    {{ $itemKeluar->data->laporanLumbungMasuk->status_silo ?? '???' }}
                                 @endif
                             @else
                                 -
