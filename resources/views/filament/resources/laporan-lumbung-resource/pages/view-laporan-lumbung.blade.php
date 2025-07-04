@@ -159,7 +159,7 @@
                                     @endif
                                 @elseif ($itemKeluar->type == 'transfer_keluar')
                                     {{ $itemKeluar->data->kode }} -
-                                    {{ $itemKeluar->data->laporanLumbungMasuk->status_silo ?? '???' }}
+                                    {{ $itemKeluar->data->laporanLumbungMasuk->status_silo ?? $itemKeluar->data->laporanLumbungMasuk->lumbung }}
                                 @endif
                             @else
                                 -

@@ -14,6 +14,7 @@ use App\Models\LaporanLumbung;
 use Illuminate\Support\Carbon;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Radio;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Hidden;
@@ -23,10 +24,10 @@ use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
+use Filament\Tables\Enums\ActionsPosition;
 use App\Filament\Resources\TransferResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TransferResource\RelationManagers;
-use Filament\Forms\Components\Grid;
 
 class TransferResource extends Resource
 {
@@ -403,13 +404,16 @@ class TransferResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+                Tables\Actions\Action::make('view-transfer')
+                    ->label(__("Lihat"))
+                    ->icon('heroicon-o-eye')
+                    ->url(fn($record) => self::getUrl("view-transfer", ['record' => $record->id])),
+            ], position: ActionsPosition::BeforeColumns);
+            // ->bulkActions([
+            //     Tables\Actions\BulkActionGroup::make([
+            //         Tables\Actions\DeleteBulkAction::make(),
+            //     ]),
+            // ]);
     }
 
     public static function getRelations(): array
@@ -425,6 +429,7 @@ class TransferResource extends Resource
             'index' => Pages\ListTransfers::route('/'),
             'create' => Pages\CreateTransfer::route('/create'),
             'edit' => Pages\EditTransfer::route('/{record}/edit'),
+            'view-transfer' => Pages\ViewTransfer::route('/{record}/view-transfer'),
         ];
     }
 }
