@@ -217,11 +217,15 @@ class TransferResource extends Resource
                                         Select::make('laporan_lumbung_masuk_id')
                                             ->label('No Lumbung Masuk')
                                             ->options(function () {
-                                                return LaporanLumbung::whereNotNull('status_silo')
-                                                    ->where('status', '!=', true)
+                                                return LaporanLumbung::where('status', '!=', true)
                                                     ->get()
                                                     ->mapWithKeys(function ($item) {
-                                                        $label = $item->kode . ' - ' . $item->status_silo;
+                                                        // Jika status_silo ada, tampilkan format "kode - status_silo"
+                                                        // Jika tidak ada, tampilkan hanya kode
+                                                        $label = $item->status_silo
+                                                            ? $item->kode . ' - ' . $item->status_silo
+                                                            : $item->kode . ' - ' . $item->lumbung;
+
                                                         return [
                                                             $item->id => $label
                                                         ];
@@ -232,7 +236,6 @@ class TransferResource extends Resource
                                             ->nullable()
                                             ->placeholder('Pilih Laporan Lumbung Masuk')
                                             ->visible(fn(Get $get) => $get('tipe') === 'masuk'),
-
 
                                         // Select untuk Lumbung Keluar
                                         Select::make('laporan_lumbung_keluar_id')

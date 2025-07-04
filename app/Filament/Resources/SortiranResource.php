@@ -148,49 +148,49 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                     }),
 
 
-                                Select::make('penjualan_ids')
-                                    ->label('Timbangan Langsir')
-                                    ->placeholder('Pilih ID timbangan langsir')
-                                    ->multiple()
-                                    ->relationship(
-                                        name: 'penjualans',
-                                        titleAttribute: 'no_spb',
-                                        modifyQueryUsing: function ($query, $get) {
-                                            // Hapus filter existing data untuk mengizinkan input data yang sama berulang kali
-                                            return $query
-                                                ->where('status_timbangan', 'LANGSIR')
-                                                ->whereNotNull('netto')
-                                                ->where('netto', '>', 0)
-                                                ->whereNotIn('silo', [
-                                                    'SILO STAFFEL A',
-                                                    'SILO STAFFEL B',
-                                                    'SILO 2500',
-                                                    'SILO 1800'
-                                                ])
-                                                ->orderBy('id', 'desc'); // Urutkan berdasarkan ID terbaru
-                                        }
-                                    )
-                                    ->getOptionLabelFromRecordUsing(fn($record) => "{$record->no_spb} - {$record->nama_supir} - {$record->no_lumbung} - {$record->nama_lumbung} - LB {$record->silo} - {$record->netto}")
-                                    ->searchable()
-                                    ->columnSpan(2)
-                                    ->live()
-                                    ->preload()
-                                    ->disabled(fn($get) => !empty($get('id_pembelian'))) // Hide jika pembelian dipilih
-                                    ->afterStateUpdated(function ($state, $set) {
-                                        if (empty($state)) {
-                                            $set('netto_pembelian', 0);
-                                            $set('netto_bersih', 0);
-                                            return;
-                                        }
+                                // Select::make('penjualan_ids')
+                                //     ->label('Timbangan Langsir')
+                                //     ->placeholder('Pilih ID timbangan langsir')
+                                //     ->multiple()
+                                //     ->relationship(
+                                //         name: 'penjualans',
+                                //         titleAttribute: 'no_spb',
+                                //         modifyQueryUsing: function ($query, $get) {
+                                //             // Hapus filter existing data untuk mengizinkan input data yang sama berulang kali
+                                //             return $query
+                                //                 ->where('status_timbangan', 'LANGSIR')
+                                //                 ->whereNotNull('netto')
+                                //                 ->where('netto', '>', 0)
+                                //                 ->whereNotIn('silo', [
+                                //                     'SILO STAFFEL A',
+                                //                     'SILO STAFFEL B',
+                                //                     'SILO 2500',
+                                //                     'SILO 1800'
+                                //                 ])
+                                //                 ->orderBy('id', 'desc'); // Urutkan berdasarkan ID terbaru
+                                //         }
+                                //     )
+                                //     ->getOptionLabelFromRecordUsing(fn($record) => "{$record->no_spb} - {$record->nama_supir} - {$record->no_lumbung} - {$record->nama_lumbung} - LB {$record->silo} - {$record->netto}")
+                                //     ->searchable()
+                                //     ->columnSpan(2)
+                                //     ->live()
+                                //     ->preload()
+                                //     ->disabled(fn($get) => !empty($get('id_pembelian'))) // Hide jika pembelian dipilih
+                                //     ->afterStateUpdated(function ($state, $set) {
+                                //         if (empty($state)) {
+                                //             $set('netto_pembelian', 0);
+                                //             $set('netto_bersih', 0);
+                                //             return;
+                                //         }
 
-                                        $totalNetto = \App\Models\Penjualan::whereIn('id', $state)
-                                            ->whereNotNull('netto')
-                                            ->where('netto', '>', 0)
-                                            ->sum('netto');
+                                //         $totalNetto = \App\Models\Penjualan::whereIn('id', $state)
+                                //             ->whereNotNull('netto')
+                                //             ->where('netto', '>', 0)
+                                //             ->sum('netto');
 
-                                        $set('netto_pembelian', $totalNetto ?: 0);
-                                        $set('netto_bersih', $totalNetto ?: 0);
-                                    }),
+                                //         $set('netto_pembelian', $totalNetto ?: 0);
+                                //         $set('netto_bersih', $totalNetto ?: 0);
+                                //     }),
                                 TextInput::make('nama_barang')
                                     ->label('Nama Barang')
                                     ->columnSpan(2)
@@ -199,12 +199,12 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                 TextInput::make('netto_pembelian')
                                     ->label('Netto Timbangan')
                                     ->reactive()
-                                    ->columnSpan(1)
+                                    ->columnSpan(2)
                                     ->disabled(),
                                 // ->afterStateHydrated(fn($state, $set) => $set('netto_pembelian', number_format($state, 0, ',', '.')))
                                 TextInput::make('netto_bersih')
                                     ->label('Netto Bersih')
-                                    ->columnSpan(1)
+                                    ->columnSpan(2)
                                     ->placeholder('Otomatis terisi')
                                     ->afterStateHydrated(function ($state, callable $set, callable $get, $record) {
                                         // Jika data sudah ada di database, gunakan nilai dari record
@@ -893,28 +893,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                     ->label('No SPB')
                     ->searchable()
                     ->alignCenter()
-                    ->getStateUsing(function ($record) {
-                        // Prioritas: pembelian.no_spb, fallback ke penjualans.no_spb
-                        if (!empty($record->pembelian->no_spb ?? null)) {
-                            return $record->pembelian->no_spb;
-                        }
-
-                        $nospb = $record->penjualans->pluck('no_spb')->filter();
-
-                        return $nospb->isEmpty()
-                            ? '-'
-                            : ($nospb->count() <= 3
-                                ? $nospb->implode(', ')
-                                : $nospb->take(3)->implode(', ') . '...'
-                            );
-                    })
-                    ->tooltip(function ($record) {
-                        if (!empty($record->pembelian->no_spb ?? null)) {
-                            return $record->pembelian->no_spb;
-                        }
-
-                        return $record->penjualans->pluck('no_spb')->filter()->implode(', ');
-                    }),
+                    ->default('-'),
                 TextColumn::make('pembelian.supplier.nama_supplier')->label('Nama Supplier')
                     ->placeholder('--LANGSIR--')
                     ->searchable(),

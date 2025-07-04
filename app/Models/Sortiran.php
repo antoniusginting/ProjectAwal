@@ -83,10 +83,10 @@ class Sortiran extends Model
         return (int) str_replace('.', '', $this->netto_bersih);
     }
 
-    // Relasi ke penjualan
-    public function penjualans(): BelongsToMany
-    {
-        return $this->belongsToMany(Penjualan::class, 'sortirans_has_penjualans')
-            ->withTimestamps();
-    }
+    // // Relasi ke penjualan
+    // public function penjualans(): BelongsToMany
+    // {
+    //     return $this->belongsToMany(Penjualan::class, 'sortirans_has_penjualans')
+    //         ->withTimestamps();
+    // }
 }
