@@ -23,7 +23,7 @@ class ViewSilo extends Page
     public function mount($record)
     {
         $this->record = $record;
-        $this->silo = Silo::with(['timbanganTrontons', 'laporanLumbungs'])->find($record);
+        $this->silo = Silo::with(['laporanLumbungs'])->find($record);
     }
     // public function getHeaderActions(): array
     // {

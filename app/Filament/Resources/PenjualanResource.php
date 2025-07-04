@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use Carbon\Carbon;
+use App\Models\Silo;
 use Filament\Tables;
 use App\Models\Mobil;
 use Filament\Forms\Get;
@@ -10,8 +11,8 @@ use Filament\Forms\Set;
 use App\Models\Supplier;
 use Filament\Forms\Form;
 use App\Models\Penjualan;
-use Filament\Tables\Table;
 
+use Filament\Tables\Table;
 use App\Models\LaporanLumbung;
 use Filament\Resources\Resource;
 use function Laravel\Prompts\text;
@@ -24,8 +25,8 @@ use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\BadgeColumn;
 
+use Filament\Tables\Columns\BadgeColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
@@ -249,6 +250,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->native(false) // Mengunakan dropdown modern
                                     ->required(), // Opsional: Atur default value
                                 Select::make('laporan_lumbung_id')
+                                    ->disabled(fn($get) => !empty($get('silo_id')))
                                     ->label('No Lumbung')
                                     ->options(function () {
                                         return LaporanLumbung::whereNull('status_silo')
@@ -278,6 +280,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
 
                                 TextInput::make('nama_lumbung')
                                     ->readOnly()
+                                    ->disabled(fn($get) => !empty($get('silo_id')))
                                     ->placeholder('Masukkan Nama Lumbung')
                                     ->autocomplete('off')
                                     ->columnSpan(1)
@@ -290,14 +293,49 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->placeholder('Masukkan Jumlah Karung'),
                                 Select::make('brondolan') // Gantilah 'tipe' dengan nama field di database
                                     ->label('Satuan Muatan')
-                                    ->columnSpan(2)
+                                    ->columnSpan(1)
                                     ->options([
                                         'GONI' => 'GONI',
                                         'CURAH' => 'CURAH',
                                     ])
                                     ->placeholder('Pilih Satuan Timbangan')
                                     ->native(false) // Mengunakan dropdown modern
-                                    ->required(), // Opsional: Atur default value
+                                    ->required(), // Opsional: Atur default value\
+
+
+                                Select::make('silo_id')
+                                    ->label('Silo')
+                                    ->disabled(fn($get) => !empty($get('laporan_lumbung_id')))
+                                    ->options(function () {
+                                        return Silo::whereIn('nama', [
+                                            'SILO STAFFEL A',
+                                            'SILO STAFFEL B',
+                                            'SILO 2500',
+                                            'SILO 1800'
+                                        ])
+                                            ->get()
+                                            ->mapWithKeys(function ($item) {
+                                                return [
+                                                    $item->id => $item->nama
+                                                ];
+                                            });
+                                    })
+                                    ->searchable()
+                                    ->preload()
+                                    ->nullable()
+                                    ->placeholder('Pilih')
+                                    ->reactive()
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        if ($state) {
+                                            // Ambil data silo berdasarkan ID yang dipilih
+                                            $silo = Silo::find($state);
+                                            if ($silo) {
+                                                $set('status_silo', $silo->nama); // Set status sesuai nama silo
+                                            }
+                                        } else {
+                                            $set('status_silo', null);
+                                        }
+                                    }),
                                 // Select::make('status_timbangan')
                                 //     ->label('Status Timbangan')
                                 //     ->columnSpan(fn(Get $get) => $get('status_timbangan') === 'LANGSIR' ? 1 : 2) // Dynamic column span

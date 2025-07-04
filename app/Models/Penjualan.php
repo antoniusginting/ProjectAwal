@@ -28,6 +28,7 @@ class Penjualan extends Model
         'silo',
         'user_id',
         'laporan_lumbung_id',
+        'silo_id',
     ];
 
     // Relasi ke User
@@ -57,5 +58,9 @@ class Penjualan extends Model
     {
         return $this->belongsTo(LaporanLumbung::class, 'laporan_lumbung_id');
     }
-
+    // Relasi ke silo
+    public function silo()
+    {
+        return $this->belongsTo(Silo::class, 'silo_id');
+    }
 }

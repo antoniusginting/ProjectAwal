@@ -103,7 +103,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                 //     ->readOnly(),
                                 Grid::make()
                                     ->schema([
-                                      
+
                                         Select::make('silo_id')
                                             ->label('Kode')
                                             ->options(function () {
@@ -605,20 +605,10 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                     ->label('Status')
                     ->badge()
                     ->alignCenter()
-                    ->formatStateUsing(function ($state, $record) {
-                        // Jika status_silo ada dalam daftar silo tertentu, tampilkan '-'
-                        if (in_array($record->status_silo, ['SILO STAFFEL A', 'SILO STAFFEL B', 'SILO 2500', 'SILO 1800'])) {
-                            return '-';
-                        }
-                        // Jika tidak, tampilkan status normal
+                    ->formatStateUsing(function ($state) {
                         return $state ? 'Tutup' : 'Buka';
                     })
-                    ->color(function ($state, $record) {
-                        // Jika status_silo ada dalam daftar silo tertentu, gunakan warna neutral
-                        if (in_array($record->status_silo, ['SILO STAFFEL A', 'SILO STAFFEL B', 'SILO 2500', 'SILO 1800'])) {
-                            return 'gray';
-                        }
-                        // Jika tidak, gunakan warna berdasarkan status
+                    ->color(function ($state) {
                         return $state ? 'danger' : 'success';
                     }),
                 TextColumn::make('status_silo')

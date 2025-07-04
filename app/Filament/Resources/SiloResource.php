@@ -112,103 +112,103 @@ class SiloResource extends Resource
                         Card::make('PENJUALAN')
                             ->schema([
 
-                                Select::make('timbanganTrontons')
-                                    ->label('Laporan Penjualan')
-                                    ->multiple()
-                                    ->relationship(
-                                        name: 'timbanganTrontons',
-                                        titleAttribute: 'kode',
-                                        modifyQueryUsing: function (Builder $query, $get) {
-                                            $currentRecordId = null;
+                                // Select::make('timbanganTrontons')
+                                //     ->label('Laporan Penjualan')
+                                //     ->multiple()
+                                //     ->relationship(
+                                //         name: 'timbanganTrontons',
+                                //         titleAttribute: 'kode',
+                                //         modifyQueryUsing: function (Builder $query, $get) {
+                                //             $currentRecordId = null;
 
-                                            if (request()->route('record')) {
-                                                $currentRecordId = request()->route('record');
-                                            }
+                                //             if (request()->route('record')) {
+                                //                 $currentRecordId = request()->route('record');
+                                //             }
 
-                                            try {
-                                                $livewire = \Livewire\Livewire::current();
-                                                if ($livewire && method_exists($livewire, 'getRecord')) {
-                                                    $record = $livewire->getRecord();
-                                                    if ($record) {
-                                                        $currentRecordId = $record->getKey();
-                                                    }
-                                                }
-                                            } catch (\Exception $e) {
-                                                // Ignore error
-                                            }
+                                //             try {
+                                //                 $livewire = \Livewire\Livewire::current();
+                                //                 if ($livewire && method_exists($livewire, 'getRecord')) {
+                                //                     $record = $livewire->getRecord();
+                                //                     if ($record) {
+                                //                         $currentRecordId = $record->getKey();
+                                //                     }
+                                //                 }
+                                //             } catch (\Exception $e) {
+                                //                 // Ignore error
+                                //             }
 
-                                            $relasiPenjualan = ['penjualan1', 'penjualan2', 'penjualan3', 'penjualan4', 'penjualan5', 'penjualan6'];
-                                            $relasiLuar = ['luar1', 'luar2', 'luar3'];
-                                            $selectedNama = $get('nama');
+                                //             $relasiPenjualan = ['penjualan1', 'penjualan2', 'penjualan3', 'penjualan4', 'penjualan5', 'penjualan6'];
+                                //             $relasiLuar = ['luar1', 'luar2', 'luar3'];
+                                //             $selectedNama = $get('nama');
 
-                                            $query = $query->where(function ($query) use ($relasiPenjualan, $relasiLuar, $selectedNama) {
-                                                // Logic 1: Cek nama_lumbung dari relasi penjualan
-                                                $query->where(function ($subQuery) use ($relasiPenjualan, $selectedNama) {
-                                                    foreach ($relasiPenjualan as $index => $relasi) {
-                                                        $method = $index === 0 ? 'whereHas' : 'orWhereHas';
-                                                        $subQuery->$method($relasi, function (Builder $q) use ($selectedNama) {
-                                                            $q->whereNotNull('nama_lumbung')
-                                                                ->where('nama_lumbung', '!=', '');
-                                                            if ($selectedNama) {
-                                                                $q->where('nama_lumbung', $selectedNama);
-                                                            }
-                                                        });
-                                                    }
-                                                });
+                                //             $query = $query->where(function ($query) use ($relasiPenjualan, $relasiLuar, $selectedNama) {
+                                //                 // Logic 1: Cek nama_lumbung dari relasi penjualan
+                                //                 $query->where(function ($subQuery) use ($relasiPenjualan, $selectedNama) {
+                                //                     foreach ($relasiPenjualan as $index => $relasi) {
+                                //                         $method = $index === 0 ? 'whereHas' : 'orWhereHas';
+                                //                         $subQuery->$method($relasi, function (Builder $q) use ($selectedNama) {
+                                //                             $q->whereNotNull('nama_lumbung')
+                                //                                 ->where('nama_lumbung', '!=', '');
+                                //                             if ($selectedNama) {
+                                //                                 $q->where('nama_lumbung', $selectedNama);
+                                //                             }
+                                //                         });
+                                //                     }
+                                //                 });
 
-                                                // Logic 2: Atau cek nama_supplier dari relasi luar->supplier
-                                                $query->orWhere(function ($subQuery) use ($relasiLuar, $selectedNama) {
-                                                    foreach ($relasiLuar as $index => $relasi) {
-                                                        $method = $index === 0 ? 'whereHas' : 'orWhereHas';
-                                                        $subQuery->$method($relasi, function (Builder $q) use ($selectedNama) {
-                                                            // Cek apakah ada relasi supplier
-                                                            $q->whereHas('supplier', function (Builder $supplierQuery) use ($selectedNama) {
-                                                                $supplierQuery->whereNotNull('nama_supplier')
-                                                                    ->where('nama_supplier', '!=', '');
-                                                                if ($selectedNama) {
-                                                                    $supplierQuery->where('nama_supplier', $selectedNama);
-                                                                }
-                                                            });
-                                                        });
-                                                    }
-                                                });
-                                            });
+                                //                 // Logic 2: Atau cek nama_supplier dari relasi luar->supplier
+                                //                 $query->orWhere(function ($subQuery) use ($relasiLuar, $selectedNama) {
+                                //                     foreach ($relasiLuar as $index => $relasi) {
+                                //                         $method = $index === 0 ? 'whereHas' : 'orWhereHas';
+                                //                         $subQuery->$method($relasi, function (Builder $q) use ($selectedNama) {
+                                //                             // Cek apakah ada relasi supplier
+                                //                             $q->whereHas('supplier', function (Builder $supplierQuery) use ($selectedNama) {
+                                //                                 $supplierQuery->whereNotNull('nama_supplier')
+                                //                                     ->where('nama_supplier', '!=', '');
+                                //                                 if ($selectedNama) {
+                                //                                     $supplierQuery->where('nama_supplier', $selectedNama);
+                                //                                 }
+                                //                             });
+                                //                         });
+                                //                     }
+                                //                 });
+                                //             });
 
-                                            $query->where(function ($q) {
-                                                $q->where('status', false)->orWhereNull('status');
-                                            });
-                                            $query->orderBy('timbangan_trontons.created_at', 'desc');
-                                            $query->limit(20);
-                                            return $query;
-                                        }
-                                    )
-                                    ->disabled(fn($get) => !$get('nama'))
-                                    ->preload()
-                                    ->reactive()
-                                    ->getOptionLabelFromRecordUsing(function ($record) {
-                                        $noBk = $record->penjualan1 ? $record->penjualan1->plat_polisi : ($record->luar1 ? $record->luar1->no_container : 'N/A');
-                                        $supir = $record->penjualan1 ? $record->penjualan1->nama_supir : ($record->luar1 ? $record->luar1->kode_segel : 'N/A');
-                                        return $record->kode . ' - ' . $noBk . ' - ' . $supir . ' - ' . $record->total_netto;
-                                    })
-                                    ->afterStateUpdated(function ($state, $set, $get) {
-                                        // Ambil data laporan penjualan sebelumnya
-                                        $existingLaporan = $get('laporan_penjualan_sebelumnya') ?
-                                            explode(',', $get('laporan_penjualan_sebelumnya')) : [];
+                                //             $query->where(function ($q) {
+                                //                 $q->where('status', false)->orWhereNull('status');
+                                //             });
+                                //             $query->orderBy('timbangan_trontons.created_at', 'desc');
+                                //             $query->limit(20);
+                                //             return $query;
+                                //         }
+                                //     )
+                                //     ->disabled(fn($get) => !$get('nama'))
+                                //     ->preload()
+                                //     ->reactive()
+                                //     ->getOptionLabelFromRecordUsing(function ($record) {
+                                //         $noBk = $record->penjualan1 ? $record->penjualan1->plat_polisi : ($record->luar1 ? $record->luar1->no_container : 'N/A');
+                                //         $supir = $record->penjualan1 ? $record->penjualan1->nama_supir : ($record->luar1 ? $record->luar1->kode_segel : 'N/A');
+                                //         return $record->kode . ' - ' . $noBk . ' - ' . $supir . ' - ' . $record->total_netto;
+                                //     })
+                                //     ->afterStateUpdated(function ($state, $set, $get) {
+                                //         // Ambil data laporan penjualan sebelumnya
+                                //         $existingLaporan = $get('laporan_penjualan_sebelumnya') ?
+                                //             explode(',', $get('laporan_penjualan_sebelumnya')) : [];
 
-                                        // Gabungkan dengan data baru
-                                        if ($state) {
-                                            // Ambil kode dari TimbanganTronton yang dipilih
-                                            $newKodes = \App\Models\TimbanganTronton::whereIn('id', $state)
-                                                ->pluck('kode')
-                                                ->toArray();
+                                //         // Gabungkan dengan data baru
+                                //         if ($state) {
+                                //             // Ambil kode dari TimbanganTronton yang dipilih
+                                //             $newKodes = \App\Models\TimbanganTronton::whereIn('id', $state)
+                                //                 ->pluck('kode')
+                                //                 ->toArray();
 
-                                            // Gabungkan dengan data existing, hapus duplikat
-                                            $allKodes = array_unique(array_merge($existingLaporan, $newKodes));
+                                //             // Gabungkan dengan data existing, hapus duplikat
+                                //             $allKodes = array_unique(array_merge($existingLaporan, $newKodes));
 
-                                            // Set kembali ke field laporan_penjualan_sebelumnya
-                                            $set('laporan_penjualan_sebelumnya', implode(',', $allKodes));
-                                        }
-                                    }),
+                                //             // Set kembali ke field laporan_penjualan_sebelumnya
+                                //             $set('laporan_penjualan_sebelumnya', implode(',', $allKodes));
+                                //         }
+                                //     }),
                             ])->columnSpan(1)
                     ])->columns(2),
                 Card::make('Penambahan Stock')
@@ -305,23 +305,23 @@ class SiloResource extends Resource
                         $laporanlumbung = $record->laporanlumbungs->pluck('kode');
                         return $laporanlumbung->implode(', ');
                     }),
-                TextColumn::make('timbanganTrontons.kode')
-                    ->alignCenter()
-                    ->searchable()
-                    ->label('NO Laporan Penjualan')
-                    ->getStateUsing(function ($record) {
-                        $timbangantronton = $record->timbangantrontons->pluck('kode');
+                // TextColumn::make('timbanganTrontons.kode')
+                //     ->alignCenter()
+                //     ->searchable()
+                //     ->label('NO Laporan Penjualan')
+                //     ->getStateUsing(function ($record) {
+                //         $timbangantronton = $record->timbangantrontons->pluck('kode');
 
-                        if ($timbangantronton->count() <= 3) {
-                            return $timbangantronton->implode(', ');
-                        }
+                //         if ($timbangantronton->count() <= 3) {
+                //             return $timbangantronton->implode(', ');
+                //         }
 
-                        return $timbangantronton->take(3)->implode(', ') . '...';
-                    })
-                    ->tooltip(function ($record) {
-                        $timbangantronton = $record->timbangantrontons->pluck('kode');
-                        return $timbangantronton->implode(', ');
-                    }),
+                //         return $timbangantronton->take(3)->implode(', ') . '...';
+                //     })
+                //     ->tooltip(function ($record) {
+                //         $timbangantronton = $record->timbangantrontons->pluck('kode');
+                //         return $timbangantronton->implode(', ');
+                //     }),
                 // TextColumn::make('laporanLumbungs.kode')
                 //     ->alignCenter()
                 //     ->label('No IO'),

@@ -1,10 +1,10 @@
 <x-filament-panels::page>
     <div class="p-6 bg-white dark:bg-gray-900 rounded-md shadow-md space-y-6 text-gray-900 dark:text-gray-200">
         <!-- Info Pengiriman -->
-        @php
+        {{-- @php
             $hasilPengurangan = $dryer->getHasilPenguranganNumericFinal();
-        @endphp
-        {{ number_format($hasilPengurangan, 2) }}%
+        @endphp --}}
+        {{-- {{ number_format($hasilPengurangan, 2) }}% --}}
         <div class="overflow-x-auto">
             <table class="w-full align-left">
 
@@ -216,11 +216,9 @@
                                     class="text-center font-semibold p-2 border-gray-300 dark:border-gray-700">
                                     Total {{ $idSortiran }}
                                 </td>
+                                <td></td>
                                 <td class="p-2 text-right border-gray-300 dark:border-gray-700">
                                     {{ number_format($totalTotalKarung, 0, ',', '.') }}
-                                </td>
-                                <td colspan="1" class="p-2 text-center border-gray-300 dark:border-gray-700">
-
                                 </td>
                                 <td class="p-2 text-right border-gray-300 dark:border-gray-700">
                                     {{ number_format($totalNettoBersih, 0, ',', '.') }}

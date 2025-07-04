@@ -79,46 +79,46 @@ class Dryer extends Model
     }
 
     // Di Model Dryer.php
-    public function getHasilPenguranganNumericFinal()
-    {
-        $laporanLumbung = $this->laporanLumbungs->first();
+    // public function getHasilPenguranganNumericFinal()
+    // {
+    //     $laporanLumbung = $this->laporanLumbungs->first();
 
-        if (!$laporanLumbung) {
-            return 0;
-        }
+    //     if (!$laporanLumbung) {
+    //         return 0;
+    //     }
 
-        $lumbungTujuan = $laporanLumbung->lumbung ?? null;
-        $nilai_dryers_sum_total_netto = $laporanLumbung->dryers->sum('total_netto');
+    //     $lumbungTujuan = $laporanLumbung->lumbung ?? null;
+    //     $nilai_dryers_sum_total_netto = $laporanLumbung->dryers->sum('total_netto');
 
-        // Hitung total keseluruhan filtered
-        $totalKeseluruhanFiltered = 0;
-        foreach ($laporanLumbung->timbangantrontons as $timbanganTronton) {
-            $allPenjualan = collect();
-            $relasiPenjualan = ['penjualan1', 'penjualan2', 'penjualan3', 'penjualan4', 'penjualan5', 'penjualan6'];
+    //     // Hitung total keseluruhan filtered
+    //     $totalKeseluruhanFiltered = 0;
+    //     foreach ($laporanLumbung->timbangantrontons as $timbanganTronton) {
+    //         $allPenjualan = collect();
+    //         $relasiPenjualan = ['penjualan1', 'penjualan2', 'penjualan3', 'penjualan4', 'penjualan5', 'penjualan6'];
 
-            foreach ($relasiPenjualan as $relasi) {
-                if (isset($timbanganTronton->$relasi)) {
-                    $dataRelasi = $timbanganTronton->$relasi;
-                    if ($dataRelasi instanceof \Illuminate\Database\Eloquent\Collection) {
-                        $allPenjualan = $allPenjualan->merge($dataRelasi);
-                    } elseif ($dataRelasi !== null) {
-                        $allPenjualan->push($dataRelasi);
-                    }
-                }
-            }
+    //         foreach ($relasiPenjualan as $relasi) {
+    //             if (isset($timbanganTronton->$relasi)) {
+    //                 $dataRelasi = $timbanganTronton->$relasi;
+    //                 if ($dataRelasi instanceof \Illuminate\Database\Eloquent\Collection) {
+    //                     $allPenjualan = $allPenjualan->merge($dataRelasi);
+    //                 } elseif ($dataRelasi !== null) {
+    //                     $allPenjualan->push($dataRelasi);
+    //                 }
+    //             }
+    //         }
 
-            $filteredPenjualan = $allPenjualan->where('nama_lumbung', $lumbungTujuan);
-            $totalKeseluruhanFiltered += $filteredPenjualan->sum('netto');
-        }
+    //         $filteredPenjualan = $allPenjualan->where('nama_lumbung', $lumbungTujuan);
+    //         $totalKeseluruhanFiltered += $filteredPenjualan->sum('netto');
+    //     }
 
-        $totalNettoPenjualansBaru = $laporanLumbung->penjualans->sum('netto') ?? 0;
-        $totalGabungan = $totalKeseluruhanFiltered + $totalNettoPenjualansBaru;
+    //     $totalNettoPenjualansBaru = $laporanLumbung->penjualans->sum('netto') ?? 0;
+    //     $totalGabungan = $totalKeseluruhanFiltered + $totalNettoPenjualansBaru;
 
-        // Hitung hasil_pengurangan_numeric_final
-        if ($nilai_dryers_sum_total_netto > 0) {
-            return ($totalGabungan / $nilai_dryers_sum_total_netto) * 100;
-        }
+    //     // Hitung hasil_pengurangan_numeric_final
+    //     if ($nilai_dryers_sum_total_netto > 0) {
+    //         return ($totalGabungan / $nilai_dryers_sum_total_netto) * 100;
+    //     }
 
-        return 0;
-    }
+    //     return 0;
+    // }
 }
