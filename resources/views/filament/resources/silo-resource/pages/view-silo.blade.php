@@ -152,15 +152,20 @@
                                     {{ \Carbon\Carbon::parse($laporan->created_at)->format('d/m/Y') }}
                                 </td>
                                 <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                                    {{ $laporan->kode }}
+                                    <a href="{{ route('filament.admin.resources.laporan-lumbungs.view-laporan-lumbung', $laporan->id ?? '') }}"
+                                        target="_blank"
+                                        class="text-blue-600 hover:text-blue-800">{{ $laporan->kode }}</a>
                                 </td>
                                 <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                                     @if ($laporan->transferMasuk->count() > 0)
                                         @foreach ($laporan->transferMasuk as $index => $transfer)
-                                            {{ $transfer->kode }}{{ !$loop->last ? ', ' : '' }}
+                                            <a href="{{ route('filament.admin.resources.transfers.view-transfer', $transfer->id ?? '') }}"
+                                                target="_blank" class="text-blue-600 hover:text-blue-800">
+                                                {{ $transfer->kode }}
+                                            </a>{{ !$loop->last ? ', ' : '' }}
                                         @endforeach
                                     @else
-                                        {{ $laporan->lumbung ?? '-' }}
+                                        -
                                     @endif
                                 </td>
                                 <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
@@ -274,7 +279,9 @@
                                     {{ \Carbon\Carbon::parse($penjualan->created_at)->format('d/m/Y') }}
                                 </td>
                                 <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                                    {{ $penjualan->no_spb ?? '-' }}
+                                    <a href="{{ route('filament.admin.resources.penjualans.view-penjualan', $penjualan->id ?? '') }}"
+                                        target="_blank"
+                                        class="text-blue-600 hover:text-blue-800">{{ $penjualan->no_spb ?? '-' }} </a>
                                 </td>
                                 {{-- <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                                     {{ $penjualan->nama ?? ($penjualan->nama_lumbung ?? ($penjualan->lumbung ?? '-')) }}

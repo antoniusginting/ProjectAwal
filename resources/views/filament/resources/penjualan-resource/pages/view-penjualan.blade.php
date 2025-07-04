@@ -19,7 +19,8 @@
                         <td class="font-semibold text-left align-top whitespace-nowrap">Tanggal</td>
                         <td class="whitespace-nowrap">: {{ $penjualan->created_at->format('d-m-Y') }}</td>
                         <td class="font-semibold whitespace-nowrap">Nama Lumbung</td>
-                        <td class="whitespace-nowrap">: {{ $penjualan->nama_lumbung ?? '' }} {{$penjualan->silos->nama ?? ''}}</td>
+                        <td class="whitespace-nowrap">: {{ $penjualan->nama_lumbung ?? '' }}
+                            {{ $penjualan->silos->nama ?? '' }}</td>
                         <td class="font-semibold whitespace-nowrap">Jam Masuk</td>
                         <td class="whitespace-nowrap">: {{ $penjualan->jam_masuk }}</td>
                         <td class="font-semibold text-left align-top whitespace-nowrap">Container</td>
@@ -29,10 +30,20 @@
                         <td class="font-semibold whitespace-nowrap">Operator</td>
                         <td class="whitespace-nowrap">: {{ $penjualan->user->name }}</td>
                         <td class="font-semibold text-left align-top whitespace-nowrap">No Lumbung</td>
-                        <td class="whitespace-nowrap">: <a
-                                href="{{ route('filament.admin.resources.laporan-lumbungs.view-laporan-lumbung', $penjualan->laporanLumbung->id ?? '') }}"
-                                target="_blank"
-                                class="text-blue-600 hover:text-blue-800">{{ $penjualan->laporanLumbung->kode ??  ($penjualan->silos->nama ?? '-')  }}</a>
+                        <td class="whitespace-nowrap">:
+                            @if ($penjualan->laporanLumbung->kode ?? false)
+                                <a href="{{ route('filament.admin.resources.laporan-lumbungs.view-laporan-lumbung', $penjualan->laporanLumbung->id ?? '') }}"
+                                    target="_blank" class="text-blue-600 hover:text-blue-800">
+                                    {{ $penjualan->laporanLumbung->kode }}
+                                </a>
+                            @elseif ($penjualan->silos->nama ?? false)
+                                <a href="{{ route('filament.admin.resources.silos.view-silo', $penjualan->silos->id ?? '') }}"
+                                    target="_blank" class="text-blue-600 hover:text-blue-800">
+                                    {{ $penjualan->silos->nama }}
+                                </a>
+                            @else
+                                -
+                            @endif
                         </td>
                         <td class="font-semibold whitespace-nowrap">Jam Keluar</td>
                         <td class="whitespace-nowrap">: {{ $penjualan->jam_keluar }}</td>
