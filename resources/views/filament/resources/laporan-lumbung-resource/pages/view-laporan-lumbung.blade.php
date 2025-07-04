@@ -20,7 +20,7 @@
                         </td>
                         <td class="font-semibold whitespace-nowrap">Lumbung</td>
                         <td class="whitespace-nowrap">:
-                            {{ $laporanlumbung->lumbung ?? '-' }}
+                            {{ $laporanlumbung->lumbung ?? $laporanlumbung->status_silo }}
                         </td>
                     </tr>
                 </tbody>

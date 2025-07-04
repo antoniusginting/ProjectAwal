@@ -48,7 +48,6 @@
         /* Info Table Styles */
         .info-table {
             margin-bottom: 12px;
-            
             border: 1px solid #000;
         }
 
@@ -149,20 +148,6 @@
             font-weight: bold;
         }
 
-        /* SPB Row Styling */
-        .spb-masuk {
-            background-color: #ffffff;
-        }
-
-        .spb-keluar {
-            background-color: #ffffff;
-        }
-
-        .spb-label {
-            font-weight: bold;
-            font-style: italic;
-        }
-
         /* DIVIDER */
         .divider {
             border-bottom: 1px solid #000;
@@ -215,18 +200,6 @@
 
             .summary-row {
                 background-color: #f0f0f0 !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
-            .spb-masuk {
-                background-color: #f5f5f5 !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
-            .spb-keluar {
-                background-color: #ebebeb !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
@@ -289,7 +262,7 @@
                     </td>
                     <td class="label-right">Lumbung</td>
                     <td class="value-right">
-                        : {{ $laporanlumbung->lumbung ?? ($laporanlumbung->status_silo ?? '-') }}
+                        : {{ $laporanlumbung->lumbung ?? $laporanlumbung->status_silo }}
                     </td>
                 </tr>
             </tbody>
@@ -304,14 +277,60 @@
 
         <!-- Detail Table -->
         @php
-            $lumbungTujuan = $laporanlumbung->lumbung ?? null;
+            // Inisialisasi variabel untuk perhitungan
             $dryers = $laporanlumbung->dryers->values();
-            $timbangan = $laporanlumbung->timbangantrontons->values();
-            $max = max($dryers->count(), $timbangan->count());
-            $totalKeseluruhanFiltered = 0;
-            $nilai_dryers_sum_total_netto = $dryers->sum('total_netto');
-            $totalNettoPenjualansBaru = $laporanlumbung->penjualans->sum('netto') ?? 0;
-            $totalGabungan = 0;
+            $transferMasuk = $laporanlumbung->transferMasuk->values();
+            $penjualanFiltered = $laporanlumbung->penjualans->filter(fn($p) => !empty($p->no_spb));
+            $transferKeluar = $laporanlumbung->transferKeluar->values();
+
+            // Gabungkan data masuk (dryers + transferMasuk)
+            $dataMasuk = collect();
+            foreach ($dryers as $dryer) {
+                $dataMasuk->push(
+                    (object) [
+                        'type' => 'dryer',
+                        'data' => $dryer,
+                        'created_at' => $dryer->created_at,
+                    ],
+                );
+            }
+            foreach ($transferMasuk as $transfer) {
+                $dataMasuk->push(
+                    (object) [
+                        'type' => 'transfer_masuk',
+                        'data' => $transfer,
+                        'created_at' => $transfer->created_at,
+                    ],
+                );
+            }
+
+            // Gabungkan data keluar (penjualan + transferKeluar)
+            $dataKeluar = collect();
+            foreach ($penjualanFiltered as $penjualan) {
+                $dataKeluar->push(
+                    (object) [
+                        'type' => 'penjualan',
+                        'data' => $penjualan,
+                        'created_at' => $penjualan->created_at,
+                    ],
+                );
+            }
+            foreach ($transferKeluar as $transfer) {
+                $dataKeluar->push(
+                    (object) [
+                        'type' => 'transfer_keluar',
+                        'data' => $transfer,
+                        'created_at' => $transfer->created_at,
+                    ],
+                );
+            }
+
+            // Tentukan jumlah baris maksimum untuk tabel
+            $maxRows = max($dataMasuk->count(), $dataKeluar->count());
+
+            // Variabel untuk tracking total
+            $totalNettoPenjualansBaru = $penjualanFiltered->sum('netto');
+            $totalTransferKeluar = $transferKeluar->sum('netto');
         @endphp
 
         <table class="detail-table">
@@ -327,156 +346,116 @@
                 </tr>
             </thead>
             <tbody>
-                @for ($i = 0; $i < $max; $i++)
+                @for ($i = 0; $i < $maxRows; $i++)
                     @php
-                        $dryer = $dryers->get($i);
-                        $timbanganItem = $timbangan->get($i);
-                        $filteredPenjualan = collect();
-                        $totalNetto = 0;
-
-                        if ($timbanganItem) {
-                            $allPenjualan = collect();
-                            $relasiPenjualan = [
-                                'penjualan1',
-                                'penjualan2',
-                                'penjualan3',
-                                'penjualan4',
-                                'penjualan5',
-                                'penjualan6',
-                            ];
-
-                            foreach ($relasiPenjualan as $relasi) {
-                                if (isset($timbanganItem->$relasi)) {
-                                    $dataRelasi = $timbanganItem->$relasi;
-                                    if ($dataRelasi instanceof \Illuminate\Database\Eloquent\Collection) {
-                                        $allPenjualan = $allPenjualan->merge($dataRelasi);
-                                    } elseif ($dataRelasi !== null) {
-                                        $allPenjualan->push($dataRelasi);
-                                    }
-                                }
-                            }
-
-                            $filteredPenjualan = $allPenjualan->where('nama_lumbung', $lumbungTujuan);
-                            $totalNetto = $filteredPenjualan->sum('netto');
-                            $totalKeseluruhanFiltered += $totalNetto;
-                        }
+                        // Ambil data untuk baris ini
+                        $itemMasuk = $dataMasuk->get($i);
+                        $itemKeluar = $dataKeluar->get($i);
                     @endphp
+
                     <tr>
+                        {{-- Kolom Tanggal --}}
                         <td class="text-center">
-                            {{ $dryer ? $dryer->created_at->format('d-m') : '' }}
+                            {{ $itemMasuk?->created_at->format('d-m') ?: ($itemKeluar?->created_at->format('d-m') ?: '') }}
                         </td>
+
+                        {{-- Kolom Jenis --}}
                         <td class="text-center">
-                            {{ $dryer ? $dryer->nama_barang : '' }}
+                            @if ($itemMasuk && $itemMasuk->type == 'dryer')
+                                {{ $itemMasuk->data->nama_barang }}
+                            @elseif ($itemMasuk && $itemMasuk->type == 'transfer_masuk')
+                                
+                            @endif
                         </td>
+
+                        {{-- Kolom Masuk --}}
                         <td class="text-center">
-                            {{ $dryer ? $dryer->no_dryer : '' }}
+                            @if ($itemMasuk)
+                                @if ($itemMasuk->type == 'dryer')
+                                    {{ $itemMasuk->data->no_dryer }}
+                                @elseif ($itemMasuk->type == 'transfer_masuk')
+                                    {{ $itemMasuk->data->kode ?? 'Transfer' }}
+                                @endif
+                            @else
+                                -
+                            @endif
                         </td>
+
+                        {{-- Kolom Berat Masuk --}}
                         <td class="text-right">
-                            {{ $dryer && $dryer->total_netto ? number_format($dryer->total_netto, 0, ',', '.') : '' }}
-                        </td>
-                        <td class="text-center">
-                            {{ $timbanganItem ? $timbanganItem->kode : '' }}
-                        </td>
-                        <td class="text-right">
-                            @if ($timbanganItem)
-                                @if ($filteredPenjualan->isEmpty())
-                                    -
-                                @else
-                                    {{ number_format($totalNetto, 0, ',', '.') }}
+                            @if ($itemMasuk)
+                                @if ($itemMasuk->type == 'dryer')
+                                    {{ $itemMasuk->data->total_netto ? number_format($itemMasuk->data->total_netto, 0, ',', '.') : '' }}
+                                @elseif ($itemMasuk->type == 'transfer_masuk')
+                                    {{ $itemMasuk->data->netto ? number_format($itemMasuk->data->netto, 0, ',', '.') : '' }}
                                 @endif
                             @endif
                         </td>
+
+                        {{-- Kolom Keluar --}}
                         <td class="text-center">
-                            {{ $timbanganItem ? $timbanganItem->user->name : '' }}
+                            @if ($itemKeluar)
+                                @if ($itemKeluar->type == 'penjualan')
+                                    {{ $itemKeluar->data->no_spb }}
+                                    @if ($itemKeluar->data->silo)
+                                        - {{ $itemKeluar->data->silo }}
+                                    @endif
+                                @elseif ($itemKeluar->type == 'transfer_keluar')
+                                    {{ $itemKeluar->data->kode }} -
+                                    {{ $itemKeluar->data->laporanLumbungMasuk->status_silo ?? '???' }}
+                                @endif
+                            @else
+                                -
+                            @endif
+                        </td>
+
+                        {{-- Kolom Berat Keluar --}}
+                        <td class="text-right">
+                            @if ($itemKeluar)
+                                @if ($itemKeluar->type == 'penjualan')
+                                    {{ $itemKeluar->data->netto ? number_format($itemKeluar->data->netto, 0, ',', '.') : '-' }}
+                                @elseif ($itemKeluar->type == 'transfer_keluar')
+                                    {{ $itemKeluar->data->netto ? number_format($itemKeluar->data->netto, 0, ',', '.') : '-' }}
+                                @endif
+                            @endif
+                        </td>
+
+                        {{-- Kolom Penanggung Jawab --}}
+                        <td class="text-center">
+                            @if ($itemKeluar)
+                                @if ($itemKeluar->type == 'penjualan')
+                                    {{ $itemKeluar->data->user->name ?? '' }}
+                                @elseif ($itemKeluar->type == 'transfer_keluar')
+                                    {{ $itemKeluar->data->user->name ?? '' }}
+                                @endif
+                            @endif
                         </td>
                     </tr>
                 @endfor
-
-                <!-- SPB Masuk -->
-                @if ($laporanlumbung->penjualans->isNotEmpty())
-                    @php
-                        $penjualanMasuk = $laporanlumbung->penjualans->filter(function ($penjualan) {
-                            return !empty($penjualan->no_spb) && $penjualan->pivot->tipe_penjualan === 'masuk';
-                        });
-
-                        $penjualanKeluar = $laporanlumbung->penjualans->filter(function ($penjualan) {
-                            return !empty($penjualan->no_spb) && $penjualan->pivot->tipe_penjualan === 'keluar';
-                        });
-                    @endphp
-
-                    @if ($penjualanMasuk->isNotEmpty())
-                        @foreach ($penjualanMasuk as $index => $penjualan)
-                            <tr class="spb-masuk">
-                                <td colspan="2" class="text-center spb-label">
-                                    @if ($index == 0)
-                                        SPB Masuk:
-                                    @endif
-                                </td>
-                                <td class="text-center">
-                                    {{ $penjualan->no_spb }}
-                                </td>
-                                <td class="text-right">
-                                    {{ $penjualan->netto ? number_format($penjualan->netto, 0, ',', '.') : '-' }}
-                                </td>
-                                <td class="text-center">-</td>
-                                <td class="text-right">-</td>
-                                <td class="text-center">
-                                    {{ $penjualan->user->name ?? '-' }}
-                                </td>
-                            </tr>
-                        @endforeach
-                    @endif
-
-                    @if ($penjualanKeluar->isNotEmpty())
-                        @foreach ($penjualanKeluar as $index => $penjualan)
-                            <tr class="spb-keluar">
-                                <td colspan="2" class="text-center spb-label">
-                                    @if ($index == 0)
-                                        SPB Keluar:
-                                    @endif
-                                </td>
-                                <td class="text-center">-</td>
-                                <td class="text-right">-</td>
-                                <td class="text-center">
-                                    {{ $penjualan->no_spb }} - {{ $penjualan->silo }}
-                                </td>
-                                <td class="text-right">
-                                    {{ $penjualan->netto ? number_format($penjualan->netto, 0, ',', '.') : '-' }}
-                                </td>
-                                <td class="text-center">
-                                    {{ $penjualan->user->name ?? '-' }}
-                                </td>
-                            </tr>
-                        @endforeach
-                    @endif
-                @endif
             </tbody>
 
+            {{-- Footer dengan Total --}}
+            @php
+                $totalMasuk = $dryers->sum('total_netto') + $transferMasuk->sum('netto');
+                $totalKeluar = $totalNettoPenjualansBaru + $totalTransferKeluar;
+                $persentaseKeluar = $totalMasuk > 0 ? ($totalKeluar / $totalMasuk) * 100 : 0;
+            @endphp
+
             <tfoot>
-                @php
-                    $totalGabungan = $totalKeseluruhanFiltered + $totalNettoPenjualansBaru;
-                    if ($nilai_dryers_sum_total_netto > 0) {
-                        $hasil_pengurangan_numeric_final = ($totalGabungan / $nilai_dryers_sum_total_netto) * 100;
-                    } else {
-                        $hasil_pengurangan_numeric_final = 0;
-                    }
-                @endphp
                 <tr class="summary-row">
                     <td colspan="3" class="text-center">
-                        <strong>Total Berat:</strong>
+                        <strong>Total:</strong>
                     </td>
                     <td class="text-right">
-                        <strong>{{ number_format($totalNettoPenjualansBaru, 0, ',', '.') }}</strong>
+                        <strong>{{ number_format($totalMasuk, 0, ',', '.') }}</strong>
                     </td>
                     <td class="text-center">-</td>
                     <td class="text-right">
-                        @if ($laporanlumbung->lumbung)
-                            <strong>{{ number_format($totalGabungan, 0, ',', '.') }}</strong>
-                        @endif
+                        <strong>{{ number_format($totalKeluar, 0, ',', '.') }}</strong>
                     </td>
                     <td class="text-center">
-                        @if ($laporanlumbung->lumbung)
-                            <strong>{{ number_format($hasil_pengurangan_numeric_final, 2) }}%</strong>
+                        @if ($laporanlumbung->lumbung && $laporanlumbung->status)
+                            <strong>{{ number_format($persentaseKeluar, 2) }}%</strong>
                         @endif
                     </td>
                 </tr>
