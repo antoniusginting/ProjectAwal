@@ -20,7 +20,16 @@
                         </td>
                         <td class="font-semibold whitespace-nowrap">Lumbung</td>
                         <td class="whitespace-nowrap">:
-                            {{ $laporanlumbung->lumbung ?? $laporanlumbung->status_silo }}
+                            @if ($laporanlumbung->lumbung)
+                                {{ $laporanlumbung->lumbung }}
+                            @elseif ($laporanlumbung->silos && $laporanlumbung->silos->nama)
+                                <a href="{{ route('filament.admin.resources.silos.view-silo', $laporanlumbung->silos->id) }}"
+                                    target="_blank" class="text-blue-600 hover:text-blue-800 underline">
+                                    {{ $laporanlumbung->silos->nama }}
+                                </a>
+                            @else
+                                <span class="text-gray-500 dark:text-gray-400">-</span>
+                            @endif
                         </td>
                     </tr>
                 </tbody>
@@ -127,12 +136,12 @@
                             @if ($itemMasuk)
                                 @if ($itemMasuk->type == 'dryer')
                                     <a href="{{ route('filament.admin.resources.dryers.view-dryer', $itemMasuk->data->id) }}"
-                                        target="_blank" class="text-blue-600 hover:text-blue-800">
+                                        target="_blank" class="text-blue-600 hover:text-blue-800 underline">
                                         {{ $itemMasuk->data->no_dryer }}
                                     </a>
                                 @elseif ($itemMasuk->type == 'transfer_masuk')
                                     <a href="{{ route('filament.admin.resources.transfers.view-transfer', $itemMasuk->data->id) }}"
-                                        target="_blank" class="text-blue-600 hover:text-blue-800">
+                                        target="_blank" class="text-blue-600 hover:text-blue-800 underline">
                                         {{ $itemMasuk->data->kode ?? 'Transfer' }}</a>
                                 @endif
                             @else
@@ -156,7 +165,7 @@
                             @if ($itemKeluar)
                                 @if ($itemKeluar->type == 'penjualan')
                                     <a href="{{ route('filament.admin.resources.penjualans.view-penjualan', $itemKeluar->data->id) }}"
-                                        target="_blank" class="text-blue-600 hover:text-blue-800">
+                                        target="_blank" class="text-blue-600 hover:text-blue-800 underline">
                                         {{ $itemKeluar->data->no_spb }}
                                     </a>
                                     @if ($itemKeluar->data->silo)
@@ -164,9 +173,9 @@
                                     @endif
                                 @elseif ($itemKeluar->type == 'transfer_keluar')
                                     <a href="{{ route('filament.admin.resources.transfers.view-transfer', $itemKeluar->data->id) }}"
-                                        target="_blank" class="text-blue-600 hover:text-blue-800">
+                                        target="_blank" class="text-blue-600 hover:text-blue-800 underline">
                                         {{ $itemKeluar->data->kode }} -
-                                        {{ $itemKeluar->data->laporanLumbungMasuk->status_silo ?? $itemKeluar->data->laporanLumbungMasuk->lumbung }}</a>
+                                        {{ $itemKeluar->data->laporanLumbungMasuk->status_silo ?? ($itemKeluar->data->laporanLumbungMasuk->lumbung ?? '-') }}</a>
                                 @endif
                             @else
                                 -

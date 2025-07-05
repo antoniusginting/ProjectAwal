@@ -33,20 +33,34 @@ class ListLaporanLumbungs extends ListRecords
                     }
                 })
                 ->mutateFormDataUsing(function (array $data): array {
-                    // Auto-set lumbung berdasarkan tab aktif
+                    // Auto-set lumbung atau status_silo berdasarkan tab aktif
                     $activeLumbung = $this->getActiveLumbungCode();
+                    $activeSilo = $this->getActiveStatusSilo();
+
                     if ($activeLumbung) {
                         $data['lumbung'] = $activeLumbung;
                     }
+
+                    if ($activeSilo) {
+                        $data['status_silo'] = $activeSilo;
+                    }
+
                     return $data;
                 })
                 ->url(function () {
-                    // Pass parameter lumbung ke URL create
+                    // Pass parameter lumbung atau status_silo ke URL create
                     $activeLumbung = $this->getActiveLumbungCode();
+                    $activeSilo = $this->getActiveStatusSilo();
+
+                    $params = [];
                     if ($activeLumbung) {
-                        return $this->getResource()::getUrl('create', ['lumbung' => $activeLumbung]);
+                        $params['lumbung'] = $activeLumbung;
                     }
-                    return $this->getResource()::getUrl('create');
+                    if ($activeSilo) {
+                        $params['status_silo'] = $activeSilo;
+                    }
+
+                    return $this->getResource()::getUrl('create', $params);
                 }),
         ];
     }
@@ -64,13 +78,25 @@ class ListLaporanLumbungs extends ListRecords
             ->orWhere('lumbung', '')
             ->count();
 
-        $tabs['silo'] = Tab::make('SILO')
-            // ->badge($siloCount)
-            ->badgeColor('info')
-            ->modifyQueryUsing(function (Builder $query) {
-                return $query->whereNull('lumbung')
-                    ->orWhere('lumbung', '');
-            });
+        // $tabs['silo'] = Tab::make('SILO')
+        //     // ->badge($siloCount)
+        //     ->badgeColor('info')
+        //     ->modifyQueryUsing(function (Builder $query) {
+        //         return $query->whereNull('lumbung')
+        //             ->orWhere('lumbung', '');
+        //     });
+
+        // Tab untuk Silo berdasarkan status_silo
+        // Periksa nilai yang ada di database untuk debugging
+        $distinctStatusSilo = LaporanLumbung::whereNotNull('status_silo')
+            ->distinct()
+            ->pluck('status_silo')
+            ->toArray();
+
+        // Debug: uncomment baris berikut untuk melihat nilai yang ada
+        // dd($distinctStatusSilo);
+
+
 
         // Definisi lumbung A sampai I
         $lumbungList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
@@ -91,7 +117,29 @@ class ListLaporanLumbungs extends ListRecords
                     return $query->where('lumbung', $lumbungCode);
                 });
         }
+        $siloStatusList = [
+            'silo staffel a' => 'Silo Staffel A',
+            'silo staffel b' => 'Silo Staffel B',
+            'silo 2500' => 'Silo 2500',
+            'silo 1800' => 'Silo 1800'
+        ];
 
+        foreach ($siloStatusList as $statusValue => $tabLabel) {
+            // Ambil data terakhir berdasarkan created_at untuk status_silo ini
+            $latestRecord = LaporanLumbung::where('status_silo', $statusValue)
+                ->latest('created_at')
+                ->first();
+
+            // Tentukan badge dan icon berdasarkan status data terakhir
+            $badgeInfo = $this->getBadgeInfo($latestRecord);
+
+            $tabs['silo_' . $statusValue] = Tab::make($tabLabel)
+                ->badge($badgeInfo['icon'])
+                ->badgeColor($badgeInfo['color'])
+                ->modifyQueryUsing(function (Builder $query) use ($statusValue) {
+                    return $query->where('status_silo', $statusValue);
+                });
+        }
         return $tabs;
     }
 
@@ -137,6 +185,25 @@ class ListLaporanLumbungs extends ListRecords
             return true;
         }
 
+        // Tab untuk Silo berdasarkan status_silo
+        if (str_starts_with($activeTab, 'silo_')) {
+            $statusValue = str_replace('silo_', '', $activeTab);
+
+            $latestRecord = LaporanLumbung::where('status_silo', $statusValue)
+                ->latest('created_at')
+                ->first();
+
+            // Jika belum ada record, bisa menambah data
+            if (!$latestRecord) {
+                return true;
+            }
+
+            // Jika status false (tertutup), tidak bisa menambah data
+            // Jika status true (terbuka), bisa menambah data
+            return (bool) $latestRecord->status;
+        }
+
+        // Tab untuk Lumbung A-I
         if (str_starts_with($activeTab, 'lumbung_')) {
             $lumbungCode = strtoupper(str_replace('lumbung_', '', $activeTab));
 
@@ -144,10 +211,13 @@ class ListLaporanLumbungs extends ListRecords
                 ->latest('created_at')
                 ->first();
 
+            // Jika belum ada record, bisa menambah data
             if (!$latestRecord) {
                 return true;
             }
 
+            // Jika status false (tertutup), tidak bisa menambah data
+            // Jika status true (terbuka), bisa menambah data
             return (bool) $latestRecord->status;
         }
 
@@ -155,7 +225,7 @@ class ListLaporanLumbungs extends ListRecords
     }
 
     /**
-     * Menampilkan notifikasi ketika lumbung masih terbuka
+     * Menampilkan notifikasi ketika lumbung atau silo masih terbuka
      */
     private function showLumbungStatusNotification(): void
     {
@@ -170,7 +240,32 @@ class ListLaporanLumbungs extends ListRecords
                 ->danger()
                 ->duration(5000)
                 ->send();
+        } elseif (str_starts_with($activeTab, 'silo_')) {
+            $statusValue = str_replace('silo_', '', $activeTab);
+            $siloName = $this->getSiloDisplayName($statusValue);
+
+            Notification::make()
+                ->title('Tidak dapat menambah data')
+                ->body("Silo {$siloName} masih dalam status terbuka. Tutup silo terlebih dahulu sebelum menambah data baru.")
+                ->danger()
+                ->duration(5000)
+                ->send();
         }
+    }
+
+    /**
+     * Mendapatkan nama display untuk silo berdasarkan status value
+     */
+    private function getSiloDisplayName(string $statusValue): string
+    {
+        $siloNames = [
+            'silo staffel a' => 'Staffel A',
+            'silo staffel b' => 'Staffel B',
+            'silo 2500' => '2500',
+            'silo 1800' => '1800'
+        ];
+
+        return $siloNames[$statusValue] ?? $statusValue;
     }
 
     /**
@@ -187,6 +282,20 @@ class ListLaporanLumbungs extends ListRecords
 
         if (str_starts_with($activeTab, 'lumbung_')) {
             return strtoupper(str_replace('lumbung_', '', $activeTab));
+        }
+
+        return null;
+    }
+
+    /**
+     * Mendapatkan status_silo dari tab aktif
+     */
+    public function getActiveStatusSilo(): ?string
+    {
+        $activeTab = $this->activeTab ?? 'semua';
+
+        if (str_starts_with($activeTab, 'silo_')) {
+            return str_replace('silo_', '', $activeTab);
         }
 
         return null;

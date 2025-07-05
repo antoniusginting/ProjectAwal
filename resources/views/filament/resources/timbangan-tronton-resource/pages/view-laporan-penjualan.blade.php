@@ -78,7 +78,14 @@
                                 </td>
                                 <td
                                     class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap">
-                                    {{ $penjualan->no_spb ?? '' }}
+                                    @if ($penjualan && $penjualan->id)
+                                        <a href="{{ route('filament.admin.resources.penjualans.view-penjualan', $penjualan->id) }}"
+                                            target="_blank" class="text-blue-600 hover:text-blue-800 underline">
+                                            {{ $penjualan->no_spb ?? '-' }}
+                                        </a>
+                                    @else
+                                        <span class="text-gray-500 dark:text-gray-400">-</span>
+                                    @endif
                                 </td>
                                 <td
                                     class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap">

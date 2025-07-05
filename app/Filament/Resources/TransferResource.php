@@ -325,6 +325,7 @@ class TransferResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultPaginationPageOption(10)
             ->columns([
                 BadgeColumn::make('created_at')
                     ->label('Tanggal')
@@ -400,6 +401,7 @@ class TransferResource extends Resource
                 TextColumn::make('user.name')
                     ->label('User')
             ])
+            ->defaultSort('kode', 'desc')
             ->filters([
                 //
             ])
@@ -409,11 +411,11 @@ class TransferResource extends Resource
                     ->icon('heroicon-o-eye')
                     ->url(fn($record) => self::getUrl("view-transfer", ['record' => $record->id])),
             ], position: ActionsPosition::BeforeColumns);
-            // ->bulkActions([
-            //     Tables\Actions\BulkActionGroup::make([
-            //         Tables\Actions\DeleteBulkAction::make(),
-            //     ]),
-            // ]);
+        // ->bulkActions([
+        //     Tables\Actions\BulkActionGroup::make([
+        //         Tables\Actions\DeleteBulkAction::make(),
+        //     ]),
+        // ]);
     }
 
     public static function getRelations(): array

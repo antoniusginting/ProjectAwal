@@ -113,6 +113,13 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                                     'SILO 2500',
                                                     'SILO 1800'
                                                 ])
+                                                    ->where('status', '!=', true) // Tambahkan kondisi untuk mengecualikan status true
+                                                    // Atau bisa juga menggunakan:
+                                                    // ->where('status', false)
+                                                    // ->whereNull('status')
+                                                    // ->where(function($query) {
+                                                    //     $query->where('status', false)->orWhereNull('status');
+                                                    // })
                                                     ->get()
                                                     ->mapWithKeys(function ($item) {
                                                         return [
@@ -123,8 +130,65 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                             ->searchable()
                                             ->preload()
                                             ->nullable()
+                                            ->disabled(function (callable $get) {
+                                                // Disabled jika field lumbung terisi
+                                                return !empty($get('lumbung'));
+                                            })
                                             ->placeholder('Pilih')
                                             ->reactive()
+                                            ->default(function () {
+                                                // Auto-select berdasarkan parameter URL dari tab aktif
+                                                $statusSilo = request()->get('status_silo');
+
+                                                if ($statusSilo) {
+                                                    // Mapping dari parameter URL ke nama silo
+                                                    $statusMapping = [
+                                                        'silo staffel a' => 'SILO STAFFEL A',
+                                                        'silo staffel b' => 'SILO STAFFEL B',
+                                                        'silo 2500' => 'SILO 2500',
+                                                        'silo 1800' => 'SILO 1800',
+                                                    ];
+
+                                                    $namaTarget = $statusMapping[$statusSilo] ?? null;
+
+                                                    if ($namaTarget) {
+                                                        // Cari silo berdasarkan nama dan pastikan status bukan true
+                                                        $silo = Silo::where('nama', $namaTarget)
+                                                            ->where('status', '!=', true)
+                                                            ->first();
+                                                        return $silo ? $silo->id : null;
+                                                    }
+                                                }
+
+                                                return null;
+                                            })
+                                            ->afterStateHydrated(function (Select $component, $state, callable $set) {
+                                                // Jika belum ada nilai terpilih, set berdasarkan parameter URL
+                                                if (!$state) {
+                                                    $statusSilo = request()->get('status_silo');
+
+                                                    if ($statusSilo) {
+                                                        $statusMapping = [
+                                                            'silo staffel a' => 'SILO STAFFEL A',
+                                                            'silo staffel b' => 'SILO STAFFEL B',
+                                                            'silo 2500' => 'SILO 2500',
+                                                            'silo 1800' => 'SILO 1800',
+                                                        ];
+
+                                                        $namaTarget = $statusMapping[$statusSilo] ?? null;
+
+                                                        if ($namaTarget) {
+                                                            $silo = Silo::where('nama', $namaTarget)
+                                                                ->where('status', '!=', true)
+                                                                ->first();
+                                                            if ($silo) {
+                                                                $component->state($silo->id);
+                                                                $set('status_silo', $silo->nama); // Set status_silo juga
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            })
                                             ->afterStateUpdated(function ($state, callable $set) {
                                                 if ($state) {
                                                     // Ambil data silo berdasarkan ID yang dipilih
@@ -149,8 +213,26 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                                 'SILO 2500' => 'SILO 2500',
                                                 'SILO 1800' => 'SILO 1800',
                                             ])
+                                            ->default(function () {
+                                                // Ambil dari parameter URL yang sudah dikirim dari ListLaporanLumbungs
+                                                $statusSilo = request()->get('status_silo');
+
+                                                if ($statusSilo) {
+                                                    // Mapping dari database value ke display value
+                                                    $statusMapping = [
+                                                        'silo staffel a' => 'SILO STAFFEL A',
+                                                        'silo staffel b' => 'SILO STAFFEL B',
+                                                        'silo 2500' => 'SILO 2500',
+                                                        'silo 1800' => 'SILO 1800',
+                                                    ];
+
+                                                    return $statusMapping[strtolower($statusSilo)] ?? strtoupper($statusSilo);
+                                                }
+
+                                                return null;
+                                            })
                                             ->live()
-                                            ->reactive(),
+                                            ->reactive()
 
                                     ])->columnSpan(1)
                                 // ->afterStateUpdated(function (Set $set, $state) {
@@ -160,328 +242,310 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                 //     }
                                 // }),
                             ]),
-                        Card::make('Info Dryer')
-                            // ->visible(fn(Get $get) => $get('tipe_penjualan') === 'keluar')
-                            ->schema([
-                                Group::make([
-                                    // Field select yang bisa berubah menjadi readonly saat edit
-                                    Select::make('lumbung')
-                                        ->native(false)
-                                        ->disabled(true) // Selalu disabled
-                                        ->dehydrated(true) // Pastikan data tetap terkirim meski disabled
-                                        ->label('Lumbung Kering')
-                                        ->options([
-                                            'A' => 'A',
-                                            'B' => 'B',
-                                            'C' => 'C',
-                                            'D' => 'D',
-                                            'E' => 'E',
-                                            'F' => 'F',
-                                            'G' => 'G',
-                                            'H' => 'H',
-                                            'I' => 'I',
-                                        ])
-                                        ->default(function () {
-                                            // Set default dari request parameter atau record
-                                            if (request()->get('lumbung')) {
-                                                return request()->get('lumbung');
-                                            }
-
-                                            try {
-                                                $livewire = \Livewire\Livewire::current();
-                                                if ($livewire && method_exists($livewire, 'getRecord')) {
-                                                    $record = $livewire->getRecord();
-                                                    if ($record && isset($record->lumbung)) {
-                                                        return $record->lumbung;
-                                                    }
-                                                }
-                                            } catch (\Exception $e) {
-                                                // Ignore error
-                                            }
-
-                                            return null;
-                                        })
-                                        ->suffixIcon('heroicon-s-lock-closed') // Selalu tampilkan lock icon
-                                        ->helperText('Lumbung kering tidak dapat diubah.')
-                                        ->reactive(),
-                                    // ->afterStateUpdated(function ($state, $set, $get) {
-                                    //     // Reset dryer selection ketika lumbung berubah
-                                    //     $set('dryers', []);
-                                    // }),
-                                ])
-                                    ->columns(1),
-
-                                // Select::make('dryers')
-                                //     ->label('Dryer')
-                                //     ->multiple()
-                                //     ->disabled(fn(Get $get) => $get('tipe_penjualan') === 'masuk') // Disable jika 'masuk'
-                                //     ->relationship(
-                                //         name: 'dryers',
-                                //         titleAttribute: 'no_dryer',
-                                //         modifyQueryUsing: function (Builder $query, $get) {
-                                //             $selectedLumbung = $get('lumbung_display') ?: $get('lumbung');
-                                //             $currentDryers = $get('dryers') ?? [];
-
-                                //             // Coba ambil record dari berbagai context
-                                //             $currentRecordId = null;
-
-                                //             // Untuk EditRecord page
-                                //             if (request()->route('record')) {
-                                //                 $currentRecordId = request()->route('record');
-                                //             }
-
-                                //             // Atau dari Livewire component
-                                //             try {
-                                //                 $livewire = \Livewire\Livewire::current();
-                                //                 if ($livewire && method_exists($livewire, 'getRecord')) {
-                                //                     $record = $livewire->getRecord();
-                                //                     if ($record) {
-                                //                         $currentRecordId = $record->getKey();
-                                //                     }
-                                //                 }
-                                //             } catch (\Exception $e) {
-                                //                 // Ignore error jika tidak dalam context Livewire
-                                //             }
-
-                                //             // Ambil semua ID yang sudah digunakan
-                                //             $usedLaporanIds = DB::table('laporan_lumbung_has_dryers')
-                                //                 ->pluck('dryer_id')
-                                //                 ->toArray();
-
-                                //             // Jika sedang edit, ambil ID yang sudah terkait dengan record ini
-                                //             if ($currentRecordId) {
-                                //                 $currentlySelectedIds = DB::table('laporan_lumbung_has_dryers')
-                                //                     ->where('laporan_lumbung_id', $currentRecordId)
-                                //                     ->pluck('dryer_id')
-                                //                     ->toArray();
-
-                                //                 // Exclude currently selected IDs from used IDs
-                                //                 $usedLaporanIds = array_diff($usedLaporanIds, $currentlySelectedIds);
-                                //             }
-
-                                //             // Base query
-                                //             $query = $query
-                                //                 ->whereNotNull('dryers.lumbung_tujuan')
-                                //                 ->where('dryers.lumbung_tujuan', '!=', '');
-
-                                //             // Jika ada filter lumbung yang dipilih
-                                //             if ($selectedLumbung) {
-                                //                 // Include dryers yang sudah dipilih sebelumnya ATAU yang sesuai dengan filter
-                                //                 $query->where(function ($subQuery) use ($selectedLumbung, $currentDryers) {
-                                //                     $subQuery->where('dryers.lumbung_tujuan', $selectedLumbung);
-
-                                //                     // Jika ada dryers yang sudah dipilih, include mereka juga
-                                //                     if (!empty($currentDryers)) {
-                                //                         $subQuery->orWhereIn('dryers.id', $currentDryers);
-                                //                     }
-                                //                 });
-                                //             }
-                                //             $query->orderBy('dryers.created_at', 'desc');
-                                //             return $query->whereNotIn('dryers.id', $usedLaporanIds);
-                                //         }
-                                //     )
-                                //     ->preload()
-                                //     ->reactive()
-                                //     ->getOptionLabelFromRecordUsing(function ($record) {
-                                //         return $record->no_dryer . ' - Dryer : ' . $record->kapasitasdryer->nama_kapasitas_dryer . ' - Lumbung Kering : ' . $record->lumbung_tujuan;
-                                //     })
-                                //     ->afterStateUpdated(
-                                //         function ($state, callable $set, callable $get, $livewire, $old) {
-                                //             // app(DryerService::class)->updateStatusToCompleted(
-                                //             //     $state ?? [],
-                                //             //     $old ?? []
-                                //             // );
-                                //             // Hitung total netto dari dryer yang dipilih
-                                //             if (!empty($state)) {
-                                //                 // Ambil model Dryer (sesuaikan dengan nama model Anda)
-                                //                 $totalNetto = \App\Models\Dryer::whereIn('id', $state)
-                                //                     ->sum('total_netto');
-
-                                //                 // Set nilai ke field berat_dryer
-                                //                 $set('berat_dryer', $totalNetto);
-                                //             } else {
-                                //                 // Jika tidak ada dryer yang dipilih, set ke 0
-                                //                 $set('berat_dryer', 0);
-                                //             }
-                                //             // Hitung hasil setelah berat_dryer berubah
-                                //             $totalDryer = (float) ($get('berat_dryer') ?? 0);
-                                //             $beratPenjualan = (float) ($get('berat_penjualan') ?? 0);
-                                //             $set('hasil', $totalDryer - $beratPenjualan);
-                                //         }
-                                //     )->preload()
-                                //     ->searchable(),
-                            ])->columnSpan(2),
-                        // Card::make('Info Laporan Penjualan')
+                        // Card::make('Info Dryer')
+                        //     // ->visible(fn(Get $get) => $get('tipe_penjualan') === 'keluar')
                         //     ->schema([
-                        //         // Select::make('lumbung')
-                        //         //     ->native(false)
-                        //         //     ->disabled(fn(Get $get) => $get('tipe_penjualan') === 'masuk')
-                        //         //     ->label('Lumbung')
-                        //         //     ->options(function () {
-                        //         //         return \App\Models\Penjualan::query()
-                        //         //             ->whereNotNull('nama_lumbung')
-                        //         //             ->where('nama_lumbung', '!=', '')
-                        //         //             ->whereNotIn('nama_lumbung', [
-                        //         //                 'SILO STAFFEL A',
-                        //         //                 'SILO STAFFEL B',
-                        //         //                 'SILO BESAR',
-                        //         //                 'SILO 2500',
-                        //         //                 'SILO 1800'
-                        //         //             ])
-                        //         //             ->distinct()
-                        //         //             ->pluck('nama_lumbung', 'nama_lumbung')
-                        //         //             ->toArray();
-                        //         //     })
-                        //         //     ->reactive()
-                        //         //     ->afterStateHydrated(function (Select $component, $state) {
-                        //         //         // Jika state kosong dan ada nilai default dari tab, gunakan nilai default
-                        //         //         if (empty($state) && request()->has('activeTab')) {
-                        //         //             $activeTab = request()->get('activeTab');
-                        //         //             if (str_starts_with($activeTab, 'lumbung_')) {
-                        //         //                 $lumbungCode = strtoupper(str_replace('lumbung_', '', $activeTab));
-                        //         //                 $lumbungMapping = [
-                        //         //                     'A' => 'A', // Sesuaikan dengan nama yang ada di database
-                        //         //                     'B' => 'B',
-                        //         //                     'C' => 'C',
-                        //         //                     'D' => 'D',
-                        //         //                     'E' => 'E',
-                        //         //                     'F' => 'F',
-                        //         //                     'G' => 'G',
-                        //         //                     'H' => 'H',
-                        //         //                     'I' => 'I',
-                        //         //                 ];
+                        //         Group::make([
+                        // Field select yang bisa berubah menjadi readonly saat edit
+                        Hidden::make('lumbung')
+                            ->default(function () {
+                                // Set default dari request parameter atau record
+                                if (request()->get('lumbung')) {
+                                    return request()->get('lumbung');
+                                }
 
-                        //         //                 if (isset($lumbungMapping[$lumbungCode])) {
-                        //         //                     $component->state($lumbungMapping[$lumbungCode]);
-                        //         //                 }
-                        //         //             }
-                        //         //         }
-                        //         //     }),
-                        //         // ->disabled(function (callable $get, ?\Illuminate\Database\Eloquent\Model $record) {
-                        //         //     // Disable saat edit, misal jika $record ada berarti edit
-                        //         //     return $record !== null;
-                        //         // }),
+                                try {
+                                    $livewire = \Livewire\Livewire::current();
+                                    if ($livewire && method_exists($livewire, 'getRecord')) {
+                                        $record = $livewire->getRecord();
+                                        if ($record && isset($record->lumbung)) {
+                                            return $record->lumbung;
+                                        }
+                                    }
+                                } catch (\Exception $e) {
+                                    // Ignore error
+                                }
+
+                                return null;
+                            }),
+                        // ->afterStateUpdated(function ($state, $set, $get) {
+                        //     // Reset dryer selection ketika lumbung berubah
+                        //     $set('dryers', []);
+                        // }),
+                    ])
+                    ->columns(1),
+
+                // Select::make('dryers')
+                //     ->label('Dryer')
+                //     ->multiple()
+                //     ->disabled(fn(Get $get) => $get('tipe_penjualan') === 'masuk') // Disable jika 'masuk'
+                //     ->relationship(
+                //         name: 'dryers',
+                //         titleAttribute: 'no_dryer',
+                //         modifyQueryUsing: function (Builder $query, $get) {
+                //             $selectedLumbung = $get('lumbung_display') ?: $get('lumbung');
+                //             $currentDryers = $get('dryers') ?? [];
+
+                //             // Coba ambil record dari berbagai context
+                //             $currentRecordId = null;
+
+                //             // Untuk EditRecord page
+                //             if (request()->route('record')) {
+                //                 $currentRecordId = request()->route('record');
+                //             }
+
+                //             // Atau dari Livewire component
+                //             try {
+                //                 $livewire = \Livewire\Livewire::current();
+                //                 if ($livewire && method_exists($livewire, 'getRecord')) {
+                //                     $record = $livewire->getRecord();
+                //                     if ($record) {
+                //                         $currentRecordId = $record->getKey();
+                //                     }
+                //                 }
+                //             } catch (\Exception $e) {
+                //                 // Ignore error jika tidak dalam context Livewire
+                //             }
+
+                //             // Ambil semua ID yang sudah digunakan
+                //             $usedLaporanIds = DB::table('laporan_lumbung_has_dryers')
+                //                 ->pluck('dryer_id')
+                //                 ->toArray();
+
+                //             // Jika sedang edit, ambil ID yang sudah terkait dengan record ini
+                //             if ($currentRecordId) {
+                //                 $currentlySelectedIds = DB::table('laporan_lumbung_has_dryers')
+                //                     ->where('laporan_lumbung_id', $currentRecordId)
+                //                     ->pluck('dryer_id')
+                //                     ->toArray();
+
+                //                 // Exclude currently selected IDs from used IDs
+                //                 $usedLaporanIds = array_diff($usedLaporanIds, $currentlySelectedIds);
+                //             }
+
+                //             // Base query
+                //             $query = $query
+                //                 ->whereNotNull('dryers.lumbung_tujuan')
+                //                 ->where('dryers.lumbung_tujuan', '!=', '');
+
+                //             // Jika ada filter lumbung yang dipilih
+                //             if ($selectedLumbung) {
+                //                 // Include dryers yang sudah dipilih sebelumnya ATAU yang sesuai dengan filter
+                //                 $query->where(function ($subQuery) use ($selectedLumbung, $currentDryers) {
+                //                     $subQuery->where('dryers.lumbung_tujuan', $selectedLumbung);
+
+                //                     // Jika ada dryers yang sudah dipilih, include mereka juga
+                //                     if (!empty($currentDryers)) {
+                //                         $subQuery->orWhereIn('dryers.id', $currentDryers);
+                //                     }
+                //                 });
+                //             }
+                //             $query->orderBy('dryers.created_at', 'desc');
+                //             return $query->whereNotIn('dryers.id', $usedLaporanIds);
+                //         }
+                //     )
+                //     ->preload()
+                //     ->reactive()
+                //     ->getOptionLabelFromRecordUsing(function ($record) {
+                //         return $record->no_dryer . ' - Dryer : ' . $record->kapasitasdryer->nama_kapasitas_dryer . ' - Lumbung Kering : ' . $record->lumbung_tujuan;
+                //     })
+                //     ->afterStateUpdated(
+                //         function ($state, callable $set, callable $get, $livewire, $old) {
+                //             // app(DryerService::class)->updateStatusToCompleted(
+                //             //     $state ?? [],
+                //             //     $old ?? []
+                //             // );
+                //             // Hitung total netto dari dryer yang dipilih
+                //             if (!empty($state)) {
+                //                 // Ambil model Dryer (sesuaikan dengan nama model Anda)
+                //                 $totalNetto = \App\Models\Dryer::whereIn('id', $state)
+                //                     ->sum('total_netto');
+
+                //                 // Set nilai ke field berat_dryer
+                //                 $set('berat_dryer', $totalNetto);
+                //             } else {
+                //                 // Jika tidak ada dryer yang dipilih, set ke 0
+                //                 $set('berat_dryer', 0);
+                //             }
+                //             // Hitung hasil setelah berat_dryer berubah
+                //             $totalDryer = (float) ($get('berat_dryer') ?? 0);
+                //             $beratPenjualan = (float) ($get('berat_penjualan') ?? 0);
+                //             $set('hasil', $totalDryer - $beratPenjualan);
+                //         }
+                //     )->preload()
+                //     ->searchable(),
+                // ])->columnSpan(2),
+                // Card::make('Info Laporan Penjualan')
+                //     ->schema([
+                //         // Select::make('lumbung')
+                //         //     ->native(false)
+                //         //     ->disabled(fn(Get $get) => $get('tipe_penjualan') === 'masuk')
+                //         //     ->label('Lumbung')
+                //         //     ->options(function () {
+                //         //         return \App\Models\Penjualan::query()
+                //         //             ->whereNotNull('nama_lumbung')
+                //         //             ->where('nama_lumbung', '!=', '')
+                //         //             ->whereNotIn('nama_lumbung', [
+                //         //                 'SILO STAFFEL A',
+                //         //                 'SILO STAFFEL B',
+                //         //                 'SILO BESAR',
+                //         //                 'SILO 2500',
+                //         //                 'SILO 1800'
+                //         //             ])
+                //         //             ->distinct()
+                //         //             ->pluck('nama_lumbung', 'nama_lumbung')
+                //         //             ->toArray();
+                //         //     })
+                //         //     ->reactive()
+                //         //     ->afterStateHydrated(function (Select $component, $state) {
+                //         //         // Jika state kosong dan ada nilai default dari tab, gunakan nilai default
+                //         //         if (empty($state) && request()->has('activeTab')) {
+                //         //             $activeTab = request()->get('activeTab');
+                //         //             if (str_starts_with($activeTab, 'lumbung_')) {
+                //         //                 $lumbungCode = strtoupper(str_replace('lumbung_', '', $activeTab));
+                //         //                 $lumbungMapping = [
+                //         //                     'A' => 'A', // Sesuaikan dengan nama yang ada di database
+                //         //                     'B' => 'B',
+                //         //                     'C' => 'C',
+                //         //                     'D' => 'D',
+                //         //                     'E' => 'E',
+                //         //                     'F' => 'F',
+                //         //                     'G' => 'G',
+                //         //                     'H' => 'H',
+                //         //                     'I' => 'I',
+                //         //                 ];
+
+                //         //                 if (isset($lumbungMapping[$lumbungCode])) {
+                //         //                     $component->state($lumbungMapping[$lumbungCode]);
+                //         //                 }
+                //         //             }
+                //         //         }
+                //         //     }),
+                //         // ->disabled(function (callable $get, ?\Illuminate\Database\Eloquent\Model $record) {
+                //         //     // Disable saat edit, misal jika $record ada berarti edit
+                //         //     return $record !== null;
+                //         // }),
 
 
-                        //         Select::make('timbanganTrontons')
-                        //             ->label('Laporan Penjualan')
-                        //             ->disabled(fn(Get $get) => $get('tipe_penjualan') === 'masuk') // Disable jika 'masuk'
-                        //             ->multiple()
-                        //             ->relationship(
-                        //                 name: 'timbanganTrontons',
-                        //                 titleAttribute: 'kode',
-                        //                 modifyQueryUsing: function (Builder $query, $get) {
-                        //                     // Coba ambil record dari berbagai context
-                        //                     $currentRecordId = null;
+                //         Select::make('timbanganTrontons')
+                //             ->label('Laporan Penjualan')
+                //             ->disabled(fn(Get $get) => $get('tipe_penjualan') === 'masuk') // Disable jika 'masuk'
+                //             ->multiple()
+                //             ->relationship(
+                //                 name: 'timbanganTrontons',
+                //                 titleAttribute: 'kode',
+                //                 modifyQueryUsing: function (Builder $query, $get) {
+                //                     // Coba ambil record dari berbagai context
+                //                     $currentRecordId = null;
 
-                        //                     // Untuk EditRecord page
-                        //                     if (request()->route('record')) {
-                        //                         $currentRecordId = request()->route('record');
-                        //                     }
+                //                     // Untuk EditRecord page
+                //                     if (request()->route('record')) {
+                //                         $currentRecordId = request()->route('record');
+                //                     }
 
-                        //                     // Atau dari Livewire component
-                        //                     try {
-                        //                         $livewire = \Livewire\Livewire::current();
-                        //                         if ($livewire && method_exists($livewire, 'getRecord')) {
-                        //                             $record = $livewire->getRecord();
-                        //                             if ($record) {
-                        //                                 $currentRecordId = $record->getKey();
-                        //                             }
-                        //                         }
-                        //                     } catch (\Exception $e) {
-                        //                         // Ignore error jika tidak dalam context Livewire
-                        //                     }
+                //                     // Atau dari Livewire component
+                //                     try {
+                //                         $livewire = \Livewire\Livewire::current();
+                //                         if ($livewire && method_exists($livewire, 'getRecord')) {
+                //                             $record = $livewire->getRecord();
+                //                             if ($record) {
+                //                                 $currentRecordId = $record->getKey();
+                //                             }
+                //                         }
+                //                     } catch (\Exception $e) {
+                //                         // Ignore error jika tidak dalam context Livewire
+                //                     }
 
-                        //                     $relasiPenjualan = ['penjualan1', 'penjualan2', 'penjualan3', 'penjualan4', 'penjualan5', 'penjualan6'];
-                        //                     $selectedNamaLumbung = $get('lumbung');
+                //                     $relasiPenjualan = ['penjualan1', 'penjualan2', 'penjualan3', 'penjualan4', 'penjualan5', 'penjualan6'];
+                //                     $selectedNamaLumbung = $get('lumbung');
 
-                        //                     $query = $query->where(function ($query) use ($relasiPenjualan, $selectedNamaLumbung) {
-                        //                         foreach ($relasiPenjualan as $index => $relasi) {
-                        //                             $method = $index === 0 ? 'whereHas' : 'orWhereHas';
+                //                     $query = $query->where(function ($query) use ($relasiPenjualan, $selectedNamaLumbung) {
+                //                         foreach ($relasiPenjualan as $index => $relasi) {
+                //                             $method = $index === 0 ? 'whereHas' : 'orWhereHas';
 
-                        //                             $query->$method($relasi, function (Builder $q) use ($selectedNamaLumbung) {
-                        //                                 $q->whereNotNull('nama_lumbung')
-                        //                                     ->where('nama_lumbung', '!=', '');
+                //                             $query->$method($relasi, function (Builder $q) use ($selectedNamaLumbung) {
+                //                                 $q->whereNotNull('nama_lumbung')
+                //                                     ->where('nama_lumbung', '!=', '');
 
-                        //                                 if ($selectedNamaLumbung) {
-                        //                                     $q->where('nama_lumbung', $selectedNamaLumbung);
-                        //                                 }
-                        //                             });
-                        //                         }
-                        //                     });
+                //                                 if ($selectedNamaLumbung) {
+                //                                     $q->where('nama_lumbung', $selectedNamaLumbung);
+                //                                 }
+                //                             });
+                //                         }
+                //                     });
 
-                        //                     $query->where(function ($q) {
-                        //                         $q->where('status', false)  // status = 0 / false
-                        //                             ->orWhereNull('status');  // atau status = null
-                        //                     });
-                        //                     $query->orderBy('timbangan_trontons.created_at', 'desc');
-                        //                     $query->limit(20);
-                        //                     return $query;
-                        //                 }
-                        //             )
-                        //             ->preload()
-                        //             ->reactive()
-                        //             ->getOptionLabelFromRecordUsing(function ($record) {
-                        //                 $noBk = $record->penjualan1 ? $record->penjualan1->plat_polisi : 'N/A';
-                        //                 return $record->kode . ' - ' . $noBk . ' - ' . ($record->penjualan1->nama_supir ?? '') . ' - ' . $record->total_netto;
-                        //             })
-                        //             ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                        //                 if (!empty($state)) {
-                        //                     $selectedLumbung = $get('lumbung'); // Ambil lumbung yang dipilih
-                        //                     $totalNetto = 0;
+                //                     $query->where(function ($q) {
+                //                         $q->where('status', false)  // status = 0 / false
+                //                             ->orWhereNull('status');  // atau status = null
+                //                     });
+                //                     $query->orderBy('timbangan_trontons.created_at', 'desc');
+                //                     $query->limit(20);
+                //                     return $query;
+                //                 }
+                //             )
+                //             ->preload()
+                //             ->reactive()
+                //             ->getOptionLabelFromRecordUsing(function ($record) {
+                //                 $noBk = $record->penjualan1 ? $record->penjualan1->plat_polisi : 'N/A';
+                //                 return $record->kode . ' - ' . $noBk . ' - ' . ($record->penjualan1->nama_supir ?? '') . ' - ' . $record->total_netto;
+                //             })
+                //             ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                //                 if (!empty($state)) {
+                //                     $selectedLumbung = $get('lumbung'); // Ambil lumbung yang dipilih
+                //                     $totalNetto = 0;
 
-                        //                     // Loop melalui setiap timbangan yang dipilih
-                        //                     foreach ($state as $timbanganId) {
-                        //                         // Ambil record timbangan dengan relasi penjualan
-                        //                         $timbangan = \App\Models\TimbanganTronton::with([
-                        //                             'penjualan1',
-                        //                             'penjualan2',
-                        //                             'penjualan3',
-                        //                             'penjualan4',
-                        //                             'penjualan5',
-                        //                             'penjualan6'
-                        //                         ])->find($timbanganId);
+                //                     // Loop melalui setiap timbangan yang dipilih
+                //                     foreach ($state as $timbanganId) {
+                //                         // Ambil record timbangan dengan relasi penjualan
+                //                         $timbangan = \App\Models\TimbanganTronton::with([
+                //                             'penjualan1',
+                //                             'penjualan2',
+                //                             'penjualan3',
+                //                             'penjualan4',
+                //                             'penjualan5',
+                //                             'penjualan6'
+                //                         ])->find($timbanganId);
 
-                        //                         if ($timbangan) {
-                        //                             // Array relasi penjualan
-                        //                             $relasiPenjualan = ['penjualan1', 'penjualan2', 'penjualan3', 'penjualan4', 'penjualan5', 'penjualan6'];
+                //                         if ($timbangan) {
+                //                             // Array relasi penjualan
+                //                             $relasiPenjualan = ['penjualan1', 'penjualan2', 'penjualan3', 'penjualan4', 'penjualan5', 'penjualan6'];
 
-                        //                             // Loop melalui setiap relasi penjualan
-                        //                             foreach ($relasiPenjualan as $relasi) {
-                        //                                 $penjualan = $timbangan->$relasi;
+                //                             // Loop melalui setiap relasi penjualan
+                //                             foreach ($relasiPenjualan as $relasi) {
+                //                                 $penjualan = $timbangan->$relasi;
 
-                        //                                 // Jika penjualan ada dan nama_lumbung sesuai dengan yang dipilih
-                        //                                 if (
-                        //                                     $penjualan &&
-                        //                                     $penjualan->nama_lumbung &&
-                        //                                     $penjualan->nama_lumbung === $selectedLumbung
-                        //                                 ) {
+                //                                 // Jika penjualan ada dan nama_lumbung sesuai dengan yang dipilih
+                //                                 if (
+                //                                     $penjualan &&
+                //                                     $penjualan->nama_lumbung &&
+                //                                     $penjualan->nama_lumbung === $selectedLumbung
+                //                                 ) {
 
-                        //                                     // Tambahkan netto penjualan ke total
-                        //                                     $totalNetto += $penjualan->netto ?? 0;
-                        //                                 }
-                        //                             }
-                        //                         }
-                        //                     }
+                //                                     // Tambahkan netto penjualan ke total
+                //                                     $totalNetto += $penjualan->netto ?? 0;
+                //                                 }
+                //                             }
+                //                         }
+                //                     }
 
-                        //                     // Set nilai ke field berat_penjualan
-                        //                     $set('berat_penjualan', $totalNetto);
-                        //                 } else {
-                        //                     // Jika tidak ada timbangan yang dipilih, set ke 0
-                        //                     $set('berat_penjualan', 0);
-                        //                 }
+                //                     // Set nilai ke field berat_penjualan
+                //                     $set('berat_penjualan', $totalNetto);
+                //                 } else {
+                //                     // Jika tidak ada timbangan yang dipilih, set ke 0
+                //                     $set('berat_penjualan', 0);
+                //                 }
 
-                        //                 // Hitung hasil setelah berat_penjualan berubah
-                        //                 $totalDryer = (float) ($get('berat_dryer') ?? 0);
-                        //                 $beratPenjualan = (float) ($get('berat_penjualan') ?? 0);
-                        //                 $set('hasil', $totalDryer - $beratPenjualan);
-                        //             }),
-                        //     ])->columnSpan(1),
+                //                 // Hitung hasil setelah berat_penjualan berubah
+                //                 $totalDryer = (float) ($get('berat_dryer') ?? 0);
+                //                 $beratPenjualan = (float) ($get('berat_penjualan') ?? 0);
+                //                 $set('hasil', $totalDryer - $beratPenjualan);
+                //             }),
+                //     ])->columnSpan(1),
 
-                        Hidden::make('user_id')
-                            ->label('User ID')
-                            ->default(Auth::id()) // Set nilai default user yang sedang login,
-                    ])->columns(2),
+                Hidden::make('user_id')
+                    ->label('User ID')
+                    ->default(Auth::id()) // Set nilai default user yang sedang login,
+                // ])->columns(2),
                 // Card::make('Info Timbangan Langsir')
                 //     ->schema([
 

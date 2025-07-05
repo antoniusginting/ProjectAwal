@@ -9,7 +9,10 @@
                     <div class="space-y-4">
                         <div class="flex items-center">
                             <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">No SPB</p>
-                            <p class="text-gray-600 dark:text-gray-400">: {{ $sortiran->pembelian->no_spb }}</p>
+                            <p class="text-gray-600 dark:text-gray-400">: 
+                                <a href="{{ route('filament.admin.resources.pembelians.view-pembelian', $sortiran->pembelian->id ?? '') }}"
+                                        target="_blank"
+                                        class="text-blue-600 hover:text-blue-800 underline">{{ $sortiran->pembelian->no_spb }}</a></p>
                         </div>
                         <div class="flex items-center">
                             <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Supplier</p>

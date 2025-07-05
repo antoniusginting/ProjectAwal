@@ -154,7 +154,7 @@
                                 <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                                     <a href="{{ route('filament.admin.resources.laporan-lumbungs.view-laporan-lumbung', $laporan->id ?? '') }}"
                                         target="_blank"
-                                        class="text-blue-600 hover:text-blue-800">{{ $laporan->kode }}</a>
+                                        class="text-blue-600 hover:text-blue-800 underline">{{ $laporan->kode }}</a>
                                 </td>
                                 <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                                     @if ($laporan->transferMasuk->count() > 0)
@@ -281,7 +281,7 @@
                                 <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                                     <a href="{{ route('filament.admin.resources.penjualans.view-penjualan', $penjualan->id ?? '') }}"
                                         target="_blank"
-                                        class="text-blue-600 hover:text-blue-800">{{ $penjualan->no_spb ?? '-' }} </a>
+                                        class="text-blue-600 hover:text-blue-800 underline">{{ $penjualan->no_spb ?? '-' }} </a>
                                 </td>
                                 {{-- <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                                     {{ $penjualan->nama ?? ($penjualan->nama_lumbung ?? ($penjualan->lumbung ?? '-')) }}
