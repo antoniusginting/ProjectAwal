@@ -322,6 +322,24 @@ class SiloResource extends Resource
                         $laporanlumbung = $record->laporanlumbungs->pluck('kode');
                         return $laporanlumbung->implode(', ');
                     }),
+                TextColumn::make('penjualans.no_spb')
+                    ->alignCenter()
+                    ->searchable()
+                    ->placeholder('-----')
+                    ->label('No Penjualan')
+                    ->getStateUsing(function ($record) {
+                        $penjualan = $record->penjualans->pluck('no_spb');
+
+                        if ($penjualan->count() <= 3) {
+                            return $penjualan->implode(', ');
+                        }
+
+                        return $penjualan->take(3)->implode(', ') . '...';
+                    })
+                    ->tooltip(function ($record) {
+                        $penjualan = $record->penjualans->pluck('no_spb');
+                        return $penjualan->implode(', ');
+                    }),
                 // TextColumn::make('timbanganTrontons.kode')
                 //     ->alignCenter()
                 //     ->searchable()
