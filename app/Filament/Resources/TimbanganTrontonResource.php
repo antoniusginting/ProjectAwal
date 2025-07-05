@@ -1001,13 +1001,11 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
 
                                                         return $luarQuery
                                                             ->latest()
-                                                            ->with(['supplier'])
                                                             ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT'])
                                                             ->get()
                                                             ->mapWithKeys(function ($item) {
                                                                 return [
                                                                     $item->id => $item->kode .
-                                                                        ' - ' . $item->supplier->nama_supplier .
                                                                         ' - ' . $item->kode_segel .
                                                                         ' - ' . $item->no_container
                                                                 ];
@@ -1094,13 +1092,11 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
 
                                                         return $luarQuery
                                                             ->latest()
-                                                            ->with(['supplier'])
                                                             ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT'])
                                                             ->get()
                                                             ->mapWithKeys(function ($item) {
                                                                 return [
                                                                     $item->id => $item->kode .
-                                                                        ' - ' . $item->supplier->nama_supplier .
                                                                         ' - ' . $item->kode_segel .
                                                                         ' - ' . $item->no_container
                                                                 ];
@@ -1207,13 +1203,11 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
 
                                                         return $luarQuery
                                                             ->latest()
-                                                            ->with(['supplier'])
                                                             ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT'])
                                                             ->get()
                                                             ->mapWithKeys(function ($item) {
                                                                 return [
                                                                     $item->id => $item->kode .
-                                                                        ' - ' . $item->supplier->nama_supplier .
                                                                         ' - ' . $item->kode_segel .
                                                                         ' - ' . $item->no_container
                                                                 ];

@@ -17,6 +17,10 @@ class Silo extends Model
     {
         return $this->hasMany(LaporanLumbung::class);
     }
+    public function luars()
+    {
+        return $this->hasMany(Luar::class);
+    }
     public function stockLuar()
     {
         return $this->hasMany(StockLuar::class);

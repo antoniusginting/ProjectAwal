@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use Carbon\Carbon;
 use Filament\Forms;
 use App\Models\Luar;
+use App\Models\Silo;
 use Filament\Tables;
 use App\Models\Supplier;
 use Filament\Forms\Form;
@@ -32,8 +33,8 @@ use App\Filament\Resources\LuarResource\Pages\EditLuar;
 use App\Filament\Resources\LuarResource\Pages\ListLuars;
 use App\Filament\Resources\LuarResource\Pages\CreateLuar;
 use App\Filament\Resources\LuarResource\RelationManagers;
-use App\Filament\Resources\PembelianResource\Pages\EditPembelian;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use App\Filament\Resources\PembelianResource\Pages\EditPembelian;
 
 class LuarResource extends Resource implements HasShieldPermissions
 {
@@ -91,11 +92,43 @@ class LuarResource extends Resource implements HasShieldPermissions
                                     ->autocomplete('off')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan Nama Barang'),
-                                Select::make('id_supplier')
+                                // Select::make('id_supplier')
+                                //     ->label('Supplier')
+                                //     ->placeholder('Pilih Supplier')
+                                //     ->options(Supplier::pluck('nama_supplier', 'id')) // Ambil daftar mobil
+                                //     ->searchable(), // Biar bisa cari
+                                Select::make('silo_id')
                                     ->label('Supplier')
-                                    ->placeholder('Pilih Supplier')
-                                    ->options(Supplier::pluck('nama_supplier', 'id')) // Ambil daftar mobil
-                                    ->searchable(), // Biar bisa cari
+                                    ->options(function () {
+                                        return Silo::whereNotIn('nama', [
+                                            'SILO STAFFEL A',
+                                            'SILO STAFFEL B',
+                                            'SILO 2500',
+                                            'SILO 1800'
+                                        ])
+                                            ->get()
+                                            ->mapWithKeys(function ($item) {
+                                                return [
+                                                    $item->id =>  $item->nama
+                                                ];
+                                            });
+                                    })
+                                    ->searchable()
+                                    ->preload()
+                                    ->nullable()
+                                    ->placeholder('Pilih')
+                                    ->reactive()
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        if ($state) {
+                                            // Ambil data silo berdasarkan ID yang dipilih
+                                            $silo = Silo::find($state);
+                                            if ($silo) {
+                                                $set('status_silo', $silo->nama); // Set status sesuai nama silo
+                                            }
+                                        } else {
+                                            $set('status_silo', null);
+                                        }
+                                    }),
                                 TextInput::make('netto')
                                     ->label('Netto')
                                     ->placeholder('Masukkan Netto')
@@ -172,7 +205,7 @@ class LuarResource extends Resource implements HasShieldPermissions
                 TextColumn::make('kode_segel')
                     ->label('Kode Segel')
                     ->searchable(),
-                TextColumn::make('supplier.nama_supplier')->label('Supplier')
+                TextColumn::make('silos.nama')->label('Supplier')
                     ->searchable(),
                 TextColumn::make('nama_barang')
                     ->searchable(),
@@ -206,10 +239,10 @@ class LuarResource extends Resource implements HasShieldPermissions
                         $query->whereNull('tara')
                     )
                     ->toggle() // Filter ini dapat diaktifkan/nonaktifkan oleh pengguna
-                    // ->default(function () {
-                    //     // Filter aktif secara default hanya jika pengguna BUKAN super_admin ,'admin'
-                    //     return !optional(Auth::user())->hasAnyRole(['super_admin']);
-                    // })
+                // ->default(function () {
+                //     // Filter aktif secara default hanya jika pengguna BUKAN super_admin ,'admin'
+                //     return !optional(Auth::user())->hasAnyRole(['super_admin']);
+                // })
             ]);
     }
 

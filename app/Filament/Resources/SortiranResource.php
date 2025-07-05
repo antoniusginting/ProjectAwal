@@ -105,6 +105,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                             ->whereNotNull('tara')
                                             ->whereNotIn('nama_barang', ['CANGKANG', 'SEKAM', 'SALAH', 'RETUR', 'SEKAM PADI', 'BESI', 'LANGSIR SILO', 'PASIR', 'JG TUNGKUL', 'SAMPAH', 'ABU JAGUNG'])
                                             ->whereNotIn('id', $idsYangDikecualikan)
+                                            ->whereDate('created_at', '!=', '2025-06-03')
                                             ->latest();
 
                                         // Pastikan data yang sedang dipilih (saat edit) tetap ada

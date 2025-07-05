@@ -14,7 +14,7 @@
                         <div class="flex items-center">
                             <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Supplier</p>
                             <p class="text-gray-600 dark:text-gray-400">:
-                                {{ $sortiran->pembelian->supplier->nama_supplier }}</p>
+                                {{ $sortiran->pembelian->supplier->nama_supplier ?? '-' }}</p>
                         </div>
                         <div class="flex items-center">
                             <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Plat Polisi</p>
