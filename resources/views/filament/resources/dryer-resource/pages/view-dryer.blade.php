@@ -144,7 +144,7 @@
                                     <td class="border text-right p-2 border-gray-300 dark:border-gray-700">
                                         {{ $sortiran->netto_bersih ?? '-' }}
                                     </td>
-                                    <td class="border text-center p-2 border-gray-300 dark:border-gray-700" >
+                                    <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
                                         @php
                                             // Logic untuk menentukan no_spb
                                             $noSpb = '-';
@@ -172,7 +172,8 @@
 
                                         {{-- Tampilkan hyperlink hanya jika dari pembelian --}}
                                         @if ($isFromPembelian && $noSpb !== '-')
-                                            <a  href="{{ route('filament.admin.resources.sortirans.view-sortiran', $sortiran->id) }} " target="blank">
+                                            <a href="{{ route('filament.admin.resources.sortirans.view-sortiran', $sortiran->id) }} "
+                                                target="blank">
                                                 {{ $noSpb }}
                                             </a>
                                         @else
@@ -410,6 +411,29 @@
                 </tbody>
             </table> --}}
 
+            <div class="mb-4">
+                @if ($dryer->laporanLumbung && $dryer->laporanLumbung->persentase_keluar > 0)
+                    <h1 class="text-2xl font-bold text-green-600 dark:text-green-400">
+                        <span class="inline-flex items-center">
+                            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Persentase Keluar: {{ number_format($dryer->laporanLumbung->persentase_keluar, 2) }}%
+                        </span>
+                    </h1>
+                @else
+                    <h1 class="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                        <span class="inline-flex items-center">
+                            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Belum Tutup Lumbung
+                        </span>
+                    </h1>
+                @endif
+            </div>
 
 
             <!-- Tabel Rangkuman berdasarkan Kualitas dan X1-X10 -->

@@ -42,11 +42,11 @@ class Dryer extends Model
         return $this->belongsToMany(TimbanganTronton::class, 'dryers_has_timbangan_trontons')
             ->withTimestamps();
     }
-    public function laporanLumbungs(): BelongsToMany
-    {
-        return $this->belongsToMany(LaporanLumbung::class, 'laporan_lumbung_has_dryers')
-            ->withTimestamps();
-    }
+    // public function laporanLumbungs(): BelongsToMany
+    // {
+    //     return $this->belongsToMany(LaporanLumbung::class, 'laporan_lumbung_has_dryers')
+    //         ->withTimestamps();
+    // }
     // Relasi ke Kapasitas
     public function kapasitasdryer()
     {

@@ -91,6 +91,20 @@ class LaporanLumbung extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    // Di model LaporanLumbung
+    public function getPersentaseKeluarAttribute()
+    {
+        $dryers = $this->dryers->values();
+        $transferMasuk = $this->transferMasuk->values();
+        $penjualanFiltered = $this->penjualans->filter(fn($p) => !empty($p->no_spb));
+        $transferKeluar = $this->transferKeluar->values();
+
+        $totalMasuk = $dryers->sum('total_netto') + $transferMasuk->sum('netto');
+        $totalKeluar = $penjualanFiltered->sum('netto') + $transferKeluar->sum('netto');
+
+        return $totalMasuk > 0 ? ($totalKeluar / $totalMasuk) * 100 : 0;
+    }
+
     // RELASI KE MANY TO MANY
     // public function dryers(): BelongsToMany
     // {
