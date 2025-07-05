@@ -10,6 +10,7 @@ class Silo extends Model
     protected $fillable = [
         'stok',
         'nama',
+        'status',
     ];
 
 

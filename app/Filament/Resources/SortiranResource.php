@@ -118,7 +118,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                                 return [
                                                     $item->id => $item->no_spb . ' - TIMBANGAN ' . $item->keterangan . ' - ' .
                                                         ($item->supplier->nama_supplier ?? '-') . ' - ' .
-                                                        ($item->plat_polisi ?? '-')
+                                                        ($item->plat_polisi ?? '-') . ' - ' . $item->created_at->format('d-m-y')
                                                 ];
                                             });
                                     })

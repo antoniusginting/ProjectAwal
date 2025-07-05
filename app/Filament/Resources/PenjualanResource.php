@@ -313,6 +313,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                             'SILO 2500',
                                             'SILO 1800'
                                         ])
+                                            ->where('status', '!=', true)
                                             ->get()
                                             ->mapWithKeys(function ($item) {
                                                 return [
