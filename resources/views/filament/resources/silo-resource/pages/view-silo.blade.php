@@ -478,7 +478,7 @@
                         <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
                             <td colspan="3"
                                 class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                                Total Quantity:
+                                Total Netto
                             </td>
                             <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
                                 {{ number_format($totalBeratLuars, 0, ',', '.') }}

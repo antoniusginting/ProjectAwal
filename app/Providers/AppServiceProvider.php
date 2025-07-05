@@ -2,8 +2,11 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use App\Models\Dryer;
 use Filament\Facades\Filament;
+use App\Observers\DryerObserver;
+use Illuminate\Support\ServiceProvider;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -19,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Dryer::observe(DryerObserver::class);
         //Mengatur letak group menu di sidebar
         Filament::registerNavigationGroups([
             'Dashboard',

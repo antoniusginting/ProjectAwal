@@ -93,38 +93,38 @@ class DryerService
     /**
      * Update dryer status
      */
-    public function updateStatusToCompleted(array $newDryerIds, array $oldDryerIds = []): void
-    {
-        DB::transaction(function () use ($newDryerIds, $oldDryerIds) {
-            // Dryer yang baru dipilih (selesai) - kembalikan kapasitas
-            $newlySelected = array_diff($newDryerIds, $oldDryerIds);
-            if (!empty($newlySelected)) {
-                $dryers = Dryer::whereIn('id', $newlySelected)->get();
-                foreach ($dryers as $dryer) {
-                    // Kembalikan kapasitas karena dryer selesai
-                    $kapasitas = $this->getKapasitasDryer($dryer->id_kapasitas_dryer);
-                    if ($kapasitas) {
-                        $kapasitas->increment('kapasitas_sisa', $dryer->total_netto_integer);
-                    }
-                    $dryer->update(['status' => 'completed']);
-                }
-            }
+    // public function updateStatusToCompleted(array $newDryerIds, array $oldDryerIds = []): void
+    // {
+    //     DB::transaction(function () use ($newDryerIds, $oldDryerIds) {
+    //         // Dryer yang baru dipilih (selesai) - kembalikan kapasitas
+    //         $newlySelected = array_diff($newDryerIds, $oldDryerIds);
+    //         if (!empty($newlySelected)) {
+    //             $dryers = Dryer::whereIn('id', $newlySelected)->get();
+    //             foreach ($dryers as $dryer) {
+    //                 // Kembalikan kapasitas karena dryer selesai
+    //                 $kapasitas = $this->getKapasitasDryer($dryer->id_kapasitas_dryer);
+    //                 if ($kapasitas) {
+    //                     $kapasitas->increment('kapasitas_sisa', $dryer->total_netto_integer);
+    //                 }
+    //                 $dryer->update(['status' => 'completed']);
+    //             }
+    //         }
 
-            // Dryer yang di-deselect (kembali proses) - potong kapasitas lagi
-            $deselected = array_diff($oldDryerIds, $newDryerIds);
-            if (!empty($deselected)) {
-                $dryers = Dryer::whereIn('id', $deselected)->get();
-                foreach ($dryers as $dryer) {
-                    // Potong kapasitas lagi karena dryer kembali ke status proses
-                    $kapasitas = $this->getKapasitasDryer($dryer->id_kapasitas_dryer);
-                    if ($kapasitas) {
-                        $kapasitas->decrement('kapasitas_sisa', $dryer->total_netto_integer);
-                    }
-                    $dryer->update(['status' => 'processing']); // atau status default lainnya
-                }
-            }
-        });
-    }
+    //         // Dryer yang di-deselect (kembali proses) - potong kapasitas lagi
+    //         $deselected = array_diff($oldDryerIds, $newDryerIds);
+    //         if (!empty($deselected)) {
+    //             $dryers = Dryer::whereIn('id', $deselected)->get();
+    //             foreach ($dryers as $dryer) {
+    //                 // Potong kapasitas lagi karena dryer kembali ke status proses
+    //                 $kapasitas = $this->getKapasitasDryer($dryer->id_kapasitas_dryer);
+    //                 if ($kapasitas) {
+    //                     $kapasitas->decrement('kapasitas_sisa', $dryer->total_netto_integer);
+    //                 }
+    //                 $dryer->update(['status' => 'processing']); // atau status default lainnya
+    //             }
+    //         }
+    //     });
+    // }
 
     /**
      * Hapus dryer
