@@ -270,6 +270,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
     {
         return $table
             ->recordUrl(function (Pembelian $record): ?string {
+                /** @var \App\Models\User $user */
                 $user = Auth::user();
 
                 // 1) Super admin bisa edit semua kondisi

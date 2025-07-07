@@ -1079,6 +1079,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                             !empty($record->pembelian->no_spb);
                     })
                     ->action(function ($record, $livewire) {
+                        /** @var \App\Models\User $user */
                         $user = Auth::user();
 
                         // Cek apakah user memiliki role 'admin' atau 'adminaudit'

@@ -92,7 +92,7 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                             ->orderByDesc('created_at')
                             ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT', 'TAMPUNGAN SILO BESAR', 'LANGSIR', 'ISI MINYAK'])
                             ->whereNotNull('status_timbangan')
-                                                            ->where('status_timbangan', '!=', 'langsir')
+                            ->where('status_timbangan', '!=', 'langsir')
                             ->get()
                             ->mapWithKeys(function ($penjualan) {
                                 // Menggabungkan plat polisi dan nama supir sebagai label
@@ -1339,6 +1339,7 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
     {
         return $table
             ->recordUrl(function (TimbanganTronton $record): ?string {
+                /** @var \App\Models\User $user */
                 $user = Auth::user();
 
                 // 1) Super admin bisa edit semua kondisi
