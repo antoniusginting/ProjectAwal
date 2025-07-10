@@ -17,6 +17,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Enums\ActionsPosition;
 use App\Filament\Resources\LuarPulauResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\LuarPulauResource\RelationManagers;
@@ -26,6 +27,9 @@ class LuarPulauResource extends Resource
     protected static ?string $model = LuarPulau::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationLabel = 'Kontrak';
+    protected static ?string $navigationGroup = 'Kapasitas';
+    protected static ?int $navigationSort = 4;
 
     public static function form(Form $form): Form
     {
@@ -107,8 +111,11 @@ class LuarPulauResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-            ]);
+                Tables\Actions\Action::make('view-luar-pulau')
+                    ->label(__("Lihat"))
+                    ->icon('heroicon-o-eye')
+                    ->url(fn($record) => self::getUrl("view-luar-pulau", ['record' => $record->id])),
+            ], position: ActionsPosition::BeforeColumns);
             // ->bulkActions([
             //     Tables\Actions\BulkActionGroup::make([
             //         Tables\Actions\DeleteBulkAction::make(),
@@ -129,6 +136,7 @@ class LuarPulauResource extends Resource
             'index' => Pages\ListLuarPulaus::route('/'),
             'create' => Pages\CreateLuarPulau::route('/create'),
             'edit' => Pages\EditLuarPulau::route('/{record}/edit'),
+            'view-luar-pulau' => Pages\ViewLuarPulau::route('/{record}/view-luar-pulau'),
         ];
     }
 }

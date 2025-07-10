@@ -202,61 +202,61 @@ class TransferResource extends Resource
                                     ->placeholder('Otomatis Terhitung')
                                     ->numeric(),
 
-                                Grid::make()
-                                    ->schema([
-                                        Radio::make('tipe')
-                                            ->label('Tipe Transfer')
-                                            ->options([
-                                                'masuk' => 'Masuk',
-                                                'keluar' => 'Keluar'
-                                            ])
-                                            ->default('masuk')
-                                            ->inline()
-                                            ->reactive(),
+                                // Grid::make()
+                                //     ->schema([
+                                //         Radio::make('tipe')
+                                //             ->label('Tipe Transfer')
+                                //             ->options([
+                                //                 'masuk' => 'Masuk',
+                                //                 'keluar' => 'Keluar'
+                                //             ])
+                                //             ->default('masuk')
+                                //             ->inline()
+                                //             ->reactive(),
 
-                                        // Select untuk Lumbung Masuk
-                                        Select::make('laporan_lumbung_masuk_id')
-                                            ->label('No Lumbung Masuk')
-                                            ->options(function () {
-                                                return LaporanLumbung::where('status', '!=', true)
-                                                    ->get()
-                                                    ->mapWithKeys(function ($item) {
-                                                        // Jika status_silo ada, tampilkan format "kode - status_silo"
-                                                        // Jika tidak ada, tampilkan hanya kode
-                                                        $label = $item->status_silo
-                                                            ? $item->kode . ' - ' . $item->status_silo
-                                                            : $item->kode . ' - ' . $item->lumbung;
+                                // Select untuk Lumbung Masuk
+                                Select::make('laporan_lumbung_masuk_id')
+                                    ->label('No Lumbung Masuk')
+                                    ->options(function () {
+                                        return LaporanLumbung::where('status', '!=', true)
+                                            ->get()
+                                            ->mapWithKeys(function ($item) {
+                                                // Jika status_silo ada, tampilkan format "kode - status_silo"
+                                                // Jika tidak ada, tampilkan hanya kode
+                                                $label = $item->status_silo
+                                                    ? $item->kode . ' - ' . $item->status_silo
+                                                    : $item->kode . ' - ' . $item->lumbung;
 
-                                                        return [
-                                                            $item->id => $label
-                                                        ];
-                                                    });
-                                            })
-                                            ->searchable()
-                                            ->preload()
-                                            ->nullable()
-                                            ->placeholder('Pilih Laporan Lumbung Masuk')
-                                            ->visible(fn(Get $get) => $get('tipe') === 'masuk'),
+                                                return [
+                                                    $item->id => $label
+                                                ];
+                                            });
+                                    })
+                                    ->searchable()
+                                    ->preload()
+                                    ->nullable()
+                                    ->placeholder('Pilih Laporan Lumbung Masuk'),
+                                // ->visible(fn(Get $get) => $get('tipe') === 'masuk'),
 
-                                        // Select untuk Lumbung Keluar
-                                        Select::make('laporan_lumbung_keluar_id')
-                                            ->label('No Lumbung Keluar')
-                                            ->options(function () {
-                                                return LaporanLumbung::whereNull('status_silo')
-                                                    ->where('status', false)
-                                                    ->get()
-                                                    ->mapWithKeys(function ($item) {
-                                                        return [
-                                                            $item->id => $item->kode . ' - ' . $item->lumbung
-                                                        ];
-                                                    });
-                                            })
-                                            ->searchable()
-                                            ->preload()
-                                            ->nullable()
-                                            ->placeholder('Pilih Laporan Lumbung Keluar')
-                                            ->visible(fn(Get $get) => $get('tipe') === 'keluar'),
-                                    ])->columnSpan(2),
+                                // Select untuk Lumbung Keluar
+                                Select::make('laporan_lumbung_keluar_id')
+                                    ->label('No Lumbung Keluar')
+                                    ->options(function () {
+                                        return LaporanLumbung::whereNull('status_silo')
+                                            ->where('status', false)
+                                            ->get()
+                                            ->mapWithKeys(function ($item) {
+                                                return [
+                                                    $item->id => $item->kode . ' - ' . $item->lumbung
+                                                ];
+                                            });
+                                    })
+                                    ->searchable()
+                                    ->preload()
+                                    ->nullable()
+                                    ->placeholder('Pilih Laporan Lumbung Keluar'),
+                                // ->visible(fn(Get $get) => $get('tipe') === 'keluar'),
+                                // ])->columnSpan(2),
                                 // TextInput::make('nama_lumbung')
                                 //     ->readOnly()
                                 //     ->placeholder('Otomatis terisi')

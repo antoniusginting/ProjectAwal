@@ -35,7 +35,7 @@ class SiloResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-archive-box-arrow-down';
     protected static ?string $navigationGroup = 'Kapasitas';
     protected static ?int $navigationSort = 3;
-    protected static ?string $navigationLabel = 'Silo & Kontrak';
+    protected static ?string $navigationLabel = 'Silo';
 
     public static function form(Form $form): Form
     {
@@ -62,9 +62,6 @@ class SiloResource extends Resource
                                 'SILO STAFFEL B' => 'SILO STAFFEL B',
                                 'SILO 2500' => 'SILO 2500',
                                 'SILO 1800' => 'SILO 1800',
-                                'MAKASAR' => 'MAKASAR',
-                                'ADI KARANG ANYER' => 'ADI KARANG ANYER',
-                                'ACVED' => 'ACVED',
                             ])
                             ->label('STOK')
                             ->placeholder('Pilih Stok')

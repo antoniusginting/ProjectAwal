@@ -16,4 +16,9 @@ class ListLuarPulaus extends ListRecords
             Actions\CreateAction::make()->label('Tambah Data'),
         ];
     }
+
+    function getTitle(): string
+    {
+        return 'Daftar Kapasitas Kontrak';
+    }
 }

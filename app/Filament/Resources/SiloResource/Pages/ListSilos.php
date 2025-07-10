@@ -17,7 +17,7 @@ class ListSilos extends ListRecords
 
     function getTitle(): string
     {
-        return 'View Silo';
+        return 'Daftar Kapasitas Silo';
     }
 
     protected function getHeaderActions(): array
@@ -60,13 +60,12 @@ class ListSilos extends ListRecords
                 ->badgeColor('primary'),
         ];
 
-        // Definisi silo berdasarkan nama
+        // Definisi silo berdasarkan nama (tanpa luar_pulau)
         $siloList = [
             'silo_staffel_a' => 'Silo Staffel A',
             'silo_staffel_b' => 'Silo Staffel B',
             'silo_2500' => 'Silo 2500',
-            'silo_1800' => 'Silo 1800',
-            'luar_pulau' => 'Luar Pulau'
+            'silo_1800' => 'Silo 1800'
         ];
 
         foreach ($siloList as $siloKey => $siloName) {
@@ -107,12 +106,6 @@ class ListSilos extends ListRecords
             case 'silo_1800':
                 $query->where('nama', 'like', '%1800%');
                 break;
-            case 'luar_pulau':
-                $query->where('nama', 'not like', '%staffel a%')
-                    ->where('nama', 'not like', '%staffel b%')
-                    ->where('nama', 'not like', '%2500%')
-                    ->where('nama', 'not like', '%1800%');
-                break;
         }
 
         return $query->latest('created_at')->first();
@@ -132,11 +125,6 @@ class ListSilos extends ListRecords
                 return $query->where('nama', 'like', '%2500%');
             case 'silo_1800':
                 return $query->where('nama', 'like', '%1800%');
-            case 'luar_pulau':
-                return $query->where('nama', 'not like', '%staffel a%')
-                    ->where('nama', 'not like', '%staffel b%')
-                    ->where('nama', 'not like', '%2500%')
-                    ->where('nama', 'not like', '%1800%');
             default:
                 return $query;
         }
@@ -186,11 +174,6 @@ class ListSilos extends ListRecords
 
         // Tab "Semua Data" tidak dapat menambah data
         if ($activeTab === 'semua') {
-            return true;
-        }
-
-        // Tab "Luar Pulau" selalu dapat menambah data
-        if ($activeTab === 'luar_pulau') {
             return false;
         }
 
@@ -217,8 +200,7 @@ class ListSilos extends ListRecords
             'silo_staffel_a' => 'Silo Staffel A',
             'silo_staffel_b' => 'Silo Staffel B',
             'silo_2500' => 'Silo 2500',
-            'silo_1800' => 'Silo 1800',
-            'luar_pulau' => 'Luar Pulau'
+            'silo_1800' => 'Silo 1800'
         ];
 
         $siloName = $siloNames[$activeTab] ?? 'Silo';
@@ -242,8 +224,7 @@ class ListSilos extends ListRecords
             'silo_staffel_a' => 'staffel a',
             'silo_staffel_b' => 'staffel b',
             'silo_2500' => '2500',
-            'silo_1800' => '1800',
-            'luar_pulau' => null // untuk luar pulau, biarkan user input manual
+            'silo_1800' => '1800'
         ];
 
         return $siloMapping[$activeTab] ?? null;
