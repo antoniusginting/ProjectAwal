@@ -97,38 +97,51 @@ class LuarResource extends Resource implements HasShieldPermissions
                                 //     ->placeholder('Pilih Supplier')
                                 //     ->options(Supplier::pluck('nama_supplier', 'id')) // Ambil daftar mobil
                                 //     ->searchable(), // Biar bisa cari
-                                Select::make('silo_id')
+                                // Select::make('silo_id')
+                                //     ->label('Supplier')
+                                //     ->options(function () {
+                                //         return Silo::whereNotIn('nama', [
+                                //             'SILO STAFFEL A',
+                                //             'SILO STAFFEL B',
+                                //             'SILO 2500',
+                                //             'SILO 1800'
+                                //         ])
+                                //             ->get()
+                                //             ->mapWithKeys(function ($item) {
+                                //                 return [
+                                //                     $item->id =>  $item->nama
+                                //                 ];
+                                //             });
+                                //     })
+                                //     ->searchable()
+                                //     ->preload()
+                                //     ->nullable()
+                                //     ->placeholder('Pilih')
+                                //     ->reactive()
+                                //     ->afterStateUpdated(function ($state, callable $set) {
+                                //         if ($state) {
+                                //             // Ambil data silo berdasarkan ID yang dipilih
+                                //             $silo = Silo::find($state);
+                                //             if ($silo) {
+                                //                 $set('status_silo', $silo->nama); // Set status sesuai nama silo
+                                //             }
+                                //         } else {
+                                //             $set('status_silo', null);
+                                //         }
+                                //     }),
+                                Select::make('luar_pulau_id')
                                     ->label('Supplier')
+                                    ->native(false)
+                                    ->required()
                                     ->options(function () {
-                                        return Silo::whereNotIn('nama', [
-                                            'SILO STAFFEL A',
-                                            'SILO STAFFEL B',
-                                            'SILO 2500',
-                                            'SILO 1800'
-                                        ])
-                                            ->get()
-                                            ->mapWithKeys(function ($item) {
-                                                return [
-                                                    $item->id =>  $item->nama
-                                                ];
-                                            });
+                                        return \App\Models\LuarPulau::query()
+                                            ->where('status', false)
+                                            ->pluck('nama', 'id')
+                                            ->toArray();
                                     })
+                                    ->placeholder('Pilih Supplier')
                                     ->searchable()
-                                    ->preload()
-                                    ->nullable()
-                                    ->placeholder('Pilih')
-                                    ->reactive()
-                                    ->afterStateUpdated(function ($state, callable $set) {
-                                        if ($state) {
-                                            // Ambil data silo berdasarkan ID yang dipilih
-                                            $silo = Silo::find($state);
-                                            if ($silo) {
-                                                $set('status_silo', $silo->nama); // Set status sesuai nama silo
-                                            }
-                                        } else {
-                                            $set('status_silo', null);
-                                        }
-                                    }),
+                                    ->live(),
                                 TextInput::make('netto')
                                     ->label('Netto')
                                     ->placeholder('Masukkan Netto')
@@ -206,7 +219,8 @@ class LuarResource extends Resource implements HasShieldPermissions
                 TextColumn::make('kode_segel')
                     ->label('Kode Segel')
                     ->searchable(),
-                TextColumn::make('silos.nama')->label('Supplier')
+                TextColumn::make('luarPulau.nama')->label('Supplier')
+                    ->alignCenter()
                     ->searchable(),
                 TextColumn::make('nama_barang')
                     ->searchable(),

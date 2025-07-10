@@ -13,14 +13,14 @@ class Luar extends Model
         'no_container',
         'user_id',
         'nama_ekspedisi',
-        "silo_id",
+        "luar_pulau_id",
     ];
 
 
-    // Relasi ke silo
-    public function silos()
+    // Relasi ke luar pulau
+    public function luarPulau()
     {
-        return $this->belongsTo(Silo::class, 'silo_id');
+        return $this->belongsTo(LuarPulau::class, 'luar_pulau_id');
     }
     // Relasi ke User
     public function user()
