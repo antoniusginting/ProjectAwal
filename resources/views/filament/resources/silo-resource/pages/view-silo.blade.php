@@ -100,14 +100,16 @@
                         </p>
                     </div>
                     <!-- Persenan -->
-                    <div
-                        class="flex-1 text-center p-3 {{ $persenan >= 0 ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-red-50 dark:bg-red-900/20' }} rounded-lg">
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Persenan</p>
-                        <p
-                            class="text-xl font-bold {{ $persenan >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
-                            {{ number_format($persenan, 2) }} %
-                        </p>
-                    </div>
+                    @if ($silo->status)
+                        <div
+                            class="flex-1 text-center p-3 {{ $persenan >= 0 ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-red-50 dark:bg-red-900/20' }} rounded-lg">
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Persenan</p>
+                            <p
+                                class="text-xl font-bold {{ $persenan >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                                {{ number_format($persenan, 2) }} %
+                            </p>
+                        </div>
+                    @endif
                 </div>
             </div>
             <!-- Divider -->
@@ -160,7 +162,7 @@
                                     @if ($laporan->transferMasuk->count() > 0)
                                         @foreach ($laporan->transferMasuk as $index => $transfer)
                                             <a href="{{ route('filament.admin.resources.transfers.view-transfer', $transfer->id ?? '') }}"
-                                                target="_blank" class="text-blue-600 hover:text-blue-800">
+                                                target="_blank" class="text-blue-600 hover:text-blue-800 underline">
                                                 {{ $transfer->kode }}
                                             </a>{{ !$loop->last ? ', ' : '' }}
                                         @endforeach
@@ -281,7 +283,8 @@
                                 <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                                     <a href="{{ route('filament.admin.resources.penjualans.view-penjualan', $penjualan->id ?? '') }}"
                                         target="_blank"
-                                        class="text-blue-600 hover:text-blue-800 underline">{{ $penjualan->no_spb ?? '-' }} </a>
+                                        class="text-blue-600 hover:text-blue-800 underline">{{ $penjualan->no_spb ?? '-' }}
+                                    </a>
                                 </td>
                                 {{-- <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                                     {{ $penjualan->nama ?? ($penjualan->nama_lumbung ?? ($penjualan->lumbung ?? '-')) }}
@@ -414,6 +417,7 @@
                     </div>
 
                     <!-- Persenan -->
+                    @if ($silo->status)
                     <div
                         class="flex-1 text-center p-3 {{ $persenanLuar >= 0 ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-red-50 dark:bg-red-900/20' }} rounded-lg">
                         <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Persenan</p>
@@ -422,6 +426,7 @@
                             {{ number_format($persenanLuar, 2) }} %
                         </p>
                     </div>
+                    @endif
                 </div>
             </div>
 
@@ -473,7 +478,7 @@
                             </tr>
                         @endforelse
                     </tbody>
-                    
+
                     <tfoot>
                         <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
                             <td colspan="3"

@@ -145,7 +145,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     })
                                     ->searchable()
                                     ->reactive()
-                                    ->hidden(fn($livewire) => $livewire->getRecord()?->exists)
+                                    // ->hidden(fn($livewire) => $livewire->getRecord()?->exists)
                                     ->dehydrated(false) // jangan disimpan ke DB
                                     ->afterStateUpdated(function (callable $set, $state) {
                                         $penjualan = \App\Models\Penjualan::find($state);

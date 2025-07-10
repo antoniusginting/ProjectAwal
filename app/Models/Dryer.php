@@ -15,7 +15,6 @@ class Dryer extends Model
         'id_kapasitas_dryer',
         'operator',
         'nama_barang',
-        'lumbung_tujuan',
         'rencana_kadar',
         'hasil_kadar',
         'total_netto',

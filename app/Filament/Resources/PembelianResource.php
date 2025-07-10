@@ -128,7 +128,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                         });
                                     })
                                     ->searchable()
-                                    ->hidden(fn($livewire) => $livewire->getRecord()?->exists)
+                                    // ->hidden(fn($livewire) => $livewire->getRecord()?->exists)
                                     ->reactive()
                                     ->dehydrated(false) // jangan disimpan ke DB
                                     ->afterStateUpdated(function (callable $set, $state) {

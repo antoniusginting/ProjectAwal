@@ -115,7 +115,7 @@ class DryerResource extends Resource implements HasShieldPermissions
                             })
                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                 $kapasitasdryer = KapasitasDryer::find($state);
-                                $set('lumbung_tujuan', null);
+                                // $set('lumbung_tujuan', null);
                                 // Simpan kapasitas sisa asli untuk perhitungan
                                 $kapasitasSisaValue = $kapasitasdryer?->kapasitas_sisa ?? 0;
                                 $set('kapasitas_sisa_original', $kapasitasSisaValue);
@@ -445,14 +445,6 @@ class DryerResource extends Resource implements HasShieldPermissions
                                 // Hitung kapasitas sisa baru dengan mengurangi kapasitas awal dengan total netto baru
                                 $kapasitasSisaBaru = $kapasitasAwal - $totalNetto;
 
-                                // DEBUG: Log nilai untuk memastikan
-                                \Log::info('Debug Kapasitas:', [
-                                    'kapasitas_awal' => $kapasitasAwal,
-                                    'total_netto' => $totalNetto,
-                                    'kapasitas_sisa_baru' => $kapasitasSisaBaru,
-                                    'type_kapasitas_sisa' => gettype($kapasitasSisaBaru)
-                                ]);
-
                                 // PERBAIKAN: Pastikan benar-benar integer
                                 $set('kapasitas_sisa_akhir', (int) $kapasitasSisaBaru);
 
@@ -488,6 +480,7 @@ class DryerResource extends Resource implements HasShieldPermissions
     {
         return $table
             ->recordUrl(function (Dryer $record): ?string {
+                /** @var \App\Models\User $user */
                 $user = Auth::user();
 
                 // 1) Super admin bisa edit semua kondisi

@@ -9,7 +9,6 @@ class Luar extends Model
     protected $fillable = [
         'kode_segel',
         'nama_barang',
-        'id_supplier', // Forein key ke suppliers
         'netto',
         'no_container',
         'user_id',
@@ -29,11 +28,6 @@ class Luar extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // Relasi ke tabel supplier
-    public function supplier()
-    {
-        return $this->belongsTo(Supplier::class, 'id_supplier', 'id');
-    }
 
     public function timbanganTrontons()
     {

@@ -265,6 +265,7 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
         return $table
             ->poll('5s') // polling ulang setiap 5 detik
             ->recordUrl(function (KendaraanMasuks $record): ?string {
+                /** @var \App\Models\User $user */
                 $user = Auth::user();
 
                 // 1) Super admin bisa edit semua kondisi
