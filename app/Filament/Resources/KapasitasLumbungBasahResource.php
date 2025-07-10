@@ -38,7 +38,7 @@ class KapasitasLumbungBasahResource extends Resource implements HasShieldPermiss
     // }
 
     protected static ?string $model = KapasitasLumbungBasah::class;
-    protected static ?string $navigationGroup = 'Kapasitas';
+    protected static ?string $navigationGroup = 'Kapasitas Lumbung';
 
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
 

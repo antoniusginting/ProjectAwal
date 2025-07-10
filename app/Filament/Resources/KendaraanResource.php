@@ -38,7 +38,7 @@ class KendaraanResource extends Resource implements HasShieldPermissions
     protected static ?string $navigationGroup = 'Satpam';
     protected static ?string $navigationIcon = 'heroicon-o-truck';
     protected static ?int $navigationSort = 3;
-    protected static ?string $navigationLabel = 'Kendaraan';
+    protected static ?string $navigationLabel = 'Data Kendaraan';
 
     public static ?string $label = 'Daftar Kendaraan ';
 

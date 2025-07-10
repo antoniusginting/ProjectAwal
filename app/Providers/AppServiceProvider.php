@@ -27,7 +27,9 @@ class AppServiceProvider extends ServiceProvider
         Filament::registerNavigationGroups([
             'Dashboard',
             'Timbangan',
-            'Kapasitas',
+            'QC',
+            'Kapasitas Lumbung',
+            'Antar Pulau',
             'Kontrak',
             'Satpam',
         ]);

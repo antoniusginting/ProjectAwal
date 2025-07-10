@@ -38,7 +38,7 @@ class KapasitasDryerResource extends Resource implements HasShieldPermissions
     protected static ?string $model = KapasitasDryer::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-archive-box-x-mark';
-    protected static ?string $navigationGroup = 'Kapasitas';
+    protected static ?string $navigationGroup = 'Kapasitas Lumbung';
     protected static ?int $navigationSort = 2;
     protected static ?string $navigationLabel = 'Dryer';
 

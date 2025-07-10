@@ -51,8 +51,8 @@ class LuarResource extends Resource implements HasShieldPermissions
     }
     protected static ?string $model = Luar::class;
     protected static ?string $navigationLabel = 'Pembelian Antar Pulau';
-    protected static ?string $navigationGroup = 'Timbangan';
-    protected static ?int $navigationSort = 5;
+    protected static ?string $navigationGroup = 'Antar Pulau';
+    protected static ?int $navigationSort = 1;
     public static ?string $label = 'Daftar Pembelian Antar Pulau ';
     protected static ?string $navigationIcon = 'heroicon-o-globe-asia-australia';
 

@@ -27,9 +27,9 @@ class LuarPulauResource extends Resource
     protected static ?string $model = LuarPulau::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?string $navigationLabel = 'Kontrak';
-    protected static ?string $navigationGroup = 'Kapasitas';
-    protected static ?int $navigationSort = 4;
+    protected static ?string $navigationLabel = 'Kapasitas Kontrak';
+    protected static ?string $navigationGroup = 'Antar Pulau';
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {

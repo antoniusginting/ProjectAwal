@@ -33,7 +33,7 @@ class SiloResource extends Resource
     protected static ?string $model = Silo::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-archive-box-arrow-down';
-    protected static ?string $navigationGroup = 'Kapasitas';
+    protected static ?string $navigationGroup = 'Kapasitas Lumbung';
     protected static ?int $navigationSort = 3;
     protected static ?string $navigationLabel = 'Silo';
 

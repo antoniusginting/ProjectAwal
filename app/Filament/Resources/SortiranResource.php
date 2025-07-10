@@ -60,8 +60,9 @@ class SortiranResource extends Resource implements HasShieldPermissions
     protected static ?string $model = Sortiran::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
-
+    protected static ?string $navigationGroup = 'QC';
     protected static ?string $navigationLabel = 'Sortiran';
+    protected static ?int $navigationSort = 1;
     public static ?string $label = 'Daftar Sortiran ';
 
     public static function form(Form $form): Form

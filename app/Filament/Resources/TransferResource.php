@@ -34,6 +34,8 @@ class TransferResource extends Resource
     protected static ?string $model = Transfer::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-arrows-up-down';
+    protected static ?string $navigationGroup = 'Timbangan';
+    protected static ?int $navigationSort = 5;
 
     public static function form(Form $form): Form
     {

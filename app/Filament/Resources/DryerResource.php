@@ -60,7 +60,8 @@ class DryerResource extends Resource implements HasShieldPermissions
 
     protected static ?string $navigationIcon = 'heroicon-o-fire';
     protected static ?string $navigationLabel = 'Dryer';
-
+    protected static ?string $navigationGroup = 'QC';
+    protected static ?int $navigationSort = 2;
     public static ?string $label = 'Daftar Dryer ';
 
     public static function form(Form $form): Form

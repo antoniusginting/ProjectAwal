@@ -37,6 +37,8 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = LaporanLumbung::class;
     protected static ?string $navigationLabel = 'Lumbung Kering';
+    protected static ?int $navigationSort = 3;
+    protected static ?string $navigationGroup = 'QC';
     public static function getPermissionPrefixes(): array
     {
         return [
