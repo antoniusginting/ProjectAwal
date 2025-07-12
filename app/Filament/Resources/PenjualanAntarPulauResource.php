@@ -21,12 +21,13 @@ use Filament\Forms\Components\Placeholder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\PenjualanAntarPulauResource\Pages;
 use App\Filament\Resources\PenjualanAntarPulauResource\RelationManagers;
+use Filament\Forms\Components\Grid;
 
 class PenjualanAntarPulauResource extends Resource
 {
     protected static ?string $model = PenjualanAntarPulau::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-document-arrow-up';
     protected static ?string $navigationGroup = 'Antar Pulau';
     protected static ?int $navigationSort = 2;
     public static ?string $label = 'Daftar Penjualan Antar Pulau ';
@@ -118,16 +119,16 @@ class PenjualanAntarPulauResource extends Resource
                                     ->placeholder('Pilih Supplier')
                                     ->searchable()
                                     ->live(),
-                                TextInput::make('netto')
-                                    ->label('Netto')
-                                    ->placeholder('Masukkan Netto')
-                                    ->numeric(),
-                                TextInput::make('no_container')
-                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
-                                    ->placeholder('Masukkan No Container'),
-                                TextInput::make('nama_ekspedisi')
-                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
-                                    ->placeholder('Masukkan Nama Ekspedisi'),
+                                Grid::make()
+                                    ->schema([
+                                        TextInput::make('netto')
+                                            ->label('Netto')
+                                            ->placeholder('Masukkan Netto')
+                                            ->numeric(),
+                                        TextInput::make('no_container')
+                                            ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
+                                            ->placeholder('Masukkan No Container'),
+                                    ])->columnSpan(1),
                                 Hidden::make('user_id')
                                     ->label('User ID')
                                     ->default(Auth::id()) // Set nilai default user yang sedang login,

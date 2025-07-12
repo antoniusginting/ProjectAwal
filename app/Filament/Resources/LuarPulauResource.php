@@ -26,7 +26,7 @@ class LuarPulauResource extends Resource
 {
     protected static ?string $model = LuarPulau::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-inbox-stack';
     protected static ?string $navigationLabel = 'Kapasitas Kontrak';
     protected static ?string $navigationGroup = 'Antar Pulau';
     protected static ?int $navigationSort = 3;
@@ -105,7 +105,43 @@ class LuarPulauResource extends Resource
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('nama')
                     ->label('Nama')
+                    ->searchable(),
+                TextColumn::make('penjualanLuar.kode')
+                    ->alignCenter()
                     ->searchable()
+                    ->placeholder('-----')
+                    ->label('Kode Penjualan')
+                    ->getStateUsing(function ($record) {
+                        $penjualanluar = $record->penjualanLuar->pluck('kode');
+
+                        if ($penjualanluar->count() <= 3) {
+                            return $penjualanluar->implode(', ');
+                        }
+
+                        return $penjualanluar->take(3)->implode(', ') . '...';
+                    })
+                    ->tooltip(function ($record) {
+                        $penjualanluar = $record->penjualanLuar->pluck('kode');
+                        return $penjualanluar->implode(', ');
+                    }),
+                TextColumn::make('pembelianLuar.kode')
+                    ->alignCenter()
+                    ->searchable()
+                    ->placeholder('-----')
+                    ->label('Kode Pembelian')
+                    ->getStateUsing(function ($record) {
+                        $pembelianluar = $record->pembelianLuar->pluck('kode');
+
+                        if ($pembelianluar->count() <= 3) {
+                            return $pembelianluar->implode(', ');
+                        }
+
+                        return $pembelianluar->take(3)->implode(', ') . '...';
+                    })
+                    ->tooltip(function ($record) {
+                        $pembelianluar = $record->pembelianLuar->pluck('kode');
+                        return $pembelianluar->implode(', ');
+                    }),
             ])
             ->filters([
                 //

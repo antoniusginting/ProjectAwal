@@ -21,6 +21,6 @@ class ViewLuarPulau extends Page
     public function mount($record)
     {
         $this->record = $record;
-        $this->luarPulau = LuarPulau::with(['luars'])->find($record);
+        $this->luarPulau = LuarPulau::with(['pembelianLuar'])->find($record);
     }
 }

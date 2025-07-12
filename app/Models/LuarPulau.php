@@ -12,8 +12,12 @@ class LuarPulau extends Model
         'status',
     ];
 
-    public function luars()
+    public function pembelianLuar()
     {
-        return $this->hasMany(Luar::class);
+        return $this->hasMany(PembelianAntarPulau::class);
+    }
+    public function penjualanLuar()
+    {
+        return $this->hasMany(PenjualanAntarPulau::class);
     }
 }
