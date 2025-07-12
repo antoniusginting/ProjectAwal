@@ -77,7 +77,7 @@
         <div class="mb-6" id="laporan-penjualan">
             <div class="flex justify-between items-center mb-3">
                 <div class="flex items-center gap-3">
-                    <h3 class="text-lg font-semibold">Laporan Penjualan</h3>
+                    <h3 class="text-lg font-semibold">Laporan Pembelian</h3>
                 </div>
                 {{-- Back to Top Button --}}
                 {{-- <button onclick="scrollToTop()"

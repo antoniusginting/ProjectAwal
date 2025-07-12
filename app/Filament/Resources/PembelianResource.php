@@ -5,6 +5,8 @@ namespace App\Filament\Resources;
 use Carbon\Carbon;
 use Filament\Tables;
 use App\Models\Mobil;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use App\Models\Supplier;
 use Filament\Forms\Form;
 use App\Models\Pembelian;
@@ -240,16 +242,26 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                             ->numeric()
                                             ->label('Jumlah Karung')
                                             ->autocomplete('off')
-                                            ->placeholder('Masukkan Jumlah Karung'),
-                                        Select::make('brondolan') // Gantilah 'tipe' dengan nama field di database
+                                            ->placeholder('Masukkan Jumlah Karung')
+                                            ->disabled(fn(Get $get) => $get('brondolan') === 'CURAH')
+                                            ->dehydrated(fn(Get $get) => $get('brondolan') !== 'CURAH'), // Opsional: tidak menyimpan nilai jika disabled
+
+                                        Select::make('brondolan')
                                             ->label('Satuan Muatan')
                                             ->options([
                                                 'GONI' => 'GONI',
                                                 'CURAH' => 'CURAH',
                                             ])
                                             ->placeholder('Pilih Satuan Timbangan')
-                                            ->native(false) // Mengunakan dropdown modern
-                                            ->required(), // Opsional: Atur default value
+                                            ->native(false)
+                                            ->required()
+                                            ->live() // Penting: membuat field reactive
+                                            ->afterStateUpdated(function (Set $set, $state) {
+                                                // Opsional: Reset nilai jumlah_karung ketika berubah ke CURAH
+                                                if ($state === 'CURAH') {
+                                                    $set('jumlah_karung', null);
+                                                }
+                                            }),
                                     ])->columnSpan(1),
                                 FileUpload::make('foto')
                                     ->image()

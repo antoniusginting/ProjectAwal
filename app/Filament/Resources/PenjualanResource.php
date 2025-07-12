@@ -290,7 +290,9 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->columnSpan(2)
                                     ->label('Jumlah Karung')
                                     ->autocomplete('off')
-                                    ->placeholder('Masukkan Jumlah Karung'),
+                                    ->placeholder('Masukkan Jumlah Karung')
+                                    ->disabled(fn(Get $get) => $get('brondolan') === 'CURAH')
+                                    ->dehydrated(fn(Get $get) => $get('brondolan') !== 'CURAH'), // Opsional: tidak menyimpan nilai jika disabled
                                 Select::make('brondolan') // Gantilah 'tipe' dengan nama field di database
                                     ->label('Satuan Muatan')
                                     ->columnSpan(1)
@@ -300,7 +302,14 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ])
                                     ->placeholder('Pilih Satuan Timbangan')
                                     ->native(false) // Mengunakan dropdown modern
-                                    ->required(), // Opsional: Atur default value\
+                                    ->required() // Opsional: Atur default value\
+                                    ->live() // Penting: membuat field reactive
+                                    ->afterStateUpdated(function (Set $set, $state) {
+                                        // Opsional: Reset nilai jumlah_karung ketika berubah ke CURAH
+                                        if ($state === 'CURAH') {
+                                            $set('jumlah_karung', null);
+                                        }
+                                    }),
 
 
                                 Select::make('silo_id')
