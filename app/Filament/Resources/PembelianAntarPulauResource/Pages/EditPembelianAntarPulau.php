@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Filament\Resources\LuarResource\Pages;
+namespace App\Filament\Resources\PembelianAntarPulauResource\Pages;
 
 use Filament\Actions;
 use Filament\Actions\Action;
-use App\Filament\Resources\LuarResource;
 use Filament\Resources\Pages\EditRecord;
+use App\Filament\Resources\PembelianAntarPulauResource;
 
-class EditLuar extends EditRecord
+class EditPembelianAntarPulau extends EditRecord
 {
-    protected static string $resource = LuarResource::class;
+    protected static string $resource = PembelianAntarPulauResource::class;
 
     protected function getHeaderActions(): array
     {
@@ -17,7 +17,8 @@ class EditLuar extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
-    protected function getFormActions(): array
+
+     protected function getFormActions(): array
     {
         return [
             Action::make('save')
@@ -26,11 +27,7 @@ class EditLuar extends EditRecord
             Action::make('cancel')
                 ->label('Batal')
                 ->color('gray')
-                ->url(LuarResource::getUrl('index')),
+                ->url(PembelianAntarPulauResource::getUrl('index')),
         ];
-    }
-    protected function getRedirectUrl(): string
-    {
-        return $this->getResource()::getUrl('index'); // Arahkan ke daftar tabel
     }
 }

@@ -1,21 +1,21 @@
 <?php
 
-namespace App\Filament\Resources\LuarResource\Pages;
+namespace App\Filament\Resources\PembelianAntarPulauResource\Pages;
 
 use Filament\Actions;
 use Filament\Actions\Action;
-use App\Filament\Resources\LuarResource;
 use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Resources\PembelianAntarPulauResource;
 
-class CreateLuar extends CreateRecord
+class CreatePembelianAntarPulau extends CreateRecord
 {
-    protected static string $resource = LuarResource::class;
+    protected static string $resource = PembelianAntarPulauResource::class;
 
-    // Ubah judul halaman "Create Mobil" menjadi "Tambah Mobil"
-    function getTitle(): string
+     function getTitle(): string
     {
         return 'Tambah Pembelian Antar Pulau';
     }
+
     protected function getFormActions(): array
     {
         return [
@@ -25,7 +25,7 @@ class CreateLuar extends CreateRecord
             Action::make('cancel')
                 ->label('Batal')
                 ->color('gray')
-                ->url(LuarResource::getUrl('index')), // Redirect ke tabel utama
+                ->url(PembelianAntarPulauResource::getUrl('index')), // Redirect ke tabel utama
         ];
     }
 

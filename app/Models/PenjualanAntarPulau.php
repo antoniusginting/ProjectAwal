@@ -12,7 +12,6 @@ class PenjualanAntarPulau extends Model
         'netto',
         'no_container',
         'user_id',
-        'nama_ekspedisi',
         "luar_pulau_id",
     ];
 
