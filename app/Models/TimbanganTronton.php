@@ -27,9 +27,9 @@ class TimbanganTronton extends Model
         'user_id',
         'status',
         'foto',
-        'id_luar_1',
-        'id_luar_2',
-        'id_luar_3',
+        'id_penjualan_antar_pulau_1',
+        'id_penjualan_antar_pulau_2',
+        'id_penjualan_antar_pulau_3',
     ];
 
     public function dryers(): BelongsToMany
@@ -73,19 +73,19 @@ class TimbanganTronton extends Model
         return $this->belongsTo(Penjualan::class, 'id_timbangan_jual_6');
     }
 
-    public function luar1()
+    public function penjualanAntarPulau1()
     {
-        return $this->belongsTo(Luar::class, 'id_luar_1', 'id');
+        return $this->belongsTo(PenjualanAntarPulau::class, 'id_penjualan_antar_pulau_1', 'id');
     }
 
-    public function luar2()
+    public function penjualanAntarPulau2()
     {
-        return $this->belongsTo(Luar::class, 'id_luar_2');
+        return $this->belongsTo(PenjualanAntarPulau::class, 'id_penjualan_antar_pulau_2');
     }
 
-    public function luar3()
+    public function penjualanAntarPulau3()
     {
-        return $this->belongsTo(Luar::class, 'id_luar_3');
+        return $this->belongsTo(PenjualanAntarPulau::class, 'id_penjualan_antar_pulau_3');
     }
     public function suratJalans()
     {

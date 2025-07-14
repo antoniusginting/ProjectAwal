@@ -42,6 +42,7 @@ use App\Filament\Resources\TimbanganTrontonResource\RelationManagers;
 use App\Filament\Resources\TimbanganTrontonResource\Pages\EditTimbanganTronton;
 use App\Models\Luar;
 use App\Models\Pembelian;
+use App\Models\PenjualanAntarPulau;
 
 class TimbanganTrontonResource extends Resource implements HasShieldPermissions
 {
@@ -91,8 +92,6 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                             ->where('bruto', '!=', '')      // bruto tidak boleh kosong string (jika perlu)
                             ->orderByDesc('created_at')
                             ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT', 'TAMPUNGAN SILO BESAR', 'LANGSIR', 'ISI MINYAK'])
-                            ->whereNotNull('status_timbangan')
-                            ->where('status_timbangan', '!=', 'langsir')
                             ->get()
                             ->mapWithKeys(function ($penjualan) {
                                 // Menggabungkan plat polisi dan nama supir sebagai label
@@ -233,8 +232,6 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                             ->latest()
                                                             ->with(['mobil', 'supplier'])
                                                             ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT', 'TAMPUNGAN SILO BESAR', 'LANGSIR', 'ISI MINYAK'])
-                                                            ->whereNotNull('status_timbangan')
-                                                            ->where('status_timbangan', '!=', 'langsir')
                                                             ->get()
                                                             ->mapWithKeys(function ($item) {
                                                                 return [
@@ -345,8 +342,6 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                             ->latest()
                                                             ->with(['mobil', 'supplier'])
                                                             ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT', 'TAMPUNGAN SILO BESAR', 'LANGSIR', 'ISI MINYAK'])
-                                                            ->whereNotNull('status_timbangan')
-                                                            ->where('status_timbangan', '!=', 'langsir')
                                                             ->get()
                                                             ->mapWithKeys(function ($item) {
                                                                 return [
@@ -476,8 +471,6 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                             ->latest()
                                                             ->with(['mobil', 'supplier'])
                                                             ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT', 'TAMPUNGAN SILO BESAR', 'LANGSIR', 'ISI MINYAK'])
-                                                            ->whereNotNull('status_timbangan')
-                                                            ->where('status_timbangan', '!=', 'langsir')
                                                             ->get()
                                                             ->mapWithKeys(function ($item) {
                                                                 return [
@@ -607,8 +600,6 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                             ->latest()
                                                             ->with(['mobil', 'supplier'])
                                                             ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT', 'TAMPUNGAN SILO BESAR', 'LANGSIR', 'ISI MINYAK'])
-                                                            ->whereNotNull('status_timbangan')
-                                                            ->where('status_timbangan', '!=', 'langsir')
                                                             ->get()
                                                             ->mapWithKeys(function ($item) {
                                                                 return [
@@ -738,8 +729,6 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                             ->latest()
                                                             ->with(['mobil', 'supplier'])
                                                             ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT', 'TAMPUNGAN SILO BESAR', 'LANGSIR', 'ISI MINYAK'])
-                                                            ->whereNotNull('status_timbangan')
-                                                            ->where('status_timbangan', '!=', 'langsir')
                                                             ->get()
                                                             ->mapWithKeys(function ($item) {
                                                                 return [
@@ -870,8 +859,6 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                             ->latest()
                                                             ->with(['mobil', 'supplier'])
                                                             ->whereNotIn('nama_barang', ['SEKAM', 'ABU JAGUNG', 'CANGKANG', 'SALAH', 'RETUR', 'ABU JAGUNG/KAUL', 'BOTOT', 'TAMPUNGAN SILO BESAR', 'LANGSIR', 'ISI MINYAK'])
-                                                            ->whereNotNull('status_timbangan')
-                                                            ->where('status_timbangan', '!=', 'langsir')
                                                             ->get()
                                                             ->mapWithKeys(function ($item) {
                                                                 return [
@@ -968,20 +955,20 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                         //Timbangan luar 1
                                         Card::make('Timbangan luar 1')
                                             ->schema([
-                                                Select::make('id_luar_1')
+                                                Select::make('id_penjualan_antar_pulau_1')
                                                     ->label('No SPB (Timbangan 1)')
                                                     ->placeholder('Pilih No SPB Luar')
                                                     ->options(function (callable $get) {
-                                                        $currentId = $get('id_luar_1'); // nilai yang dipilih (jika ada)
+                                                        $currentId = $get('id_penjualan_antar_pulau_1'); // nilai yang dipilih (jika ada)
 
                                                         // Ambil semua field timbangan beli (dari 1 sampai 3)
                                                         $usedSpbIds = TimbanganTronton::query()
                                                             ->get()
                                                             ->flatMap(function ($record) {
                                                                 return [
-                                                                    $record->id_luar_1,
-                                                                    $record->id_luar_2,
-                                                                    $record->id_luar_3,
+                                                                    $record->id_penjualan_antar_pulau_1,
+                                                                    $record->id_penjualan_antar_pulau_2,
+                                                                    $record->id_penjualan_antar_pulau_3,
                                                                 ];
                                                             })
                                                             ->filter()   // Hilangkan nilai null
@@ -989,7 +976,7 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                             ->toArray();
 
                                                         // Jika ada nilai yang tersimpan, kita ingin menyertakannya walaupun termasuk dalam usedSpbIds.
-                                                        $luarQuery = Luar::query();
+                                                        $luarQuery = PenjualanAntarPulau::query();
                                                         if ($currentId) {
                                                             $luarQuery->where(function ($query) use ($currentId, $usedSpbIds) {
                                                                 $query->where('id', $currentId)
@@ -1016,13 +1003,13 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                     ->reactive()
                                                     ->afterStateHydrated(function ($state, callable $set) {
                                                         if ($state) {
-                                                            $luar = Luar::find($state);
+                                                            $luar = PenjualanAntarPulau::find($state);
                                                             $set('nama_barang_7', $luar?->nama_barang);
                                                             $set('netto7', $luar?->netto);
                                                         }
                                                     })
                                                     ->afterStateUpdated(function ($state, callable $set, $get) {
-                                                        $luar = Luar::find($state);
+                                                        $luar = PenjualanAntarPulau::find($state);
                                                         $set('kode_segel_7', $luar?->plat_polisi ?? 'Plat tidak ditemukan');
                                                         $set('netto7', $luar?->netto);
                                                         $set('nama_barang_7', $luar?->nama_barang);
@@ -1056,23 +1043,23 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
 
                                                     ->disabled(),
                                             ])->columnSpan(1)->collapsible(),
-                                        //Timbangan Luar 2
+                                        //Timbangan luar 1
                                         Card::make('Timbangan luar 2')
                                             ->schema([
-                                                Select::make('id_luar_2')
+                                                Select::make('id_penjualan_antar_pulau_2')
                                                     ->label('No SPB (Timbangan 2)')
                                                     ->placeholder('Pilih No SPB Luar')
                                                     ->options(function (callable $get) {
-                                                        $currentId = $get('id_luar_2'); // nilai yang dipilih (jika ada)
+                                                        $currentId = $get('id_penjualan_antar_pulau_2'); // nilai yang dipilih (jika ada)
 
-                                                        // Ambil semua field timbangan beli (dari 1 sampai 3)
+                                                        // Ambil semua field timbangan beli (dari 2 sampai 3)
                                                         $usedSpbIds = TimbanganTronton::query()
                                                             ->get()
                                                             ->flatMap(function ($record) {
                                                                 return [
-                                                                    $record->id_luar_1,
-                                                                    $record->id_luar_2,
-                                                                    $record->id_luar_3,
+                                                                    $record->id_penjualan_antar_pulau_1,
+                                                                    $record->id_penjualan_antar_pulau_2,
+                                                                    $record->id_penjualan_antar_pulau_3,
                                                                 ];
                                                             })
                                                             ->filter()   // Hilangkan nilai null
@@ -1080,7 +1067,7 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                             ->toArray();
 
                                                         // Jika ada nilai yang tersimpan, kita ingin menyertakannya walaupun termasuk dalam usedSpbIds.
-                                                        $luarQuery = Luar::query();
+                                                        $luarQuery = PenjualanAntarPulau::query();
                                                         if ($currentId) {
                                                             $luarQuery->where(function ($query) use ($currentId, $usedSpbIds) {
                                                                 $query->where('id', $currentId)
@@ -1107,37 +1094,17 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                     ->reactive()
                                                     ->afterStateHydrated(function ($state, callable $set) {
                                                         if ($state) {
-                                                            $luar = Luar::find($state);
+                                                            $luar = PenjualanAntarPulau::find($state);
                                                             $set('nama_barang_8', $luar?->nama_barang);
-                                                            $netto8 = $luar?->netto ?? 0;
-                                                            $set('netto8', $netto8);
-                                                            // Simpan nilai awal untuk perhitungan selanjutnya
-                                                            $set('prev_netto8', $netto8);
+                                                            $set('netto8', $luar?->netto);
                                                         }
                                                     })
                                                     ->afterStateUpdated(function ($state, callable $set, $get) {
-                                                        $luar = Luar::find($state);
-                                                        $set('kode_segel8', $luar?->kode_segel ?? 'kode segel tidak ditemukan');
+                                                        $luar = PenjualanAntarPulau::find($state);
+                                                        $set('kode_segel_8', $luar?->plat_polisi ?? 'Plat tidak ditemukan');
+                                                        $set('netto8', $luar?->netto);
                                                         $set('nama_barang_8', $luar?->nama_barang);
-                                                        $newNetto = $luar?->netto ?? 0;
-                                                        // Ambil nilai netto sebelumnya, jika belum ada asumsikan 0
-                                                        $prevNetto = $get('prev_netto8') ?? 0;
-
-                                                        // Hitung perbedaan antara nilai baru dan sebelumnya
-                                                        $diff = $newNetto - $prevNetto;
-
-                                                        // Update penyimpanan nilai netto sebelumnya
-                                                        $set('prev_netto8', $newNetto);
-
-                                                        // Ambil total netto saat ini. Jika belum ter-update, gunakan nilai awal (initial_total_netto)
-                                                        $currentTotal = $get('total_netto') ?? ($get('initial_total_netto') ?? 0);
-
-                                                        // Update total netto dengan menambahkan selisih
-                                                        $set('total_netto', $currentTotal + $diff);
-
-                                                        // Jika perlu, juga set field netto8 agar tampil (misalnya untuk format)
-                                                        $set('netto8', $newNetto);
-                                                        $set('bruto_akhir', self::getBrutoAkhir($get));
+                                                        $set('total_netto', self::hitungTotalNetto($get)); // Update total_netto
                                                     }),
 
 
@@ -1155,7 +1122,7 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                 //     ->readOnly()
                                                 //     ->afterStateUpdated(fn($state, $set, $get) => $set('total_bruto', self::hitungTotalBruto($get))),
 
-                                                // TextInput::make('tara8')
+                                                // TextInput::make('tara7')
                                                 //     ->label('Tara')
                                                 //     ->reactive()
 
@@ -1167,23 +1134,23 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
 
                                                     ->disabled(),
                                             ])->columnSpan(1)->collapsible(),
-                                        //Timbangan Beli 3
+                                        //Timbangan luar 1
                                         Card::make('Timbangan luar 3')
                                             ->schema([
-                                                Select::make('id_luar_3')
+                                                Select::make('id_penjualan_antar_pulau_3')
                                                     ->label('No SPB (Timbangan 3)')
                                                     ->placeholder('Pilih No SPB Luar')
                                                     ->options(function (callable $get) {
-                                                        $currentId = $get('id_luar_3'); // nilai yang dipilih (jika ada)
+                                                        $currentId = $get('id_penjualan_antar_pulau_3'); // nilai yang dipilih (jika ada)
 
-                                                        // Ambil semua field timbangan beli (dari 1 sampai 3)
+                                                        // Ambil semua field timbangan beli (dari 3 sampai 3)
                                                         $usedSpbIds = TimbanganTronton::query()
                                                             ->get()
                                                             ->flatMap(function ($record) {
                                                                 return [
-                                                                    $record->id_luar_1,
-                                                                    $record->id_luar_2,
-                                                                    $record->id_luar_3,
+                                                                    $record->id_penjualan_antar_pulau_1,
+                                                                    $record->id_penjualan_antar_pulau_2,
+                                                                    $record->id_penjualan_antar_pulau_3,
                                                                 ];
                                                             })
                                                             ->filter()   // Hilangkan nilai null
@@ -1191,7 +1158,7 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                             ->toArray();
 
                                                         // Jika ada nilai yang tersimpan, kita ingin menyertakannya walaupun termasuk dalam usedSpbIds.
-                                                        $luarQuery = Luar::query();
+                                                        $luarQuery = PenjualanAntarPulau::query();
                                                         if ($currentId) {
                                                             $luarQuery->where(function ($query) use ($currentId, $usedSpbIds) {
                                                                 $query->where('id', $currentId)
@@ -1218,37 +1185,17 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                     ->reactive()
                                                     ->afterStateHydrated(function ($state, callable $set) {
                                                         if ($state) {
-                                                            $luar = Luar::find($state);
+                                                            $luar = PenjualanAntarPulau::find($state);
                                                             $set('nama_barang_9', $luar?->nama_barang);
-                                                            $netto9 = $luar?->netto ?? 0;
-                                                            $set('netto9', $netto9);
-                                                            // Simpan nilai awal untuk perhitungan selanjutnya
-                                                            $set('prev_netto9', $netto9);
+                                                            $set('netto9', $luar?->netto);
                                                         }
                                                     })
                                                     ->afterStateUpdated(function ($state, callable $set, $get) {
-                                                        $luar = Luar::find($state);
-                                                        $set('kode_segel9', $luar?->kode_segel ?? 'kode segel tidak ditemukan');
+                                                        $luar = PenjualanAntarPulau::find($state);
+                                                        $set('kode_segel_9', $luar?->plat_polisi ?? 'Plat tidak ditemukan');
+                                                        $set('netto9', $luar?->netto);
                                                         $set('nama_barang_9', $luar?->nama_barang);
-                                                        $newNetto = $luar?->netto ?? 0;
-                                                        // Ambil nilai netto sebelumnya, jika belum ada asumsikan 0
-                                                        $prevNetto = $get('prev_netto9') ?? 0;
-
-                                                        // Hitung perbedaan antara nilai baru dan sebelumnya
-                                                        $diff = $newNetto - $prevNetto;
-
-                                                        // Update penyimpanan nilai netto sebelumnya
-                                                        $set('prev_netto9', $newNetto);
-
-                                                        // Ambil total netto saat ini. Jika belum ter-update, gunakan nilai awal (initial_total_netto)
-                                                        $currentTotal = $get('total_netto') ?? ($get('initial_total_netto') ?? 0);
-
-                                                        // Update total netto dengan menambahkan selisih
-                                                        $set('total_netto', $currentTotal + $diff);
-
-                                                        // Jika perlu, juga set field netto9 agar tampil (misalnya untuk format)
-                                                        $set('netto9', $newNetto);
-                                                        $set('bruto_akhir', self::getBrutoAkhir($get));
+                                                        $set('total_netto', self::hitungTotalNetto($get)); // Update total_netto
                                                     }),
 
 
@@ -1278,6 +1225,7 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
 
                                                     ->disabled(),
                                             ])->columnSpan(1)->collapsible(),
+                                        
                                     ])->columns(3)->collapsed()->visible(fn() => !optional(Auth::user())->hasAnyRole(['timbangan'])),
                                 // Toggle::make('status')
                                 //     ->disabled(function ($state, $record) {

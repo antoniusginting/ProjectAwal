@@ -36,7 +36,7 @@
                             {{ !empty($timbangantronton->penjualan1->plat_polisi) ? 'Plat Polisi' : 'No Container' }}
                         </td>
                         <td class="whitespace-nowrap" colspan="3">:
-                            {{ $timbangantronton->penjualan1->plat_polisi ?? ($timbangantronton->luar1->no_container ?? '') }}
+                            {{ $timbangantronton->penjualan1->plat_polisi ?? ($timbangantronton->penjualanAntarPulau1->no_container ?? '') }}
                         </td>
                     </tr>
                 </tbody>
@@ -140,7 +140,7 @@
             @endif
 
             {{-- Tabel untuk No Container --}}
-            @if (empty($timbangantronton->penjualan1->plat_polisi) && !empty($timbangantronton->luar1->no_container))
+            @if (empty($timbangantronton->penjualan1->plat_polisi) && !empty($timbangantronton->penjualanAntarPulau1->no_container))
                 @php
                     $totalNetto = 0;
                     $totalKarung = 0;
@@ -159,7 +159,7 @@
                     </thead>
                     <tbody class="text-sm">
                         @for ($i = 1; $i <= 6; $i++)
-                            @php $luar = $timbangantronton->{'luar' . $i} ?? null; @endphp
+                            @php $penjualanAntarPulau = $timbangantronton->{'penjualanAntarPulau' . $i} ?? null; @endphp
                             <tr>
                                 <td
                                     class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap">
@@ -167,23 +167,23 @@
                                 </td>
                                 <td
                                     class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap">
-                                    {{ $luar->kode ?? '' }}
+                                    {{ $penjualanAntarPulau->kode ?? '' }}
                                 </td>
                                 <td
                                     class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap">
-                                    {{ $luar->nama_barang ?? '' }}
+                                    {{ $penjualanAntarPulau->nama_barang ?? '' }}
                                 </td>
                                 <td
                                     class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap">
-                                    {{ $luar->kode_segel ?? '' }}
+                                    {{ $penjualanAntarPulau->kode_segel ?? '' }}
                                 </td>
                                 <td
                                     class="border p-2 border-gray-300 dark:border-gray-700 text-right whitespace-nowrap">
-                                    {{ $luar ? number_format($luar->netto, 0, ',', '.') : '' }}
+                                    {{ $penjualanAntarPulau ? number_format($penjualanAntarPulau->netto, 0, ',', '.') : '' }}
                                 </td>
                             </tr>
-                            @if ($luar)
-                                @php $totalNetto += $luar->netto; @endphp
+                            @if ($penjualanAntarPulau)
+                                @php $totalNetto += $penjualanAntarPulau->netto; @endphp
                             @endif
                         @endfor
 
