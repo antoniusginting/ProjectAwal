@@ -71,6 +71,7 @@ class AdminPanelProvider extends PanelProvider
             //     Authenticate::class,
             // ])
             ->sidebarWidth('17rem')
+            // ->databaseNotifications()
             ->sidebarCollapsibleOnDesktop()
             ->plugins([
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make()

@@ -25,11 +25,14 @@ use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TimePicker;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Filters\TernaryFilter;
+use App\Filament\Exports\PembelianExporter;
+use Filament\Tables\Actions\ExportBulkAction;
 use App\Filament\Resources\PembelianResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\PembelianResource\Pages\EditPembelian;
@@ -393,6 +396,14 @@ class PembelianResource extends Resource implements HasShieldPermissions
                     ->icon('heroicon-o-eye')
                     ->url(fn($record) => self::getUrl("view-pembelian", ['record' => $record->id])),
             ], position: ActionsPosition::BeforeColumns)
+            // ->headerActions([
+            //     ExportAction::make()->exporter(PembelianExporter::class)
+            // ])
+            // ->bulkActions([
+            //     Tables\Actions\BulkActionGroup::make([
+            //         ExportBulkAction::make()->exporter(PembelianExporter::class),
+            //     ]),
+            // ])
             ->filters([
                 // Filter untuk menampilkan data pada hari ini
                 Filter::make('Hari Ini')
