@@ -63,7 +63,7 @@ class KendaraanPolicy
      */
     public function forceDelete(User $user, Kendaraan $kendaraan): bool
     {
-        return $user->can('force_delete_kendaraan');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class KendaraanPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_kendaraan');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class KendaraanPolicy
      */
     public function restore(User $user, Kendaraan $kendaraan): bool
     {
-        return $user->can('restore_kendaraan');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class KendaraanPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_kendaraan');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class KendaraanPolicy
      */
     public function replicate(User $user, Kendaraan $kendaraan): bool
     {
-        return $user->can('replicate_kendaraan');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class KendaraanPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_kendaraan');
+        return $user->can('{{ Reorder }}');
     }
 }

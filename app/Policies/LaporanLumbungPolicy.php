@@ -63,7 +63,7 @@ class LaporanLumbungPolicy
      */
     public function forceDelete(User $user, LaporanLumbung $laporanLumbung): bool
     {
-        return $user->can('force_delete_laporan::lumbung');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class LaporanLumbungPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_laporan::lumbung');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class LaporanLumbungPolicy
      */
     public function restore(User $user, LaporanLumbung $laporanLumbung): bool
     {
-        return $user->can('restore_laporan::lumbung');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class LaporanLumbungPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_laporan::lumbung');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class LaporanLumbungPolicy
      */
     public function replicate(User $user, LaporanLumbung $laporanLumbung): bool
     {
-        return $user->can('replicate_laporan::lumbung');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class LaporanLumbungPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_laporan::lumbung');
+        return $user->can('{{ Reorder }}');
     }
 }

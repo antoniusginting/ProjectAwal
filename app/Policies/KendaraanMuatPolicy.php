@@ -63,7 +63,7 @@ class KendaraanMuatPolicy
      */
     public function forceDelete(User $user, KendaraanMuat $kendaraanMuat): bool
     {
-        return $user->can('force_delete_kendaraan::muat');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class KendaraanMuatPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_kendaraan::muat');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class KendaraanMuatPolicy
      */
     public function restore(User $user, KendaraanMuat $kendaraanMuat): bool
     {
-        return $user->can('restore_kendaraan::muat');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class KendaraanMuatPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_kendaraan::muat');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class KendaraanMuatPolicy
      */
     public function replicate(User $user, KendaraanMuat $kendaraanMuat): bool
     {
-        return $user->can('replicate_kendaraan::muat');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class KendaraanMuatPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_kendaraan::muat');
+        return $user->can('{{ Reorder }}');
     }
 }

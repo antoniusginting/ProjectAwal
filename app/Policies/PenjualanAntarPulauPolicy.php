@@ -3,10 +3,10 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\Pembelian;
+use App\Models\PenjualanAntarPulau;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class PembelianPolicy
+class PenjualanAntarPulauPolicy
 {
     use HandlesAuthorization;
 
@@ -15,15 +15,15 @@ class PembelianPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_pembelian');
+        return $user->can('view_any_penjualan::antar::pulau');
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Pembelian $pembelian): bool
+    public function view(User $user, PenjualanAntarPulau $penjualanAntarPulau): bool
     {
-        return $user->can('view_pembelian');
+        return $user->can('view_penjualan::antar::pulau');
     }
 
     /**
@@ -31,23 +31,23 @@ class PembelianPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_pembelian');
+        return $user->can('create_penjualan::antar::pulau');
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Pembelian $pembelian): bool
+    public function update(User $user, PenjualanAntarPulau $penjualanAntarPulau): bool
     {
-        return $user->can('update_pembelian');
+        return $user->can('update_penjualan::antar::pulau');
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Pembelian $pembelian): bool
+    public function delete(User $user, PenjualanAntarPulau $penjualanAntarPulau): bool
     {
-        return $user->can('delete_pembelian');
+        return $user->can('delete_penjualan::antar::pulau');
     }
 
     /**
@@ -55,15 +55,15 @@ class PembelianPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_pembelian');
+        return $user->can('delete_any_penjualan::antar::pulau');
     }
 
     /**
      * Determine whether the user can permanently delete.
      */
-    public function forceDelete(User $user, Pembelian $pembelian): bool
+    public function forceDelete(User $user, PenjualanAntarPulau $penjualanAntarPulau): bool
     {
-        return $user->can('{{ ForceDelete }}');
+        return $user->can('force_delete_penjualan::antar::pulau');
     }
 
     /**
@@ -71,15 +71,15 @@ class PembelianPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('{{ ForceDeleteAny }}');
+        return $user->can('force_delete_any_penjualan::antar::pulau');
     }
 
     /**
      * Determine whether the user can restore.
      */
-    public function restore(User $user, Pembelian $pembelian): bool
+    public function restore(User $user, PenjualanAntarPulau $penjualanAntarPulau): bool
     {
-        return $user->can('{{ Restore }}');
+        return $user->can('restore_penjualan::antar::pulau');
     }
 
     /**
@@ -87,15 +87,15 @@ class PembelianPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('{{ RestoreAny }}');
+        return $user->can('restore_any_penjualan::antar::pulau');
     }
 
     /**
      * Determine whether the user can replicate.
      */
-    public function replicate(User $user, Pembelian $pembelian): bool
+    public function replicate(User $user, PenjualanAntarPulau $penjualanAntarPulau): bool
     {
-        return $user->can('{{ Replicate }}');
+        return $user->can('replicate_penjualan::antar::pulau');
     }
 
     /**
@@ -103,6 +103,6 @@ class PembelianPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('{{ Reorder }}');
+        return $user->can('reorder_penjualan::antar::pulau');
     }
 }

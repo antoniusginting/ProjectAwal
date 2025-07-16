@@ -63,7 +63,7 @@ class KapasitasDryerPolicy
      */
     public function forceDelete(User $user, KapasitasDryer $kapasitasDryer): bool
     {
-        return $user->can('force_delete_kapasitas::dryer');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class KapasitasDryerPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_kapasitas::dryer');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class KapasitasDryerPolicy
      */
     public function restore(User $user, KapasitasDryer $kapasitasDryer): bool
     {
-        return $user->can('restore_kapasitas::dryer');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class KapasitasDryerPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_kapasitas::dryer');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class KapasitasDryerPolicy
      */
     public function replicate(User $user, KapasitasDryer $kapasitasDryer): bool
     {
-        return $user->can('replicate_kapasitas::dryer');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class KapasitasDryerPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_kapasitas::dryer');
+        return $user->can('{{ Reorder }}');
     }
 }

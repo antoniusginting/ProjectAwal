@@ -396,9 +396,9 @@ class PembelianResource extends Resource implements HasShieldPermissions
                     ->icon('heroicon-o-eye')
                     ->url(fn($record) => self::getUrl("view-pembelian", ['record' => $record->id])),
             ], position: ActionsPosition::BeforeColumns)
-            // ->headerActions([
-            //     ExportAction::make()->exporter(PembelianExporter::class)
-            // ])
+            ->headerActions([
+                ExportAction::make()->exporter(PembelianExporter::class)
+            ])
             // ->bulkActions([
             //     Tables\Actions\BulkActionGroup::make([
             //         ExportBulkAction::make()->exporter(PembelianExporter::class),

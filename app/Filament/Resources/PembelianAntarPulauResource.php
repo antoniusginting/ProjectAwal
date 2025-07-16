@@ -20,18 +20,29 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\PembelianAntarPulauResource\Pages;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\PembelianAntarPulauResource\RelationManagers;
 
-class PembelianAntarPulauResource extends Resource
+class PembelianAntarPulauResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = PembelianAntarPulau::class;
 
-   protected static ?string $navigationIcon = 'heroicon-o-document-arrow-down';
+    protected static ?string $navigationIcon = 'heroicon-o-document-arrow-down';
     protected static ?string $navigationGroup = 'Antar Pulau';
     protected static ?int $navigationSort = 1;
     public static ?string $label = 'Daftar Pembelian Antar Pulau ';
     protected static ?string $navigationLabel = 'Pembelian Antar Pulau';
-
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
     public static function form(Form $form): Form
     {
         return $form
@@ -68,7 +79,7 @@ class PembelianAntarPulauResource extends Resource
                                     ->autocomplete('off')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan Nama Barang'),
-                               
+
                                 Select::make('luar_pulau_id')
                                     ->label('Supplier')
                                     ->native(false)

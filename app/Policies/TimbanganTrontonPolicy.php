@@ -63,7 +63,7 @@ class TimbanganTrontonPolicy
      */
     public function forceDelete(User $user, TimbanganTronton $timbanganTronton): bool
     {
-        return $user->can('force_delete_timbangan::tronton');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class TimbanganTrontonPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_timbangan::tronton');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class TimbanganTrontonPolicy
      */
     public function restore(User $user, TimbanganTronton $timbanganTronton): bool
     {
-        return $user->can('restore_timbangan::tronton');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class TimbanganTrontonPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_timbangan::tronton');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class TimbanganTrontonPolicy
      */
     public function replicate(User $user, TimbanganTronton $timbanganTronton): bool
     {
-        return $user->can('replicate_timbangan::tronton');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class TimbanganTrontonPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_timbangan::tronton');
+        return $user->can('{{ Reorder }}');
     }
 }

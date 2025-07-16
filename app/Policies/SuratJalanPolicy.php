@@ -63,7 +63,7 @@ class SuratJalanPolicy
      */
     public function forceDelete(User $user, SuratJalan $suratJalan): bool
     {
-        return $user->can('force_delete_surat::jalan');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class SuratJalanPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_surat::jalan');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class SuratJalanPolicy
      */
     public function restore(User $user, SuratJalan $suratJalan): bool
     {
-        return $user->can('restore_surat::jalan');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class SuratJalanPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_surat::jalan');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class SuratJalanPolicy
      */
     public function replicate(User $user, SuratJalan $suratJalan): bool
     {
-        return $user->can('replicate_surat::jalan');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class SuratJalanPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_surat::jalan');
+        return $user->can('{{ Reorder }}');
     }
 }

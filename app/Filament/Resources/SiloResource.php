@@ -26,9 +26,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Enums\ActionsPosition;
 use App\Filament\Resources\SiloResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\SiloResource\RelationManagers;
 
-class SiloResource extends Resource
+class SiloResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = Silo::class;
 
@@ -36,7 +37,17 @@ class SiloResource extends Resource
     protected static ?string $navigationGroup = 'Kapasitas Lumbung';
     protected static ?int $navigationSort = 3;
     protected static ?string $navigationLabel = 'Silo';
-
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
     public static function form(Form $form): Form
     {
         return $form

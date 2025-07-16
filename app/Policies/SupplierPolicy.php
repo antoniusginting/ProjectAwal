@@ -63,7 +63,7 @@ class SupplierPolicy
      */
     public function forceDelete(User $user, Supplier $supplier): bool
     {
-        return $user->can('force_delete_supplier');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class SupplierPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_supplier');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class SupplierPolicy
      */
     public function restore(User $user, Supplier $supplier): bool
     {
-        return $user->can('restore_supplier');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class SupplierPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_supplier');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class SupplierPolicy
      */
     public function replicate(User $user, Supplier $supplier): bool
     {
-        return $user->can('replicate_supplier');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class SupplierPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_supplier');
+        return $user->can('{{ Reorder }}');
     }
 }

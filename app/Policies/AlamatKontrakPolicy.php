@@ -63,7 +63,7 @@ class AlamatKontrakPolicy
      */
     public function forceDelete(User $user, AlamatKontrak $alamatKontrak): bool
     {
-        return $user->can('force_delete_alamat::kontrak');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class AlamatKontrakPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_alamat::kontrak');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class AlamatKontrakPolicy
      */
     public function restore(User $user, AlamatKontrak $alamatKontrak): bool
     {
-        return $user->can('restore_alamat::kontrak');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class AlamatKontrakPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_alamat::kontrak');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class AlamatKontrakPolicy
      */
     public function replicate(User $user, AlamatKontrak $alamatKontrak): bool
     {
-        return $user->can('replicate_alamat::kontrak');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class AlamatKontrakPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_alamat::kontrak');
+        return $user->can('{{ Reorder }}');
     }
 }

@@ -63,7 +63,7 @@ class KontrakPolicy
      */
     public function forceDelete(User $user, Kontrak $kontrak): bool
     {
-        return $user->can('force_delete_kontrak');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class KontrakPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_kontrak');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class KontrakPolicy
      */
     public function restore(User $user, Kontrak $kontrak): bool
     {
-        return $user->can('restore_kontrak');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class KontrakPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_kontrak');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class KontrakPolicy
      */
     public function replicate(User $user, Kontrak $kontrak): bool
     {
-        return $user->can('replicate_kontrak');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class KontrakPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_kontrak');
+        return $user->can('{{ Reorder }}');
     }
 }

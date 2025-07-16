@@ -63,7 +63,7 @@ class SortiranPolicy
      */
     public function forceDelete(User $user, Sortiran $sortiran): bool
     {
-        return $user->can('force_delete_sortiran');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class SortiranPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_sortiran');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class SortiranPolicy
      */
     public function restore(User $user, Sortiran $sortiran): bool
     {
-        return $user->can('restore_sortiran');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class SortiranPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_sortiran');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class SortiranPolicy
      */
     public function replicate(User $user, Sortiran $sortiran): bool
     {
-        return $user->can('replicate_sortiran');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class SortiranPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_sortiran');
+        return $user->can('{{ Reorder }}');
     }
 }

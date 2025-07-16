@@ -63,7 +63,7 @@ class KapasitasLumbungBasahPolicy
      */
     public function forceDelete(User $user, KapasitasLumbungBasah $kapasitasLumbungBasah): bool
     {
-        return $user->can('force_delete_kapasitas::lumbung::basah');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class KapasitasLumbungBasahPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_kapasitas::lumbung::basah');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class KapasitasLumbungBasahPolicy
      */
     public function restore(User $user, KapasitasLumbungBasah $kapasitasLumbungBasah): bool
     {
-        return $user->can('restore_kapasitas::lumbung::basah');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class KapasitasLumbungBasahPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_kapasitas::lumbung::basah');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class KapasitasLumbungBasahPolicy
      */
     public function replicate(User $user, KapasitasLumbungBasah $kapasitasLumbungBasah): bool
     {
-        return $user->can('replicate_kapasitas::lumbung::basah');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class KapasitasLumbungBasahPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_kapasitas::lumbung::basah');
+        return $user->can('{{ Reorder }}');
     }
 }

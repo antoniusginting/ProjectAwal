@@ -27,16 +27,27 @@ use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
 use App\Filament\Resources\TransferResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\TransferResource\RelationManagers;
 
-class TransferResource extends Resource
+class TransferResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = Transfer::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-arrows-up-down';
     protected static ?string $navigationGroup = 'Timbangan';
     protected static ?int $navigationSort = 5;
-
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
     public static function form(Form $form): Form
     {
         return $form

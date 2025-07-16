@@ -63,7 +63,7 @@ class DryerPolicy
      */
     public function forceDelete(User $user, Dryer $dryer): bool
     {
-        return $user->can('force_delete_dryer');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class DryerPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_dryer');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class DryerPolicy
      */
     public function restore(User $user, Dryer $dryer): bool
     {
-        return $user->can('restore_dryer');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class DryerPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_dryer');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class DryerPolicy
      */
     public function replicate(User $user, Dryer $dryer): bool
     {
-        return $user->can('replicate_dryer');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class DryerPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_dryer');
+        return $user->can('{{ Reorder }}');
     }
 }

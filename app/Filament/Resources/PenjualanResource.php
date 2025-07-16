@@ -452,9 +452,9 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                             ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
                             ->isoFormat('D MMMM YYYY | HH:mm:ss');
                     }),
-                TextColumn::make('status_timbangan')
-                    ->alignCenter()
-                    ->label('Status'),
+                // TextColumn::make('status_timbangan')
+                //     ->alignCenter()
+                //     ->label('Status'),
                 TextColumn::make('no_spb')
                     ->searchable()
                     ->copyable()
@@ -489,7 +489,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('netto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                TextColumn::make('no_lumbung')
+                TextColumn::make('laporanLumbung.kode')
                     ->alignCenter(),
                 TextColumn::make('nama_lumbung')
                     ->searchable()

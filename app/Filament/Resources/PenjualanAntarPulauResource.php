@@ -19,11 +19,12 @@ use Filament\Tables\Columns\BadgeColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\PenjualanAntarPulauResource\Pages;
 use App\Filament\Resources\PenjualanAntarPulauResource\RelationManagers;
 use Filament\Forms\Components\Grid;
 
-class PenjualanAntarPulauResource extends Resource
+class PenjualanAntarPulauResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = PenjualanAntarPulau::class;
 
@@ -32,7 +33,17 @@ class PenjualanAntarPulauResource extends Resource
     protected static ?int $navigationSort = 2;
     public static ?string $label = 'Daftar Penjualan Antar Pulau ';
     protected static ?string $navigationLabel = 'Penjualan Antar Pulau';
-
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
     public static function form(Form $form): Form
     {
         return $form

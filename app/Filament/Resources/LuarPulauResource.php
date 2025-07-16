@@ -19,10 +19,11 @@ use Filament\Tables\Columns\BadgeColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Enums\ActionsPosition;
 use App\Filament\Resources\LuarPulauResource\Pages;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\LuarPulauResource\RelationManagers;
 
-class LuarPulauResource extends Resource
+class LuarPulauResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = LuarPulau::class;
 
@@ -30,6 +31,18 @@ class LuarPulauResource extends Resource
     protected static ?string $navigationLabel = 'Kapasitas Kontrak';
     protected static ?string $navigationGroup = 'Antar Pulau';
     protected static ?int $navigationSort = 3;
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
 
     public static function form(Form $form): Form
     {
@@ -152,11 +165,11 @@ class LuarPulauResource extends Resource
                     ->icon('heroicon-o-eye')
                     ->url(fn($record) => self::getUrl("view-luar-pulau", ['record' => $record->id])),
             ], position: ActionsPosition::BeforeColumns);
-            // ->bulkActions([
-            //     Tables\Actions\BulkActionGroup::make([
-            //         Tables\Actions\DeleteBulkAction::make(),
-            //     ]),
-            // ]);
+        // ->bulkActions([
+        //     Tables\Actions\BulkActionGroup::make([
+        //         Tables\Actions\DeleteBulkAction::make(),
+        //     ]),
+        // ]);
     }
 
     public static function getRelations(): array

@@ -63,7 +63,7 @@ class LumbungBasahPolicy
      */
     public function forceDelete(User $user, LumbungBasah $lumbungBasah): bool
     {
-        return $user->can('force_delete_lumbung::basah');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class LumbungBasahPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_lumbung::basah');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class LumbungBasahPolicy
      */
     public function restore(User $user, LumbungBasah $lumbungBasah): bool
     {
-        return $user->can('restore_lumbung::basah');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class LumbungBasahPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_lumbung::basah');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class LumbungBasahPolicy
      */
     public function replicate(User $user, LumbungBasah $lumbungBasah): bool
     {
-        return $user->can('replicate_lumbung::basah');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class LumbungBasahPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_lumbung::basah');
+        return $user->can('{{ Reorder }}');
     }
 }
