@@ -36,6 +36,7 @@ use Filament\Tables\Actions\ExportBulkAction;
 use App\Filament\Resources\PembelianResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\PembelianResource\Pages\EditPembelian;
+use PhpParser\Node\Stmt\Label;
 
 class PembelianResource extends Resource implements HasShieldPermissions
 {
@@ -399,11 +400,11 @@ class PembelianResource extends Resource implements HasShieldPermissions
             ->headerActions([
                 ExportAction::make()->exporter(PembelianExporter::class)
             ])
-            // ->bulkActions([
-            //     Tables\Actions\BulkActionGroup::make([
-            //         ExportBulkAction::make()->exporter(PembelianExporter::class),
-            //     ]),
-            // ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    ExportBulkAction::make()->exporter(PembelianExporter::class)->label('Export to Excel'),
+                ]),
+            ])
             ->filters([
                 // Filter untuk menampilkan data pada hari ini
                 Filter::make('Hari Ini')
