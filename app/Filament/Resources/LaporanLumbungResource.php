@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use Carbon\Carbon;
 use Filament\Forms;
+use App\Models\Silo;
 use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Actions;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
@@ -27,11 +29,11 @@ use Filament\Tables\Columns\BadgeColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
+use Filament\Forms\Components\Actions\Action;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\LaporanLumbungResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\LaporanLumbungResource\RelationManagers;
-use App\Models\Silo;
 
 class LaporanLumbungResource extends Resource implements HasShieldPermissions
 {
@@ -234,15 +236,32 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                                 return null;
                                             })
                                             ->live()
-                                            ->reactive()
+                                            ->reactive(),
 
-                                    ])->columnSpan(1)
+
+                                    ])->columnSpan(1),
                                 // ->afterStateUpdated(function (Set $set, $state) {
                                 //     // Jika status_silo dipilih (tidak kosong), set tipe_penjualan ke 'masuk'
                                 //     if (!empty($state)) {
                                 //         $set('tipe_penjualan', 'MASUK');
                                 //     }
                                 // }),
+                                TextInput::make('keterangan')
+                                    ->label('Keterangan')
+                                    ->placeholder('Masukkan keterangan...')
+                                    ->maxLength(255)
+                                    ->columnSpanFull()
+                                    ->visible(fn(Get $get) => $get('show_keterangan') || !empty($get('keterangan')))
+                                    ->suffixAction(
+                                        Action::make('hide_keterangan')
+                                            ->icon('heroicon-o-x-mark')
+                                            ->color('gray')
+                                            ->action(function (Set $set) {
+                                                $set('show_keterangan', false);
+                                                $set('keterangan', null);
+                                            })
+                                            ->visible(fn(Get $get) => empty($get('keterangan'))) // Hanya tampil jika field kosong
+                                    ),
                             ]),
                         // Card::make('Info Dryer')
                         //     // ->visible(fn(Get $get) => $get('tipe_penjualan') === 'keluar')
@@ -544,6 +563,37 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                 //             }),
                 //     ])->columnSpan(1),
 
+                Actions::make([
+                    Action::make('toggle_keterangan')
+                        ->label('Tambah Catatan')
+                        ->icon('heroicon-o-plus')
+                        ->color('primary')
+                        ->action(function (Set $set) {
+                            $set('show_keterangan', true);
+                        })
+                        ->visible(fn(Get $get) => !$get('show_keterangan') && empty($get('keterangan')))
+                ])
+                    ->columnSpanFull(),
+                // Hidden field untuk state
+                TextInput::make('show_keterangan')
+                    ->hidden()
+                    ->default(fn(Get $get) => !empty($get('keterangan'))), // Auto true jika ada data keterangan
+                // TextInput keterangan yang bisa di-toggle
+                // TextInput::make('keterangan')
+                //     ->label('Catatan')
+                //     ->placeholder('Masukkan catatan...')
+                //     ->maxLength(255)
+                //     ->columnSpanFull()
+                //     ->visible(fn(Get $get) => $get('show_keterangan'))
+                //     ->suffixAction(
+                //         Action::make('hide_keterangan')
+                //             ->icon('heroicon-o-x-mark')
+                //             ->color('gray')
+                //             ->action(function (Set $set) {
+                //                 $set('show_keterangan', false);
+                //                 $set('keterangan', null);
+                //             })
+                //     ),
                 Hidden::make('user_id')
                     ->label('User ID')
                     ->default(Auth::id()) // Set nilai default user yang sedang login,

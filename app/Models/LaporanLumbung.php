@@ -15,6 +15,7 @@ class LaporanLumbung extends Model
         "berat_langsir",
         "status",
         "silo_id",
+        "keterangan",
     ];
 
     // Relasi ke silo

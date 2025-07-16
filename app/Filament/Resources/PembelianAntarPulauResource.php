@@ -153,6 +153,7 @@ class PembelianAntarPulauResource extends Resource implements HasShieldPermissio
                 TextColumn::make('user.name')
                     ->label('User')
             ])
+            ->defaultSort('kode', 'desc')
             ->filters([
                 //
             ])

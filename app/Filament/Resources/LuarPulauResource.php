@@ -156,6 +156,7 @@ class LuarPulauResource extends Resource implements HasShieldPermissions
                         return $pembelianluar->implode(', ');
                     }),
             ])
+            ->defaultSort('id', 'desc')
             ->filters([
                 //
             ])

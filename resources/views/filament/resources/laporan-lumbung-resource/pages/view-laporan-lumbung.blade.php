@@ -234,5 +234,17 @@
                 </tr>
             </tfoot>
         </table>
+
+        {{-- Keterangan --}}
+        <div class="mt-6">
+            <div class="text-sm text-gray-600 dark:text-gray-400">
+                <strong>Catatan:</strong>
+                @if (!empty($laporanlumbung->keterangan))
+                    {{ $laporanlumbung->keterangan }}
+                @else
+                    Tidak ada keterangan
+                @endif
+            </div>
+        </div>
     </div>
 </x-filament-panels::page>

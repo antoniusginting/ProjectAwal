@@ -11,8 +11,8 @@ use Filament\Forms\Set;
 use App\Models\Supplier;
 use Filament\Forms\Form;
 use App\Models\Penjualan;
-
 use Filament\Tables\Table;
+
 use App\Models\LaporanLumbung;
 use Filament\Resources\Resource;
 use function Laravel\Prompts\text;
@@ -25,11 +25,14 @@ use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
-
 use Filament\Tables\Columns\BadgeColumn;
+
+use Filament\Tables\Actions\ExportAction;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
+use App\Filament\Exports\PenjualanExporter;
+use Filament\Tables\Actions\ExportBulkAction;
 use App\Filament\Resources\PenjualanResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\PenjualanResource\Pages\EditPenjualan;
@@ -489,11 +492,42 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('netto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                TextColumn::make('laporanLumbung.kode')
-                    ->alignCenter(),
-                TextColumn::make('nama_lumbung')
+                TextColumn::make('conditional_kode')
+                    ->label('No Lumbung')
+                    ->state(function ($record) {
+                        // Cek apakah ada laporanLumbung.kode
+                        if ($record->laporanLumbung && $record->laporanLumbung->kode) {
+                            return $record->laporanLumbung->kode;
+                        }
+
+                        // Kalau tidak ada, cek silos.nama
+                        if ($record->silos && $record->silos->nama) {
+                            return $record->silos->nama;
+                        }
+
+                        return null;
+                    })
+                    ->alignCenter()
+                    ->placeholder('-'),
+
+                TextColumn::make('conditional_nama')
+                    ->label('Nama Lumbung')
+                    ->state(function ($record) {
+                        // Cek apakah ada nama_lumbung
+                        if ($record->nama_lumbung) {
+                            return $record->nama_lumbung;
+                        }
+
+                        // Kalau tidak ada, cek silos.nama
+                        if ($record->silos && $record->silos->nama) {
+                            return $record->silos->nama;
+                        }
+
+                        return null;
+                    })
                     ->searchable()
-                    ->alignCenter(),
+                    ->alignCenter()
+                    ->placeholder('-'),
                 TextColumn::make('nama_barang')
                     ->searchable(),
                 TextColumn::make('jam_masuk')
@@ -518,6 +552,14 @@ class PenjualanResource extends Resource implements HasShieldPermissions
             //     Tables\Actions\DeleteBulkAction::make(),
             //     // ]),
             // ])
+            ->headerActions([
+                ExportAction::make()->exporter(PenjualanExporter::class)
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    ExportBulkAction::make()->exporter(PenjualanExporter::class)->label('Export to Excel'),
+                ]),
+            ])
             ->filters([
                 Filter::make('Hari Ini')
                     ->query(
