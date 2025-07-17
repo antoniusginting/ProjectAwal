@@ -7,8 +7,8 @@ use Filament\Forms;
 use Filament\Tables;
 use App\Models\Sortiran;
 use Filament\Forms\Form;
-
 use App\Models\Pembelian;
+
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
@@ -29,10 +29,13 @@ use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Columns\ToggleColumn;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Exports\SortiranExporter;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
+use Filament\Tables\Actions\ExportBulkAction;
 use App\Filament\Resources\SortiranResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Actions\Action as FormAction;
@@ -1095,6 +1098,18 @@ class SortiranResource extends Resource implements HasShieldPermissions
             //     Tables\Actions\DeleteBulkAction::make(),
             //     // ]),
             // ])
+            ->headerActions([
+                ExportAction::make()->exporter(SortiranExporter::class)
+                    ->color('success')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->label('Export to Excel')
+                    ->outlined()
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    ExportBulkAction::make()->exporter(SortiranExporter::class)->label('Export to Excel'),
+                ]),
+            ])
             ->filters([
                 Filter::make('pilih_tanggal')
                     ->form([

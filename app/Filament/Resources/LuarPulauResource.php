@@ -61,6 +61,7 @@ class LuarPulauResource extends Resource implements HasShieldPermissions
                             ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)), // Hapus titik sebelum dikirim ke database
                         Select::make('nama')
                             ->native(false)
+                            ->searchable()
                             ->required()
                             ->options(function () {
                                 return \App\Models\Kontrak::query()
