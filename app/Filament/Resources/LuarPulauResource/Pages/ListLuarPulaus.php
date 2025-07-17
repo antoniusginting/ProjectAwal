@@ -19,6 +19,6 @@ class ListLuarPulaus extends ListRecords
 
     function getTitle(): string
     {
-        return 'Daftar Kapasitas Kontrak';
+        return 'Daftar Kapasitas Kontrak Beli';
     }
 }

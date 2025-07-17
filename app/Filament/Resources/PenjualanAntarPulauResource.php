@@ -5,6 +5,8 @@ namespace App\Filament\Resources;
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
@@ -32,7 +34,7 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
 
     protected static ?string $navigationIcon = 'heroicon-o-document-arrow-up';
     protected static ?string $navigationGroup = 'Antar Pulau';
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
     public static ?string $label = 'Daftar Penjualan Antar Pulau ';
     protected static ?string $navigationLabel = 'Penjualan Antar Pulau';
     public static function getPermissionPrefixes(): array
@@ -70,14 +72,20 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                                     ->label('Tanggal')
                                     ->formatStateUsing(fn($state) => \Carbon\Carbon::parse($state)->format('d-m-Y'))
                                     ->disabled(), // Tidak bisa diedit
-                            ])->columns(2)->collapsed(),
+                                Select::make('status')
+                                    ->native(false)
+                                    ->options([
+                                        'TERIMA' => 'TERIMA',
+                                        'RETUR' => 'RETUR',
+                                    ])
+                                    ->label('Status')
+                                    ->placeholder('Belum ada Status')
+                                    ->live(), // Penting untuk reaktivitas
+                            ])->columns(3)->collapsed(),
 
                         Card::make()
                             ->schema([
-                                TextInput::make('kode_segel')
-                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
-                                    ->autocomplete('off')
-                                    ->placeholder('Masukkan kode Segel'),
+
                                 TextInput::make('nama_barang')
                                     ->autocomplete('off')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
@@ -119,12 +127,13 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                                 //             $set('status_silo', null);
                                 //         }
                                 //     }),
-                                Select::make('luar_pulau_id')
+
+                                Select::make('kapasitas_kontrak_juals_id')
                                     ->label('Supplier')
                                     ->native(false)
                                     ->required()
                                     ->options(function () {
-                                        return \App\Models\LuarPulau::query()
+                                        return \App\Models\KapasitasKontrakJual::query()
                                             ->where('status', false)
                                             ->pluck('nama', 'id')
                                             ->toArray();
@@ -134,13 +143,32 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                                     ->live(),
                                 Grid::make()
                                     ->schema([
-                                        TextInput::make('netto')
-                                            ->label('Netto')
-                                            ->placeholder('Masukkan Netto')
-                                            ->numeric(),
+                                        TextInput::make('kode_segel')
+                                            ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
+                                            ->autocomplete('off')
+                                            ->placeholder('Masukkan kode Segel'),
                                         TextInput::make('no_container')
                                             ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                             ->placeholder('Masukkan No Container'),
+                                    ])->columnSpan(1),
+                                Grid::make()
+                                    ->schema([
+                                        TextInput::make('netto')
+                                            ->label('Netto')
+                                            ->placeholder('Masukkan netto')
+                                            ->numeric(),
+                                        TextInput::make('netto_diterima')
+                                            ->label('Netto Diterima')
+                                            ->placeholder('Masukkan netto diterima')
+                                            ->numeric()
+                                            ->disabled(fn(Get $get) => $get('status') !== 'TERIMA') // Hanya aktif jika status TERIMA
+                                            ->dehydrated(fn(Get $get) => $get('status') === 'TERIMA') // Hanya simpan jika status TERIMA
+                                            ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                                                // Reset nilai ketika status bukan TERIMA
+                                                if ($get('status') !== 'TERIMA') {
+                                                    $set('netto_diterima', null);
+                                                }
+                                            })
                                     ])->columnSpan(1),
                                 Hidden::make('user_id')
                                     ->label('User ID')
@@ -170,6 +198,8 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                             ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
                             ->isoFormat('D MMMM YYYY | HH:mm:ss');
                     }),
+                TextColumn::make('status')
+                    ->label('Status'),
                 TextColumn::make('kode')
                     ->label('No SPB')
                     ->searchable()
@@ -178,23 +208,24 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                 TextColumn::make('kode_segel')
                     ->label('Kode Segel')
                     ->searchable(),
-                TextColumn::make('luarPulau.nama')->label('Supplier')
+                TextColumn::make('kapasitasKontrakJual.nama')->label('Supplier')
                     ->alignCenter()
                     ->searchable(),
                 TextColumn::make('nama_barang')
                     ->searchable(),
                 TextColumn::make('netto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                TextColumn::make('netto_diterima')
+                    ->label('Terima')
+                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('no_container')
-                    ->searchable(),
-                TextColumn::make('nama_ekspedisi')
                     ->searchable(),
                 TextColumn::make('user.name')
                     ->label('User')
             ])
             ->defaultSort('kode', 'desc')
             ->filters([
-                 Filter::make('pilih_tanggal')
+                Filter::make('pilih_tanggal')
                     ->form([
                         DatePicker::make('tanggal')
                             ->label('Pilih Tanggal')

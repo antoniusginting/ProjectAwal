@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class LuarPulau extends Model
 {
-     protected $fillable = [
+    protected $fillable = [
         'stok',
         'nama',
         'status',
@@ -16,8 +16,8 @@ class LuarPulau extends Model
     {
         return $this->hasMany(PembelianAntarPulau::class);
     }
-    public function penjualanLuar()
-    {
-        return $this->hasMany(PenjualanAntarPulau::class);
-    }
+    // public function penjualanLuar()
+    // {
+    //     return $this->hasMany(PenjualanAntarPulau::class);
+    // }
 }

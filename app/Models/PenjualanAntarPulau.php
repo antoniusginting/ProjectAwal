@@ -12,10 +12,18 @@ class PenjualanAntarPulau extends Model
         'netto',
         'no_container',
         'user_id',
-        "luar_pulau_id",
+        'status',
+        'netto_diterima',
+        // "luar_pulau_id",
+        "kapasitas_kontrak_jual_id",
     ];
 
 
+    // Relasi ke luar kapasitas kontrak jual
+    public function kapasitasKontrakJual()
+    {
+        return $this->belongsTo(KapasitasKontrakJual::class, 'kapasitas_kontrak_jual_id');
+    }
     // Relasi ke luar pulau
     public function luarPulau()
     {

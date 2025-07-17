@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Filament\Resources\PenjualanAntarPulauResource\Pages;
+namespace App\Filament\Resources\KapasitasKontrakJualResource\Pages;
 
 use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
-use App\Filament\Resources\PenjualanAntarPulauResource;
+use App\Filament\Resources\KapasitasKontrakJualResource;
+use App\Models\KapasitasKontrakJual;
 
-class EditPenjualanAntarPulau extends EditRecord
+class EditKapasitasKontrakJual extends EditRecord
 {
-    protected static string $resource = PenjualanAntarPulauResource::class;
+    protected static string $resource = KapasitasKontrakJualResource::class;
 
     protected function getHeaderActions(): array
     {
@@ -17,7 +18,6 @@ class EditPenjualanAntarPulau extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
-
     protected function getFormActions(): array
     {
         return [
@@ -27,7 +27,7 @@ class EditPenjualanAntarPulau extends EditRecord
             Action::make('cancel')
                 ->label('Batal')
                 ->color('gray')
-                ->url(PenjualanAntarPulauResource::getUrl('index')),
+                ->url(KapasitasKontrakJualResource::getUrl('index')),
         ];
     }
     protected function getRedirectUrl(): string

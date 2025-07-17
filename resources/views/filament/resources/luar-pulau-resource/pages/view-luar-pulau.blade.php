@@ -86,7 +86,7 @@
             </div>
 
             {{-- Baris Kedua: Penjualan --}}
-            <div>
+            {{-- <div>
                 <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Data Penjualan</h4>
                 <div class="flex flex-row gap-4">
                     <!-- Total Penjualan -->
@@ -120,7 +120,7 @@
                     <!-- Spacer untuk alignment -->
                     <div class="flex-1"></div>
                 </div>
-            </div>
+            </div> --}}
         </div>
 
         <!-- Divider -->
@@ -215,10 +215,10 @@
         </div>
 
         <!-- Divider -->
-        <div class="border-b border-gray-300 dark:border-gray-700"></div>
+        {{-- <div class="border-b border-gray-300 dark:border-gray-700"></div> --}}
 
         {{-- Tabel: Data Penjualan --}}
-        <div class="mb-6" id="laporan-penjualan">
+        {{-- <div class="mb-6" id="laporan-penjualan">
             <div class="flex justify-between items-center mb-3">
                 <div class="flex items-center gap-3">
                     <h3 class="text-lg font-semibold">Laporan Penjualan</h3>
@@ -279,10 +279,10 @@
                         </td>
                     </tr>
                 </tfoot>
-            </table>
+            </table> --}}
 
             {{-- Dropdown untuk memilih jumlah data penjualan --}}
-            <div class="mt-3 flex justify-center">
+            {{-- <div class="mt-3 flex justify-center">
                 <div class="flex items-center gap-2">
                     <label class="text-sm text-gray-600 dark:text-gray-400">Tampilkan:</label>
                     <select id="penjualan-per-page" onchange="changePenjualanPerPage()"
@@ -299,7 +299,7 @@
                     </span>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </div>
 
     {{-- JavaScript untuk Scroll Functions dan Dropdown Pagination --}}
