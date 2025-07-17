@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Exports\TimbanganTrontonExporter;
 use Dom\Text;
 use Carbon\Carbon;
 use Filament\Forms;
@@ -16,13 +15,13 @@ use App\Models\TimbanganTronton;
 use Filament\Resources\Resource;
 use function Laravel\Prompts\text;
 use Illuminate\Support\Collection;
-
 use App\Models\PenjualanAntarPulau;
+
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Filters\Filter;
-
 use Illuminate\Support\Facades\Auth;
+
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
@@ -33,6 +32,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Columns\ToggleColumn;
@@ -41,6 +41,7 @@ use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Columns\CheckboxColumn;
 use Filament\Tables\Actions\ExportBulkAction;
+use App\Filament\Exports\TimbanganTrontonExporter;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TimbanganTrontonResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
@@ -1474,11 +1475,22 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                     ->label('User')
             ])->defaultSort('id', 'desc')
             ->filters([
-                Filter::make('Hari Ini')
-                    ->query(
-                        fn(Builder $query) =>
-                        $query->whereDate('created_at', Carbon::today())
-                    )->toggle(),
+                Filter::make('pilih_tanggal')
+                    ->form([
+                        DatePicker::make('tanggal')
+                            ->label('Pilih Tanggal')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['tanggal'] ?? null,
+                            fn($query, $date) => $query->whereDate('created_at', $date)
+                        );
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        return ($data['tanggal'] ?? null)
+                            ? 'Tanggal: ' . Carbon::parse($data['tanggal'])->format('d M Y')
+                            : null;
+                    }),
             ])
             ->headerActions([
                 ExportAction::make()->exporter(TimbanganTrontonExporter::class)

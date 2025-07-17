@@ -11,6 +11,7 @@ use App\Models\Supplier;
 use Filament\Forms\Form;
 use App\Models\Pembelian;
 use Filament\Tables\Table;
+use PhpParser\Node\Stmt\Label;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
@@ -23,6 +24,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TimePicker;
 use Filament\Tables\Actions\ExportAction;
@@ -36,7 +38,6 @@ use Filament\Tables\Actions\ExportBulkAction;
 use App\Filament\Resources\PembelianResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\PembelianResource\Pages\EditPembelian;
-use PhpParser\Node\Stmt\Label;
 
 class PembelianResource extends Resource implements HasShieldPermissions
 {
@@ -410,12 +411,22 @@ class PembelianResource extends Resource implements HasShieldPermissions
                 ]),
             ])
             ->filters([
-                // Filter untuk menampilkan data pada hari ini
-                Filter::make('Hari Ini')
-                    ->query(
-                        fn(Builder $query) =>
-                        $query->whereDate('created_at', Carbon::today())
-                    )->toggle(),
+                 Filter::make('pilih_tanggal')
+                    ->form([
+                        DatePicker::make('tanggal')
+                            ->label('Pilih Tanggal')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['tanggal'] ?? null,
+                            fn($query, $date) => $query->whereDate('created_at', $date)
+                        );
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        return ($data['tanggal'] ?? null)
+                            ? 'Tanggal: ' . Carbon::parse($data['tanggal'])->format('d M Y')
+                            : null;
+                    }),
                 // Filter toggle untuk menampilkan data dimana tara null
                 Filter::make('Tara Kosong')
                     ->query(

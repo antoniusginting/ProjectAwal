@@ -16,6 +16,7 @@ use Filament\Resources\Resource;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Group;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Hidden;
@@ -26,6 +27,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
+use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
@@ -824,7 +826,22 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                     ->label('PJ'),
             ])
             ->filters([
-                //
+                Filter::make('pilih_tanggal')
+                    ->form([
+                        DatePicker::make('tanggal')
+                            ->label('Pilih Tanggal')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['tanggal'] ?? null,
+                            fn($query, $date) => $query->whereDate('created_at', $date)
+                        );
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        return ($data['tanggal'] ?? null)
+                            ? 'Tanggal: ' . Carbon::parse($data['tanggal'])->format('d M Y')
+                            : null;
+                    }),
             ])
             ->defaultSort('kode', 'desc') // Megurutkan kode terakhir menjadi pertama pada tabel
             ->actions([

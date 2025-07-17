@@ -10,19 +10,21 @@ use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use App\Models\PenjualanAntarPulau;
 use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
+use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\PenjualanAntarPulauResource\Pages;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\PenjualanAntarPulauResource\RelationManagers;
-use Filament\Forms\Components\Grid;
 
 class PenjualanAntarPulauResource extends Resource implements HasShieldPermissions
 {
@@ -192,7 +194,22 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
             ])
             ->defaultSort('kode', 'desc')
             ->filters([
-                //
+                 Filter::make('pilih_tanggal')
+                    ->form([
+                        DatePicker::make('tanggal')
+                            ->label('Pilih Tanggal')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['tanggal'] ?? null,
+                            fn($query, $date) => $query->whereDate('created_at', $date)
+                        );
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        return ($data['tanggal'] ?? null)
+                            ? 'Tanggal: ' . Carbon::parse($data['tanggal'])->format('d M Y')
+                            : null;
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Exports\SuratJalanExporter;
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
@@ -22,9 +21,11 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\BadgeColumn;
+use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Actions\ExportAction;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Enums\ActionsPosition;
+use App\Filament\Exports\SuratJalanExporter;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Tables\Actions\ExportBulkAction;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -288,11 +289,22 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                     ->label('User')
             ])->defaultSort('id', 'desc')
             ->filters([
-                Filter::make('Hari Ini')
-                    ->query(
-                        fn(Builder $query) =>
-                        $query->whereDate('created_at', Carbon::today())
-                    )->toggle(),
+                 Filter::make('pilih_tanggal')
+                    ->form([
+                        DatePicker::make('tanggal')
+                            ->label('Pilih Tanggal')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['tanggal'] ?? null,
+                            fn($query, $date) => $query->whereDate('created_at', $date)
+                        );
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        return ($data['tanggal'] ?? null)
+                            ? 'Tanggal: ' . Carbon::parse($data['tanggal'])->format('d M Y')
+                            : null;
+                    }),
             ])
             ->headerActions([
                 ExportAction::make()->exporter(SuratJalanExporter::class)

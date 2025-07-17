@@ -24,6 +24,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\KendaraanMuatResource\Pages;
@@ -294,11 +295,27 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                     ->label('User')
             ])->defaultSort('id', 'desc')
             ->filters([
-                Filter::make('Hari Ini')
-                    ->query(
-                        fn(Builder $query) =>
-                        $query->whereDate('created_at', Carbon::today())
-                    ),
+                SelectFilter::make('Hari')
+                    ->native(false)
+                    ->label('Hari')
+                    ->options([
+                        'today' => 'Hari Ini',
+                        'yesterday' => 'Semalam',
+                        'today_and_yesterday' => 'Hari Ini & Semalam',
+                    ])
+                    ->default('today') // Menetapkan nilai default
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (empty($data['value'])) {
+                            return $query;
+                        }
+                        return match ($data['value']) {
+                            'today' => $query->whereDate('created_at', Carbon::today()),
+                            'yesterday' => $query->whereDate('created_at', Carbon::yesterday()),
+                            'today_and_yesterday' => $query->whereDate('created_at', '>=', Carbon::yesterday())
+                                ->whereDate('created_at', '<=', Carbon::today()),
+                            default => $query->whereDate('created_at', Carbon::today()),
+                        };
+                    }),
                 Filter::make('Jam Masuk Kosong')
                     ->query(
                         fn(Builder $query) =>

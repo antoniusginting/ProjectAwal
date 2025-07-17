@@ -27,6 +27,7 @@ use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
 
+use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Actions\ExportAction;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
@@ -565,11 +566,22 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                 ]),
             ])
             ->filters([
-                Filter::make('Hari Ini')
-                    ->query(
-                        fn(Builder $query) =>
-                        $query->whereDate('created_at', Carbon::today())
-                    )->toggle(),
+                 Filter::make('pilih_tanggal')
+                    ->form([
+                        DatePicker::make('tanggal')
+                            ->label('Pilih Tanggal')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['tanggal'] ?? null,
+                            fn($query, $date) => $query->whereDate('created_at', $date)
+                        );
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        return ($data['tanggal'] ?? null)
+                            ? 'Tanggal: ' . Carbon::parse($data['tanggal'])->format('d M Y')
+                            : null;
+                    }),
                 // Filter toggle untuk menampilkan data dimana tara null
                 Filter::make('Bruto Kosong')
                     ->query(

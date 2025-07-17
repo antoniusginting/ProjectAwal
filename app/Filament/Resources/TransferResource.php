@@ -15,6 +15,7 @@ use Illuminate\Support\Carbon;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Radio;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Hidden;
@@ -22,13 +23,17 @@ use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
+use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Actions\ExportAction;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Exports\TransferExporter;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
+use Filament\Tables\Actions\ExportBulkAction;
 use App\Filament\Resources\TransferResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\TransferResource\RelationManagers;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
 class TransferResource extends Resource implements HasShieldPermissions
 {
@@ -176,7 +181,7 @@ class TransferResource extends Resource implements HasShieldPermissions
 
                                             // Naikkan keterangan dari sortiran
                                             $keteranganBaru = in_array(intval($sortiran->pembelian->keterangan), [1, 2, 3, 4, 5])
-                                                ? intval($sortiran->pembelian->keterangan) 
+                                                ? intval($sortiran->pembelian->keterangan)
                                                 : $sortiran->pembelian->keterangan;
                                             $set('keterangan', $keteranganBaru);
                                         }
@@ -440,17 +445,42 @@ class TransferResource extends Resource implements HasShieldPermissions
             ->filters([
                 //
             ])
+            ->headerActions([
+                ExportAction::make()->exporter(TransferExporter::class)
+                    ->color('success')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->label('Export to Excel')
+                    ->outlined()
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    ExportBulkAction::make()->exporter(TransferExporter::class)->label('Export to Excel'),
+                ]),
+            ])
             ->actions([
                 Tables\Actions\Action::make('view-transfer')
                     ->label(__("Lihat"))
                     ->icon('heroicon-o-eye')
                     ->url(fn($record) => self::getUrl("view-transfer", ['record' => $record->id])),
-            ], position: ActionsPosition::BeforeColumns);
-        // ->bulkActions([
-        //     Tables\Actions\BulkActionGroup::make([
-        //         Tables\Actions\DeleteBulkAction::make(),
-        //     ]),
-        // ]);
+            ], position: ActionsPosition::BeforeColumns)
+            ->filters([
+                Filter::make('pilih_tanggal')
+                    ->form([
+                        DatePicker::make('tanggal')
+                            ->label('Pilih Tanggal')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['tanggal'] ?? null,
+                            fn($query, $date) => $query->whereDate('created_at', $date)
+                        );
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        return ($data['tanggal'] ?? null)
+                            ? 'Tanggal: ' . Carbon::parse($data['tanggal'])->format('d M Y')
+                            : null;
+                    }),
+            ]);
     }
 
     public static function getRelations(): array
