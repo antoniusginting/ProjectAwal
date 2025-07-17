@@ -20,6 +20,6 @@ class ViewKapasitasKontrakJual extends Page
     public function mount($record)
     {
         $this->record = $record;
-        $this->kontrakLuar = KapasitasKontrakJual::with(['penjualanLuar'])->find($record);
+        $this->kontrakLuar = KapasitasKontrakJual::with(['penjualanLuar','suratJalan'])->find($record);
     }
 }

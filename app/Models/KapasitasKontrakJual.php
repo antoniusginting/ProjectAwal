@@ -17,4 +17,8 @@ class KapasitasKontrakJual extends Model
     {
         return $this->hasMany(PenjualanAntarPulau::class);
     }
+    public function suratJalan()
+    {
+        return $this->hasMany(SuratJalan::class);
+    }
 }

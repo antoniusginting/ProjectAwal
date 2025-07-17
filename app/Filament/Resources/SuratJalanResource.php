@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Kontrak;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Forms\Form;
 use App\Models\SuratJalan;
 use Filament\Tables\Table;
@@ -32,6 +34,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\SuratJalanResource\Pages;
 use App\Filament\Resources\SuratJalanResource\RelationManagers;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use Filament\Forms\Components\Grid;
 
 class SuratJalanResource extends Resource implements HasShieldPermissions
 {
@@ -62,7 +65,8 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                     ->schema([
                         Card::make('Informasi Kontrak')
                             ->schema([
-                                Select::make('id_kontrak2')
+                                Select::make('id_kontrak')
+                                    ->columnSpan(2)
                                     ->label('Nama Kontrak')
                                     ->required()
                                     ->options(Kontrak::all()->pluck('nama', 'id'))
@@ -75,36 +79,61 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                                     ->reactive(), // Agar saat memilih kontrak, alamat terfilter
                                 TextInput::make('created_at')
                                     ->label('Tanggal Sekarang')
+                                    ->columnSpan(2)
                                     ->formatStateUsing(fn($state) => \Carbon\Carbon::parse($state)->format('d-m-Y'))
                                     ->disabled(), // Tidak bisa diedit
-                                Select::make('id_kontrak')
+                                Select::make('kapasitas_kontrak_jual_id')
                                     ->label('Kepada Yth.')
+                                    ->columnSpan(2)
+                                    ->native(false)
                                     ->required()
-                                    ->options(Kontrak::all()->pluck('nama', 'id'))
+                                    ->options(function () {
+                                        return \App\Models\KapasitasKontrakJual::query()
+                                            ->where('status', false)
+                                            ->pluck('nama', 'id')
+                                            ->toArray();
+                                    })
+                                    ->placeholder('Pilih Supplier')
                                     ->searchable()
-                                    ->reactive(), // Agar saat memilih kontrak, alamat terfilter
+                                    ->live(),
+
                                 Select::make('id_alamat')
                                     ->label('Pilih Alamat')
+                                    ->columnSpan(2)
                                     ->options(
                                         fn(callable $get) =>
-                                        $get('id_kontrak')
-                                            ? AlamatKontrak::where('id_kontrak', $get('id_kontrak'))
-                                            ->pluck('alamat', 'id')
+                                        $get('kapasitas_kontrak_jual_id')
+                                            ? AlamatKontrak::whereHas('kontrak', function ($query) use ($get) {
+                                                $namaKontrak = \App\Models\KapasitasKontrakJual::find($get('kapasitas_kontrak_jual_id'))?->nama;
+                                                if ($namaKontrak) {
+                                                    $query->where('nama', $namaKontrak);
+                                                }
+                                            })->pluck('alamat', 'id')
                                             : []
                                     )
                                     ->searchable(),
+                                TextInput::make('kota')
+                                    ->label('Kota')
+                                    ->columnSpan(2)
+                                    ->autocomplete('off')
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
+                                    ->placeholder('Masukkan Kota')
+                                    ->required(),
                                 TextInput::make('po')
                                     ->label('PO')
                                     ->autocomplete('off')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan no PO'),
-                                TextInput::make('kota')
-                                    ->label('Kota')
-                                    ->autocomplete('off')
-                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
-                                    ->placeholder('Masukkan Kota')
-                                    ->required(),
-                            ])->columns(2),
+                                Select::make('status')
+                                    ->native(false)
+                                    ->options([
+                                        'TERIMA' => 'TERIMA',
+                                        'RETUR' => 'RETUR',
+                                    ])
+                                    ->label('Status')
+                                    ->placeholder('Belum ada Status')
+                                    ->live(), // Penting untuk reaktivitas
+                            ])->columns(4),
                         Card::make('Informasi Timbangan')
                             ->schema([
                                 Select::make('id_timbangan_tronton')
@@ -223,9 +252,25 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                                     // ->inlineLabel() // Membuat label sebelah kiri
                                     ->native(false) // Mengunakan dropdown modern
                                     ->required(), // Opsional: Atur default value
-                                TextInput::make('netto_final')
-                                    ->label('Netto')
-                                    ->readOnly(),
+                                Grid::make()
+                                    ->schema([
+                                        TextInput::make('netto_final')
+                                            ->label('Netto')
+                                            ->required()
+                                            ->readOnly(),
+                                        TextInput::make('netto_diterima')
+                                            ->label('Netto Diterima')
+                                            ->placeholder('Masukkan netto diterima')
+                                            ->numeric()
+                                            ->disabled(fn(Get $get) => $get('status') !== 'TERIMA') // Hanya aktif jika status TERIMA
+                                            ->dehydrated(fn(Get $get) => $get('status') === 'TERIMA') // Hanya simpan jika status TERIMA
+                                            ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                                                // Reset nilai ketika status bukan TERIMA
+                                                if ($get('status') !== 'TERIMA') {
+                                                    $set('netto_diterima', null);
+                                                }
+                                            }),
+                                    ])->columnSpan(1),
                                 Hidden::make('user_id')
                                     ->label('User ID')
                                     ->default(Auth::id()) // Set nilai default user yang sedang login,
@@ -254,6 +299,9 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                             ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
                             ->isoFormat('D MMMM YYYY | HH:mm:ss');
                     }),
+                TextColumn::make('status')
+                    ->alignCenter()
+                    ->label('Status'),
                 TextColumn::make('tronton.kode')
                     ->alignCenter()
                     ->label('No Penjualan'),
@@ -265,11 +313,11 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                     ->alignCenter()
                     ->label('No PO')
                     ->searchable(),
-                TextColumn::make('kontrak2.nama')
+                TextColumn::make('kontrak.nama')
                     ->label('Nama Kontrak')
                     ->wrap()
                     ->searchable(),
-                TextColumn::make('kontrak.nama')
+                TextColumn::make('kapasitasKontrakJual.nama')
                     ->label('Kepada Yth.')
                     ->wrap()
                     ->searchable(),
@@ -289,7 +337,7 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                     ->label('User')
             ])->defaultSort('id', 'desc')
             ->filters([
-                 Filter::make('pilih_tanggal')
+                Filter::make('pilih_tanggal')
                     ->form([
                         DatePicker::make('tanggal')
                             ->label('Pilih Tanggal')

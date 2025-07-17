@@ -18,8 +18,17 @@ class SuratJalan extends Model
         'netto_final',
         'tambah_berat',
         'jenis_mobil',
+        'status',
+        'netto_diterima',
+        'kapasitas_kontrak_jual_id',
     ];
 
+
+    // Relasi ke luar kapasitas kontrak jual
+    public function kapasitasKontrakJual()
+    {
+        return $this->belongsTo(KapasitasKontrakJual::class, 'kapasitas_kontrak_jual_id');
+    }
     // Relasi ke User
     public function user()
     {

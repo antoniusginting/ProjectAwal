@@ -16,7 +16,7 @@ class ViewLuarPulau extends Page
     public $luarPulau;
     function getTitle(): string
     {
-        return 'View Kontrak';
+        return 'View Kapasitas Kontrak Beli';
     }
     public function mount($record)
     {
