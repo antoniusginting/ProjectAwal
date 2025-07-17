@@ -1,51 +1,51 @@
 <x-filament-panels::page>
     <div class="p-6 bg-white dark:bg-gray-900 rounded-md shadow-md space-y-6 text-gray-900 dark:text-gray-200">
         @php
-            // Ambil data pembelian langsung berdasarkan luar_pulau_id
-            $pembelianFiltered = collect();
+            // Ambil data penjualan langsung berdasarkan kontrak_luar_id
+            $penjualanFiltered = collect();
 
-            // Ambil semua pembelian yang memiliki luar_pulau_id sesuai dengan luar pulau saat ini
-            if ($luarPulau->pembelianLuar) {
-                $pembelianFiltered = $luarPulau->pembelianLuar;
+            // Ambil semua penjualan yang memiliki kontrak_luar_id sesuai dengan kontrak luar saat ini
+            if ($kontrakLuar->penjualanLuar) {
+                $penjualanFiltered = $kontrakLuar->penjualanLuar;
             }
 
-            // Hitung total berat dari pembelian yang sudah difilter
-            $totalBeratPembelianFiltered = $pembelianFiltered->sum('netto');
+            // Hitung total berat dari penjualan yang sudah difilter
+            $totalBeratPenjualanFiltered = $penjualanFiltered->sum('netto_diterima');
 
             // Data untuk pagination
-            $laporanPembelianTotal = $pembelianFiltered->count();
+            $laporanPenjualanTotal = $penjualanFiltered->count();
 
             // Hitung summary
-            $totalStokDanBerat = $luarPulau->stok;
-            $stokSisa = $totalStokDanBerat - $totalBeratPembelianFiltered;
-            $persenanPembelian =
-                $totalStokDanBerat != 0 ? ($totalBeratPembelianFiltered / $totalStokDanBerat) * 100 : 0;
+            $totalStokDanBerat = $kontrakLuar->stok;
+            $stokSisa = $totalStokDanBerat - $totalBeratPenjualanFiltered;
+            $persenanPenjualan =
+                $totalStokDanBerat != 0 ? ($totalBeratPenjualanFiltered / $totalStokDanBerat) * 100 : 0;
         @endphp
 
         {{-- Summary Dashboard --}}
         <div class="bg-white dark:bg-gray-800 p-6 rounded-lg mb-6 shadow-md border">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Ringkasan Stok {{ $luarPulau->nama }}
-                </h3>
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Ringkasan Stok
+                    {{ $kontrakLuar->nama }}</h3>
             </div>
 
-            {{-- Data Stok & Pembelian --}}
+            {{-- Data Stok & Penjualan --}}
             <div class="mb-4">
-                <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Data Stok & Pembelian</h4>
+                <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Data Stok & Penjualan</h4>
                 <div class="flex flex-row gap-4">
                     <!-- Stok Awal -->
                     <div class="flex-1 text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                         <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Stok Awal</p>
                         <p class="text-xl font-bold text-blue-600 dark:text-blue-400">
-                            {{ number_format($luarPulau->stok, 0, ',', '.') }}
+                            {{ number_format($kontrakLuar->stok, 0, ',', '.') }}
                         </p>
                     </div>
 
-                    <!-- Total Pembelian -->
-                    <div class="flex-1 text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Pembelian</p>
-                        <p class="text-xl font-bold text-green-600 dark:text-green-400">
-                            {{ number_format($totalBeratPembelianFiltered, 0, ',', '.') }}
+                    <!-- Total Penjualan -->
+                    <div class="flex-1 text-center p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Penjualan</p>
+                        <p class="text-xl font-bold text-orange-600 dark:text-orange-400">
+                            {{ number_format($totalBeratPenjualanFiltered, 0, ',', '.') }}
                         </p>
                     </div>
 
@@ -59,12 +59,12 @@
                         </p>
                     </div>
 
-                    <!-- Persenan Pembelian -->
-                    @if ($luarPulau->status)
+                    <!-- Persenan Penjualan -->
+                    @if ($kontrakLuar->status)
                         <div class="flex-1 text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">% Pembelian</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">% Penjualan</p>
                             <p class="text-xl font-bold text-purple-600 dark:text-purple-400">
-                                {{ number_format($persenanPembelian, 2) }} %
+                                {{ number_format($persenanPenjualan, 2) }} %
                             </p>
                         </div>
                     @endif
@@ -75,11 +75,11 @@
         <!-- Divider -->
         <div class="border-b border-gray-300 dark:border-gray-700"></div>
 
-        {{-- Tabel: Data Pembelian --}}
-        <div class="mb-6" id="laporan-pembelian">
+        {{-- Tabel: Data Penjualan --}}
+        <div class="mb-6" id="laporan-penjualan">
             <div class="flex justify-between items-center mb-3">
                 <div class="flex items-center gap-3">
-                    <h3 class="text-lg font-semibold">Laporan Pembelian</h3>
+                    <h3 class="text-lg font-semibold">Laporan Penjualan</h3>
                 </div>
             </div>
             <table class="w-full border border-collapse border-gray-300 dark:border-gray-700">
@@ -90,64 +90,68 @@
                         <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Kode Segel</th>
                         <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Nama Barang</th>
                         <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">No Container</th>
-                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Ekspedisi</th>
+                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Status</th>
                         <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Netto</th>
+                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Netto Diterima</th>
                     </tr>
                 </thead>
-                <tbody id="pembelian-tbody">
-                    @php $pembelianIndex = 0; @endphp
-                    @forelse($pembelianFiltered as $pembelian)
-                        <tr class="pembelian-row {{ $pembelianIndex >= 5 ? 'hidden' : '' }}"
-                            data-index="{{ $pembelianIndex }}">
+                <tbody id="penjualan-tbody">
+                    @php $penjualanIndex = 0; @endphp
+                    @forelse($penjualanFiltered as $penjualan)
+                        <tr class="penjualan-row {{ $penjualanIndex >= 5 ? 'hidden' : '' }}"
+                            data-index="{{ $penjualanIndex }}">
                             <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                                {{ \Carbon\Carbon::parse($pembelian->created_at)->format('d/m/Y') }}
+                                {{ \Carbon\Carbon::parse($penjualan->created_at)->format('d/m/Y') }}
                             </td>
                             <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                                <a>{{ $pembelian->kode ?? '-' }}</a>
+                                <a>{{ $penjualan->kode ?? '-' }}</a>
                             </td>
                             <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                                <a>{{ $pembelian->kode_segel ?? '-' }}</a>
+                                <a>{{ $penjualan->kode_segel ?? '-' }}</a>
                             </td>
                             <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                                <a>{{ $pembelian->nama_barang ?? '-' }}</a>
+                                <a>{{ $penjualan->nama_barang ?? '-' }}</a>
                             </td>
                             <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                                <a>{{ $pembelian->no_container ?? '-' }}</a>
+                                <a>{{ $penjualan->no_container ?? '-' }}</a>
                             </td>
                             <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                                <a>{{ $pembelian->nama_ekspedisi ?? '-' }}</a>
+                                <a>{{ $penjualan->status ?? '-' }}</a>
                             </td>
                             <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
-                                {{ number_format($pembelian->netto ?? 0, 0, ',', '.') }}
+                                {{ number_format($penjualan->netto ?? 0, 0, ',', '.') }}
+                            </td>
+                            <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
+                                {{ number_format($penjualan->netto_diterima ?? 0, 0, ',', '.') }}
                             </td>
                         </tr>
-                        @php $pembelianIndex++; @endphp
+                        @php $penjualanIndex++; @endphp
                     @empty
                         <tr>
-                            <td colspan="7"
+                            <td colspan="8"
                                 class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm text-gray-500">
-                                Tidak ada data pembelian yang sesuai dengan supplier "{{ $luarPulau->nama }}"
+                                Tidak ada data penjualan yang sesuai dengan kontrak "{{ $kontrakLuar->nama }}"
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
                 <tfoot>
                     <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
-                        <td colspan="6" class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                        <td colspan="7" class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                             Total Berat:
                         </td>
                         <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
-                            {{ number_format($totalBeratPembelianFiltered, 0, ',', '.') }}
+                            {{ number_format($totalBeratPenjualanFiltered, 0, ',', '.') }}
                         </td>
                     </tr>
                 </tfoot>
             </table>
 
-            {{-- Dropdown untuk memilih jumlah data pembelian --}}
+            {{-- Dropdown untuk memilih jumlah data penjualan --}}
             <div class="mt-3 flex justify-center">
                 <div class="flex items-center gap-2">
                     <label class="text-sm text-gray-600 dark:text-gray-400">Tampilkan:</label>
-                    <select id="pembelian-per-page" onchange="changePembelianPerPage()"
+                    <select id="penjualan-per-page" onchange="changePenjualanPerPage()"
                         class="px-6 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="5">5</option>
                         <option value="15">15</option>
@@ -156,8 +160,8 @@
                     </select>
                     <span
                         class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
-                        <span id="showing-pembelian">5</span>
-                        dari {{ $laporanPembelianTotal }} data
+                        <span id="showing-penjualan">5</span>
+                        dari {{ $laporanPenjualanTotal }} data
                     </span>
                 </div>
             </div>
@@ -173,12 +177,12 @@
             });
         }
 
-        // Fungsi untuk mengubah jumlah data yang ditampilkan pada Laporan Pembelian
-        function changePembelianPerPage() {
-            const select = document.getElementById('pembelian-per-page');
+        // Fungsi untuk mengubah jumlah data yang ditampilkan pada Laporan Penjualan
+        function changePenjualanPerPage() {
+            const select = document.getElementById('penjualan-per-page');
             const selectedValue = select.value;
-            const rows = document.querySelectorAll('.pembelian-row');
-            const showingCount = document.getElementById('showing-pembelian');
+            const rows = document.querySelectorAll('.penjualan-row');
+            const showingCount = document.getElementById('showing-penjualan');
 
             let limit = selectedValue === 'all' ? rows.length : parseInt(selectedValue);
             let visibleCount = 0;
@@ -198,8 +202,8 @@
         // Inisialisasi saat halaman dimuat
         document.addEventListener('DOMContentLoaded', function() {
             // Set initial count for showing data
-            const pembelianRows = document.querySelectorAll('.pembelian-row:not(.hidden)');
-            document.getElementById('showing-pembelian').textContent = pembelianRows.length;
+            const penjualanRows = document.querySelectorAll('.penjualan-row:not(.hidden)');
+            document.getElementById('showing-penjualan').textContent = penjualanRows.length;
         });
     </script>
 </x-filament-panels::page>

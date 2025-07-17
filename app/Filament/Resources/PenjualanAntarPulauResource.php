@@ -128,7 +128,7 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                                 //         }
                                 //     }),
 
-                                Select::make('kapasitas_kontrak_juals_id')
+                                Select::make('kapasitas_kontrak_jual_id')
                                     ->label('Supplier')
                                     ->native(false)
                                     ->required()

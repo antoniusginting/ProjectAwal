@@ -16,6 +16,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Enums\ActionsPosition;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\KapasitasKontrakJualResource\Pages;
 use App\Filament\Resources\KapasitasKontrakJualResource\RelationManagers;
@@ -145,9 +146,12 @@ class KapasitasKontrakJualResource extends Resource
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
+           ->actions([
+                Tables\Actions\Action::make('view-kapasitas-kontrak-jual')
+                    ->label(__("Lihat"))
+                    ->icon('heroicon-o-eye')
+                    ->url(fn($record) => self::getUrl("view-kapasitas-kontrak-jual", ['record' => $record->id])),
+            ], position: ActionsPosition::BeforeColumns)
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
@@ -168,6 +172,7 @@ class KapasitasKontrakJualResource extends Resource
             'index' => Pages\ListKapasitasKontrakJuals::route('/'),
             'create' => Pages\CreateKapasitasKontrakJual::route('/create'),
             'edit' => Pages\EditKapasitasKontrakJual::route('/{record}/edit'),
+            'view-kapasitas-kontrak-jual' => Pages\ViewKapasitasKontrakJual::route('/{record}/view-kapasitas-kontrak-jual'),
         ];
     }
 }
