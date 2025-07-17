@@ -399,6 +399,10 @@ class PembelianResource extends Resource implements HasShieldPermissions
             ], position: ActionsPosition::BeforeColumns)
             ->headerActions([
                 ExportAction::make()->exporter(PembelianExporter::class)
+                    ->color('success')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->label('Export to Excel')
+                    ->outlined()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

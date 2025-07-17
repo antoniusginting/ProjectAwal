@@ -294,8 +294,12 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                         $query->whereDate('created_at', Carbon::today())
                     )->toggle(),
             ])
-             ->headerActions([
+            ->headerActions([
                 ExportAction::make()->exporter(SuratJalanExporter::class)
+                    ->color('success')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->label('Export to Excel')
+                    ->outlined()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -554,6 +554,10 @@ class PenjualanResource extends Resource implements HasShieldPermissions
             // ])
             ->headerActions([
                 ExportAction::make()->exporter(PenjualanExporter::class)
+                    ->color('success')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->label('Export to Excel')
+                    ->outlined()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -26,6 +26,11 @@ class ViewPembelian extends Page
             Action::make('print')
                 ->label(__("print"))
                 ->icon('heroicon-o-printer')
+                ->requiresConfirmation()
+                ->modalHeading('Export Surat Jalan')
+                ->modalDescription('Apakah Anda yakin ingin mengexport semua data surat jalan?')
+                ->modalSubmitActionLabel('Ya, Export!')
+                ->modalCancelActionLabel('Batal')
                 ->url(route("PRINT.PEMBELIAN", ['id' => $this->record]))
                 ->extraAttributes([
                     'onclick' => "if(confirm('Apakah Anda yakin ingin mencetak?')) { window.open('" . route("PRINT.PEMBELIAN", ['id' => $this->record]) . "', '_blank'); }"
