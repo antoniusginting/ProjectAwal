@@ -2,25 +2,29 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\TimbanganTrontonExporter;
 use Dom\Text;
 use Carbon\Carbon;
 use Filament\Forms;
+use App\Models\Luar;
 use Filament\Tables;
 use Filament\Forms\Form;
+use App\Models\Pembelian;
 use App\Models\Penjualan;
 use Filament\Tables\Table;
 use App\Models\TimbanganTronton;
 use Filament\Resources\Resource;
 use function Laravel\Prompts\text;
 use Illuminate\Support\Collection;
+
+use App\Models\PenjualanAntarPulau;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
-
 use Filament\Tables\Filters\Filter;
+
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
-
 use Filament\Forms\Components\Toggle;
 use function Laravel\Prompts\textarea;
 use Filament\Forms\Components\Textarea;
@@ -30,19 +34,18 @@ use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Columns\ToggleColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
 use Filament\Tables\Columns\CheckboxColumn;
+use Filament\Tables\Actions\ExportBulkAction;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TimbanganTrontonResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\TimbanganTrontonResource\RelationManagers;
 use App\Filament\Resources\TimbanganTrontonResource\Pages\EditTimbanganTronton;
-use App\Models\Luar;
-use App\Models\Pembelian;
-use App\Models\PenjualanAntarPulau;
 
 class TimbanganTrontonResource extends Resource implements HasShieldPermissions
 {
@@ -1225,7 +1228,7 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
 
                                                     ->disabled(),
                                             ])->columnSpan(1)->collapsible(),
-                                        
+
                                     ])->columns(3)->collapsed()->visible(fn() => !optional(Auth::user())->hasAnyRole(['timbangan'])),
                                 // Toggle::make('status')
                                 //     ->disabled(function ($state, $record) {
@@ -1476,6 +1479,14 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                         fn(Builder $query) =>
                         $query->whereDate('created_at', Carbon::today())
                     )->toggle(),
+            ])
+            ->headerActions([
+                ExportAction::make()->exporter(TimbanganTrontonExporter::class)
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    ExportBulkAction::make()->exporter(TimbanganTrontonExporter::class)->label('Export to Excel'),
+                ]),
             ])
             ->actions([
                 Tables\Actions\Action::make('View')

@@ -242,7 +242,7 @@
                 @if (!empty($laporanlumbung->keterangan))
                     {{ $laporanlumbung->keterangan }}
                 @else
-                    Tidak ada keterangan
+                    Tidak ada catatan
                 @endif
             </div>
         </div>

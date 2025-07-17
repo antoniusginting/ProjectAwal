@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\SuratJalanExporter;
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
@@ -21,9 +22,11 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Actions\ExportAction;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Enums\ActionsPosition;
 use Filament\Forms\Components\Actions\Action;
+use Filament\Tables\Actions\ExportBulkAction;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\SuratJalanResource\Pages;
 use App\Filament\Resources\SuratJalanResource\RelationManagers;
@@ -117,7 +120,7 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                                             $usedIds = array_diff($usedIds, [$selectedId]);
                                         }
                                         // Query untuk mengambil data TimbanganTronton yang id_luar_1 nya NULL dan belum digunakan
-                                        $query = TimbanganTronton::whereNull('id_luar_1')
+                                        $query = TimbanganTronton::whereNull('id_penjualan_antar_pulau_1')
                                             ->whereNotIn('id', $usedIds)
                                             ->latest()
                                             ->with('penjualan1');
@@ -290,6 +293,14 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                         fn(Builder $query) =>
                         $query->whereDate('created_at', Carbon::today())
                     )->toggle(),
+            ])
+             ->headerActions([
+                ExportAction::make()->exporter(SuratJalanExporter::class)
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    ExportBulkAction::make()->exporter(SuratJalanExporter::class)->label('Export to Excel'),
+                ]),
             ])
             ->actions([
                 Tables\Actions\Action::make('View')

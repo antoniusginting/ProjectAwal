@@ -92,36 +92,8 @@ class TransferResource extends Resource implements HasShieldPermissions
                                 Select::make('id_transfer')
                                     ->label('Ambil dari Transfer Sebelumnya')
                                     ->options(function () {
-                                        // Ambil id_timbangan_tronton dari SuratJalan
-                                        $timbanganTrontonIds = \App\Models\SuratJalan::whereNotNull('id_timbangan_tronton')
-                                            ->pluck('id_timbangan_tronton');
-
-                                        // Gunakan subquery untuk mendapatkan semua id Transfer
-                                        $existingTransfers = \App\Models\TimbanganTronton::whereIn('id', $timbanganTrontonIds)
-                                            ->select(
-                                                'id_timbangan_jual_1',
-                                                'id_timbangan_jual_2',
-                                                'id_timbangan_jual_3',
-                                                'id_timbangan_jual_4',
-                                                'id_timbangan_jual_5',
-                                                'id_timbangan_jual_6'
-                                            )
-                                            ->get()
-                                            ->flatMap(function ($item) {
-                                                $ids = [];
-                                                for ($i = 1; $i <= 6; $i++) {
-                                                    $field = "id_timbangan_jual_{$i}";
-                                                    if (!is_null($item->$field)) {
-                                                        $ids[] = $item->$field;
-                                                    }
-                                                }
-                                                return $ids;
-                                            })
-                                            ->toArray();
-
-                                        // Ambil ID Transfer yang belum ada di tabel timbangan_tronton
+                                        // Ambil semua Transfer terbaru tanpa filter
                                         return \App\Models\Transfer::latest()
-                                            ->whereNotIn('id', $existingTransfers)  // Hanya ambil yang belum ada di tabel timbangan_tronton
                                             ->take(50)
                                             ->get()
                                             ->mapWithKeys(function ($transfer) {
@@ -159,7 +131,57 @@ class TransferResource extends Resource implements HasShieldPermissions
                                             $set('keterangan', $keteranganBaru);
                                         }
                                     })
-                                    ->columnSpan(4),
+                                    ->columnSpan(2),
+                                Select::make('id_sortiran')
+                                    ->label('Ambil dari Pembelian Sebelumnya')
+                                    ->options(function () {
+                                        // Ambil semua Sortiran dengan relasi pembelian
+                                        return \App\Models\Sortiran::with('pembelian')
+                                            ->whereHas('pembelian') // Pastikan memiliki relasi pembelian
+                                            ->whereIn('no_lumbung_basah', [13]) // Filter hanya yang no_lumbung_basah = 5 atau 7
+                                            ->latest()
+                                            ->take(50)
+                                            ->get()
+                                            ->mapWithKeys(function ($sortiran) {
+                                                return [
+                                                    $sortiran->id => "{$sortiran->pembelian->no_spb} - {$sortiran->kapasitaslumbungbasah->no_kapasitas_lumbung} - {$sortiran->pembelian->nama_supir} - Timbangan ke-{$sortiran->pembelian->keterangan} - {$sortiran->created_at->format('d:m:Y')}"
+                                                ];
+                                            });
+                                    })
+                                    ->searchable()
+                                    ->reactive()
+                                    ->hidden(fn($livewire) => $livewire->getRecord()?->exists)
+                                    ->dehydrated(false) // jangan disimpan ke DB
+                                    ->afterStateUpdated(function (callable $set, $state) {
+                                        $sortiran = \App\Models\Sortiran::with('pembelian')->find($state);
+                                        if ($state === null) {
+                                            // Kosongkan semua data yang sebelumnya di-set
+                                            $set('plat_polisi', null);
+                                            $set('bruto', null);
+                                            $set('tara', null);
+                                            $set('netto', null);
+                                            $set('nama_supir', null);
+                                            $set('nama_barang', 'JAGUNG KERING SUPER');
+                                            $set('keterangan', null);
+                                            return;
+                                        }
+                                        if ($sortiran && $sortiran->pembelian) {
+                                            // Ambil data dari pembelian yang berelasi
+                                            $set('plat_polisi', $sortiran->pembelian->plat_polisi);
+                                            $set('tara', $sortiran->pembelian->tara);
+                                            $set('bruto', $sortiran->pembelian->bruto);
+                                            $set('netto', $sortiran->pembelian->netto);
+                                            $set('nama_supir', $sortiran->pembelian->nama_supir);
+                                            $set('nama_barang', $sortiran->pembelian->nama_barang);
+
+                                            // Naikkan keterangan dari sortiran
+                                            $keteranganBaru = in_array(intval($sortiran->pembelian->keterangan), [1, 2, 3, 4, 5])
+                                                ? intval($sortiran->pembelian->keterangan) 
+                                                : $sortiran->pembelian->keterangan;
+                                            $set('keterangan', $keteranganBaru);
+                                        }
+                                    })
+                                    ->columnSpan(2),
 
                                 TextInput::make('plat_polisi')
                                     ->suffixIcon('heroicon-o-truck')
