@@ -63,7 +63,7 @@ class PenjualanAntarPulauPolicy
      */
     public function forceDelete(User $user, PenjualanAntarPulau $penjualanAntarPulau): bool
     {
-        return $user->can('force_delete_penjualan::antar::pulau');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class PenjualanAntarPulauPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_penjualan::antar::pulau');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class PenjualanAntarPulauPolicy
      */
     public function restore(User $user, PenjualanAntarPulau $penjualanAntarPulau): bool
     {
-        return $user->can('restore_penjualan::antar::pulau');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class PenjualanAntarPulauPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_penjualan::antar::pulau');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class PenjualanAntarPulauPolicy
      */
     public function replicate(User $user, PenjualanAntarPulau $penjualanAntarPulau): bool
     {
-        return $user->can('replicate_penjualan::antar::pulau');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class PenjualanAntarPulauPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_penjualan::antar::pulau');
+        return $user->can('{{ Reorder }}');
     }
 }

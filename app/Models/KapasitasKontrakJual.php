@@ -11,6 +11,7 @@ class KapasitasKontrakJual extends Model
         'stok',
         'nama',
         'status',
+        'harga',
     ];
 
     public function penjualanLuar()

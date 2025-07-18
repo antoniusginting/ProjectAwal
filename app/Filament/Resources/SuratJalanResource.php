@@ -90,6 +90,7 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                                     ->options(function () {
                                         return \App\Models\KapasitasKontrakJual::query()
                                             ->where('status', false)
+                                            ->where('nama', 'not like', '%kontainer%')
                                             ->pluck('nama', 'id')
                                             ->toArray();
                                     })

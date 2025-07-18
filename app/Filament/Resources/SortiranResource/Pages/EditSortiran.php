@@ -35,6 +35,7 @@ class EditSortiran extends EditRecord
     }
     protected function afterSave(): void
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         // Cek apakah user memiliki role yang tepat

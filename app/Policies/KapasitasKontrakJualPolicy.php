@@ -3,10 +3,10 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\PembelianAntarPulau;
+use App\Models\KapasitasKontrakJual;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class PembelianAntarPulauPolicy
+class KapasitasKontrakJualPolicy
 {
     use HandlesAuthorization;
 
@@ -15,15 +15,15 @@ class PembelianAntarPulauPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_pembelian::antar::pulau');
+        return $user->can('view_any_kapasitas::kontrak::jual');
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, PembelianAntarPulau $pembelianAntarPulau): bool
+    public function view(User $user, KapasitasKontrakJual $kapasitasKontrakJual): bool
     {
-        return $user->can('view_pembelian::antar::pulau');
+        return $user->can('view_kapasitas::kontrak::jual');
     }
 
     /**
@@ -31,23 +31,23 @@ class PembelianAntarPulauPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_pembelian::antar::pulau');
+        return $user->can('create_kapasitas::kontrak::jual');
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, PembelianAntarPulau $pembelianAntarPulau): bool
+    public function update(User $user, KapasitasKontrakJual $kapasitasKontrakJual): bool
     {
-        return $user->can('update_pembelian::antar::pulau');
+        return $user->can('update_kapasitas::kontrak::jual');
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, PembelianAntarPulau $pembelianAntarPulau): bool
+    public function delete(User $user, KapasitasKontrakJual $kapasitasKontrakJual): bool
     {
-        return $user->can('delete_pembelian::antar::pulau');
+        return $user->can('delete_kapasitas::kontrak::jual');
     }
 
     /**
@@ -55,15 +55,15 @@ class PembelianAntarPulauPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_pembelian::antar::pulau');
+        return $user->can('delete_any_kapasitas::kontrak::jual');
     }
 
     /**
      * Determine whether the user can permanently delete.
      */
-    public function forceDelete(User $user, PembelianAntarPulau $pembelianAntarPulau): bool
+    public function forceDelete(User $user, KapasitasKontrakJual $kapasitasKontrakJual): bool
     {
-        return $user->can('{{ ForceDelete }}');
+        return $user->can('force_delete_kapasitas::kontrak::jual');
     }
 
     /**
@@ -71,15 +71,15 @@ class PembelianAntarPulauPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('{{ ForceDeleteAny }}');
+        return $user->can('force_delete_any_kapasitas::kontrak::jual');
     }
 
     /**
      * Determine whether the user can restore.
      */
-    public function restore(User $user, PembelianAntarPulau $pembelianAntarPulau): bool
+    public function restore(User $user, KapasitasKontrakJual $kapasitasKontrakJual): bool
     {
-        return $user->can('{{ Restore }}');
+        return $user->can('restore_kapasitas::kontrak::jual');
     }
 
     /**
@@ -87,15 +87,15 @@ class PembelianAntarPulauPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('{{ RestoreAny }}');
+        return $user->can('restore_any_kapasitas::kontrak::jual');
     }
 
     /**
      * Determine whether the user can replicate.
      */
-    public function replicate(User $user, PembelianAntarPulau $pembelianAntarPulau): bool
+    public function replicate(User $user, KapasitasKontrakJual $kapasitasKontrakJual): bool
     {
-        return $user->can('{{ Replicate }}');
+        return $user->can('replicate_kapasitas::kontrak::jual');
     }
 
     /**
@@ -103,6 +103,6 @@ class PembelianAntarPulauPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('{{ Reorder }}');
+        return $user->can('reorder_kapasitas::kontrak::jual');
     }
 }

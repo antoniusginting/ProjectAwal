@@ -63,7 +63,7 @@ class LuarPulauPolicy
      */
     public function forceDelete(User $user, LuarPulau $luarPulau): bool
     {
-        return $user->can('force_delete_luar::pulau');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class LuarPulauPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_luar::pulau');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class LuarPulauPolicy
      */
     public function restore(User $user, LuarPulau $luarPulau): bool
     {
-        return $user->can('restore_luar::pulau');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class LuarPulauPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_luar::pulau');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class LuarPulauPolicy
      */
     public function replicate(User $user, LuarPulau $luarPulau): bool
     {
-        return $user->can('replicate_luar::pulau');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class LuarPulauPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_luar::pulau');
+        return $user->can('{{ Reorder }}');
     }
 }

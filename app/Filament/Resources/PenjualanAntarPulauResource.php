@@ -135,6 +135,7 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                                     ->options(function () {
                                         return \App\Models\KapasitasKontrakJual::query()
                                             ->where('status', false)
+                                            ->where('nama', 'like', '%kontainer%')
                                             ->pluck('nama', 'id')
                                             ->toArray();
                                     })
@@ -244,12 +245,12 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
             ]);
+        // ->bulkActions([
+        //     Tables\Actions\BulkActionGroup::make([
+        //         Tables\Actions\DeleteBulkAction::make(),
+        //     ]),
+        // ]);
     }
 
     public static function getRelations(): array

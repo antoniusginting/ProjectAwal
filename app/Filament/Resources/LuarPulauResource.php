@@ -67,20 +67,29 @@ class LuarPulauResource extends Resource implements HasShieldPermissions
                                 'MAKASSAR' => 'MAKASSAR',
                                 'GORONTALO' => 'GORONTALO',
                             ])
-                            ->label('STOK')
-                            ->placeholder('Pilih Stok')
+                            ->label('Kontrak')
+                            ->placeholder('Pilih Kontrak')
                             ->disabled(function (callable $get, ?\Illuminate\Database\Eloquent\Model $record) {
                                 // Disable saat edit, misal jika $record ada berarti edit
                                 return $record !== null;
                             })
                             ->live(),
+                        TextInput::make('harga')
+                            ->label('Harga')
+                            ->placeholder('Masukkan harga')
+                            ->live() // Memastikan perubahan langsung terjadi di Livewire
+                            ->extraAttributes([
+                                'x-data' => '{}',
+                                'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
+                            ])
+                            ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)), // Hapus titik sebelum dikirim ke database
                         Toggle::make('status')
                             ->label('Status')
                             ->helperText('Aktifkan untuk menutup, nonaktifkan untuk membuka')
                             ->default(false) // Default false (buka)
                             ->onColor('danger') // Warna merah saat true (tutup)
                             ->offColor('success'), // Warna hijau saat false (buka)
-                    ])->columns(3)
+                    ])->columns(4)
             ]);
     }
 
@@ -115,6 +124,10 @@ class LuarPulauResource extends Resource implements HasShieldPermissions
                         return $state ? 'danger' : 'success';
                     }),
                 TextColumn::make('stok')->label('Stok Awal')
+                    ->alignCenter()
+                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                TextColumn::make('harga')->label('Harga')
+                    ->alignCenter()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('nama')
                     ->label('Nama')

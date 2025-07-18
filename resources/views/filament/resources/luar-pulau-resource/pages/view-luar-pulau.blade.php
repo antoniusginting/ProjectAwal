@@ -25,17 +25,19 @@
         {{-- Summary Dashboard --}}
         <div class="bg-white dark:bg-gray-800 p-6 rounded-lg mb-6 shadow-md border">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Ringkasan Stok {{ $luarPulau->nama }}
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Ringkasan Tonase Kontrak
+                    {{ $luarPulau->nama }}
                 </h3>
             </div>
 
             {{-- Data Stok & Pembelian --}}
             <div class="mb-4">
-                <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Data Stok & Pembelian</h4>
+                <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Data Tonase Kontrak & Pembelian
+                </h4>
                 <div class="flex flex-row gap-4">
                     <!-- Stok Awal -->
                     <div class="flex-1 text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Stok Awal</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Tonase Kontrak</p>
                         <p class="text-xl font-bold text-blue-600 dark:text-blue-400">
                             {{ number_format($luarPulau->stok, 0, ',', '.') }}
                         </p>
@@ -52,13 +54,18 @@
                     <!-- Sisa Stok -->
                     <div
                         class="flex-1 text-center p-3 {{ $stokSisa >= 0 ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-red-50 dark:bg-red-900/20' }} rounded-lg">
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Sisa Stok</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Sisa kontrak</p>
                         <p
                             class="text-xl font-bold {{ $stokSisa >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
                             {{ number_format($stokSisa, 0, ',', '.') }}
                         </p>
                     </div>
-
+                    <div class="flex-1 text-center p-3 rounded-lg">
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Harga</p>
+                        <p class="text-xl font-bold">
+                            {{ number_format($kontrakLuar->harga, 0, ',', '.') }}
+                        </p>
+                    </div>
                     <!-- Persenan Pembelian -->
                     @if ($luarPulau->status)
                         <div class="flex-1 text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">

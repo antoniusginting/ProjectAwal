@@ -45,6 +45,15 @@ class KapasitasKontrakJualResource extends Resource
                                 'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
                             ])
                             ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)), // Hapus titik sebelum dikirim ke database
+                        TextInput::make('harga')
+                            ->label('Harga')
+                            ->placeholder('Masukkan harga')
+                            ->live() // Memastikan perubahan langsung terjadi di Livewire
+                            ->extraAttributes([
+                                'x-data' => '{}',
+                                'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
+                            ])
+                            ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)), // Hapus titik sebelum dikirim ke database
                         Select::make('nama')
                             ->native(false)
                             ->searchable()
@@ -54,8 +63,8 @@ class KapasitasKontrakJualResource extends Resource
                                     ->pluck('nama', 'nama')
                                     ->toArray();
                             })
-                            ->label('STOK')
-                            ->placeholder('Pilih Stok')
+                            ->label('Kontrak')
+                            ->placeholder('Pilih Kontrak')
                             ->disabled(function (callable $get, ?\Illuminate\Database\Eloquent\Model $record) {
                                 // Disable saat edit, misal jika $record ada berarti edit
                                 return $record !== null;
@@ -67,7 +76,7 @@ class KapasitasKontrakJualResource extends Resource
                             ->default(false) // Default false (buka)
                             ->onColor('danger') // Warna merah saat true (tutup)
                             ->offColor('success'), // Warna hijau saat false (buka)
-                    ])->columns(3)
+                    ])->columns(4)
             ]);
     }
 
@@ -102,6 +111,10 @@ class KapasitasKontrakJualResource extends Resource
                         return $state ? 'danger' : 'success';
                     }),
                 TextColumn::make('stok')->label('Stok Awal')
+                    ->alignCenter()
+                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                TextColumn::make('harga')->label('Harga')
+                    ->alignCenter()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('nama')
                     ->label('Nama')
@@ -143,20 +156,21 @@ class KapasitasKontrakJualResource extends Resource
                 //         return $pembelianluar->implode(', ');
                 //     }),
             ])
+            ->defaultSort('id', 'desc')
             ->filters([
                 //
             ])
-           ->actions([
+            ->actions([
                 Tables\Actions\Action::make('view-kapasitas-kontrak-jual')
                     ->label(__("Lihat"))
                     ->icon('heroicon-o-eye')
                     ->url(fn($record) => self::getUrl("view-kapasitas-kontrak-jual", ['record' => $record->id])),
-            ], position: ActionsPosition::BeforeColumns)
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ], position: ActionsPosition::BeforeColumns);
+        // ->bulkActions([
+        //     Tables\Actions\BulkActionGroup::make([
+        //         Tables\Actions\DeleteBulkAction::make(),
+        //     ]),
+        // ]);
     }
 
     public static function getRelations(): array

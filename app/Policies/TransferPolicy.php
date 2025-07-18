@@ -63,7 +63,7 @@ class TransferPolicy
      */
     public function forceDelete(User $user, Transfer $transfer): bool
     {
-        return $user->can('force_delete_transfer');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class TransferPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_transfer');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class TransferPolicy
      */
     public function restore(User $user, Transfer $transfer): bool
     {
-        return $user->can('restore_transfer');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class TransferPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_transfer');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class TransferPolicy
      */
     public function replicate(User $user, Transfer $transfer): bool
     {
-        return $user->can('replicate_transfer');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class TransferPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_transfer');
+        return $user->can('{{ Reorder }}');
     }
 }

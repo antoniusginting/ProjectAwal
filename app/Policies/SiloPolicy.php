@@ -63,7 +63,7 @@ class SiloPolicy
      */
     public function forceDelete(User $user, Silo $silo): bool
     {
-        return $user->can('force_delete_silo');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class SiloPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_silo');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class SiloPolicy
      */
     public function restore(User $user, Silo $silo): bool
     {
-        return $user->can('restore_silo');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class SiloPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_silo');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class SiloPolicy
      */
     public function replicate(User $user, Silo $silo): bool
     {
-        return $user->can('replicate_silo');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class SiloPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_silo');
+        return $user->can('{{ Reorder }}');
     }
 }

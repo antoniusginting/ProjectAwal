@@ -10,6 +10,7 @@ class LuarPulau extends Model
         'stok',
         'nama',
         'status',
+        'harga',
     ];
 
     public function pembelianLuar()
