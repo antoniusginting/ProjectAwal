@@ -28,10 +28,13 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Actions\ExportAction;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Enums\ActionsPosition;
 use Filament\Forms\Components\Actions\Action;
+use Filament\Tables\Actions\ExportBulkAction;
+use App\Filament\Exports\LaporanLumbungExporter;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\LaporanLumbungResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
@@ -842,6 +845,18 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                             ? 'Tanggal: ' . Carbon::parse($data['tanggal'])->format('d M Y')
                             : null;
                     }),
+            ])
+            ->headerActions([
+                ExportAction::make()->exporter(LaporanLumbungExporter::class)
+                    ->color('success')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->label('Export to Excel')
+                    ->outlined()
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    ExportBulkAction::make()->exporter(LaporanLumbungExporter::class)->label('Export to Excel'),
+                ]),
             ])
             ->defaultSort('kode', 'desc') // Megurutkan kode terakhir menjadi pertama pada tabel
             ->actions([
