@@ -14,7 +14,10 @@ use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Actions\ExportAction;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Exports\SupplierExporter;
+use Filament\Tables\Actions\ExportBulkAction;
 use App\Filament\Resources\SupplierResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\SupplierResource\RelationManagers;
@@ -162,6 +165,18 @@ class SupplierResource extends Resource implements HasShieldPermissions
             ])
             ->filters([
                 //
+            ])
+            ->headerActions([
+                ExportAction::make()->exporter(SupplierExporter::class)
+                    ->color('success')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->label('Export to Excel')
+                    ->outlined()
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    ExportBulkAction::make()->exporter(SupplierExporter::class)->label('Export to Excel'),
+                ]),
             ])
             ->actions([])
             ->bulkActions([
