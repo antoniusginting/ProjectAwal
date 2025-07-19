@@ -11,7 +11,10 @@ use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use App\Filament\Exports\KontrakExporter;
+use Filament\Tables\Actions\ExportAction;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Actions\ExportBulkAction;
 use App\Filament\Resources\KontrakResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\KontrakResource\RelationManagers;
@@ -45,7 +48,7 @@ class KontrakResource extends Resource implements HasShieldPermissions
                     ->schema([
                         TextInput::make('nama')
                             ->label('Nama')
-                            ->mutateDehydratedStateUsing(fn ($state) => strtoupper($state))
+                            ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                             ->autocomplete('off')
                             ->placeholder('Masukkan nama kontrak'),
                         TextInput::make('npwp')
@@ -77,14 +80,26 @@ class KontrakResource extends Resource implements HasShieldPermissions
             ->filters([
                 //
             ])
+            ->headerActions([
+                ExportAction::make()->exporter(KontrakExporter::class)
+                    ->color('success')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->label('Export to Excel')
+                    ->outlined()
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    ExportBulkAction::make()->exporter(KontrakExporter::class)->label('Export to Excel'),
+                ]),
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ]);
-            // ->bulkActions([
-            //     Tables\Actions\BulkActionGroup::make([
-            //         Tables\Actions\DeleteBulkAction::make(),
-            //     ]),
-            // ]);
+        // ->bulkActions([
+        //     Tables\Actions\BulkActionGroup::make([
+        //         Tables\Actions\DeleteBulkAction::make(),
+        //     ]),
+        // ]);
     }
 
     public static function getRelations(): array
