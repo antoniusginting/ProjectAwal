@@ -24,8 +24,11 @@ use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Actions\ExportBulkAction;
+use App\Filament\Exports\KendaraanMuatExporter;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\KendaraanMuatResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
@@ -326,6 +329,18 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                         // Filter aktif secara default hanya jika pengguna BUKAN super_admin ,'admin'
                         return !optional(Auth::user())->hasAnyRole(['super_admin']);
                     })
+            ])
+            ->headerActions([
+                ExportAction::make()->exporter(KendaraanMuatExporter::class)
+                    ->color('success')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->label('Export to Excel')
+                    ->outlined()
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    ExportBulkAction::make()->exporter(KendaraanMuatExporter::class)->label('Export to Excel'),
+                ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
