@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 //supaya hilang dulu dari role
 // namespace BezhanSalleh\FilamentShield\Resources;
+
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
@@ -20,15 +21,18 @@ use Filament\Forms\Components\Grid;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
+use App\Filament\Exports\DryerExporter;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Actions\ExportAction;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Tables\Enums\ActionsPosition;
+use Filament\Tables\Actions\ExportBulkAction;
 use App\Filament\Resources\DryerResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\DryerResource\Pages\EditDryer;
@@ -279,6 +283,7 @@ class DryerResource extends Resource implements HasShieldPermissions
                         Select::make('filter_kapasitas_lumbung')
                             ->native(false)
                             ->label('Filter Kapasitas Lumbung')
+                            ->columnSpan(1)
                             ->placeholder('Pilih Kapasitas Lumbung')
                             ->options(function () {
                                 // Ambil semua kapasitas lumbung yang unik
@@ -455,9 +460,10 @@ class DryerResource extends Resource implements HasShieldPermissions
                                     "Kapasitas diperbarui";
                             })
                             ->preload()
+                            ->columnSpan(3)
                             ->searchable(),
 
-                    ]),
+                    ])->columns(4),
                 // Card untuk Edit (record tidak null)
                 Card::make()
                     ->schema([
@@ -625,6 +631,18 @@ class DryerResource extends Resource implements HasShieldPermissions
                     ->alignCenter()
                     ->label('Total Netto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+            ])
+            ->headerActions([
+                ExportAction::make()->exporter(DryerExporter::class)
+                    ->color('success')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->label('Export to Excel')
+                    ->outlined()
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    ExportBulkAction::make()->exporter(DryerExporter::class)->label('Export to Excel'),
+                ]),
             ])
             ->actions([
                 Tables\Actions\Action::make('view-dryer')

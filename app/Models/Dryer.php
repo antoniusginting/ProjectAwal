@@ -52,26 +52,6 @@ class Dryer extends Model
         return $this->belongsTo(KapasitasDryer::class, 'id_kapasitas_dryer', 'id');
     }
 
-    public function lumbung1()
-    {
-        return $this->belongsTo(LumbungBasah::class, 'id_lumbung_1');
-    }
-
-    public function lumbung2()
-    {
-        return $this->belongsTo(LumbungBasah::class, 'id_lumbung_2');
-    }
-
-    public function lumbung3()
-    {
-        return $this->belongsTo(LumbungBasah::class, 'id_lumbung_3');
-    }
-
-    public function lumbung4()
-    {
-        return $this->belongsTo(LumbungBasah::class, 'id_lumbung_4');
-    }
-
     public function getTotalNettoIntegerAttribute(): int
     {
         return (int) str_replace('.', '', $this->total_netto);
