@@ -21,9 +21,12 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Actions\ExportAction;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
+use Filament\Tables\Actions\ExportBulkAction;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Exports\PenjualanAntarPulauExporter;
 use App\Filament\Resources\PenjualanAntarPulauResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\PenjualanAntarPulauResource\RelationManagers;
@@ -242,6 +245,18 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                             ? 'Tanggal: ' . Carbon::parse($data['tanggal'])->format('d M Y')
                             : null;
                     }),
+            ])
+            ->headerActions([
+                ExportAction::make()->exporter(PenjualanAntarPulauExporter::class)
+                    ->color('success')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->label('Export to Excel')
+                    ->outlined()
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    ExportBulkAction::make()->exporter(PenjualanAntarPulauExporter::class)->label('Export to Excel'),
+                ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
