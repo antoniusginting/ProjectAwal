@@ -26,14 +26,17 @@ use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
+use Filament\Tables\Actions\ExportBulkAction;
+use App\Filament\Exports\KendaraanMasuksExporter;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\KendaraanMasuksResource\Pages;
-use App\Filament\Resources\KendaraanMasuksResource\Pages\EditKendaraanMasuks;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\KendaraanMasuksResource\RelationManagers;
+use App\Filament\Resources\KendaraanMasuksResource\Pages\EditKendaraanMasuks;
 
 class KendaraanMasuksResource extends Resource implements HasShieldPermissions
 {
@@ -385,6 +388,18 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
             ->defaultSort('id', 'desc')
             ->filters([
                 //
+            ])
+            ->headerActions([
+                ExportAction::make()->exporter(KendaraanMasuksExporter::class)
+                    ->color('success')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->label('Export to Excel')
+                    ->outlined()
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    ExportBulkAction::make()->exporter(KendaraanMasuksExporter::class)->label('Export to Excel'),
+                ]),
             ])
             ->actions([
                 // Tables\Actions\DeleteAction::make(),
