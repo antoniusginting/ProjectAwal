@@ -6,14 +6,14 @@ use OpenSpout\Common\Entity\Style\Style;
 use OpenSpout\Common\Entity\Style\Color;
 use OpenSpout\Common\Entity\Style\CellAlignment;
 use OpenSpout\Common\Entity\Style\CellVerticalAlignment;
-use App\Models\KendaraanMuat;
+use App\Models\Kendaraan;
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Exporter;
 use Filament\Actions\Exports\Models\Export;
 
-class KendaraanMuatExporter extends Exporter
+class KendaraanExporter extends Exporter
 {
-    protected static ?string $model = KendaraanMuat::class;
+    protected static ?string $model = Kendaraan::class;
     private static int $counter = 0;
     public static function getColumns(): array
     {
@@ -23,16 +23,13 @@ class KendaraanMuatExporter extends Exporter
                 ->state(function () {
                     return ++self::$counter;
                 }),
+            ExportColumn::make('plat_polisi_terbaru'),
+            ExportColumn::make('plat_polisi_sebelumnya'),
+            ExportColumn::make('pemilik'),
             ExportColumn::make('nama_supir'),
-            ExportColumn::make('kendaraan.plat_polisi_terbaru')->label('Plat Terbaru'),
-            ExportColumn::make('kendaraan.plat_polisi_sebelumnya')->label('Plat Sebelumnya'),
-            ExportColumn::make('kendaraan.pemilik')->label('Pemilik'),
-            ExportColumn::make('tonase'),
-            ExportColumn::make('tujuan'),
-            ExportColumn::make('jam_masuk'),
-            ExportColumn::make('jam_keluar'),
-            ExportColumn::make('keterangan'),
-            ExportColumn::make('user.name'),
+            ExportColumn::make('nama_kernek'),
+            ExportColumn::make('jenis_mobil'),
+            ExportColumn::make('status_sp'),
             ExportColumn::make('created_at'),
             ExportColumn::make('updated_at'),
         ];
@@ -40,7 +37,7 @@ class KendaraanMuatExporter extends Exporter
 
     public static function getCompletedNotificationBody(Export $export): string
     {
-        $body = 'Your kendaraan muat export has completed and ' . number_format($export->successful_rows) . ' ' . str('row')->plural($export->successful_rows) . ' exported.';
+        $body = 'Your kendaraan export has completed and ' . number_format($export->successful_rows) . ' ' . str('row')->plural($export->successful_rows) . ' exported.';
 
         if ($failedRowsCount = $export->getFailedRowsCount()) {
             $body .= ' ' . number_format($failedRowsCount) . ' ' . str('row')->plural($failedRowsCount) . ' failed to export.';

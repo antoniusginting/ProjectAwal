@@ -15,6 +15,7 @@ use Filament\Actions\Exports\Models\Export;
 class TimbanganTrontonExporter extends Exporter
 {
     protected static ?string $model = TimbanganTronton::class;
+    private static int $counter = 0;
 
     // public static function getColumns(): array
     // {
@@ -106,6 +107,11 @@ class TimbanganTrontonExporter extends Exporter
     public static function getColumns(): array
     {
         return [
+            ExportColumn::make('nomor')
+                ->label('No')
+                ->state(function () {
+                    return ++self::$counter;
+                }),
             ExportColumn::make('kode'),
             ExportColumn::make('penjualan1.no_spb')->label('Timbangan 1'),
             ExportColumn::make('penjualan2.no_spb')->label('Timbangan 2'),

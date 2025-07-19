@@ -14,10 +14,15 @@ use Filament\Actions\Exports\Models\Export;
 class DryerExporter extends Exporter
 {
     protected static ?string $model = Dryer::class;
-
+    private static int $counter = 0;
     public static function getColumns(): array
     {
         return [
+            ExportColumn::make('nomor')
+                ->label('No')
+                ->state(function () {
+                    return ++self::$counter;
+                }),
             ExportColumn::make('no_dryer'),
             ExportColumn::make('kapasitasdryer.nama_kapasitas_dryer')->label('Dryer'),
             ExportColumn::make('laporanLumbung.lumbung')

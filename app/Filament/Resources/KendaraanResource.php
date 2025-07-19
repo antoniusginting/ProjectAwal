@@ -14,7 +14,10 @@ use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Actions\ExportAction;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Exports\KendaraanExporter;
+use Filament\Tables\Actions\ExportBulkAction;
 use App\Filament\Resources\KendaraanResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\KendaraanResource\RelationManagers;
@@ -153,6 +156,18 @@ class KendaraanResource extends Resource implements HasShieldPermissions
             ])
             ->filters([
                 //
+            ])
+            ->headerActions([
+                ExportAction::make()->exporter(KendaraanExporter::class)
+                    ->color('success')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->label('Export to Excel')
+                    ->outlined()
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    ExportBulkAction::make()->exporter(KendaraanExporter::class)->label('Export to Excel'),
+                ]),
             ])
             ->actions([
                 //Tables\Actions\EditAction::make(),

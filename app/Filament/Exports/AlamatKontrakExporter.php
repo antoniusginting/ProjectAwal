@@ -14,10 +14,15 @@ use Filament\Actions\Exports\Models\Export;
 class AlamatKontrakExporter extends Exporter
 {
     protected static ?string $model = AlamatKontrak::class;
-
+    private static int $counter = 0;
     public static function getColumns(): array
     {
         return [
+            ExportColumn::make('nomor')
+                ->label('No')
+                ->state(function () {
+                    return ++self::$counter;
+                }),
             ExportColumn::make('kontrak.nama'),
             ExportColumn::make('alamat'),
             ExportColumn::make('created_at'),

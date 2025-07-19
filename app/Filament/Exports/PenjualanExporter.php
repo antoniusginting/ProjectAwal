@@ -15,10 +15,15 @@ use Filament\Actions\Exports\Models\Export;
 class PenjualanExporter extends Exporter
 {
     protected static ?string $model = Penjualan::class;
-
+    private static int $counter = 0;
     public static function getColumns(): array
     {
         return [
+            ExportColumn::make('nomor')
+                ->label('No')
+                ->state(function () {
+                    return ++self::$counter;
+                }),
             ExportColumn::make('no_spb'),
             ExportColumn::make('nama_supir'),
             ExportColumn::make('nama_barang'),

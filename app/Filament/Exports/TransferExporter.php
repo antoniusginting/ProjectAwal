@@ -14,10 +14,15 @@ use Filament\Actions\Exports\Models\Export;
 class TransferExporter extends Exporter
 {
     protected static ?string $model = Transfer::class;
-
+    private static int $counter = 0;
     public static function getColumns(): array
     {
         return [
+            ExportColumn::make('nomor')
+                ->label('No')
+                ->state(function () {
+                    return ++self::$counter;
+                }),
             ExportColumn::make('kode'),
             ExportColumn::make('laporanLumbungMasuk.kode')->label('No IO Keluar'),
             ExportColumn::make('laporanLumbungKeluar.kode')->label('No IO Masuk'),

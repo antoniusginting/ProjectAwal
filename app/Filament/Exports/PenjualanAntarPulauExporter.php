@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Filament\Exports;
+
 use OpenSpout\Common\Entity\Style\Style;
 use OpenSpout\Common\Entity\Style\Color;
 use OpenSpout\Common\Entity\Style\CellAlignment;
@@ -14,10 +15,16 @@ use Filament\Actions\Exports\Models\Export;
 class PenjualanAntarPulauExporter extends Exporter
 {
     protected static ?string $model = PenjualanAntarPulau::class;
-
+    private static int $counter = 0;
     public static function getColumns(): array
     {
         return [
+            ExportColumn::make('nomor')
+                ->label('No')
+                ->state(function () {
+                    return ++self::$counter;
+                }),
+
             ExportColumn::make('kode'),
             ExportColumn::make('kapasitasKontrakJual.nama')->label('Kontrak'),
             ExportColumn::make('nama_barang'),

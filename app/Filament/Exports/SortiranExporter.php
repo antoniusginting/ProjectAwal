@@ -14,10 +14,15 @@ use Filament\Actions\Exports\Models\Export;
 class SortiranExporter extends Exporter
 {
     protected static ?string $model = Sortiran::class;
-
+    private static int $counter = 0;
     public static function getColumns(): array
     {
         return [
+            ExportColumn::make('nomor')
+                ->label('No')
+                ->state(function () {
+                    return ++self::$counter;
+                }),
             ExportColumn::make('no_sortiran'),
             ExportColumn::make('pembelian.no_spb'),
             ExportColumn::make('kapasitaslumbungbasah.no_kapasitas_lumbung')->label('Lumbung'),

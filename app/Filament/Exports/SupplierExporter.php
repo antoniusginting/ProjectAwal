@@ -14,10 +14,15 @@ use Filament\Actions\Exports\Models\Export;
 class SupplierExporter extends Exporter
 {
     protected static ?string $model = Supplier::class;
-
+    private static int $counter = 0;
     public static function getColumns(): array
     {
         return [
+            ExportColumn::make('nomor')
+                ->label('No')
+                ->state(function () {
+                    return ++self::$counter;
+                }),
             ExportColumn::make('nama_supplier'),
             ExportColumn::make('jenis_supplier'),
             ExportColumn::make('no_ktp'),
