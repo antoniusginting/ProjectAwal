@@ -18,9 +18,12 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Actions\ExportAction;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
+use Filament\Tables\Actions\ExportBulkAction;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Exports\PembelianAntarPulauExporter;
 use App\Filament\Resources\PembelianAntarPulauResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\PembelianAntarPulauResource\RelationManagers;
@@ -157,7 +160,7 @@ class PembelianAntarPulauResource extends Resource implements HasShieldPermissio
             ])
             ->defaultSort('kode', 'desc')
             ->filters([
-                 Filter::make('pilih_tanggal')
+                Filter::make('pilih_tanggal')
                     ->form([
                         DatePicker::make('tanggal')
                             ->label('Pilih Tanggal')
@@ -174,14 +177,26 @@ class PembelianAntarPulauResource extends Resource implements HasShieldPermissio
                             : null;
                     }),
             ])
+            ->headerActions([
+                ExportAction::make()->exporter(PembelianAntarPulauExporter::class)
+                    ->color('success')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->label('Export to Excel')
+                    ->outlined()
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    ExportBulkAction::make()->exporter(PembelianAntarPulauExporter::class)->label('Export to Excel'),
+                ]),
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ]);
-            // ->bulkActions([
-            //     Tables\Actions\BulkActionGroup::make([
-            //         Tables\Actions\DeleteBulkAction::make(),
-            //     ]),
-            // ]);
+        // ->bulkActions([
+        //     Tables\Actions\BulkActionGroup::make([
+        //         Tables\Actions\DeleteBulkAction::make(),
+        //     ]),
+        // ]);
     }
 
     public static function getRelations(): array

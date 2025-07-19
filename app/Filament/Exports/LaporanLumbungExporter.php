@@ -2,6 +2,10 @@
 
 namespace App\Filament\Exports;
 
+use OpenSpout\Common\Entity\Style\Style;
+use OpenSpout\Common\Entity\Style\Color;
+use OpenSpout\Common\Entity\Style\CellAlignment;
+use OpenSpout\Common\Entity\Style\CellVerticalAlignment;
 use App\Models\LaporanLumbung;
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Exporter;
@@ -81,5 +85,16 @@ class LaporanLumbungExporter extends Exporter
         }
 
         return $body;
+    }
+    public function getXlsxHeaderCellStyle(): ?Style
+    {
+        return (new Style())
+            ->setFontBold()
+            ->setFontSize(12)
+            ->setFontName('Calibri')
+            ->setFontColor(Color::WHITE)
+            ->setBackgroundColor(Color::rgb(31, 78, 121))
+            ->setCellAlignment(CellAlignment::CENTER)
+            ->setCellVerticalAlignment(CellVerticalAlignment::CENTER);
     }
 }
