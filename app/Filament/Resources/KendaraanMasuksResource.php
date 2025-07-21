@@ -25,6 +25,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Filters\SelectFilter;
@@ -386,9 +387,6 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
                     ->label('User')
             ])
             ->defaultSort('id', 'desc')
-            ->filters([
-                //
-            ])
             ->headerActions([
                 ExportAction::make()->exporter(KendaraanMasuksExporter::class)
                     ->color('success')
@@ -411,26 +409,30 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
             // ])
             ->filters([
                 // Filter untuk Hari Ini
-                SelectFilter::make('Hari')
-                    ->native(false)
-                    ->label('Hari')
-                    ->options([
-                        'today' => 'Hari Ini',
-                        'yesterday' => 'Semalam',
-                        'today_and_yesterday' => 'Hari Ini & Semalam',
+                Filter::make('date_range')
+                    ->form([
+                        DatePicker::make('dari_tanggal')
+                            ->label('Dari Tanggal'),
+                        DatePicker::make('sampai_tanggal')
+                            ->label('Sampai Tanggal'),
                     ])
-                    ->default('today') // Menetapkan nilai default
                     ->query(function (Builder $query, array $data): Builder {
-                        if (empty($data['value'])) {
-                            return $query;
+                        if (!empty($data['dari_tanggal']) && !empty($data['sampai_tanggal'])) {
+                            return $query->whereBetween('created_at', [
+                                Carbon::parse($data['dari_tanggal'])->startOfDay(),
+                                Carbon::parse($data['sampai_tanggal'])->endOfDay(),
+                            ]);
                         }
-                        return match ($data['value']) {
-                            'today' => $query->whereDate('created_at', Carbon::today()),
-                            'yesterday' => $query->whereDate('created_at', Carbon::yesterday()),
-                            'today_and_yesterday' => $query->whereDate('created_at', '>=', Carbon::yesterday())
-                                ->whereDate('created_at', '<=', Carbon::today()),
-                            default => $query->whereDate('created_at', Carbon::today()),
-                        };
+
+                        if (!empty($data['dari_tanggal'])) {
+                            return $query->where('created_at', '>=', Carbon::parse($data['dari_tanggal'])->startOfDay());
+                        }
+
+                        if (!empty($data['sampai_tanggal'])) {
+                            return $query->where('created_at', '<=', Carbon::parse($data['sampai_tanggal'])->endOfDay());
+                        }
+
+                        return $query;
                     }),
                 SelectFilter::make('jenis')
                     ->label('Jenis')

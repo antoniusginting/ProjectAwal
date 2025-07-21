@@ -18,6 +18,7 @@ use Filament\Resources\Resource;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
+use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
@@ -27,6 +28,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Tables\Columns\BadgeColumn;
+use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Actions\ExportAction;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
@@ -651,7 +653,31 @@ class DryerResource extends Resource implements HasShieldPermissions
                     ->url(fn($record) => self::getUrl("view-dryer", ['record' => $record->id])),
             ], position: ActionsPosition::BeforeColumns)
             ->filters([
-                //
+                Filter::make('date_range')
+                    ->form([
+                        DatePicker::make('dari_tanggal')
+                            ->label('Dari Tanggal'),
+                        DatePicker::make('sampai_tanggal')
+                            ->label('Sampai Tanggal'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (!empty($data['dari_tanggal']) && !empty($data['sampai_tanggal'])) {
+                            return $query->whereBetween('created_at', [
+                                Carbon::parse($data['dari_tanggal'])->startOfDay(),
+                                Carbon::parse($data['sampai_tanggal'])->endOfDay(),
+                            ]);
+                        }
+
+                        if (!empty($data['dari_tanggal'])) {
+                            return $query->where('created_at', '>=', Carbon::parse($data['dari_tanggal'])->startOfDay());
+                        }
+
+                        if (!empty($data['sampai_tanggal'])) {
+                            return $query->where('created_at', '<=', Carbon::parse($data['sampai_tanggal'])->endOfDay());
+                        }
+
+                        return $query;
+                    }),
             ]);
 
         // ->bulkActions([

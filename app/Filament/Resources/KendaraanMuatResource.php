@@ -23,16 +23,15 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\ExportBulkAction;
 use App\Filament\Exports\KendaraanMuatExporter;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\KendaraanMuatResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
-use App\Filament\Resources\KendaraanMuatResource\RelationManagers;
 use App\Filament\Resources\KendaraanMuatResource\Pages\EditKendaraanMuat;
 
 class KendaraanMuatResource extends Resource implements HasShieldPermissions
@@ -221,7 +220,6 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                 return null;
             })
             ->columns([
-
                 IconColumn::make('status')
                     ->label('')
                     ->boolean()  // Menandakan kolom adalah boolean (0 atau 1)
@@ -298,26 +296,30 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                     ->label('User')
             ])->defaultSort('id', 'desc')
             ->filters([
-                SelectFilter::make('Hari')
-                    ->native(false)
-                    ->label('Hari')
-                    ->options([
-                        'today' => 'Hari Ini',
-                        'yesterday' => 'Semalam',
-                        'today_and_yesterday' => 'Hari Ini & Semalam',
+                Filter::make('date_range')
+                    ->form([
+                        DatePicker::make('dari_tanggal')
+                            ->label('Dari Tanggal'),
+                        DatePicker::make('sampai_tanggal')
+                            ->label('Sampai Tanggal'),
                     ])
-                    ->default('today') // Menetapkan nilai default
                     ->query(function (Builder $query, array $data): Builder {
-                        if (empty($data['value'])) {
-                            return $query;
+                        if (!empty($data['dari_tanggal']) && !empty($data['sampai_tanggal'])) {
+                            return $query->whereBetween('created_at', [
+                                Carbon::parse($data['dari_tanggal'])->startOfDay(),
+                                Carbon::parse($data['sampai_tanggal'])->endOfDay(),
+                            ]);
                         }
-                        return match ($data['value']) {
-                            'today' => $query->whereDate('created_at', Carbon::today()),
-                            'yesterday' => $query->whereDate('created_at', Carbon::yesterday()),
-                            'today_and_yesterday' => $query->whereDate('created_at', '>=', Carbon::yesterday())
-                                ->whereDate('created_at', '<=', Carbon::today()),
-                            default => $query->whereDate('created_at', Carbon::today()),
-                        };
+
+                        if (!empty($data['dari_tanggal'])) {
+                            return $query->where('created_at', '>=', Carbon::parse($data['dari_tanggal'])->startOfDay());
+                        }
+
+                        if (!empty($data['sampai_tanggal'])) {
+                            return $query->where('created_at', '<=', Carbon::parse($data['sampai_tanggal'])->endOfDay());
+                        }
+
+                        return $query;
                     }),
                 Filter::make('Jam Masuk Kosong')
                     ->query(

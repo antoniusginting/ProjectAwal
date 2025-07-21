@@ -1111,21 +1111,30 @@ class SortiranResource extends Resource implements HasShieldPermissions
                 ]),
             ])
             ->filters([
-                Filter::make('pilih_tanggal')
+                Filter::make('date_range')
                     ->form([
-                        DatePicker::make('tanggal')
-                            ->label('Pilih Tanggal')
+                        DatePicker::make('dari_tanggal')
+                            ->label('Dari Tanggal'),
+                        DatePicker::make('sampai_tanggal')
+                            ->label('Sampai Tanggal'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        return $query->when(
-                            $data['tanggal'] ?? null,
-                            fn($query, $date) => $query->whereDate('created_at', $date)
-                        );
-                    })
-                    ->indicateUsing(function (array $data): ?string {
-                        return ($data['tanggal'] ?? null)
-                            ? 'Tanggal: ' . Carbon::parse($data['tanggal'])->format('d M Y')
-                            : null;
+                        if (!empty($data['dari_tanggal']) && !empty($data['sampai_tanggal'])) {
+                            return $query->whereBetween('created_at', [
+                                Carbon::parse($data['dari_tanggal'])->startOfDay(),
+                                Carbon::parse($data['sampai_tanggal'])->endOfDay(),
+                            ]);
+                        }
+
+                        if (!empty($data['dari_tanggal'])) {
+                            return $query->where('created_at', '>=', Carbon::parse($data['dari_tanggal'])->startOfDay());
+                        }
+
+                        if (!empty($data['sampai_tanggal'])) {
+                            return $query->where('created_at', '<=', Carbon::parse($data['sampai_tanggal'])->endOfDay());
+                        }
+
+                        return $query;
                     }),
             ])
             ->recordClasses(function ($record) {
