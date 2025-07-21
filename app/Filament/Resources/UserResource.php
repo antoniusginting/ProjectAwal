@@ -95,7 +95,7 @@ class UserResource extends Resource implements HasShieldPermissions
                     ->label('No')
                     ->alignCenter()
                     ->rowIndex(), // auto generate number sesuai urutan tampilan
-                TextColumn::make('name')->label('Nama'),
+                TextColumn::make('name')->label('Nama')->searchable(),
                 TextColumn::make('email'),
                 TextColumn::make('roles.name')
                     ->label('Peran'),
