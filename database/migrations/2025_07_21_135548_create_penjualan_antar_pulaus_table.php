@@ -22,7 +22,6 @@ return new class extends Migration
             $table->string('nama_ekspedisi')->nullable();
             $table->string('kode_segel')->nullable();
             $table->timestamps();
-            $table->foreignId('luar_pulau_id')->nullable()->constrained('luar_pulaus')->onDelete('cascade');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('kapasitas_kontrak_jual_id')->nullable()->constrained('kapasitas_kontrak_juals')->onDelete('cascade');
             $table->string('status', 25)->nullable();

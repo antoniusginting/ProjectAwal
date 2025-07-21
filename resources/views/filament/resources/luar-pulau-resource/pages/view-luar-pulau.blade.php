@@ -63,7 +63,7 @@
                     <div class="flex-1 text-center p-3 rounded-lg">
                         <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Harga</p>
                         <p class="text-xl font-bold">
-                            {{ number_format($kontrakLuar->harga, 0, ',', '.') }}
+                            {{ number_format($luarPulau->harga, 0, ',', '.') }}
                         </p>
                     </div>
                     <!-- Persenan Pembelian -->
