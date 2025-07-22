@@ -364,23 +364,23 @@ class SortiranResource extends Resource implements HasShieldPermissions
                     ->schema([
                         Grid::make()
                             ->schema([
-                                Placeholder::make('next_idi')
-                                    ->label('No Sortiran')
-                                    ->content(function ($record) {
-                                        // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
-                                        if ($record) {
-                                            return $record->no_sortiran;
-                                        }
+                                // Placeholder::make('next_idi')
+                                //     ->label('No Sortiran')
+                                //     ->content(function ($record) {
+                                //         // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
+                                //         if ($record) {
+                                //             return $record->no_sortiran;
+                                //         }
 
-                                        // Jika sedang membuat data baru, hitung kode berikutnya
-                                        $nextId = (Sortiran::max('id') ?? 0) + 1;
-                                        return 'S' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
-                                    }),
-                                // TextInput::make('no_lumbung')
-                                //     ->label('No Lumbung')
-                                //     ->placeholder('Masukkan No Lumbung')
-                                //     ->autocomplete('off')
-                                //     ->required(),
+                                //         // Jika sedang membuat data baru, hitung kode berikutnya
+                                //         $nextId = (Sortiran::max('id') ?? 0) + 1;
+                                //         return 'S' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+                                //     }),
+                                // // TextInput::make('no_lumbung')
+                                // //     ->label('No Lumbung')
+                                // //     ->placeholder('Masukkan No Lumbung')
+                                // //     ->autocomplete('off')
+                                // //     ->required(),
                                 Select::make('no_lumbung_basah')
                                     ->label('No Lumbung Basah')
                                     ->placeholder('Pilih No Lumbung')
