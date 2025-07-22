@@ -38,7 +38,7 @@
                         <td class="whitespace-nowrap">: <a
                                 href="{{ route('filament.admin.resources.laporan-lumbungs.view-laporan-lumbung', $transfer->laporanLumbungMasuk->id ?? '') }}"
                                 target="_blank"
-                                class="text-blue-600 hover:text-blue-800 underline">{{ $transfer->laporanLumbungMasuk->kode }} -
+                                class="text-blue-600 hover:text-blue-800 underline">{{ $transfer->laporanLumbungMasuk->kode ?? '-'}} -
                                 {{ $transfer->laporanLumbungMasuk->status_silo ?? ($transfer->laporanLumbungMasuk->lumbung ?? '-') }}</a>
                         </td>
                         <td class="font-semibold whitespace-nowrap">Jam Keluar</td>

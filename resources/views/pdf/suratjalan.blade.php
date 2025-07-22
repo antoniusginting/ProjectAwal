@@ -8,6 +8,12 @@
     <style>
         /* Definisi variabel untuk konsistensi warna */
         /* Gaya dasar halaman dengan ukuran font lebih kecil */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Courier New', Courier, monospace;
             font-size: 12pt;
@@ -96,9 +102,7 @@
             text-align: right;
         }
 
-        .total-row {
-            
-        }
+        .total-row {}
 
         /* Tanda tangan */
         .signature-container {
@@ -162,7 +166,7 @@
     <div class="container">
         <!-- Header Surat -->
         <header class="header">
-            <h1>{{ $suratjalan->kontrak2->nama }}</h1>
+            <h1>{{ $suratjalan->kontrak->nama }}</h1>
             <h2>Surat Jalan Pengiriman</h2>
         </header>
 
@@ -177,13 +181,13 @@
                 </tr>
                 <tr class="label">
                     <td style="width: 20%; font-weight: bold;">Kepada Yth.</td>
-                    <td style="width: 80%;">: {{ $suratjalan->kontrak->nama }}</td>
+                    <td style="width: 80%;">: {{ $suratjalan->kapasitasKontrakJual->nama }}</td>
                 </tr>
                 @if (!empty($suratjalan->alamat->alamat))
-                <tr class="label">
-                    <td style="width: 20%; font-weight: bold;">Alamat</td>
-                    <td style="width: 80%;">: {{ $suratjalan->alamat?->alamat ?? '-' }}</td>
-                </tr>
+                    <tr class="label">
+                        <td style="width: 20%; font-weight: bold;">Alamat</td>
+                        <td style="width: 80%;">: {{ $suratjalan->alamat?->alamat ?? '-' }}</td>
+                    </tr>
                 @endif
                 @if (!empty($suratjalan->po))
                     <tr class="label">
@@ -205,7 +209,7 @@
                             <th class="border p-2">
                                 Plat Polisi
                             </th>
-                            <th >Nama Supir</th>
+                            <th>Nama Supir</th>
                             <th>Satuan Muatan</th>
                             <th>Nama Barang</th>
                             <th colspan="2">Total</th>
