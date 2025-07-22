@@ -13,14 +13,14 @@ class PembelianAntarPulau extends Model
         'no_container',
         'user_id',
         'nama_ekspedisi',
-        "luar_pulau_id",
+        "kapasitas_kontrak_beli_id",
     ];
 
 
-    // Relasi ke luar pulau
-    public function luarPulau()
+    // Relasi ke luar kapasitas kontrak jual
+    public function kapasitasKontrakBeli()
     {
-        return $this->belongsTo(LuarPulau::class, 'luar_pulau_id');
+        return $this->belongsTo(KapasitasKontrakBeli::class, 'kapasitas_kontrak_beli_id');
     }
     // Relasi ke User
     public function user()

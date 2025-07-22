@@ -85,12 +85,12 @@ class PembelianAntarPulauResource extends Resource implements HasShieldPermissio
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan Nama Barang'),
 
-                                Select::make('luar_pulau_id')
+                                Select::make('kapasitas_kontrak_beli_id')
                                     ->label('Supplier')
                                     ->native(false)
                                     ->required()
                                     ->options(function () {
-                                        return \App\Models\LuarPulau::query()
+                                        return \App\Models\KapasitasKontrakBeli::query()
                                             ->where('status', false)
                                             ->pluck('nama', 'id')
                                             ->toArray();
@@ -144,7 +144,7 @@ class PembelianAntarPulauResource extends Resource implements HasShieldPermissio
                 TextColumn::make('kode_segel')
                     ->label('Kode Segel')
                     ->searchable(),
-                TextColumn::make('luarPulau.nama')->label('Supplier')
+                TextColumn::make('kapasitasKontrakBeli.nama')->label('Supplier')
                     ->alignCenter()
                     ->searchable(),
                 TextColumn::make('nama_barang')

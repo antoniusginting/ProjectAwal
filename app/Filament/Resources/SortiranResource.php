@@ -107,7 +107,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                         $query = Pembelian::with(['mobil', 'supplier'])
                                             ->whereNotIn('id', $idSudahDisortir)
                                             ->whereNotNull('tara')
-                                            ->whereNotIn('nama_barang', ['CANGKANG', 'SEKAM', 'SALAH', 'RETUR', 'SEKAM PADI', 'BESI', 'LANGSIR SILO', 'PASIR', 'JG TUNGKUL', 'SAMPAH', 'ABU JAGUNG'])
+                                            ->whereNotIn('nama_barang', ['CANGKANG', 'SEKAM', 'SALAH', 'RETUR', 'SEKAM PADI', 'BESI', 'LANGSIR SILO', 'PASIR', 'JG TUNGKUL', 'SAMPAH', 'ABU JAGUNG','DEDAK'])
                                             ->whereNotIn('id', $idsYangDikecualikan)
                                             ->whereDate('created_at', '!=', '2025-06-03')
                                             ->latest();
