@@ -3,7 +3,7 @@
 
         <!-- Header Surat -->
         <div class="text-center space-y-1">
-            <h1 class="text-2xl font-bold">{{ $suratjalan->kontrak2->nama }}</h1>
+            <h1 class="text-2xl font-bold">{{ $suratjalan->kontrak->nama }}</h1>
             <h2 class="text-lg">Surat Jalan Pengiriman</h2>
         </div>
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use PDF;
 use App\Models\Pembelian;
 use Illuminate\Http\Request;
 use App\Models\PembelianRecord;
@@ -18,13 +19,13 @@ class PembelianController extends Controller
                 'pembelian_id' => $id
             ]);
 
-            $pdf = \PDF::loadView('pdf.pembelian',compact('pembelian'));
+            $pdf = PDF::loadView('pdf.pembelian', compact('pembelian'));
             return $pdf->stream();
-        }else{
+        } else {
             Notification::make()
-            ->title("No No")
-            ->danger()
-            ->send();
+                ->title("No No")
+                ->danger()
+                ->send();
             return redirect()->back();
         }
     }
