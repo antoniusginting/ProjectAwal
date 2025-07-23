@@ -2,15 +2,14 @@
 
 namespace App\Filament\Resources;
 
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
-use App\Models\Kontrak;
 use Filament\Forms\Form;
-use App\Models\LuarPulau;
 use Filament\Tables\Table;
-use Illuminate\Support\Carbon;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
+use App\Models\KapasitasKontrakBeli;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\TextColumn;
@@ -18,35 +17,18 @@ use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Enums\ActionsPosition;
-use App\Filament\Resources\LuarPulauResource\Pages;
-use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\LuarPulauResource\RelationManagers;
+use App\Filament\Resources\KapasitasKontrakBeliResource\Pages;
+use App\Filament\Resources\KapasitasKontrakBeliResource\RelationManagers;
 
-class LuarPulauResource extends Resource implements HasShieldPermissions
+class KapasitasKontrakBeliResource extends Resource
 {
-    protected static ?string $model = LuarPulau::class;
+    protected static ?string $model = KapasitasKontrakBeli::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-inbox-stack';
     protected static ?string $navigationLabel = 'Kapasitas Kontrak Beli';
     protected static ?string $navigationGroup = 'Antar Pulau';
     protected static ?int $navigationSort = 2;
-    public static function canAccess(): bool
-    {
-        return false; // Menyembunyikan resource dari sidebar
-    }
-    public static function getPermissionPrefixes(): array
-    {
-        return [
-            'view',
-            'view_any',
-            'create',
-            'update',
-            'delete',
-            'delete_any',
-        ];
-    }
-
     public static function form(Form $form): Form
     {
         return $form
@@ -153,34 +135,33 @@ class LuarPulauResource extends Resource implements HasShieldPermissions
                 //         $penjualanluar = $record->penjualanLuar->pluck('kode');
                 //         return $penjualanluar->implode(', ');
                 //     }),
-                TextColumn::make('pembelianLuar.kode')
-                    ->alignCenter()
-                    ->searchable()
-                    ->placeholder('-----')
-                    ->label('Kode Pembelian')
-                    ->getStateUsing(function ($record) {
-                        $pembelianluar = $record->pembelianLuar->pluck('kode');
+                // TextColumn::make('pembelianLuar.kode')
+                //     ->alignCenter()
+                //     ->searchable()
+                //     ->placeholder('-----')
+                //     ->label('Kode Pembelian')
+                //     ->getStateUsing(function ($record) {
+                //         $pembelianluar = $record->pembelianLuar->pluck('kode');
 
-                        if ($pembelianluar->count() <= 3) {
-                            return $pembelianluar->implode(', ');
-                        }
+                //         if ($pembelianluar->count() <= 3) {
+                //             return $pembelianluar->implode(', ');
+                //         }
 
-                        return $pembelianluar->take(3)->implode(', ') . '...';
-                    })
-                    ->tooltip(function ($record) {
-                        $pembelianluar = $record->pembelianLuar->pluck('kode');
-                        return $pembelianluar->implode(', ');
-                    }),
-            ])
-            ->defaultSort('id', 'desc')
+                //         return $pembelianluar->take(3)->implode(', ') . '...';
+                //     })
+                //     ->tooltip(function ($record) {
+                //         $pembelianluar = $record->pembelianLuar->pluck('kode');
+                //         return $pembelianluar->implode(', ');
+                //     }),
+            ])->defaultSort('id', 'desc')
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\Action::make('view-luar-pulau')
+                Tables\Actions\Action::make('view-kapasitas-kontrak-beli')
                     ->label(__("Lihat"))
                     ->icon('heroicon-o-eye')
-                    ->url(fn($record) => self::getUrl("view-luar-pulau", ['record' => $record->id])),
+                    ->url(fn($record) => self::getUrl("view-kapasitas-kontrak-beli", ['record' => $record->id])),
             ], position: ActionsPosition::BeforeColumns);
         // ->bulkActions([
         //     Tables\Actions\BulkActionGroup::make([
@@ -199,10 +180,10 @@ class LuarPulauResource extends Resource implements HasShieldPermissions
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListLuarPulaus::route('/'),
-            'create' => Pages\CreateLuarPulau::route('/create'),
-            'edit' => Pages\EditLuarPulau::route('/{record}/edit'),
-            'view-luar-pulau' => Pages\ViewLuarPulau::route('/{record}/view-luar-pulau'),
+            'index' => Pages\ListKapasitasKontrakBelis::route('/'),
+            'create' => Pages\CreateKapasitasKontrakBeli::route('/create'),
+            'edit' => Pages\EditKapasitasKontrakBeli::route('/{record}/edit'),
+            'view-kapasitas-kontrak-beli' => Pages\ViewKapasitasKontrakBeli::route('/{record}/view-kapasitas-kontrak-beli'),
         ];
     }
 }

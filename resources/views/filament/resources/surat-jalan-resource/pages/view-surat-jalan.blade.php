@@ -30,7 +30,7 @@
                 <tbody>
                     <tr>
                         <td class="font-semibold text-left align-top">Kepada Yth.</td>
-                        <td class="text-left align-top">: {{ $suratjalan->kontrak->nama }}</td>
+                        <td class="text-left align-top">: {{ $suratjalan->kapasitasKontrakJual->nama }}</td>
                     </tr>
                     @if (!empty($suratjalan->alamat->alamat))
                     <tr>
