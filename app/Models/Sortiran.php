@@ -72,6 +72,11 @@ class Sortiran extends Model
         return (int) str_replace('.', '', $this->netto_bersih);
     }
 
+    public function dryer()
+    {
+        return $this->belongsTo(Dryer::class);
+    }
+
     // // Relasi ke penjualan
     // public function penjualans(): BelongsToMany
     // {

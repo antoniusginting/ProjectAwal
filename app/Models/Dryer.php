@@ -30,6 +30,12 @@ class Dryer extends Model
         return $this->belongsTo(LaporanLumbung::class, 'laporan_lumbung_id');
     }
 
+    public function sortir()
+    {
+        return $this->belongsTo(Sortiran::class);
+    }
+
+
 
     public function sortirans(): BelongsToMany
     {
@@ -55,6 +61,18 @@ class Dryer extends Model
     public function getTotalNettoIntegerAttribute(): int
     {
         return (int) str_replace('.', '', $this->total_netto);
+    }
+
+
+    protected static function booted()
+    {
+        static::saved(function (Dryer $dryer) {
+            if ($dryer->status === 'completed') {
+                foreach ($dryer->sortirans as $sortiran) {
+                    $sortiran->update(['status' => 'completed']);
+                }
+            }
+        });
     }
 
     // Di Model Dryer.php
