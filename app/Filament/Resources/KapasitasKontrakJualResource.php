@@ -19,12 +19,23 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Enums\ActionsPosition;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\KapasitasKontrakJualResource\Pages;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\KapasitasKontrakJualResource\RelationManagers;
 
-class KapasitasKontrakJualResource extends Resource
+class KapasitasKontrakJualResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = KapasitasKontrakJual::class;
-
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
     protected static ?string $navigationIcon = 'heroicon-o-inbox-stack';
     protected static ?string $navigationLabel = 'Kapasitas Kontrak Jual';
     protected static ?string $navigationGroup = 'Antar Pulau';
