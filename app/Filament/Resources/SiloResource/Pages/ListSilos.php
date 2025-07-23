@@ -180,11 +180,12 @@ class ListSilos extends ListRecords
         // Untuk tab silo lainnya, cek status record terakhir
         $latestRecord = $this->getLatestSiloRecord($activeTab);
 
+        // Jika tidak ada data sama sekali, izinkan create
         if (!$latestRecord) {
-            return false;
+            return true;
         }
 
-        // Sesuaikan dengan logic status silo Anda
+        // Jika ada data, cek status record terakhir
         return isset($latestRecord->status) ? (bool) $latestRecord->status : true;
     }
 
