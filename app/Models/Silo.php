@@ -22,10 +22,10 @@ class Silo extends Model
     // {
     //     return $this->hasMany(Luar::class);
     // }
-    public function stockLuar()
-    {
-        return $this->hasMany(StockLuar::class);
-    }
+    // public function stockLuar()
+    // {
+    //     return $this->hasMany(StockLuar::class);
+    // }
 
     public function penjualans()
     {
