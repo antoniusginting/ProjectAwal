@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pembelians_records', function (Blueprint $table) {
+        Schema::create('pembelian_records', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->foreignId('pembelian_id')->constrained('pembelians')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');

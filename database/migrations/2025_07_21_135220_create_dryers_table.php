@@ -25,6 +25,7 @@ return new class extends Migration
             $table->enum('status', ['processing', 'completed'])->default('processing');
             $table->timestamps();
             $table->string('no_cc', 50)->nullable();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('laporan_lumbung_id')->nullable()->constrained('laporan_lumbungs')->onDelete('cascade');
         });
     }
