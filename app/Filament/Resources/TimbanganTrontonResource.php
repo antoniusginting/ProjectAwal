@@ -181,7 +181,7 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                     ->readOnly()
                                                     ->placeholder('Otomatis terjumlahkan'),
                                                 TextInput::make('tara_awal')
-                                                    ->label('Tara Awal')
+                                                    ->label('Tara Akhir')
                                                     ->readOnly()
                                                     ->placeholder('Otomatis terjumlahkan'),
                                                 TextInput::make('total_netto')
@@ -1260,32 +1260,25 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                     ])
             ]);
     }
-    protected static function getTaraAwal($get)
+    protected static function getBrutoAkhir(callable $get): float
     {
-        $tara1 = $get('tara1');
-        return (is_null($tara1) || trim($tara1) === '') ? $get('tara7') : $tara1;
+        return collect(range(1, 6)) // ubah ke 9 jika kamu pakai bruto1–bruto9
+            ->map(fn($i) => floatval($get("bruto{$i}")) ?: 0)
+            ->sum();
     }
 
-    protected static function getBrutoAkhir($get)
+    protected static function getTaraAwal(callable $get): float
     {
-        return $get('bruto6')
-            ?? $get('bruto5')
-            ?? $get('bruto4')
-            ?? $get('bruto3')
-            ?? $get('bruto2')
-            ?? $get('bruto1');
+        return collect(range(1, 6)) // ubah ke 9 jika kamu pakai tara1–tara9
+            ->map(fn($i) => floatval($get("tara{$i}")) ?: 0)
+            ->sum();
     }
-    public static function hitungTotalNetto($get)
+
+    public static function hitungTotalNetto(callable $get): float
     {
-        return (int) ($get('netto1') ?? 0) +
-            (int) ($get('netto2') ?? 0) +
-            (int) ($get('netto3') ?? 0) +
-            (int) ($get('netto4') ?? 0) +
-            (int) ($get('netto5') ?? 0) +
-            (int) ($get('netto6') ?? 0) +
-            (int) ($get('netto7') ?? 0) +
-            (int) ($get('netto8') ?? 0) +
-            (int) ($get('netto9') ?? 0);
+        return collect(range(1, 9)) // karena kamu gunakan netto1 sampai netto9
+            ->map(fn($i) => floatval($get("netto{$i}")) ?: 0)
+            ->sum();
     }
     public static function table(Table $table): Table
     {
