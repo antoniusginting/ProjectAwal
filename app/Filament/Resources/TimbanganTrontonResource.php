@@ -107,8 +107,24 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                     })
                     ->reactive()
                     ->afterStateUpdated(function (callable $set, $state, callable $get) {
-                        if (! $state) {
-                            return;
+                        // Jika field di-unselect (kosong), reset semua timbangan
+                        if (! $state || $state === '') {
+                            // Reset semua field timbangan 1-6
+                            for ($i = 1; $i <= 6; $i++) {
+                                $set("id_timbangan_jual_{$i}", null);
+                                $set("nama_lumbung_{$i}", null);
+                                $set("no_lumbung_{$i}", null);
+                                $set("bruto{$i}", null);
+                                $set("tara{$i}", null);
+                                $set("netto{$i}", null);
+                            }
+
+                            // Reset ringkasan akhir
+                            $set('total_netto', null);
+                            $set('bruto_akhir', null);
+                            $set('tara_awal', null);
+
+                            return; // Exit early jika tidak ada state
                         }
 
                         // Get used IDs to prevent them from being populated
@@ -155,8 +171,8 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                             $i = $startIndex + $idx;
                             if ($i > 6) break;
                             $set("id_timbangan_jual_{$i}", $pj->id);
-                            $set("nama_lumbung_{$i}", $pj->nama_lumbung);
-                            $set("no_lumbung_{$i}", $pj->no_lumbung);
+                            $set("nama_lumbung_{$i}", $pj->nama_lumbung ?? '-');
+                            $set("no_lumbung_{$i}", $pj->laporanLumbung->kode ?? '-');
                             $set("bruto{$i}", $pj->bruto);
                             $set("tara{$i}", $pj->tara);
                             $set("netto{$i}", $pj->netto);
@@ -253,8 +269,8 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                     ->afterStateHydrated(function ($state, callable $set) {
                                                         if ($state) {
                                                             $penjualan = Penjualan::find($state);
-                                                            $set('no_lumbung_1', $penjualan?->laporanLumbung->kode ?? 'kosong');
-                                                            $set('nama_lumbung_1', $penjualan?->nama_lumbung);
+                                                            $set('no_lumbung_1', $penjualan?->laporanLumbung->kode ?? '-');
+                                                            $set('nama_lumbung_1', $penjualan?->nama_lumbung ?? '-');
                                                             $set('bruto1', $penjualan?->bruto);
                                                             $set('tara1', $penjualan?->tara);
                                                             $set('netto1', $penjualan?->netto);
@@ -266,8 +282,8 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                         $set('bruto1', $penjualan?->bruto);
                                                         $set('tara1', $penjualan?->tara);
                                                         $set('netto1', $penjualan?->netto);
-                                                        $set('no_lumbung_1', $penjualan?->laporanLumbung->kode ?? 'kosong');
-                                                        $set('nama_lumbung_1', $penjualan?->nama_lumbung);
+                                                        $set('no_lumbung_1', $penjualan?->laporanLumbung->kode ?? '-');
+                                                        $set('nama_lumbung_1', $penjualan?->nama_lumbung ?? '-');
                                                         $set('total_netto', self::hitungTotalNetto($get)); // Update total_netto
                                                         $set('bruto_akhir', self::getBrutoAkhir($get));
                                                         $set('tara_awal', self::getTaraAwal($get));
@@ -362,8 +378,8 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                     ->afterStateHydrated(function ($state, callable $set) {
                                                         if ($state) {
                                                             $penjualan = Penjualan::find($state);
-                                                            $set('no_lumbung_2', $penjualan?->laporanLumbung->kode ?? 'kosong');
-                                                            $set('nama_lumbung_2', $penjualan?->nama_lumbung);
+                                                            $set('no_lumbung_2', $penjualan?->laporanLumbung->kode ?? '-');
+                                                            $set('nama_lumbung_2', $penjualan?->nama_lumbung ?? '-');
                                                             $set('bruto2', $penjualan?->bruto);
                                                             $set('tara2', $penjualan?->tara);
                                                             $netto2 = $penjualan?->netto ?? 0;
@@ -377,8 +393,8 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                         $set('plat_polisi2', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
                                                         $set('bruto2', $penjualan?->bruto);
                                                         $set('tara2', $penjualan?->tara);
-                                                        $set('no_lumbung_2', $penjualan?->laporanLumbung->kode ?? 'kosong');
-                                                        $set('nama_lumbung_2', $penjualan?->nama_lumbung);
+                                                        $set('no_lumbung_2', $penjualan?->laporanLumbung->kode ?? '-');
+                                                        $set('nama_lumbung_2', $penjualan?->nama_lumbung ?? '-');
                                                         $newNetto = $penjualan?->netto ?? 0;
                                                         // Ambil nilai netto sebelumnya, jika belum ada asumsikan 0
                                                         $prevNetto = $get('prev_netto2') ?? 0;
@@ -491,8 +507,8 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                     ->afterStateHydrated(function ($state, callable $set) {
                                                         if ($state) {
                                                             $penjualan = Penjualan::find($state);
-                                                            $set('no_lumbung_3', $penjualan?->laporanLumbung->kode ?? 'kosong');
-                                                            $set('nama_lumbung_3', $penjualan?->nama_lumbung);
+                                                            $set('no_lumbung_3', $penjualan?->laporanLumbung->kode ?? '-');
+                                                            $set('nama_lumbung_3', $penjualan?->nama_lumbung ?? '-');
                                                             $set('bruto3', $penjualan?->bruto);
                                                             $set('tara3', $penjualan?->tara);
                                                             $netto3 = $penjualan?->netto ?? 0;
@@ -506,8 +522,8 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                         $set('plat_polisi3', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
                                                         $set('bruto3', $penjualan?->bruto);
                                                         $set('tara3', $penjualan?->tara);
-                                                        $set('no_lumbung_3', $penjualan?->laporanLumbung->kode ?? 'kosong');
-                                                        $set('nama_lumbung_3', $penjualan?->nama_lumbung);
+                                                        $set('no_lumbung_3', $penjualan?->laporanLumbung->kode ?? '-');
+                                                        $set('nama_lumbung_3', $penjualan?->nama_lumbung ?? '-');
                                                         $newNetto = $penjualan?->netto ?? 0;
                                                         // Ambil nilai netto sebelumnya, jika belum ada asumsikan 0
                                                         $prevNetto = $get('prev_netto3') ?? 0;
@@ -621,8 +637,8 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                     ->afterStateHydrated(function ($state, callable $set) {
                                                         if ($state) {
                                                             $penjualan = Penjualan::find($state);
-                                                            $set('no_lumbung_4', $penjualan?->laporanLumbung->kode ?? 'kosong');
-                                                            $set('nama_lumbung_4', $penjualan?->nama_lumbung);
+                                                            $set('no_lumbung_4', $penjualan?->laporanLumbung->kode ?? '-');
+                                                            $set('nama_lumbung_4', $penjualan?->nama_lumbung ?? '-');
                                                             $set('bruto4', $penjualan?->bruto);
                                                             $set('tara4', $penjualan?->tara);
                                                             $netto4 = $penjualan?->netto ?? 0;
@@ -636,8 +652,8 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                         $set('plat_polisi4', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
                                                         $set('bruto4', $penjualan?->bruto);
                                                         $set('tara4', $penjualan?->tara);
-                                                        $set('no_lumbung_4', $penjualan?->laporanLumbung->kode ?? 'kosong');
-                                                        $set('nama_lumbung_4', $penjualan?->nama_lumbung);
+                                                        $set('no_lumbung_4', $penjualan?->laporanLumbung->kode ?? '-');
+                                                        $set('nama_lumbung_4', $penjualan?->nama_lumbung ?? '-');
                                                         $newNetto = $penjualan?->netto ?? 0;
                                                         // Ambil nilai netto sebelumnya, jika belum ada asumsikan 0
                                                         $prevNetto = $get('prev_netto4') ?? 0;
@@ -750,8 +766,8 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                     ->afterStateHydrated(function ($state, callable $set) {
                                                         if ($state) {
                                                             $penjualan = Penjualan::find($state);
-                                                            $set('no_lumbung_5', $penjualan?->laporanLumbung->kode ?? 'kosong');
-                                                            $set('nama_lumbung_5', $penjualan?->nama_lumbung);
+                                                            $set('no_lumbung_5', $penjualan?->laporanLumbung->kode ?? '-');
+                                                            $set('nama_lumbung_5', $penjualan?->nama_lumbung ?? '-');
                                                             $set('bruto5', $penjualan?->bruto);
                                                             $set('tara5', $penjualan?->tara);
                                                             $netto5 = $penjualan?->netto ?? 0;
@@ -765,8 +781,8 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                         $set('plat_polisi5', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
                                                         $set('bruto5', $penjualan?->bruto);
                                                         $set('tara5', $penjualan?->tara);
-                                                        $set('no_lumbung_5', $penjualan?->laporanLumbung->kode ?? 'kosong');
-                                                        $set('nama_lumbung_5', $penjualan?->nama_lumbung);
+                                                        $set('no_lumbung_5', $penjualan?->laporanLumbung->kode ?? '-');
+                                                        $set('nama_lumbung_5', $penjualan?->nama_lumbung ?? '-');
                                                         $newNetto = $penjualan?->netto ?? 0;
                                                         // Ambil nilai netto sebelumnya, jika belum ada asumsikan 0
                                                         $prevNetto = $get('prev_netto5') ?? 0;
@@ -879,8 +895,8 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                     ->afterStateHydrated(function ($state, callable $set) {
                                                         if ($state) {
                                                             $penjualan = Penjualan::find($state);
-                                                            $set('no_lumbung_6', $penjualan?->laporanLumbung->kode ?? 'kosong');
-                                                            $set('nama_lumbung_6', $penjualan?->nama_lumbung);
+                                                            $set('no_lumbung_6', $penjualan?->laporanLumbung->kode ?? '-');
+                                                            $set('nama_lumbung_6', $penjualan?->nama_lumbung ?? '-');
                                                             $set('bruto6', $penjualan?->bruto);
                                                             $set('tara6', $penjualan?->tara);
                                                             $netto6 = $penjualan?->netto ?? 0;
@@ -894,8 +910,8 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                         $set('plat_polisi6', $penjualan?->plat_polisi ?? 'Plat tidak ditemukan');
                                                         $set('bruto6', $penjualan?->bruto);
                                                         $set('tara6', $penjualan?->tara);
-                                                        $set('no_lumbung_6', $penjualan?->laporanLumbung->kode ?? 'kosong');
-                                                        $set('nama_lumbung_6', $penjualan?->nama_lumbung);
+                                                        $set('no_lumbung_6', $penjualan?->laporanLumbung->kode ?? '-');
+                                                        $set('nama_lumbung_6', $penjualan?->nama_lumbung ?? '-');
                                                         $newNetto = $penjualan?->netto ?? 0;
                                                         // Ambil nilai netto sebelumnya, jika belum ada asumsikan 0
                                                         $prevNetto = $get('prev_netto6') ?? 0;
