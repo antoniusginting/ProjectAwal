@@ -376,6 +376,7 @@ class DryerResource extends Resource implements HasShieldPermissions
                                 }
                             )
                             ->preload()
+                            ->required()
                             ->reactive()
                             ->getOptionLabelFromRecordUsing(function ($record) {
                                 $noBk = $record->pembelian ? $record->pembelian->plat_polisi : '';
