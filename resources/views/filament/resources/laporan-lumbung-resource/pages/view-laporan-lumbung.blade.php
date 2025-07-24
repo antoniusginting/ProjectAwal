@@ -120,7 +120,7 @@
                     <tr>
                         {{-- Kolom Tanggal --}}
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                            {{ $itemMasuk?->created_at->format('d-m') ?: ($itemKeluar?->created_at->format('d-m') ?: '') }}
+                            {{($itemKeluar?->created_at->format('d-m') ?: '') }}
                         </td>
 
                         {{-- Kolom Jenis --}}
