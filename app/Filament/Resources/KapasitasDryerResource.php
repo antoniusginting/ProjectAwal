@@ -62,7 +62,16 @@ class KapasitasDryerResource extends Resource implements HasShieldPermissions
                                 'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
                             ])
                             ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)), // Hapus titik sebelum dikirim ke database
-                    ])->columns(2)
+                        TextInput::make('kapasitas_sisa')
+                            ->label('Kapasitas Sisa')
+                            ->placeholder('Masukkan Jumlah Kapasitas Sisa')
+                            ->live() // Memastikan perubahan langsung terjadi di Livewire
+                            ->extraAttributes([
+                                'x-data' => '{}',
+                                'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
+                            ])
+                            ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)), // Hapus titik sebelum dikirim ke database
+                    ])->columns(3)
             ]);
     }
 
