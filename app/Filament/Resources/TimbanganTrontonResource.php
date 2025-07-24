@@ -195,13 +195,13 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                                                 TextInput::make('bruto_akhir')
                                                     ->label('Bruto Akhir')
                                                     ->readOnly()
-                                                    ->placeholder('Otomatis terjumlahkan'),
+                                                    ->placeholder('Otomatis terisi'),
                                                 TextInput::make('tara_awal')
-                                                    ->label('Tara Akhir')
+                                                    ->label('Tara Awal')
                                                     ->readOnly()
-                                                    ->placeholder('Otomatis terjumlahkan'),
+                                                    ->placeholder('Otomatis terisi'),
                                                 TextInput::make('total_netto')
-                                                    ->placeholder('Otomatis terisi')
+                                                    ->placeholder('Otomatis terjumlahkan')
                                                     ->label('Total Netto')
                                                     ->readOnly()
                                                     ->afterStateHydrated(function ($state, callable $set) {
@@ -1276,23 +1276,35 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                     ])
             ]);
     }
+
+
     protected static function getBrutoAkhir(callable $get): float
     {
-        return collect(range(1, 6)) // ubah ke 9 jika kamu pakai bruto1–bruto9
-            ->map(fn($i) => floatval($get("bruto{$i}")) ?: 0)
-            ->sum();
+        foreach (range(9, 1) as $i) {
+            $value = floatval($get("bruto{$i}"));
+            if ($value) {
+                return $value;
+            }
+        }
+
+        return 0;
     }
 
     protected static function getTaraAwal(callable $get): float
     {
-        return collect(range(1, 6)) // ubah ke 9 jika kamu pakai tara1–tara9
-            ->map(fn($i) => floatval($get("tara{$i}")) ?: 0)
-            ->sum();
+        foreach (range(1, 9) as $i) {
+            $value = floatval($get("tara{$i}"));
+            if ($value) {
+                return $value;
+            }
+        }
+        return 0;
     }
+
 
     public static function hitungTotalNetto(callable $get): float
     {
-        return collect(range(1, 9)) // karena kamu gunakan netto1 sampai netto9
+        return collect(range(1, 9))
             ->map(fn($i) => floatval($get("netto{$i}")) ?: 0)
             ->sum();
     }
