@@ -136,17 +136,40 @@ class KapasitasKontrakJualResource extends Resource implements HasShieldPermissi
                     ->placeholder('-----')
                     ->label('Kode Penjualan')
                     ->getStateUsing(function ($record) {
-                        $penjualanluar = $record->penjualanLuar->pluck('kode');
+                        // Ambil kode dari penjualanLuar
+                        $penjualanluarCodes = $record->penjualanLuar->pluck('kode');
 
-                        if ($penjualanluar->count() <= 3) {
-                            return $penjualanluar->implode(', ');
+                        // Ambil kode dari suratJalan->tronton
+                        $suratJalanCodes = $record->suratJalan()
+                            ->with('tronton')
+                            ->get()
+                            ->pluck('tronton.kode')
+                            ->filter(); // Filter null values
+
+                        // Gabungkan kedua collection
+                        $allCodes = $penjualanluarCodes->merge($suratJalanCodes)->unique();
+
+                        if ($allCodes->count() <= 3) {
+                            return $allCodes->implode(', ');
                         }
 
-                        return $penjualanluar->take(3)->implode(', ') . '...';
+                        return $allCodes->take(3)->implode(', ') . '...';
                     })
                     ->tooltip(function ($record) {
-                        $penjualanluar = $record->penjualanLuar->pluck('kode');
-                        return $penjualanluar->implode(', ');
+                        // Ambil kode dari penjualanLuar
+                        $penjualanluarCodes = $record->penjualanLuar->pluck('kode');
+
+                        // Ambil kode dari suratJalan->tronton
+                        $suratJalanCodes = $record->suratJalan()
+                            ->with('tronton')
+                            ->get()
+                            ->pluck('tronton.kode')
+                            ->filter(); // Filter null values
+
+                        // Gabungkan kedua collection
+                        $allCodes = $penjualanluarCodes->merge($suratJalanCodes)->unique();
+
+                        return $allCodes->implode(', ');
                     }),
                 // TextColumn::make('pembelianLuar.kode')
                 //     ->alignCenter()

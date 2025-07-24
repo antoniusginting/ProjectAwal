@@ -35,7 +35,7 @@
         }
 
         header.header h1 {
-            font-size: 1.4rem;
+            font-size: 1.9rem;
             margin: 0;
         }
 
