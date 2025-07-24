@@ -203,6 +203,7 @@
                 <table class="w-full border border-collapse border-gray-300 dark:border-gray-700">
                     <thead>
                         <tr class="bg-gray-100 dark:bg-gray-800">
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">No Penjualan</th>
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">No PO</th>
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Tanggal</th>
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Status</th>
@@ -215,6 +216,9 @@
                         @foreach ($suratJalanFiltered as $suratJalan)
                             <tr class="suratjalan-row {{ $suratJalanIndex >= 5 ? 'hidden' : '' }}"
                                 data-index="{{ $suratJalanIndex }}">
+                                <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                                    <a>{{ $suratJalan->tronton->kode ?? '-' }}</a>
+                                </td>
                                 <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                                     <a>{{ $suratJalan->po ?? '-' }}</a>
                                 </td>
@@ -236,7 +240,7 @@
                     </tbody>
                     <tfoot>
                         <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
-                            <td colspan="4"
+                            <td colspan="5"
                                 class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                                 Total Berat Surat Jalan:
                             </td>
