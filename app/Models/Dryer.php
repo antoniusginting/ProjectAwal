@@ -21,6 +21,7 @@ class Dryer extends Model
         'pj',
         'status',
         'no_cc',
+        'user_id',
         'laporan_lumbung_id',
     ];
 
@@ -34,7 +35,10 @@ class Dryer extends Model
     {
         return $this->belongsTo(Sortiran::class);
     }
-
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
 
     public function sortirans(): BelongsToMany

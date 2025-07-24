@@ -20,6 +20,7 @@ use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use App\Filament\Exports\DryerExporter;
@@ -481,7 +482,8 @@ class DryerResource extends Resource implements HasShieldPermissions
                     ])
                     ->columns(2)
                     ->visible(fn($record) => $record !== null),
-
+                Hidden::make('user_id')
+                    ->default(Auth::id()),
             ]);
     }
 
@@ -633,6 +635,8 @@ class DryerResource extends Resource implements HasShieldPermissions
                     ->alignCenter()
                     ->label('Total Netto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                TextColumn::make('user.name')
+                    ->label('User')
             ])
             ->headerActions([
                 ExportAction::make()->exporter(DryerExporter::class)
