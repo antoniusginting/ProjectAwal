@@ -173,7 +173,7 @@
                                         {{-- Tampilkan hyperlink hanya jika dari pembelian --}}
                                         @if ($isFromPembelian && $noSpb !== '-')
                                             <a href="{{ route('filament.admin.resources.sortirans.view-sortiran', $sortiran->id) }} "
-                                                target="blank">
+                                                target="blank" class="underline">
                                                 {{ $noSpb }}
                                             </a>
                                         @else

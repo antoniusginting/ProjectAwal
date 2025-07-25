@@ -97,7 +97,10 @@
                                 </td>
                                 <td
                                     class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap">
-                                    {{ $penjualan->no_lumbung ?? '' }}
+                                    <a href="{{ route('filament.admin.resources.laporan-lumbungs.view-laporan-lumbung', $penjualan->laporanLumbung->id ?? '') }}"
+                                        target="_blank" class="text-blue-600 underline hover:text-blue-800">
+                                        {{ $penjualan->laporanLumbung->kode ?? '' }}
+                                    </a>
                                 </td>
                                 <td
                                     class="border p-2 text-center border-gray-300 dark:border-gray-700 whitespace-nowrap">

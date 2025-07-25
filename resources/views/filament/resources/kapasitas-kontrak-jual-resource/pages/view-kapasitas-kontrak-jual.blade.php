@@ -28,7 +28,7 @@
 
             // Data summary
             $totalStokDanBerat = $kontrakLuar->stok;
-            $stokSisa = $totalStokDanBerat - $totalBeratKeseluruhan; 
+            $stokSisa = $totalStokDanBerat - $totalBeratKeseluruhan;
             $persenanPenjualan = $totalStokDanBerat != 0 ? ($totalBeratKeseluruhan / $totalStokDanBerat) * 100 : 0;
 
             // Total data
@@ -74,9 +74,11 @@
                     </div>
 
                     <!-- Sisa Stok -->
-                    <div class="flex-1 text-center p-3 {{ $stokSisa >= 0 ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-red-50 dark:bg-red-900/20' }} rounded-lg">
+                    <div
+                        class="flex-1 text-center p-3 {{ $stokSisa >= 0 ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-red-50 dark:bg-red-900/20' }} rounded-lg">
                         <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Sisa Kontrak</p>
-                        <p class="text-xl font-bold {{ $stokSisa >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                        <p
+                            class="text-xl font-bold {{ $stokSisa >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
                             {{ number_format($stokSisa, 0, ',', '.') }}
                         </p>
                     </div>
@@ -133,11 +135,11 @@
                         @php $penjualanIndex = 0; @endphp
                         @foreach ($penjualanFiltered as $penjualan)
                             @php
-                                $nettoDiterima = strtolower($penjualan->status) === 'terima'
-                                    ? $penjualan->netto_diterima
-                                    : 0;
+                                $nettoDiterima =
+                                    strtolower($penjualan->status) === 'terima' ? $penjualan->netto_diterima : 0;
                             @endphp
-                            <tr class="penjualan-row {{ $penjualanIndex >= 5 ? 'hidden' : '' }}" data-index="{{ $penjualanIndex }}">
+                            <tr class="penjualan-row {{ $penjualanIndex >= 5 ? 'hidden' : '' }}"
+                                data-index="{{ $penjualanIndex }}">
                                 <td class="border p-2 text-center text-sm">
                                     {{ \Carbon\Carbon::parse($penjualan->created_at)->format('d/m/Y') }}
                                 </td>
@@ -190,12 +192,17 @@
                         @php $suratJalanIndex = 0; @endphp
                         @foreach ($suratJalanFiltered as $suratJalan)
                             @php
-                                $nettoDiterima = strtolower($suratJalan->status) === 'terima'
-                                    ? $suratJalan->netto_diterima
-                                    : 0;
+                                $nettoDiterima =
+                                    strtolower($suratJalan->status) === 'terima' ? $suratJalan->netto_diterima : 0;
                             @endphp
-                            <tr class="suratjalan-row {{ $suratJalanIndex >= 5 ? 'hidden' : '' }}" data-index="{{ $suratJalanIndex }}">
-                                <td class="border p-2 text-center text-sm">{{ $suratJalan->tronton->kode ?? '-' }}</td>
+                            <tr class="suratjalan-row {{ $suratJalanIndex >= 5 ? 'hidden' : '' }}"
+                                data-index="{{ $suratJalanIndex }}">
+                                <td class="border p-2 text-center text-sm">
+                                    <a href="{{ route('filament.admin.resources.timbangan-trontons.view-laporan-penjualan', $suratJalan->tronton->id ?? '') }}"
+                                        target="_blank" class="text-blue-600 underline hover:text-blue-800">
+                                        {{ $suratJalan->tronton->kode ?? '-' }}
+                                    </a>
+                                </td>
                                 <td class="border p-2 text-center text-sm">{{ $suratJalan->po ?? '-' }}</td>
                                 <td class="border p-2 text-center text-sm">
                                     {{ \Carbon\Carbon::parse($suratJalan->created_at)->format('d/m/Y') }}
@@ -234,6 +241,7 @@
             let limit = select.value === 'all' ? rows.length : parseInt(select.value);
             rows.forEach((row, i) => row.classList.toggle('hidden', i >= limit));
         }
+
         function changeSuratJalanPerPage() {
             const select = document.getElementById('suratjalan-per-page');
             const rows = document.querySelectorAll('.suratjalan-row');

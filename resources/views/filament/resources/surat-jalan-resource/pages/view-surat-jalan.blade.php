@@ -33,16 +33,16 @@
                         <td class="text-left align-top">: {{ $suratjalan->kapasitasKontrakJual->nama }}</td>
                     </tr>
                     @if (!empty($suratjalan->alamat->alamat))
-                    <tr>
-                        <td class="font-semibold text-left align-top">Alamat</td>
-                        <td class="text-left align-top">: {{ $suratjalan->alamat->alamat }}</td>
-                    </tr>
+                        <tr>
+                            <td class="font-semibold text-left align-top">Alamat</td>
+                            <td class="text-left align-top">: {{ $suratjalan->alamat->alamat }}</td>
+                        </tr>
                     @endif
                     @if (!empty($suratjalan->po))
-                    <tr>
-                        <td class="font-semibold text-left align-top">No PO</td>
-                        <td class="text-left align-top">: {{ $suratjalan->po }}</td>
-                    </tr>
+                        <tr>
+                            <td class="font-semibold text-left align-top">No PO</td>
+                            <td class="text-left align-top">: {{ $suratjalan->po }}</td>
+                        </tr>
                     @endif
                 </tbody>
             </table>
@@ -56,6 +56,7 @@
             <table class="w-full border border-collapse border-gray-300 dark:border-gray-700">
                 <thead>
                     <tr class="bg-gray-100 dark:bg-gray-800">
+                        <th class="border p-2 border-gray-300 dark:border-gray-700">No Penjualan</th>
                         <th class="border p-2 border-gray-300 dark:border-gray-700">
                             @if (!empty($suratjalan->tronton->penjualan1->plat_polisi))
                                 Plat Polisi
@@ -71,6 +72,12 @@
                 </thead>
                 <tbody>
                     <tr>
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700" rowspan="3">
+                            <a href="{{ route('filament.admin.resources.timbangan-trontons.view-laporan-penjualan', $suratjalan->tronton->id ?? '') }}"
+                                target="_blank" class="text-blue-600 underline hover:text-blue-800">
+                                {{ $suratjalan->tronton->kode ?? '-' }}
+                            </a>
+                        </td>
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700" rowspan="3">
                             @if (!empty($suratjalan->tronton->penjualan1->plat_polisi))
                                 {{ $suratjalan->tronton->penjualan1->plat_polisi }}
