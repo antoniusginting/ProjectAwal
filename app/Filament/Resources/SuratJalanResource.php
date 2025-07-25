@@ -91,12 +91,19 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                                         return \App\Models\KapasitasKontrakJual::query()
                                             ->where('status', false)
                                             ->where('nama', 'not like', '%kontainer%')
-                                            ->pluck('nama', 'id')
+                                            ->get()
+                                            ->mapWithKeys(function ($item) {
+                                                return [$item->id => $item->nama . ' - ' . $item->no_po];
+                                            })
                                             ->toArray();
                                     })
                                     ->placeholder('Pilih Supplier')
                                     ->searchable()
-                                    ->live(),
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        $no_po = $state ? \App\Models\KapasitasKontrakJual::find($state)?->no_po : null;
+                                        $set('po', $no_po);
+                                    }),
 
                                 Select::make('id_alamat')
                                     ->label('Pilih Alamat')
@@ -122,6 +129,7 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                                     ->required(),
                                 TextInput::make('po')
                                     ->label('PO')
+                                    ->readOnly()
                                     ->autocomplete('off')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan no PO')

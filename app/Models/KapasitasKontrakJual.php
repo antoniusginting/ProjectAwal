@@ -12,6 +12,7 @@ class KapasitasKontrakJual extends Model
         'nama',
         'status',
         'harga',
+        'no_po',
     ];
 
     public function penjualanLuar()

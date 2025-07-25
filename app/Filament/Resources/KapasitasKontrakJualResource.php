@@ -81,13 +81,19 @@ class KapasitasKontrakJualResource extends Resource implements HasShieldPermissi
                                 return $record !== null;
                             })
                             ->live(),
+                        TextInput::make('no_po')
+                            ->required()
+                            ->label('No PO')
+                            ->placeholder('Masukkan nomor PO'),
+
                         Toggle::make('status')
                             ->label('Status')
+                            ->columnSpan(2)
                             ->helperText('Aktifkan untuk menutup, nonaktifkan untuk membuka')
                             ->default(false) // Default false (buka)
                             ->onColor('danger') // Warna merah saat true (tutup)
                             ->offColor('success'), // Warna hijau saat false (buka)
-                    ])->columns(4)
+                    ])->columns(3)
             ]);
     }
 
@@ -124,6 +130,8 @@ class KapasitasKontrakJualResource extends Resource implements HasShieldPermissi
                 TextColumn::make('stok')->label('Stok Awal')
                     ->alignCenter()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                TextColumn::make('no_po')
+                    ->label('No PO'),
                 TextColumn::make('harga')->label('Harga')
                     ->alignCenter()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
