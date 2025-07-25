@@ -1105,6 +1105,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                     ->color('success')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->label('Export to Excel')
+                    ->size('xs')
                     ->outlined()
             ])
             ->bulkActions([
