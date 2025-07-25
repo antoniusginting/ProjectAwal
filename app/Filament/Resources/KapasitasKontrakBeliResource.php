@@ -47,8 +47,8 @@ class KapasitasKontrakBeliResource extends Resource implements HasShieldPermissi
                 Card::make()
                     ->schema([
                         TextInput::make('stok')
-                            ->label('Stok Awal')
-                            ->placeholder('Masukkan stok awal')
+                            ->label('Nilah Kontrak')
+                            ->placeholder('Masukkan Nilai Kontrak')
                             ->live() // Memastikan perubahan langsung terjadi di Livewire
                             ->extraAttributes([
                                 'x-data' => '{}',
@@ -119,7 +119,7 @@ class KapasitasKontrakBeliResource extends Resource implements HasShieldPermissi
                     ->color(function ($state) {
                         return $state ? 'danger' : 'success';
                     }),
-                TextColumn::make('stok')->label('Stok Awal')
+                TextColumn::make('stok')->label('Nilai Kontrak')
                     ->alignCenter()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('harga')->label('Harga')

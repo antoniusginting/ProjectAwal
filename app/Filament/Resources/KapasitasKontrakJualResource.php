@@ -15,16 +15,14 @@ use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Enums\ActionsPosition;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\KapasitasKontrakJualResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
-use App\Filament\Resources\KapasitasKontrakJualResource\RelationManagers;
 
 class KapasitasKontrakJualResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = KapasitasKontrakJual::class;
+
     public static function getPermissionPrefixes(): array
     {
         return [
@@ -36,6 +34,7 @@ class KapasitasKontrakJualResource extends Resource implements HasShieldPermissi
             'delete_any',
         ];
     }
+
     protected static ?string $navigationIcon = 'heroicon-o-inbox-stack';
     protected static ?string $navigationLabel = 'Kapasitas Kontrak Jual';
     protected static ?string $navigationGroup = 'Antar Pulau';
@@ -56,6 +55,7 @@ class KapasitasKontrakJualResource extends Resource implements HasShieldPermissi
                                 'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
                             ])
                             ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)), // Hapus titik sebelum dikirim ke database
+
                         TextInput::make('harga')
                             ->label('Harga')
                             ->placeholder('Masukkan harga')
@@ -65,6 +65,7 @@ class KapasitasKontrakJualResource extends Resource implements HasShieldPermissi
                                 'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
                             ])
                             ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)), // Hapus titik sebelum dikirim ke database
+
                         Select::make('nama')
                             ->native(false)
                             ->searchable()
@@ -81,10 +82,19 @@ class KapasitasKontrakJualResource extends Resource implements HasShieldPermissi
                                 return $record !== null;
                             })
                             ->live(),
+<<<<<<< HEAD
                         TextInput::make('no_po')
                             ->required()
                             ->label('No PO')
                             ->placeholder('Masukkan nomor PO'),
+=======
+
+                        TextInput::make('no_po')
+                            ->label('No PO')
+                            ->placeholder('Masukkan nomor PO')
+                            ->numeric()
+                            ->required(),
+>>>>>>> c9e46f0 (feat: ubah field kontrak, tambah PO & logika status (terima, retur, tolak, setengah) pada penjualan antar pulau)
 
                         Toggle::make('status')
                             ->label('Status')
@@ -117,6 +127,7 @@ class KapasitasKontrakJualResource extends Resource implements HasShieldPermissi
                             ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
                             ->isoFormat('D MMMM YYYY | HH:mm:ss');
                     }),
+
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
@@ -127,17 +138,29 @@ class KapasitasKontrakJualResource extends Resource implements HasShieldPermissi
                     ->color(function ($state) {
                         return $state ? 'danger' : 'success';
                     }),
+
                 TextColumn::make('stok')->label('Stok Awal')
                     ->alignCenter()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+<<<<<<< HEAD
                 TextColumn::make('no_po')
                     ->label('No PO'),
+=======
+
+>>>>>>> c9e46f0 (feat: ubah field kontrak, tambah PO & logika status (terima, retur, tolak, setengah) pada penjualan antar pulau)
                 TextColumn::make('harga')->label('Harga')
                     ->alignCenter()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+
                 TextColumn::make('nama')
                     ->label('Nama')
                     ->searchable(),
+
+                TextColumn::make('no_po')
+                    ->label('No PO')
+                    ->alignCenter()
+                    ->searchable(),
+
                 TextColumn::make('penjualanLuar.kode')
                     ->alignCenter()
                     ->searchable()
@@ -179,24 +202,6 @@ class KapasitasKontrakJualResource extends Resource implements HasShieldPermissi
 
                         return $allCodes->implode(', ');
                     }),
-                // TextColumn::make('pembelianLuar.kode')
-                //     ->alignCenter()
-                //     ->searchable()
-                //     ->placeholder('-----')
-                //     ->label('Kode Pembelian')
-                //     ->getStateUsing(function ($record) {
-                //         $pembelianluar = $record->pembelianLuar->pluck('kode');
-
-                //         if ($pembelianluar->count() <= 3) {
-                //             return $pembelianluar->implode(', ');
-                //         }
-
-                //         return $pembelianluar->take(3)->implode(', ') . '...';
-                //     })
-                //     ->tooltip(function ($record) {
-                //         $pembelianluar = $record->pembelianLuar->pluck('kode');
-                //         return $pembelianluar->implode(', ');
-                //     }),
             ])
             ->defaultSort('id', 'desc')
             ->filters([

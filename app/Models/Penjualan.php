@@ -29,6 +29,7 @@ class Penjualan extends Model
         'user_id',
         'laporan_lumbung_id',
         'silo_id',
+        'pembelian_antar_pulau_id',
     ];
 
     // Relasi ke User

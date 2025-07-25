@@ -11,6 +11,7 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use App\Models\PenjualanAntarPulau;
+use App\Models\PembelianAntarPulau;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Filters\Filter;
@@ -25,11 +26,9 @@ use Filament\Tables\Actions\ExportAction;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Actions\ExportBulkAction;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Exports\PenjualanAntarPulauExporter;
 use App\Filament\Resources\PenjualanAntarPulauResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
-use App\Filament\Resources\PenjualanAntarPulauResource\RelationManagers;
 
 class PenjualanAntarPulauResource extends Resource implements HasShieldPermissions
 {
@@ -40,6 +39,7 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
     protected static ?int $navigationSort = 3;
     public static ?string $label = 'Daftar Penjualan Antar Pulau ';
     protected static ?string $navigationLabel = 'Penjualan Antar Pulau';
+
     public static function getPermissionPrefixes(): array
     {
         return [
@@ -51,6 +51,7 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
             'delete_any',
         ];
     }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -62,74 +63,94 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                                 Placeholder::make('next_id')
                                     ->label('No SPB')
                                     ->content(function ($record) {
-                                        // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
                                         if ($record) {
                                             return $record->kode;
                                         }
-
-                                        // Jika sedang membuat data baru, hitung kode berikutnya
                                         $nextId = (PenjualanAntarPulau::max('id') ?? 0) + 1;
                                         return 'CJ' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
                                     }),
                                 TextInput::make('created_at')
                                     ->label('Tanggal')
-                                    ->formatStateUsing(fn($state) => \Carbon\Carbon::parse($state)->format('d-m-Y'))
-                                    ->disabled(), // Tidak bisa diedit
+                                    ->formatStateUsing(fn($state) => Carbon::parse($state)->format('d-m-Y'))
+                                    ->disabled(),
                                 Select::make('status')
                                     ->native(false)
                                     ->options([
-                                        'TERIMA' => 'TERIMA',
-                                        'RETUR' => 'RETUR',
+                                        'TERIMA'   => 'TERIMA',
+                                        'RETUR'    => 'RETUR',
+                                        'TOLAK'    => 'TOLAK',
+                                        'SETENGAH' => 'SETENGAH',
                                     ])
                                     ->label('Status')
                                     ->placeholder('Belum ada Status')
-                                    ->live(), // Penting untuk reaktivitas
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                                        // Auto-append (RETUR) pada nama_barang ketika status RETUR
+                                        if ($state === 'RETUR') {
+                                            $nama = $get('nama_barang');
+                                            if ($nama && ! str_contains($nama, '(RETUR)')) {
+                                                $set('nama_barang', trim($nama . ' (RETUR)'));
+                                            }
+                                        }
+                                        // Jika status bukan TERIMA / SETENGAH, kosongkan netto_diterima
+                                        if (! in_array($state, ['TERIMA', 'SETENGAH'])) {
+                                            $set('netto_diterima', null);
+                                        }
+                                    }),
                             ])->columns(3)->collapsed(),
 
                         Card::make()
                             ->schema([
-
                                 TextInput::make('nama_barang')
                                     ->autocomplete('off')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan Nama Barang'),
-                                // Select::make('id_supplier')
-                                //     ->label('Supplier')
-                                //     ->placeholder('Pilih Supplier')
-                                //     ->options(Supplier::pluck('nama_supplier', 'id')) // Ambil daftar mobil
-                                //     ->searchable(), // Biar bisa cari
-                                // Select::make('silo_id')
-                                //     ->label('Supplier')
-                                //     ->options(function () {
-                                //         return Silo::whereNotIn('nama', [
-                                //             'SILO STAFFEL A',
-                                //             'SILO STAFFEL B',
-                                //             'SILO 2500',
-                                //             'SILO 1800'
-                                //         ])
-                                //             ->get()
-                                //             ->mapWithKeys(function ($item) {
-                                //                 return [
-                                //                     $item->id =>  $item->nama
-                                //                 ];
-                                //             });
-                                //     })
-                                //     ->searchable()
-                                //     ->preload()
-                                //     ->nullable()
-                                //     ->placeholder('Pilih')
-                                //     ->reactive()
-                                //     ->afterStateUpdated(function ($state, callable $set) {
-                                //         if ($state) {
-                                //             // Ambil data silo berdasarkan ID yang dipilih
-                                //             $silo = Silo::find($state);
-                                //             if ($silo) {
-                                //                 $set('status_silo', $silo->nama); // Set status sesuai nama silo
-                                //             }
-                                //         } else {
-                                //             $set('status_silo', null);
-                                //         }
-                                //     }),
+
+                                // Select Pembelian Antar Pulau (container)
+                                Select::make('pembelian_antar_pulau_id')
+                                    ->label('No Container (Pembelian)')
+                                    ->native(false)
+                                    ->required()
+                                    ->options(function (Get $get) {
+                                        // Container yang sudah TERIMA tidak boleh dipakai lagi
+                                        $available = PembelianAntarPulau::whereDoesntHave('penjualanAntarPulau', function ($q) {
+                                            $q->where('status', 'TERIMA');
+                                        })
+                                            ->pluck('no_container', 'id');
+
+                                        // Saat edit, izinkan value yang sekarang (kalaupun sudah TERIMA)
+                                        $currentId = $get('pembelian_antar_pulau_id');
+                                        if ($currentId && ! $available->has($currentId)) {
+                                            if ($current = PembelianAntarPulau::find($currentId)) {
+                                                $available->put($current->id, $current->no_container . ' (dipakai di record ini)');
+                                            }
+                                        }
+
+                                        return $available->toArray();
+                                    })
+                                    ->searchable()
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, Set $set) {
+                                        $pembelian = PembelianAntarPulau::find($state);
+                                        if ($pembelian) {
+                                            $set('no_container', $pembelian->no_container);
+                                            // jika mau auto set nama_barang dari pembelian:
+                                            $set('nama_barang', strtoupper($pembelian->nama_barang));
+                                        } else {
+                                            $set('no_container', null);
+                                        }
+                                    }),
+
+                                TextInput::make('no_container')
+                                    ->label('No Container')
+                                    ->disabled()
+                                    ->dehydrated()
+                                    ->placeholder('No Container otomatis'),
+
+                                TextInput::make('kode_segel')
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
+                                    ->autocomplete('off')
+                                    ->placeholder('Masukkan kode Segel'),
 
                                 Select::make('kapasitas_kontrak_jual_id')
                                     ->label('Kontrak')
@@ -145,16 +166,7 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                                     ->placeholder('Pilih Supplier')
                                     ->searchable()
                                     ->live(),
-                                Grid::make()
-                                    ->schema([
-                                        TextInput::make('kode_segel')
-                                            ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
-                                            ->autocomplete('off')
-                                            ->placeholder('Masukkan kode Segel'),
-                                        TextInput::make('no_container')
-                                            ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
-                                            ->placeholder('Masukkan No Container'),
-                                    ])->columnSpan(1),
+
                                 Grid::make()
                                     ->schema([
                                         TextInput::make('netto')
@@ -165,20 +177,20 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                                             ->label('Netto Diterima')
                                             ->placeholder('Masukkan netto diterima')
                                             ->numeric()
-                                            ->disabled(fn(Get $get) => $get('status') !== 'TERIMA') // Hanya aktif jika status TERIMA
-                                            ->dehydrated(fn(Get $get) => $get('status') === 'TERIMA') // Hanya simpan jika status TERIMA
+                                            ->disabled(fn(Get $get) => ! in_array($get('status'), ['TERIMA', 'SETENGAH']))
+                                            ->dehydrated(fn(Get $get) => in_array($get('status'), ['TERIMA', 'SETENGAH']))
                                             ->afterStateUpdated(function ($state, Set $set, Get $get) {
-                                                // Reset nilai ketika status bukan TERIMA
-                                                if ($get('status') !== 'TERIMA') {
+                                                if (! in_array($get('status'), ['TERIMA', 'SETENGAH'])) {
                                                     $set('netto_diterima', null);
                                                 }
-                                            })
+                                            }),
                                     ])->columnSpan(1),
+
                                 Hidden::make('user_id')
                                     ->label('User ID')
-                                    ->default(Auth::id()) // Set nilai default user yang sedang login,
-                            ])->columns(2)
-                    ])->columns(2)
+                                    ->default(Auth::id()),
+                            ])->columns(2),
+                    ])->columns(2),
             ]);
     }
 
@@ -192,27 +204,35 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                     ->colors([
                         'success' => fn($state) => Carbon::parse($state)->isToday(),
                         'warning' => fn($state) => Carbon::parse($state)->isYesterday(),
-                        'gray' => fn($state) => Carbon::parse($state)->isBefore(Carbon::yesterday()),
+                        'gray'    => fn($state) => Carbon::parse($state)->isBefore(Carbon::yesterday()),
                     ])
                     ->formatStateUsing(function ($state) {
-                        // Mengatur lokalitas ke Bahasa Indonesia
                         Carbon::setLocale('id');
-
                         return Carbon::parse($state)
-                            ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
+                            ->locale('id')
                             ->isoFormat('D MMMM YYYY | HH:mm:ss');
                     }),
-                TextColumn::make('status')
-                    ->label('Status'),
+                BadgeColumn::make('status')
+                    ->label('Status')
+                    ->colors([
+                        'success' => 'TERIMA',
+                        'warning' => 'SETENGAH',
+                        'danger'  => 'TOLAK',
+                        'gray'    => 'RETUR',
+                    ]),
                 TextColumn::make('kode')
                     ->label('No SPB')
                     ->searchable()
                     ->copyable()
                     ->copyMessage('berhasil menyalin'),
+                TextColumn::make('pembelianAntarPulau.no_container')
+                    ->label('No Container (Pembelian)')
+                    ->searchable(),
                 TextColumn::make('kode_segel')
                     ->label('Kode Segel')
                     ->searchable(),
-                TextColumn::make('kapasitasKontrakJual.nama')->label('Supplier')
+                TextColumn::make('kapasitasKontrakJual.nama')
+                    ->label('Supplier')
                     ->alignCenter()
                     ->searchable(),
                 TextColumn::make('nama_barang')
@@ -220,21 +240,17 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                 TextColumn::make('netto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('netto_diterima')
-                    ->label('Terima')
+                    ->label('Terima/Setengah')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                TextColumn::make('no_container')
-                    ->searchable(),
                 TextColumn::make('user.name')
-                    ->label('User')
+                    ->label('User'),
             ])
             ->defaultSort('kode', 'desc')
             ->filters([
                 Filter::make('date_range')
                     ->form([
-                        DatePicker::make('dari_tanggal')
-                            ->label('Dari Tanggal'),
-                        DatePicker::make('sampai_tanggal')
-                            ->label('Sampai Tanggal'),
+                        DatePicker::make('dari_tanggal')->label('Dari Tanggal'),
+                        DatePicker::make('sampai_tanggal')->label('Sampai Tanggal'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if (!empty($data['dari_tanggal']) && !empty($data['sampai_tanggal'])) {
@@ -260,8 +276,12 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                     ->color('success')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->label('Export to Excel')
+<<<<<<< HEAD
                     ->size('xs')
                     ->outlined()
+=======
+                    ->outlined(),
+>>>>>>> c9e46f0 (feat: ubah field kontrak, tambah PO & logika status (terima, retur, tolak, setengah) pada penjualan antar pulau)
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -271,26 +291,19 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
             ->actions([
                 Tables\Actions\EditAction::make(),
             ]);
-        // ->bulkActions([
-        //     Tables\Actions\BulkActionGroup::make([
-        //         Tables\Actions\DeleteBulkAction::make(),
-        //     ]),
-        // ]);
     }
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPenjualanAntarPulaus::route('/'),
+            'index'  => Pages\ListPenjualanAntarPulaus::route('/'),
             'create' => Pages\CreatePenjualanAntarPulau::route('/create'),
-            'edit' => Pages\EditPenjualanAntarPulau::route('/{record}/edit'),
+            'edit'   => Pages\EditPenjualanAntarPulau::route('/{record}/edit'),
         ];
     }
 }

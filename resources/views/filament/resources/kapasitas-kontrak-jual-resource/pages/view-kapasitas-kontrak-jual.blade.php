@@ -5,30 +5,46 @@
             $penjualanFiltered = $kontrakLuar->penjualanLuar ?? collect();
             $suratJalanFiltered = $kontrakLuar->suratJalan ?? collect();
 
-            // Hitung total penerimaan hanya untuk status "terima"
+            // Hitung total penerimaan (TERIMA + SETENGAH)
             $totalBeratPenjualanFiltered = $penjualanFiltered
-                ->filter(fn($item) => strtolower($item->status) === 'terima')
-                ->sum('netto_diterima');
+                ->sum(function ($item) {
+                    $status = strtolower($item->status);
+                    return match ($status) {
+                        'terima'   => $item->netto_diterima ?: $item->netto,
+                        'setengah' => ($item->netto_diterima ?: $item->netto) / 2,
+                        default    => 0, // RETUR tidak mengurangi
+                    };
+                });
 
             $totalBeratSuratJalanFiltered = $suratJalanFiltered
-                ->filter(fn($item) => strtolower($item->status) === 'terima')
-                ->sum('netto_diterima');
+                ->sum(function ($item) {
+                    $status = strtolower($item->status);
+                    return match ($status) {
+                        'terima'   => $item->netto_diterima ?: $item->netto_final,
+                        'setengah' => ($item->netto_diterima ?: $item->netto_final) / 2,
+                        default    => 0,
+                    };
+                });
 
-            // Total retur
+            // Hitung retur (untuk laporan)
             $totalReturPenjualan = $penjualanFiltered
                 ->filter(fn($item) => strtolower($item->status) === 'retur')
-                ->sum('netto_diterima');
+                ->sum(fn($item) => $item->netto_diterima ?: $item->netto);
 
             $totalReturSuratJalan = $suratJalanFiltered
                 ->filter(fn($item) => strtolower($item->status) === 'retur')
-                ->sum('netto_diterima');
+                ->sum(fn($item) => $item->netto_diterima ?: $item->netto_final);
 
-            // Total penerimaan
+            // Total penerimaan (hanya TERIMA + SETENGAH)
             $totalBeratKeseluruhan = $totalBeratPenjualanFiltered + $totalBeratSuratJalanFiltered;
 
-            // Data summary
+            // Hitung stok sisa
             $totalStokDanBerat = $kontrakLuar->stok;
             $stokSisa = $totalStokDanBerat - $totalBeratKeseluruhan;
+<<<<<<< HEAD
+=======
+
+>>>>>>> c9e46f0 (feat: ubah field kontrak, tambah PO & logika status (terima, retur, tolak, setengah) pada penjualan antar pulau)
             $persenanPenjualan = $totalStokDanBerat != 0 ? ($totalBeratKeseluruhan / $totalStokDanBerat) * 100 : 0;
 
             // Total data
@@ -135,8 +151,14 @@
                         @php $penjualanIndex = 0; @endphp
                         @foreach ($penjualanFiltered as $penjualan)
                             @php
+<<<<<<< HEAD
                                 $nettoDiterima =
                                     strtolower($penjualan->status) === 'terima' ? $penjualan->netto_diterima : 0;
+=======
+                                $status = strtolower($penjualan->status);
+                                $nettoDiterima = $status === 'terima' ? ($penjualan->netto_diterima ?: $penjualan->netto)
+                                    : ($status === 'setengah' ? ($penjualan->netto_diterima ?: $penjualan->netto) / 2 : 0);
+>>>>>>> c9e46f0 (feat: ubah field kontrak, tambah PO & logika status (terima, retur, tolak, setengah) pada penjualan antar pulau)
                             @endphp
                             <tr class="penjualan-row {{ $penjualanIndex >= 5 ? 'hidden' : '' }}"
                                 data-index="{{ $penjualanIndex }}">
@@ -161,7 +183,7 @@
                     <tfoot>
                         <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
                             <td colspan="7" class="border p-2 text-center text-sm">
-                                Total Berat Penjualan Langsung (Terima):
+                                Total Berat Penjualan Langsung terima:
                             </td>
                             <td class="border p-2 text-right text-sm">
                                 {{ number_format($totalBeratPenjualanFiltered, 0, ',', '.') }}
@@ -192,8 +214,14 @@
                         @php $suratJalanIndex = 0; @endphp
                         @foreach ($suratJalanFiltered as $suratJalan)
                             @php
+<<<<<<< HEAD
                                 $nettoDiterima =
                                     strtolower($suratJalan->status) === 'terima' ? $suratJalan->netto_diterima : 0;
+=======
+                                $status = strtolower($suratJalan->status);
+                                $nettoDiterima = $status === 'terima' ? ($suratJalan->netto_diterima ?: $suratJalan->netto_final)
+                                    : ($status === 'setengah' ? ($suratJalan->netto_diterima ?: $suratJalan->netto_final) / 2 : 0);
+>>>>>>> c9e46f0 (feat: ubah field kontrak, tambah PO & logika status (terima, retur, tolak, setengah) pada penjualan antar pulau)
                             @endphp
                             <tr class="suratjalan-row {{ $suratJalanIndex >= 5 ? 'hidden' : '' }}"
                                 data-index="{{ $suratJalanIndex }}">
@@ -221,7 +249,7 @@
                     <tfoot>
                         <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
                             <td colspan="5" class="border p-2 text-center text-sm">
-                                Total Berat Surat Jalan (Terima):
+                                Total Berat Surat Jalan (Terima + Setengah):
                             </td>
                             <td class="border p-2 text-right text-sm">
                                 {{ number_format($totalBeratSuratJalanFiltered, 0, ',', '.') }}
