@@ -124,7 +124,8 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                                     ->label('PO')
                                     ->autocomplete('off')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
-                                    ->placeholder('Masukkan no PO'),
+                                    ->placeholder('Masukkan no PO')
+                                    ->columnSpan(fn() => optional(Auth::user())->hasAnyRole(['timbangan']) ? 2 : 1),
                                 Select::make('status')
                                     ->native(false)
                                     ->options([
@@ -133,6 +134,7 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                                     ])
                                     ->label('Status')
                                     ->placeholder('Belum ada Status')
+                                    ->visible(fn() => !optional(Auth::user())->hasAnyRole(['timbangan']))
                                     ->live(), // Penting untuk reaktivitas
                             ])->columns(4),
                         Card::make('Informasi Timbangan')
@@ -258,7 +260,8 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                                         TextInput::make('netto_final')
                                             ->label('Netto')
                                             ->required()
-                                            ->readOnly(),
+                                            ->readOnly()
+                                            ->columnSpan(fn() => optional(Auth::user())->hasAnyRole(['timbangan']) ? 2 : 1),
                                         TextInput::make('netto_diterima')
                                             ->label('Netto Diterima')
                                             ->placeholder('Masukkan netto diterima')
@@ -270,7 +273,8 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                                                 if ($get('status') !== 'TERIMA') {
                                                     $set('netto_diterima', null);
                                                 }
-                                            }),
+                                            })
+                                            ->visible(fn() => !optional(Auth::user())->hasAnyRole(['timbangan']))
                                     ])->columnSpan(1),
                                 Hidden::make('user_id')
                                     ->label('User ID')
