@@ -276,12 +276,8 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                     ->color('success')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->label('Export to Excel')
-<<<<<<< HEAD
                     ->size('xs')
                     ->outlined()
-=======
-                    ->outlined(),
->>>>>>> c9e46f0 (feat: ubah field kontrak, tambah PO & logika status (terima, retur, tolak, setengah) pada penjualan antar pulau)
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
