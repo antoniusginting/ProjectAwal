@@ -85,14 +85,15 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                                     ->placeholder('Belum ada Status')
                                     ->live()
                                     ->afterStateUpdated(function ($state, Set $set, Get $get) {
-                                        // Auto-append (RETUR) pada nama_barang ketika status RETUR
+                                        // Tambahkan (RETUR) pada nama_barang jika status RETUR
                                         if ($state === 'RETUR') {
                                             $nama = $get('nama_barang');
                                             if ($nama && ! str_contains($nama, '(RETUR)')) {
                                                 $set('nama_barang', trim($nama . ' (RETUR)'));
                                             }
                                         }
-                                        // Jika status bukan TERIMA / SETENGAH, kosongkan netto_diterima
+
+                                        // Netto diterima hanya muncul untuk TERIMA atau SETENGAH
                                         if (! in_array($state, ['TERIMA', 'SETENGAH'])) {
                                             $set('netto_diterima', null);
                                         }
@@ -106,19 +107,18 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan Nama Barang'),
 
-                                // Select Pembelian Antar Pulau (container)
+                                // Select Pembelian Antar Pulau (No Container)
                                 Select::make('pembelian_antar_pulau_id')
-                                    ->label('No Container (Pembelian)')
+                                    ->label('No Container')
                                     ->native(false)
                                     ->required()
                                     ->options(function (Get $get) {
-                                        // Container yang sudah TERIMA tidak boleh dipakai lagi
+                                        // Container hanya diblokir jika status TERIMA
                                         $available = PembelianAntarPulau::whereDoesntHave('penjualanAntarPulau', function ($q) {
                                             $q->where('status', 'TERIMA');
-                                        })
-                                            ->pluck('no_container', 'id');
+                                        })->pluck('no_container', 'id');
 
-                                        // Saat edit, izinkan value yang sekarang (kalaupun sudah TERIMA)
+                                        // Saat edit, tetap tampilkan value current meskipun status TERIMA
                                         $currentId = $get('pembelian_antar_pulau_id');
                                         if ($currentId && ! $available->has($currentId)) {
                                             if ($current = PembelianAntarPulau::find($currentId)) {
@@ -134,7 +134,6 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                                         $pembelian = PembelianAntarPulau::find($state);
                                         if ($pembelian) {
                                             $set('no_container', $pembelian->no_container);
-                                            // jika mau auto set nama_barang dari pembelian:
                                             $set('nama_barang', strtoupper($pembelian->nama_barang));
                                         } else {
                                             $set('no_container', null);
