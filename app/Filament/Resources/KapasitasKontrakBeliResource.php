@@ -47,7 +47,7 @@ class KapasitasKontrakBeliResource extends Resource implements HasShieldPermissi
                 Card::make()
                     ->schema([
                         TextInput::make('stok')
-                            ->label('Nilah Kontrak')
+                            ->label('Nilai Kontrak')
                             ->placeholder('Masukkan Nilai Kontrak')
                             ->live() // Memastikan perubahan langsung terjadi di Livewire
                             ->extraAttributes([

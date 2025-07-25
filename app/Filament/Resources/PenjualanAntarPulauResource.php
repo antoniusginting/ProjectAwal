@@ -85,7 +85,6 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                                     ->placeholder('Belum ada Status')
                                     ->live()
                                     ->afterStateUpdated(function ($state, Set $set, Get $get) {
-                                        // Tambahkan (RETUR) pada nama_barang jika status RETUR
                                         if ($state === 'RETUR') {
                                             $nama = $get('nama_barang');
                                             if ($nama && ! str_contains($nama, '(RETUR)')) {
@@ -107,7 +106,7 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan Nama Barang'),
 
-                                // Select Pembelian Antar Pulau (No Container)
+
                                 Select::make('pembelian_antar_pulau_id')
                                     ->label('No Container')
                                     ->native(false)

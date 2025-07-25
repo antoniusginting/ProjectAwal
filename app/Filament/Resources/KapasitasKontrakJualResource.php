@@ -40,8 +40,8 @@ class KapasitasKontrakJualResource extends Resource implements HasShieldPermissi
             Card::make()
                 ->schema([
                     TextInput::make('stok')
-                        ->label('Stok Awal')
-                        ->placeholder('Masukkan stok awal')
+                        ->label('Nilai Kontrak')
+                        ->placeholder('Masukkan Nilai Kontrak')
                         ->live()
                         ->extraAttributes([
                             'x-data' => '{}',
@@ -125,37 +125,6 @@ class KapasitasKontrakJualResource extends Resource implements HasShieldPermissi
                     ->alignCenter()
                     ->searchable(),
 
-                // === Total Keluar (TERIMA/SETENGAH)
-                TextColumn::make('total_keluar')
-                    ->label('Keluar (TERIMA/SETENGAH)')
-                    ->alignCenter()
-                    ->getStateUsing(
-                        fn($record) =>
-                        number_format(
-                            $record->penjualanLuar()
-                                ->whereIn('status', ['TERIMA', 'SETENGAH'])
-                                ->sum(DB::raw('COALESCE(netto_diterima, netto)')),
-                            0,
-                            ',',
-                            '.'
-                        )
-                    ),
-
-                // === Masuk Kembali (RETUR/TOLAK)
-                TextColumn::make('total_masuk_kembali')
-                    ->label('Masuk Kembali (RETUR/TOLAK)')
-                    ->alignCenter()
-                    ->getStateUsing(
-                        fn($record) =>
-                        number_format(
-                            $record->penjualanLuar()
-                                ->whereIn('status', ['RETUR', 'TOLAK'])
-                                ->sum(DB::raw('COALESCE(netto_diterima, netto)')),
-                            0,
-                            ',',
-                            '.'
-                        )
-                    ),
 
                 // === Stok Sisa
                 TextColumn::make('stok_sisa')
