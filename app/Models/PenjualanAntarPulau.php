@@ -13,6 +13,7 @@ class PenjualanAntarPulau extends Model
         'no_container',
         'user_id',
         'status',
+        'jumlah_setengah',
         'netto_diterima',
         'kapasitas_kontrak_jual_id',
         'pembelian_antar_pulau_id', // Pastikan ini ada

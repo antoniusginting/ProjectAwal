@@ -11,7 +11,7 @@
                     $status = strtolower($item->status);
                     return match ($status) {
                         'terima'   => $item->netto_diterima ?: $item->netto,
-                        'setengah' => ($item->netto_diterima ?: $item->netto) / 2,
+                        'setengah' => $item->jumlah_setengah ?: 0,
                         default    => 0, // RETUR tidak mengurangi
                     };
                 });
@@ -21,7 +21,7 @@
                     $status = strtolower($item->status);
                     return match ($status) {
                         'terima'   => $item->netto_diterima ?: $item->netto_final,
-                        'setengah' => ($item->netto_diterima ?: $item->netto_final) / 2,
+                        'setengah' => $item->jumlah_setengah ?: 0,
                         default    => 0,
                     };
                 });
@@ -147,8 +147,9 @@
                         @foreach ($penjualanFiltered as $penjualan)
                             @php
                                 $status = strtolower($penjualan->status);
-                                $nettoDiterima = $status === 'terima' ? ($penjualan->netto_diterima ?: $penjualan->netto)
-                                    : ($status === 'setengah' ? ($penjualan->netto_diterima ?: $penjualan->netto) / 2 : 0);
+                                $nettoDiterima = $status === 'terima'
+                                    ? ($penjualan->netto_diterima ?: $penjualan->netto)
+                                    : ($status === 'setengah' ? ($penjualan->jumlah_setengah ?: 0) : 0);
                             @endphp
                             <tr class="penjualan-row {{ $penjualanIndex >= 5 ? 'hidden' : '' }}" data-index="{{ $penjualanIndex }}">
                                 <td class="border p-2 text-center text-sm">
@@ -172,7 +173,7 @@
                     <tfoot>
                         <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
                             <td colspan="7" class="border p-2 text-center text-sm">
-                                Total Berat Penjualan Langsung (Terima + Setengah):
+                                Total Berat Penjualan Langsung
                             </td>
                             <td class="border p-2 text-right text-sm">
                                 {{ number_format($totalBeratPenjualanFiltered, 0, ',', '.') }}
@@ -204,8 +205,9 @@
                         @foreach ($suratJalanFiltered as $suratJalan)
                             @php
                                 $status = strtolower($suratJalan->status);
-                                $nettoDiterima = $status === 'terima' ? ($suratJalan->netto_diterima ?: $suratJalan->netto_final)
-                                    : ($status === 'setengah' ? ($suratJalan->netto_diterima ?: $suratJalan->netto_final) / 2 : 0);
+                                $nettoDiterima = $status === 'terima'
+                                    ? ($suratJalan->netto_diterima ?: $suratJalan->netto_final)
+                                    : ($status === 'setengah' ? ($suratJalan->jumlah_setengah ?: 0) : 0);
                             @endphp
                             <tr class="suratjalan-row {{ $suratJalanIndex >= 5 ? 'hidden' : '' }}" data-index="{{ $suratJalanIndex }}">
                                 <td class="border p-2 text-center text-sm">{{ $suratJalan->tronton->kode ?? '-' }}</td>

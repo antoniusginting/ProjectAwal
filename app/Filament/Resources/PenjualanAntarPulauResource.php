@@ -69,10 +69,12 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                                         $nextId = (PenjualanAntarPulau::max('id') ?? 0) + 1;
                                         return 'CJ' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
                                     }),
+
                                 TextInput::make('created_at')
                                     ->label('Tanggal')
                                     ->formatStateUsing(fn($state) => Carbon::parse($state)->format('d-m-Y'))
                                     ->disabled(),
+
                                 Select::make('status')
                                     ->native(false)
                                     ->options([
@@ -92,11 +94,23 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                                             }
                                         }
 
-                                        // Netto diterima hanya muncul untuk TERIMA atau SETENGAH
-                                        if (! in_array($state, ['TERIMA', 'SETENGAH'])) {
+                                        // Bersihkan nilai ketika status berubah
+                                        if ($state !== 'TERIMA') {
                                             $set('netto_diterima', null);
                                         }
+
+                                        if ($state !== 'SETENGAH') {
+                                            $set('jumlah_setengah', null);
+                                        }
                                     }),
+
+                                // <<--- Field baru di bawah status
+                                TextInput::make('jumlah_setengah')
+                                    ->label('Jumlah Setengah')
+                                    ->placeholder('Masukkan jumlah setengah')
+                                    ->numeric()
+                                    ->visible(fn(Get $get) => $get('status') === 'SETENGAH')
+                                    ->dehydrated(fn(Get $get) => $get('status') === 'SETENGAH'),
                             ])->columns(3)->collapsed(),
 
                         Card::make()
@@ -105,7 +119,6 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                                     ->autocomplete('off')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan Nama Barang'),
-
 
                                 Select::make('pembelian_antar_pulau_id')
                                     ->label('No Container')
@@ -171,14 +184,16 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                                             ->label('Netto')
                                             ->placeholder('Masukkan netto')
                                             ->numeric(),
+
                                         TextInput::make('netto_diterima')
                                             ->label('Netto Diterima')
                                             ->placeholder('Masukkan netto diterima')
                                             ->numeric()
-                                            ->disabled(fn(Get $get) => ! in_array($get('status'), ['TERIMA', 'SETENGAH']))
-                                            ->dehydrated(fn(Get $get) => in_array($get('status'), ['TERIMA', 'SETENGAH']))
+                                            ->visible(fn(Get $get) => $get('status') === 'TERIMA')
+                                            ->disabled(fn(Get $get) => $get('status') !== 'TERIMA')
+                                            ->dehydrated(fn(Get $get) => $get('status') === 'TERIMA')
                                             ->afterStateUpdated(function ($state, Set $set, Get $get) {
-                                                if (! in_array($get('status'), ['TERIMA', 'SETENGAH'])) {
+                                                if ($get('status') !== 'TERIMA') {
                                                     $set('netto_diterima', null);
                                                 }
                                             }),
@@ -210,6 +225,7 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                             ->locale('id')
                             ->isoFormat('D MMMM YYYY | HH:mm:ss');
                     }),
+
                 BadgeColumn::make('status')
                     ->label('Status')
                     ->colors([
@@ -218,28 +234,37 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                         'danger'  => 'TOLAK',
                         'gray'    => 'RETUR',
                     ]),
+
                 TextColumn::make('kode')
                     ->label('No SPB')
                     ->searchable()
                     ->copyable()
                     ->copyMessage('berhasil menyalin'),
+
                 TextColumn::make('pembelianAntarPulau.no_container')
                     ->label('No Container (Pembelian)')
                     ->searchable(),
+
                 TextColumn::make('kode_segel')
                     ->label('Kode Segel')
                     ->searchable(),
+
                 TextColumn::make('kapasitasKontrakJual.nama')
                     ->label('Supplier')
                     ->alignCenter()
                     ->searchable(),
+
                 TextColumn::make('nama_barang')
                     ->searchable(),
+
                 TextColumn::make('netto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                TextColumn::make('netto_diterima')
-                    ->label('Terima/Setengah')
-                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+
+
+                TextColumn::make('jumlah_setengah')
+                    ->label('Jumlah Setengah')
+                    ->formatStateUsing(fn($state) => $state !== null ? number_format($state, 0, ',', '.') : '-'),
+
                 TextColumn::make('user.name')
                     ->label('User'),
             ])
@@ -251,18 +276,18 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                         DatePicker::make('sampai_tanggal')->label('Sampai Tanggal'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        if (!empty($data['dari_tanggal']) && !empty($data['sampai_tanggal'])) {
+                        if (! empty($data['dari_tanggal']) && ! empty($data['sampai_tanggal'])) {
                             return $query->whereBetween('created_at', [
                                 Carbon::parse($data['dari_tanggal'])->startOfDay(),
                                 Carbon::parse($data['sampai_tanggal'])->endOfDay(),
                             ]);
                         }
 
-                        if (!empty($data['dari_tanggal'])) {
+                        if (! empty($data['dari_tanggal'])) {
                             return $query->where('created_at', '>=', Carbon::parse($data['dari_tanggal'])->startOfDay());
                         }
 
-                        if (!empty($data['sampai_tanggal'])) {
+                        if (! empty($data['sampai_tanggal'])) {
                             return $query->where('created_at', '<=', Carbon::parse($data['sampai_tanggal'])->endOfDay());
                         }
 

@@ -25,6 +25,7 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('kapasitas_kontrak_jual_id')->nullable()->constrained('kapasitas_kontrak_juals')->onDelete('cascade');
             $table->string('status', 25)->nullable();
+            $table->decimal('jumlah_setengah', 15, 2)->nullable();
         });
     }
 
