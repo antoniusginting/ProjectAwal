@@ -125,16 +125,24 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                                     ->native(false)
                                     ->required()
                                     ->options(function (Get $get) {
-                                        // Container hanya diblokir jika status TERIMA
                                         $available = PembelianAntarPulau::whereDoesntHave('penjualanAntarPulau', function ($q) {
                                             $q->where('status', 'TERIMA');
-                                        })->pluck('no_container', 'id');
+                                        })
+                                            ->with('kapasitasKontrakBeli') // ambil supplier
+                                            ->get()
+                                            ->mapWithKeys(function ($item) {
+                                                $supplier = $item->kapasitasKontrakBeli?->nama ?? 'TANPA SUPPLIER';
+                                                return [
+                                                    $item->id => "{$item->no_container} - {$item->nama_barang} - {$supplier} - {$item->kode_segel} - " . Carbon::parse($item->created_at)->format('d-m-y')
+                                                ];
+                                            });
 
-                                        // Saat edit, tetap tampilkan value current meskipun status TERIMA
                                         $currentId = $get('pembelian_antar_pulau_id');
                                         if ($currentId && ! $available->has($currentId)) {
-                                            if ($current = PembelianAntarPulau::find($currentId)) {
-                                                $available->put($current->id, $current->no_container . ' (dipakai di record ini)');
+                                            if ($current = PembelianAntarPulau::with('kapasitasKontrakBeli')->find($currentId)) {
+                                                $supplier = $current->kapasitasKontrakBeli?->nama ?? 'TANPA SUPPLIER';
+                                                $label = "{$current->no_container} - {$current->nama_barang} - {$supplier} - {$current->nama_ekspedisi} - {$current->kode_segel} - " . Carbon::parse($current->created_at)->format('d-m-y') . ' (dipakai di record ini)';
+                                                $available->put($current->id, $label);
                                             }
                                         }
 
@@ -143,20 +151,17 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                                     ->searchable()
                                     ->live()
                                     ->afterStateUpdated(function ($state, Set $set) {
-                                        $pembelian = PembelianAntarPulau::find($state);
+                                        $pembelian = PembelianAntarPulau::with('kapasitasKontrakBeli')->find($state);
                                         if ($pembelian) {
                                             $set('no_container', $pembelian->no_container);
                                             $set('nama_barang', strtoupper($pembelian->nama_barang));
+                                            $set('nama_ekspedisi', strtoupper($pembelian->nama_ekspedisi));
+                                            $set('kode_segel', strtoupper($pembelian->kode_segel));
                                         } else {
                                             $set('no_container', null);
                                         }
                                     }),
 
-                                TextInput::make('no_container')
-                                    ->label('No Container')
-                                    ->disabled()
-                                    ->dehydrated()
-                                    ->placeholder('No Container otomatis'),
 
                                 TextInput::make('kode_segel')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
@@ -242,7 +247,7 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                     ->copyMessage('berhasil menyalin'),
 
                 TextColumn::make('pembelianAntarPulau.no_container')
-                    ->label('No Container (Pembelian)')
+                    ->label('No Container')
                     ->searchable(),
 
                 TextColumn::make('kode_segel')
