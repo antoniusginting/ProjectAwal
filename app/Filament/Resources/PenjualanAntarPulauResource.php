@@ -114,21 +114,64 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                         ->native(false)
                         ->required()
                         ->options(function (Get $get) {
-                            $available = PembelianAntarPulau::whereDoesntHave('penjualanAntarPulau', function ($q) {
-                                $q->where('status', 'TERIMA');
+                            // Get containers yang sudah tidak bisa digunakan lagi
+                            $excludedContainers = PembelianAntarPulau::whereHas('penjualanAntarPulau', function ($q) {
+                                $q->where(function ($query) {
+                                    // Container dengan status TERIMA (sekali pakai)
+                                    $query->where('status', 'TERIMA')
+                                        // Atau container dengan status SETENGAH yang sudah 2 kali
+                                        ->orWhere(function ($subQuery) {
+                                            $subQuery->where('status', 'SETENGAH')
+                                                ->havingRaw('COUNT(*) >= 2');
+                                        });
+                                });
                             })
+                                ->withCount(['penjualanAntarPulau' => function ($query) {
+                                    $query->where('status', 'SETENGAH');
+                                }])
+                                ->get()
+                                ->filter(function ($item) {
+                                    // Exclude jika sudah TERIMA atau SETENGAH >= 2 kali
+                                    $hasTerimStatus = $item->penjualanAntarPulau()
+                                        ->where('status', 'TERIMA')
+                                        ->exists();
+
+                                    $setengahCount = $item->penjualan_antar_pulau_count ?? $item->penjualanAntarPulau()
+                                        ->where('status', 'SETENGAH')
+                                        ->count();
+
+                                    return $hasTerimStatus || $setengahCount >= 2;
+                                })
+                                ->pluck('id')
+                                ->toArray();
+
+                            // Get available containers
+                            $available = PembelianAntarPulau::whereNotIn('id', $excludedContainers)
                                 ->with('kapasitasKontrakBeli')
                                 ->get()
                                 ->mapWithKeys(function ($item) {
                                     $supplier = $item->kapasitasKontrakBeli?->nama ?? 'TANPA SUPPLIER';
+
+                                    // Hitung berapa kali sudah digunakan dengan status SETENGAH
+                                    $setengahCount = $item->penjualanAntarPulau()
+                                        ->where('status', 'SETENGAH')
+                                        ->count();
+
+                                    // Tambahkan indikator jika sudah pernah digunakan
+                                    $usageIndicator = '';
+                                    if ($setengahCount > 0) {
+                                        $usageIndicator = " (Sudah digunakan {$setengahCount}x)";
+                                    }
+
                                     return [
                                         $item->id => "{$item->no_container} - {$item->nama_barang} - {$supplier} - {$item->kode_segel} - " .
-                                            Carbon::parse($item->created_at)->format('d-m-y')
+                                            Carbon::parse($item->created_at)->format('d-m-y') . $usageIndicator
                                     ];
                                 });
 
+                            // Handle current record (untuk edit mode)
                             $currentId = $get('pembelian_antar_pulau_id');
-                            if ($currentId && ! $available->has($currentId)) {
+                            if ($currentId && !$available->has($currentId)) {
                                 if ($current = PembelianAntarPulau::with('kapasitasKontrakBeli')->find($currentId)) {
                                     $supplier = $current->kapasitasKontrakBeli?->nama ?? 'TANPA SUPPLIER';
                                     $label = "{$current->no_container} - {$current->nama_barang} - {$supplier} - {$current->nama_ekspedisi} - {$current->kode_segel} - " .
