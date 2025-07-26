@@ -68,10 +68,6 @@ class KapasitasKontrakBeliResource extends Resource implements HasShieldPermissi
                                 return $record !== null;
                             })
                             ->live(),
-                        TextInput::make('kategori')
-                            ->label('Kategori')
-                            ->placeholder('Masukkan Kategori (contoh: JAGUNG GORONTALO)')
-                            ->mutateDehydratedStateUsing(fn($state) => strtoupper($state)),
                         TextInput::make('harga')
                             ->label('Harga')
                             ->placeholder('Masukkan harga')
@@ -127,9 +123,6 @@ class KapasitasKontrakBeliResource extends Resource implements HasShieldPermissi
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('nama')
                     ->label('Nama')
-                    ->searchable(),
-                TextColumn::make('kategori')
-                    ->label('Kategori')
                     ->searchable(),
             ])->defaultSort('id', 'desc')
             ->filters([
