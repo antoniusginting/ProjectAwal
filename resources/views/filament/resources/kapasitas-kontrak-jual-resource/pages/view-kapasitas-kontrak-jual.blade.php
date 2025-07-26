@@ -11,7 +11,7 @@
                     $status = strtolower($item->status);
                     return match ($status) {
                         'terima'   => $item->netto_diterima ?: $item->netto,
-                        'setengah' => $item->jumlah_setengah ?: 0,
+                        'setengah' => ($item->netto ?: 0) / 2,
                         default    => 0, // RETUR tidak mengurangi
                     };
                 });
@@ -21,7 +21,7 @@
                     $status = strtolower($item->status);
                     return match ($status) {
                         'terima'   => $item->netto_diterima ?: $item->netto_final,
-                        'setengah' => $item->jumlah_setengah ?: 0,
+                        'setengah' => ($item->netto_final ?: 0) / 2,
                         default    => 0,
                     };
                 });
@@ -149,7 +149,7 @@
                                 $status = strtolower($penjualan->status);
                                 $nettoDiterima = $status === 'terima'
                                     ? ($penjualan->netto_diterima ?: $penjualan->netto)
-                                    : ($status === 'setengah' ? ($penjualan->jumlah_setengah ?: 0) : 0);
+                                    : ($status === 'setengah' ? (($penjualan->netto ?: 0) / 2) : 0);
                             @endphp
                             <tr class="penjualan-row {{ $penjualanIndex >= 5 ? 'hidden' : '' }}" data-index="{{ $penjualanIndex }}">
                                 <td class="border p-2 text-center text-sm">
@@ -207,7 +207,7 @@
                                 $status = strtolower($suratJalan->status);
                                 $nettoDiterima = $status === 'terima'
                                     ? ($suratJalan->netto_diterima ?: $suratJalan->netto_final)
-                                    : ($status === 'setengah' ? ($suratJalan->jumlah_setengah ?: 0) : 0);
+                                    : ($status === 'setengah' ? (($suratJalan->netto_final ?: 0) / 2) : 0);
                             @endphp
                             <tr class="suratjalan-row {{ $suratJalanIndex >= 5 ? 'hidden' : '' }}" data-index="{{ $suratJalanIndex }}">
                                 <td class="border p-2 text-center text-sm">{{ $suratJalan->tronton->kode ?? '-' }}</td>

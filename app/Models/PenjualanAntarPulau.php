@@ -13,18 +13,30 @@ class PenjualanAntarPulau extends Model
         'no_container',
         'user_id',
         'status',
-        'jumlah_setengah',
         'netto_diterima',
         'kapasitas_kontrak_jual_id',
-        'pembelian_antar_pulau_id', // Pastikan ini ada
+        'pembelian_antar_pulau_id',
     ];
+
+    protected static function booted()
+    {
+        static::saving(function ($model) {
+            // Logika otomatis untuk netto_diterima
+            if ($model->status === 'TERIMA') {
+                $model->netto_diterima = $model->netto;
+            } elseif ($model->status === 'SETENGAH') {
+                $model->netto_diterima = $model->netto / 2;
+            } else {
+                $model->netto_diterima = 0;
+            }
+        });
+    }
 
     public function kapasitasKontrakJual()
     {
         return $this->belongsTo(KapasitasKontrakJual::class, 'kapasitas_kontrak_jual_id');
     }
 
-    // Relasi yang benar ke PembelianAntarPulau
     public function pembelianAntarPulau()
     {
         return $this->belongsTo(PembelianAntarPulau::class, 'pembelian_antar_pulau_id');
