@@ -14,6 +14,20 @@ class ListKapasitasKontrakBelis extends ListRecords
     {
         return [
             Actions\CreateAction::make()->label('Tambah Data'),
+
+            // Tombol untuk GORONTALO
+            Actions\Action::make('gorontalo')
+                ->label('Laporan GORONTALO')
+                ->icon('heroicon-o-document-chart-bar')
+                ->color('success')
+                ->url(fn(): string => KapasitasKontrakBeliResource::getUrl('gorontalo')),
+
+            // Tombol untuk MAKASSAR  
+            Actions\Action::make('makassar')
+                ->label('Laporan MAKASSAR')
+                ->icon('heroicon-o-document-chart-bar')
+                ->color('info')
+                ->url(fn(): string => KapasitasKontrakBeliResource::getUrl('makassar')),
         ];
     }
 

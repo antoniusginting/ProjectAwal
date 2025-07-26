@@ -11,6 +11,7 @@ class KapasitasKontrakBeli extends Model
         'nama',
         'status',
         'harga',
+        'supplier',
     ];
 
     public function pembelianLuar()

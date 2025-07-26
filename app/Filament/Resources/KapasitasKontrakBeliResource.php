@@ -85,6 +85,8 @@ class KapasitasKontrakBeliResource extends Resource implements HasShieldPermissi
                             ->default(false) // Default false (buka)
                             ->onColor('danger') // Warna merah saat true (tutup)
                             ->offColor('success'), // Warna hijau saat false (buka)
+                        TextInput::make('supplier')
+                            ->label('Supplier'),
                     ])->columns(4)
             ]);
     }
@@ -126,7 +128,10 @@ class KapasitasKontrakBeliResource extends Resource implements HasShieldPermissi
                     ->alignCenter()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('nama')
-                    ->label('Nama')
+                    ->label('Jagung')
+                    ->searchable(),
+                TextColumn::make('supplier')
+                    ->label('Supplier')
                     ->searchable(),
                 // TextColumn::make('penjualanLuar.kode')
                 //     ->alignCenter()
@@ -195,6 +200,10 @@ class KapasitasKontrakBeliResource extends Resource implements HasShieldPermissi
             'create' => Pages\CreateKapasitasKontrakBeli::route('/create'),
             'edit' => Pages\EditKapasitasKontrakBeli::route('/{record}/edit'),
             'view-kapasitas-kontrak-beli' => Pages\ViewKapasitasKontrakBeli::route('/{record}/view-kapasitas-kontrak-beli'),
+
+            // Tambah 2 route baru
+            'gorontalo' => Pages\GorontaloGabungan::route('/gorontalo'),
+            'makassar' => Pages\MakassarGabungan::route('/makassar'),
         ];
     }
 }
