@@ -8,7 +8,6 @@ class SuratJalan extends Model
 {
     protected $fillable = [
         'id_kontrak',
-        'id_kontrak2',
         'id_alamat',
         'id_timbangan_tronton',
         'kota',

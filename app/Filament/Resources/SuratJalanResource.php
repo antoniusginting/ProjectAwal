@@ -34,6 +34,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\SuratJalanResource\Pages;
 use App\Filament\Resources\SuratJalanResource\RelationManagers;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use Dom\Text;
 use Filament\Forms\Components\Grid;
 
 class SuratJalanResource extends Resource implements HasShieldPermissions
@@ -65,6 +66,70 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                     ->schema([
                         Card::make('Informasi Kontrak')
                             ->schema([
+                                Select::make('id_transfer')
+                                    ->label('Ambil dari Surat Jalan yang Ditolak')
+                                    ->options(function () {
+                                        // Ambil ID timbangan tronton yang sudah memiliki status 'terima' di surat jalan
+                                        $usedTimbanganIds = \App\Models\SuratJalan::where('status', 'terima')
+                                            ->whereNotNull('id_timbangan_tronton')
+                                            ->pluck('id_timbangan_tronton')
+                                            ->toArray();
+
+                                        return \App\Models\SuratJalan::with(['kapasitasKontrakJual', 'tronton'])
+                                            ->whereHas('kapasitasKontrakJual')
+                                            ->whereIn('status', ['tolak', 'retur'])
+                                            // Filter: jangan tampilkan jika timbangan trontonnya sudah dipakai dengan status 'terima'
+                                            ->whereNotIn('id_timbangan_tronton', $usedTimbanganIds)
+                                            ->latest()
+                                            ->take(50)
+                                            ->get()
+                                            ->mapWithKeys(function ($suratJalan) {
+                                                return [
+                                                    $suratJalan->id => "Kepada Yth. {$suratJalan->kapasitasKontrakJual->nama} - PO : {$suratJalan->kapasitasKontrakJual->no_po} - {$suratJalan->tronton->kode} - {$suratJalan->status} - {$suratJalan->created_at->format('d:m:Y')}"
+                                                ];
+                                            });
+                                    })
+                                    ->searchable()
+                                    ->reactive()
+                                    ->hidden(fn($livewire) => $livewire->getRecord()?->exists)
+                                    ->dehydrated(false) // jangan disimpan ke DB
+                                    ->afterStateUpdated(function (callable $set, $state) {
+                                        if ($state === null) {
+                                            // Kosongkan semua data yang sebelumnya di-set
+                                            $set('id_kontrak', null);
+                                            $set('kota', null);
+                                            $set('id_timbangan_tronton', null);
+                                            return;
+                                        }
+
+                                        // Gunakan eager loading untuk mengambil data surat jalan beserta relasinya
+                                        $transfer = \App\Models\SuratJalan::with(['kapasitasKontrakJual', 'tronton'])
+                                            ->whereHas('kapasitasKontrakJual')
+                                            ->find($state);
+
+                                        if ($transfer) {
+                                            $set('id_kontrak', $transfer->id_kontrak);
+                                            $set('kota', $transfer->kota);
+                                            $set('id_timbangan_tronton', $transfer->id_timbangan_tronton);
+
+                                            // Set data timbangan tronton secara manual
+                                            if ($transfer->id_timbangan_tronton) {
+                                                $timbangan = \App\Models\TimbanganTronton::with('penjualan1')
+                                                    ->where('id', $transfer->id_timbangan_tronton)
+                                                    ->first();
+
+                                                if ($timbangan) {
+                                                    $set('nama_supir', $timbangan->penjualan1->nama_supir ?? '');
+                                                    $set('nama_barang', $timbangan->penjualan1->nama_barang ?? '');
+                                                    $set('plat_polisi', $timbangan->penjualan1->plat_polisi ?? '');
+                                                    $set('tara_awal', $timbangan->tara_awal ?? '');
+                                                    $set('bruto_akhir', $timbangan->bruto_akhir ?? '');
+                                                    $set('total_netto', $timbangan->total_netto ?? '');
+                                                }
+                                            }
+                                        }
+                                    })
+                                    ->columnSpan(4),
                                 Select::make('id_kontrak')
                                     ->columnSpan(2)
                                     ->label('Nama Kontrak')
@@ -127,39 +192,58 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan Kota')
                                     ->required(),
-                                TextInput::make('po')
-                                    ->label('PO')
-                                    ->readOnly()
-                                    ->autocomplete('off')
-                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
-                                    ->placeholder('Masukkan no PO')
-                                    ->columnSpan(fn() => optional(Auth::user())->hasAnyRole(['timbangan']) ? 2 : 1),
+
                                 Select::make('status')
                                     ->native(false)
                                     ->options([
                                         'TERIMA' => 'TERIMA',
                                         'RETUR' => 'RETUR',
+                                        'TOLAK' => 'TOLAK',
                                     ])
                                     ->label('Status')
                                     ->placeholder('Belum ada Status')
+                                    ->columnSpan(fn(callable $get) => $get('status') === 'TERIMA' ? 1 : 2)
                                     ->visible(fn() => !optional(Auth::user())->hasAnyRole(['timbangan']))
                                     ->live(), // Penting untuk reaktivitas
+                                TextInput::make('netto_diterima')
+                                    ->label('Netto Diterima')
+                                    ->placeholder('Masukkan netto diterima')
+                                    ->numeric()
+                                    ->disabled(fn(Get $get) => $get('status') !== 'TERIMA') // Hanya aktif jika status TERIMA
+                                    ->dehydrated(fn(Get $get) => $get('status') === 'TERIMA') // Hanya simpan jika status TERIMA
+                                    ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                                        // Reset nilai ketika status bukan TERIMA
+                                        if ($get('status') !== 'TERIMA') {
+                                            $set('netto_diterima', null);
+                                        }
+                                    })
+                                    ->visible(fn(callable $get) => $get('status') === 'TERIMA'),
+
+
                             ])->columns(4),
                         Card::make('Informasi Timbangan')
                             ->schema([
                                 Select::make('id_timbangan_tronton')
                                     ->label('ID Laporan Penjualan')
-
                                     ->options(function ($get) {
                                         $selectedId = $get('id_timbangan_tronton');
 
-                                        // Ambil semua id yang sudah dipakai
-                                        $usedIds = SuratJalan::pluck('id_timbangan_tronton')->toArray();
+                                        // Ambil semua id_timbangan_tronton yang sudah dipakai
+                                        // Kecuali jika status surat jalan adalah 'tolak'
+                                        $usedIds = SuratJalan::where(function ($query) {
+                                            // Status yang dianggap 'terpakai' (tidak 'tolak' dan tidak 'retur')
+                                            $query->whereNotIn('status', ['tolak', 'retur']);
+                                            // ATAU statusnya NULL
+                                            $query->orWhereNull('status');
+                                        })
+                                            ->pluck('id_timbangan_tronton')
+                                            ->toArray();
 
                                         // Hapus dulu selectedId dari daftar id yang digunakan (agar tidak terfilter saat edit)
                                         if ($selectedId) {
                                             $usedIds = array_diff($usedIds, [$selectedId]);
                                         }
+
                                         // Query untuk mengambil data TimbanganTronton yang id_luar_1 nya NULL dan belum digunakan
                                         $query = TimbanganTronton::whereNull('id_penjualan_antar_pulau_1')
                                             ->whereNotIn('id', $usedIds)
@@ -263,27 +347,10 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                                     // ->inlineLabel() // Membuat label sebelah kiri
                                     ->native(false) // Mengunakan dropdown modern
                                     ->required(), // Opsional: Atur default value
-                                Grid::make()
-                                    ->schema([
-                                        TextInput::make('netto_final')
-                                            ->label('Netto')
-                                            ->required()
-                                            ->readOnly()
-                                            ->columnSpan(fn() => optional(Auth::user())->hasAnyRole(['timbangan']) ? 2 : 1),
-                                        TextInput::make('netto_diterima')
-                                            ->label('Netto Diterima')
-                                            ->placeholder('Masukkan netto diterima')
-                                            ->numeric()
-                                            ->disabled(fn(Get $get) => $get('status') !== 'TERIMA') // Hanya aktif jika status TERIMA
-                                            ->dehydrated(fn(Get $get) => $get('status') === 'TERIMA') // Hanya simpan jika status TERIMA
-                                            ->afterStateUpdated(function ($state, Set $set, Get $get) {
-                                                // Reset nilai ketika status bukan TERIMA
-                                                if ($get('status') !== 'TERIMA') {
-                                                    $set('netto_diterima', null);
-                                                }
-                                            })
-                                            ->visible(fn() => !optional(Auth::user())->hasAnyRole(['timbangan']))
-                                    ])->columnSpan(1),
+                                TextInput::make('netto_final')
+                                    ->label('Netto')
+                                    ->required()
+                                    ->readOnly(),
                                 Hidden::make('user_id')
                                     ->label('User ID')
                                     ->default(Auth::id()) // Set nilai default user yang sedang login,

@@ -30,7 +30,13 @@
                 <tbody>
                     <tr>
                         <td class="font-semibold text-left align-top">Kepada Yth.</td>
-                        <td class="text-left align-top">: {{ $suratjalan->kapasitasKontrakJual->nama }}</td>
+                        <td class="text-left align-top">:
+                            <a href="{{ route('filament.admin.resources.kapasitas-kontrak-juals.view-kapasitas-kontrak-jual', $suratjalan->kapasitasKontrakJual->id ?? '') }}"
+                                target="_blank" class="text-blue-600 underline hover:text-blue-800">
+                                {{ $suratjalan->kapasitasKontrakJual->nama ?? '-' }}
+                            </a>
+                            {{-- {{ $suratjalan->kapasitasKontrakJual->nama }} --}}
+                        </td>
                     </tr>
                     @if (!empty($suratjalan->alamat->alamat))
                         <tr>

@@ -203,7 +203,7 @@
                                         {{ $suratJalan->tronton->kode ?? '-' }}
                                     </a>
                                 </td>
-                                <td class="border p-2 text-center text-sm">{{ $suratJalan->po ?? '-' }}</td>
+                                <td class="border p-2 text-center text-sm">{{ $kontrakLuar->no_po ?? '-' }}</td>
                                 <td class="border p-2 text-center text-sm">
                                     {{ \Carbon\Carbon::parse($suratJalan->created_at)->format('d/m/Y') }}
                                 </td>
