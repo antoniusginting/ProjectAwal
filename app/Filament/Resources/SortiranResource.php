@@ -861,6 +861,10 @@ class SortiranResource extends Resource implements HasShieldPermissions
                 //     ->onIcon('heroicon-m-check')
                 //     ->offIcon('heroicon-m-x-mark')
                 //     ->disabled(fn() => !optional(Auth::user())->hasAnyRole(['admin', 'super_admin', 'adminaudit'])),
+                ToggleColumn::make('verif')
+                    ->label('Verifikasi')
+                    ->alignCenter()
+                    ->disabled(fn() => !optional(Auth::user())->hasAnyRole(['super_admin', 'mandor'])),
                 BadgeColumn::make('created_at')
                     ->label('Tanggal')
                     ->alignCenter()
@@ -907,33 +911,9 @@ class SortiranResource extends Resource implements HasShieldPermissions
                 TextColumn::make('netto_bersih')->label('Netto Bersih')
                     ->alignCenter()
                     ->searchable(),
-                // ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                // TextColumn::make('pembelian.tara')->label('Tara')
-                //     ->searchable()
-                //     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('kapasitaslumbungbasah.no_kapasitas_lumbung')->label('No Lumbung')
                     ->searchable()
                     ->alignCenter(),
-                // ImageColumn::make('foto_jagung_1_1')
-                //     ->label('Foto 1')
-                //     ->getStateUsing(fn($record) => $record->foto_jagung_1[0] ?? null)
-                //     ->url(fn($record) => asset('storage/' . ($record->foto_jagung_1[0] ?? '')))
-                //     ->openUrlInNewTab(),
-                // ImageColumn::make('foto_jagung_1_2')
-                //     ->label('Foto 2')
-                //     ->getStateUsing(fn($record) => $record->foto_jagung_1[1] ?? null)
-                //     ->url(fn($record) => asset('storage/' . ($record->foto_jagung_1[1] ?? '')))
-                //     ->openUrlInNewTab(),
-                // ImageColumn::make('foto_jagung_1_3')
-                //     ->label('Foto 3')
-                //     ->getStateUsing(fn($record) => $record->foto_jagung_1[2] ?? null)
-                //     ->url(fn($record) => asset('storage/' . ($record->foto_jagung_1[2] ?? '')))
-                //     ->openUrlInNewTab(),
-                // ImageColumn::make('foto_jagung_1_4')
-                //     ->label('Foto 4')
-                //     ->getStateUsing(fn($record) => $record->foto_jagung_1[3] ?? null)
-                //     ->url(fn($record) => asset('storage/' . ($record->foto_jagung_1[3] ?? '')))
-                //     ->openUrlInNewTab(),
                 TextColumn::make('total_karung')->label('Total Karung')
                     ->searchable()
                     ->alignCenter()
@@ -944,124 +924,6 @@ class SortiranResource extends Resource implements HasShieldPermissions
                 TextColumn::make('keterangan')
                     ->label('Keterangan')
                     ->alignCenter(),
-                //Jagung 1
-                // TextColumn::make('kualitas_jagung_1')
-                //     ->label('Kualitas Jagung 1'),
-                // TextColumn::make('x1_x10_1')
-                //     ->label('X1 - X10 1')
-                //     ->alignCenter(),
-                // TextColumn::make('jumlah_karung_1')
-                //     ->label('Jumlah Karung 1')
-                //     ->alignCenter(),
-                // TextColumn::make('tonase_1')
-                //     ->label('Tonase 1'),
-
-                //Jagung 2
-                // TextColumn::make('kualitas_jagung_2')
-                //     ->label('Kualitas Jagung 2'),
-                // ImageColumn::make('foto_jagung_2_1')
-                //     ->label('Foto 1')
-                //     ->getStateUsing(fn($record) => $record->foto_jagung_2[0] ?? null)
-                //     ->url(fn($record) => asset('storage/' . ($record->foto_jagung_2[0] ?? '')))
-                //     ->openUrlInNewTab(),
-                // ImageColumn::make('foto_jagung_2_2')
-                //     ->label('Foto 2')
-                //     ->getStateUsing(fn($record) => $record->foto_jagung_2[1] ?? null)
-                //     ->url(fn($record) => asset('storage/' . ($record->foto_jagung_2[1] ?? '')))
-                //     ->openUrlInNewTab(),
-                // TextColumn::make('x1_x10_2')
-                //     ->label('X1 - X10 2')
-                //     ->alignCenter(),
-                // TextColumn::make('jumlah_karung_2')
-                //     ->label('Jumlah Karung 2')
-                //     ->alignCenter(),
-                // TextColumn::make('tonase_2')
-                //     ->label('Tonase 2'),
-
-                //Jagung 3
-                // TextColumn::make('kualitas_jagung_3')
-                //     ->label('Kualitas Jagung 3'),
-                // ImageColumn::make('foto_jagung_3_1')
-                //     ->label('Foto 1')
-                //     ->getStateUsing(fn($record) => $record->foto_jagung_3[0] ?? null)
-                //     ->url(fn($record) => asset('storage/' . ($record->foto_jagung_3[0] ?? '')))
-                //     ->openUrlInNewTab(),
-                // ImageColumn::make('foto_jagung_3_2')
-                //     ->label('Foto 2')
-                //     ->getStateUsing(fn($record) => $record->foto_jagung_3[1] ?? null)
-                //     ->url(fn($record) => asset('storage/' . ($record->foto_jagung_3[1] ?? '')))
-                //     ->openUrlInNewTab(),
-                // TextColumn::make('x1_x10_3')
-                //     ->label('X1 - X10 3')
-                //     ->alignCenter(),
-                // TextColumn::make('jumlah_karung_3')
-                //     ->label('Jumlah Karung 3')
-                //     ->alignCenter(),
-                // TextColumn::make('tonase_3')
-                //     ->label('Tonase 3'),
-                //Jagung 4
-                // TextColumn::make('kualitas_jagung_4')
-                //     ->label('Kualitas Jagung 4'),
-                // ImageColumn::make('foto_jagung_4_1')
-                //     ->label('Foto 1')
-                //     ->getStateUsing(fn($record) => $record->foto_jagung_4[0] ?? null)
-                //     ->url(fn($record) => asset('storage/' . ($record->foto_jagung_4[0] ?? '')))
-                //     ->openUrlInNewTab(),
-                // ImageColumn::make('foto_jagung_4_2')
-                //     ->label('Foto 2')
-                //     ->getStateUsing(fn($record) => $record->foto_jagung_4[1] ?? null)
-                //     ->url(fn($record) => asset('storage/' . ($record->foto_jagung_4[1] ?? '')))
-                //     ->openUrlInNewTab(),
-                // TextColumn::make('x1_x10_4')
-                //     ->label('X1 - X10 4')
-                //     ->alignCenter(),
-                // TextColumn::make('jumlah_karung_4')
-                //     ->label('Jumlah Karung 4')
-                //     ->alignCenter(),
-                // TextColumn::make('tonase_4')
-                //     ->label('Tonase 4'),
-                //Jagung 5
-                // TextColumn::make('kualitas_jagung_5')
-                //     ->label('Kualitas Jagung 5'),
-                // ImageColumn::make('foto_jagung_5_1')
-                //     ->label('Foto 1')
-                //     ->getStateUsing(fn($record) => $record->foto_jagung_5[0] ?? null)
-                //     ->url(fn($record) => asset('storage/' . ($record->foto_jagung_5[0] ?? '')))
-                //     ->openUrlInNewTab(),
-                // ImageColumn::make('foto_jagung_5_2')
-                //     ->label('Foto 2')
-                //     ->getStateUsing(fn($record) => $record->foto_jagung_5[1] ?? null)
-                //     ->url(fn($record) => asset('storage/' . ($record->foto_jagung_5[1] ?? '')))
-                //     ->openUrlInNewTab(),
-                // TextColumn::make('x1_x10_5')
-                //     ->label('X1 - X10 5')
-                //     ->alignCenter(),
-                // TextColumn::make('jumlah_karung_5')
-                //     ->label('Jumlah Karung 5')
-                //     ->alignCenter(),
-                // TextColumn::make('tonase_5')
-                //     ->label('Tonase 6'),
-                //Jagung 6
-                // TextColumn::make('kualitas_jagung_6')
-                //     ->label('Kualitas Jagung 6'),
-                // ImageColumn::make('foto_jagung_6_1')
-                //     ->label('Foto 1')
-                //     ->getStateUsing(fn($record) => $record->foto_jagung_6[0] ?? null)
-                //     ->url(fn($record) => asset('storage/' . ($record->foto_jagung_6[0] ?? '')))
-                //     ->openUrlInNewTab(),
-                // ImageColumn::make('foto_jagung_6_2')
-                //     ->label('Foto 2')
-                //     ->getStateUsing(fn($record) => $record->foto_jagung_6[1] ?? null)
-                //     ->url(fn($record) => asset('storage/' . ($record->foto_jagung_6[1] ?? '')))
-                //     ->openUrlInNewTab(),
-                // TextColumn::make('x1_x10_6')
-                //     ->label('X1 - X10 6')
-                //     ->alignCenter(),
-                // TextColumn::make('jumlah_karung_6')
-                //     ->label('Jumlah Karung 6')
-                //     ->alignCenter(),
-                // TextColumn::make('tonase_6')
-                //     ->label('Tonase 6'),
 
                 TextColumn::make('user.name')
                     ->label('User')
@@ -1075,6 +937,16 @@ class SortiranResource extends Resource implements HasShieldPermissions
             ->filters([
                 //
             ])
+            ->modifyQueryUsing(function (Builder $query) {
+                $user = optional(Auth::user());
+
+                // Jika user adalah admin atau mandor, hanya tampilkan data dengan verif = true
+                if ($user && $user->hasAnyRole(['timbangan', 'admin'])) {
+                    $query->where('verif', true);
+                }
+
+                return $query;
+            })
             ->actions([
                 Action::make('view')
                     ->label('Lihat')
