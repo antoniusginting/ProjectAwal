@@ -71,44 +71,18 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                         ->label('Tanggal')
                         ->formatStateUsing(fn($state) => Carbon::parse($state)->format('d-m-Y'))
                         ->disabled(),
-
-                    Select::make('status')
-                        ->native(false)
-                        ->options([
-                            'TERIMA'   => 'TERIMA',
-                            'RETUR'    => 'RETUR',
-                            'TOLAK'    => 'TOLAK',
-                            'SETENGAH' => 'SETENGAH',
-                        ])
-                        ->label('Status')
-                        ->placeholder('Belum ada Status')
-                        ->live()
-                        ->afterStateUpdated(function ($state, Set $set, Get $get) {
-                            $netto = $get('netto') ?? 0;
-
-                            if ($state === 'RETUR') {
-                                $nama = $get('nama_barang');
-                                if ($nama && ! str_contains($nama, '(RETUR)')) {
-                                    $set('nama_barang', trim($nama . ' (RETUR)'));
-                                }
-                            }
-
-                            if ($state === 'TERIMA') {
-                                $set('netto_diterima', $netto);
-                            } else {
-                                $set('netto_diterima', null);
-                            }
-                        }),
-                ])->columns(3)->collapsed(),
+                ])->columns(2)->collapsed(),
 
                 Card::make()->schema([
                     TextInput::make('nama_barang')
                         ->autocomplete('off')
+                        ->columnSpan(2)
                         ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                         ->placeholder('Masukkan Nama Barang'),
 
                     Select::make('pembelian_antar_pulau_id')
                         ->label('No Container')
+                        ->columnSpan(2)
                         ->native(false)
                         ->required()
                         ->options(function (Get $get) {
@@ -157,7 +131,7 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
 
                                     $usageIndicator = '';
                                     if ($setengahCount > 0) {
-                                        $usageIndicator = " (Sudah digunakan {$setengahCount}x)";
+                                        $usageIndicator = " (Sudah diterima setengah)";
                                     }
 
                                     return [
@@ -187,6 +161,7 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                                 $set('nama_barang', strtoupper($pembelian->nama_barang));
                                 $set('nama_ekspedisi', strtoupper($pembelian->nama_ekspedisi));
                                 $set('kode_segel', strtoupper($pembelian->kode_segel));
+                                $set('netto', $pembelian?->netto ?? '');
                             } else {
                                 $set('no_container', null);
                             }
@@ -194,11 +169,13 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
 
                     TextInput::make('kode_segel')
                         ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
+                        ->columnSpan(2)
                         ->autocomplete('off')
                         ->placeholder('Masukkan kode Segel'),
 
                     Select::make('kapasitas_kontrak_jual_id')
                         ->label('Kontrak')
+                        ->columnSpan(2)
                         ->native(false)
                         ->required()
                         ->options(function () {
@@ -212,39 +189,54 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                         ->searchable()
                         ->live(),
 
-                    Grid::make()->schema([
-                        TextInput::make('netto')
-                            ->label('Netto')
-                            ->placeholder('Masukkan netto')
-                            ->numeric()
-                            ->reactive()
-                            ->afterStateUpdated(function ($state, Set $set, Get $get) {
-                                $status = $get('status');
-                                if ($status === 'TERIMA') {
-                                    $set('netto_diterima', $state);
-                                }
-                            }),
+                    TextInput::make('netto')
+                        ->label('Netto')
+                        ->placeholder('Masukkan netto')
+                        ->numeric()
+                        ->columnSpan(2)
+                        ->reactive()
+                        ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                            $status = $get('status');
+                            if ($status === 'TERIMA') {
+                                $set('netto_diterima', $state);
+                            }
+                        }),
 
-                        TextInput::make('netto_diterima')
-                            ->label('Netto Diterima')
-                            ->numeric()
-                            ->reactive()
-                            ->dehydrated()
-                            ->afterStateHydrated(function ($state, Set $set, Get $get) {
-                                if ($state === null) {
-                                    $status = $get('status');
-                                    $netto = $get('netto') ?? 0;
-                                    if ($status === 'TERIMA') {
-                                        $set('netto_diterima', $netto);
-                                    }
+                    Select::make('status')
+                        ->native(false)
+                        ->options([
+                            'TERIMA'   => 'TERIMA',
+                            'RETUR'    => 'RETUR',
+                            'TOLAK'    => 'TOLAK',
+                            'SETENGAH' => 'SETENGAH',
+                        ])
+                        ->label('Status')
+                        ->placeholder('Belum ada Status')
+                        ->live()
+                        ->columnSpan(fn(callable $get) => match ($get('status')) {
+                            'TERIMA' => 1,
+                            'SETENGAH' => 1,
+                            default => 2
+                        })
+                        ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                            if ($state === 'RETUR') {
+                                $nama = $get('nama_barang');
+                                if ($nama && ! str_contains($nama, '(RETUR)')) {
+                                    $set('nama_barang', trim($nama . ' (RETUR)'));
                                 }
-                            }),
-                    ])->columnSpan(1),
-
+                            }
+                        }),
+                    TextInput::make('netto_diterima')
+                        ->label('Netto Diterima')
+                        ->columnSpan(1)
+                        ->placeholder('Masukkan netto diterima')
+                        ->numeric()
+                        ->reactive()
+                        ->visible(fn(callable $get) => in_array($get('status'), ['TERIMA', 'SETENGAH'])),
                     Hidden::make('user_id')
                         ->label('User ID')
                         ->default(Auth::id()),
-                ])->columns(2),
+                ])->columns(4),
             ])->columns(2),
         ]);
     }
