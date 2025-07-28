@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
+use App\Models\Supplier;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
@@ -85,8 +86,11 @@ class KapasitasKontrakBeliResource extends Resource implements HasShieldPermissi
                             ->default(false) // Default false (buka)
                             ->onColor('danger') // Warna merah saat true (tutup)
                             ->offColor('success'), // Warna hijau saat false (buka)
-                        TextInput::make('supplier')
-                            ->label('Supplier'),
+                        Select::make('supplier')
+                            ->label('Supplier')
+                            ->options(Supplier::pluck('nama_supplier', 'nama_supplier')) // ganti field sesuai dengan tabelmu
+                            ->searchable()
+                            ->required(),
                     ])->columns(4)
             ]);
     }

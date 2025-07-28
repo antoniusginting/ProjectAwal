@@ -96,8 +96,6 @@ class ListLaporanLumbungs extends ListRecords
         // Debug: uncomment baris berikut untuk melihat nilai yang ada
         // dd($distinctStatusSilo);
 
-
-
         // Definisi lumbung A sampai I
         $lumbungList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
 
@@ -140,6 +138,20 @@ class ListLaporanLumbungs extends ListRecords
                     return $query->where('status_silo', $statusValue);
                 });
         }
+
+        // Tab khusus untuk Lumbung Z (FIKTIF)
+        $latestRecordZ = LaporanLumbung::where('lumbung', 'FIKTIF')
+            ->latest('created_at')
+            ->first();
+
+        $badgeInfoZ = $this->getBadgeInfo($latestRecordZ);
+
+        $tabs['lumbung_fiktif'] = Tab::make('FIKTIF')
+            ->badge($badgeInfoZ['icon'])
+            ->badgeColor($badgeInfoZ['color'])
+            ->modifyQueryUsing(function (Builder $query) {
+                return $query->where('lumbung', 'FIKTIF');
+            });
         return $tabs;
     }
 
@@ -203,7 +215,7 @@ class ListLaporanLumbungs extends ListRecords
             return (bool) $latestRecord->status;
         }
 
-        // Tab untuk Lumbung A-I
+        // Tab untuk Lumbung A-I dan Z (FIKTIF)
         if (str_starts_with($activeTab, 'lumbung_')) {
             $lumbungCode = strtoupper(str_replace('lumbung_', '', $activeTab));
 
@@ -234,9 +246,12 @@ class ListLaporanLumbungs extends ListRecords
         if (str_starts_with($activeTab, 'lumbung_')) {
             $lumbungCode = strtoupper(str_replace('lumbung_', '', $activeTab));
 
+            // Khusus untuk Lumbung Z, tampilkan nama FIKTIF
+            $lumbungName = $lumbungCode === 'FIKTIF' ? 'FIKTIF' : $lumbungCode;
+
             Notification::make()
                 ->title('Tidak dapat menambah data')
-                ->body("Lumbung {$lumbungCode} masih dalam status terbuka. Tutup lumbung terlebih dahulu sebelum menambah data baru.")
+                ->body("Lumbung {$lumbungName} masih dalam status terbuka. Tutup lumbung terlebih dahulu sebelum menambah data baru.")
                 ->danger()
                 ->duration(5000)
                 ->send();

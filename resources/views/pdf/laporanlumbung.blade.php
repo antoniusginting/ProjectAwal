@@ -262,7 +262,8 @@
                     </td>
                     <td class="label-right">Lumbung</td>
                     <td class="value-right">
-                        : {{ $laporanlumbung->lumbung ?? $laporanlumbung->status_silo }}
+                        :
+                        {{ $laporanlumbung->lumbung ? ($laporanlumbung->lumbung === 'FIKTIF' ? '' : $laporanlumbung->lumbung) : $laporanlumbung->status_silo }}
                     </td>
                 </tr>
             </tbody>
@@ -364,7 +365,6 @@
                             @if ($itemMasuk && $itemMasuk->type == 'dryer')
                                 {{ $itemMasuk->data->nama_barang }}
                             @elseif ($itemMasuk && $itemMasuk->type == 'transfer_masuk')
-                                
                             @endif
                         </td>
 
