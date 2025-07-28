@@ -107,7 +107,7 @@ class KapasitasKontrakJualResource extends Resource implements HasShieldPermissi
                     ->color(fn($state) => $state ? 'danger' : 'success'),
 
                 TextColumn::make('stok')
-                    ->label('Stok Awal')
+                    ->label('Nilai Kontrak')
                     ->alignCenter()
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
 
