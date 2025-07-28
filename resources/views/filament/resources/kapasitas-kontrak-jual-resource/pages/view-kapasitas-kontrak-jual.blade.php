@@ -4,47 +4,30 @@
             // Data penjualan & surat jalan
             $penjualanFiltered = $kontrakLuar->penjualanLuar ?? collect();
             $suratJalanFiltered = $kontrakLuar->suratJalan ?? collect();
-
-            // Hitung total penerimaan (TERIMA + SETENGAH)
+            // Hitung total penerimaan untuk status "terima" dan "setengah"
             $totalBeratPenjualanFiltered = $penjualanFiltered
-                ->sum(function ($item) {
-                    $status = strtolower($item->status);
-                    return in_array($status, ['terima', 'setengah'])
-                        ? ($item->netto_diterima ?: $item->netto)
-                        : 0;
-                });
-
+                ->filter(fn($item) => in_array(strtolower($item->status), ['terima', 'setengah']))
+                ->sum('netto_diterima');
             $totalBeratSuratJalanFiltered = $suratJalanFiltered
-                ->sum(function ($item) {
-                    $status = strtolower($item->status);
-                    return in_array($status, ['terima', 'setengah'])
-                        ? ($item->netto_diterima ?: $item->netto_final)
-                        : 0;
-                });
-
-            // Hitung retur (untuk laporan)
+                ->filter(fn($item) => in_array(strtolower($item->status), ['terima', 'setengah']))
+                ->sum('netto_diterima');
+            // Total retur dari netto (hanya status "retur") - untuk informasi saja
             $totalReturPenjualan = $penjualanFiltered
                 ->filter(fn($item) => strtolower($item->status) === 'retur')
-                ->sum(fn($item) => $item->netto_diterima ?: $item->netto);
-
+                ->sum('netto');
             $totalReturSuratJalan = $suratJalanFiltered
                 ->filter(fn($item) => strtolower($item->status) === 'retur')
-                ->sum(fn($item) => $item->netto_diterima ?: $item->netto_final);
-
-            // Total penerimaan (hanya TERIMA + SETENGAH)
+                ->sum('netto_final');
+            // Total penerimaan
             $totalBeratKeseluruhan = $totalBeratPenjualanFiltered + $totalBeratSuratJalanFiltered;
-
-            // Hitung stok sisa
+            // Data summary
             $totalStokDanBerat = $kontrakLuar->stok;
             $stokSisa = $totalStokDanBerat - $totalBeratKeseluruhan;
-
             $persenanPenjualan = $totalStokDanBerat != 0 ? ($totalBeratKeseluruhan / $totalStokDanBerat) * 100 : 0;
-
             // Total data
             $laporanPenjualanTotal = $penjualanFiltered->count();
             $laporanSuratJalanTotal = $suratJalanFiltered->count();
         @endphp
-
         {{-- Summary Dashboard --}}
         <div class="bg-white dark:bg-gray-800 p-6 rounded-lg mb-6 shadow-md border">
             <div class="flex justify-between items-center mb-4">
@@ -52,7 +35,6 @@
                     Ringkasan Tonase Kontrak {{ $kontrakLuar->nama }}
                 </h3>
             </div>
-
             <div class="mb-4">
                 <h4 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
                     Data Tonase Kontrak & Penjualan
@@ -65,7 +47,6 @@
                             {{ number_format($kontrakLuar->stok, 0, ',', '.') }}
                         </p>
                     </div>
-
                     <!-- Penerimaan -->
                     <div class="flex-1 text-center p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
                         <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Penerimaan</p>
@@ -73,23 +54,22 @@
                             {{ number_format($totalBeratKeseluruhan, 0, ',', '.') }}
                         </p>
                     </div>
-
-                    <!-- Retur -->
-                    <div class="flex-1 text-center p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                    <!-- Retur (Informasi saja - tidak mempengaruhi sisa kontrak) -->
+                    <div class="flex-1 text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
                         <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Retur</p>
-                        <p class="text-xl font-bold text-yellow-600 dark:text-yellow-400">
+                        <p class="text-xl font-bold text-red-600 dark:text-red-400">
                             {{ number_format($totalReturPenjualan + $totalReturSuratJalan, 0, ',', '.') }}
                         </p>
                     </div>
-
                     <!-- Sisa Stok -->
-                    <div class="flex-1 text-center p-3 {{ $stokSisa >= 0 ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-red-50 dark:bg-red-900/20' }} rounded-lg">
+                    <div
+                        class="flex-1 text-center p-3 {{ $stokSisa >= 0 ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-red-50 dark:bg-red-900/20' }} rounded-lg">
                         <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Sisa Kontrak</p>
-                        <p class="text-xl font-bold {{ $stokSisa >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
+                        <p
+                            class="text-xl font-bold {{ $stokSisa >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400' }}">
                             {{ number_format($stokSisa, 0, ',', '.') }}
                         </p>
                     </div>
-
                     <!-- Harga -->
                     <div class="flex-1 text-center p-3 rounded-lg">
                         <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Harga</p>
@@ -97,7 +77,6 @@
                             {{ number_format($kontrakLuar->harga, 0, ',', '.') }}
                         </p>
                     </div>
-
                     <!-- Persenan Penjualan -->
                     @if ($kontrakLuar->status)
                         <div class="flex-1 text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
@@ -110,7 +89,6 @@
                 </div>
             </div>
         </div>
-
         {{-- Pesan jika tidak ada data --}}
         @if ($laporanPenjualanTotal == 0 && $laporanSuratJalanTotal == 0)
             <div class="bg-gray-50 dark:bg-gray-800 p-8 rounded-lg text-center">
@@ -119,7 +97,6 @@
                 </p>
             </div>
         @endif
-
         {{-- Tabel Penjualan --}}
         @if ($laporanPenjualanTotal > 0)
             <div class="border-b border-gray-300 dark:border-gray-700"></div>
@@ -142,19 +119,21 @@
                         @php $penjualanIndex = 0; @endphp
                         @foreach ($penjualanFiltered as $penjualan)
                             @php
-                                $status = strtolower($penjualan->status);
-                                $nettoDiterima = in_array($status, ['terima', 'setengah'])
-                                    ? ($penjualan->netto_diterima ?: $penjualan->netto)
+                                // Status yang dihitung: 'terima' dan 'setengah'
+                                // Status yang dikosongkan: 'tolak' dan 'retur'
+                                $nettoDiterima = in_array(strtolower($penjualan->status), ['terima', 'setengah'])
+                                    ? $penjualan->netto_diterima
                                     : 0;
                             @endphp
-                            <tr class="penjualan-row {{ $penjualanIndex >= 5 ? 'hidden' : '' }}" data-index="{{ $penjualanIndex }}">
+                            <tr class="penjualan-row {{ $penjualanIndex >= 5 ? 'hidden' : '' }}"
+                                data-index="{{ $penjualanIndex }}">
                                 <td class="border p-2 text-center text-sm">
                                     {{ \Carbon\Carbon::parse($penjualan->created_at)->format('d/m/Y') }}
                                 </td>
                                 <td class="border p-2 text-center text-sm">{{ $penjualan->kode ?? '-' }}</td>
                                 <td class="border p-2 text-center text-sm">{{ $penjualan->kode_segel ?? '-' }}</td>
                                 <td class="border p-2 text-center text-sm">{{ $penjualan->nama_barang ?? '-' }}</td>
-                                <td class="border p-2 text-center text-sm">{{ $penjualan->no_container ?? '-' }}</td>
+                                <td class="border p-2 text-center text-sm">{{ $penjualan->pembelianAntarPulau->no_container ?? '-' }}</td>
                                 <td class="border p-2 text-center text-sm">{{ $penjualan->status ?? '-' }}</td>
                                 <td class="border p-2 text-right text-sm">
                                     {{ number_format($penjualan->netto ?? 0, 0, ',', '.') }}
@@ -179,7 +158,6 @@
                 </table>
             </div>
         @endif
-
         {{-- Tabel Surat Jalan --}}
         @if ($laporanSuratJalanTotal > 0)
             <div class="border-b border-gray-300 dark:border-gray-700"></div>
@@ -200,12 +178,13 @@
                         @php $suratJalanIndex = 0; @endphp
                         @foreach ($suratJalanFiltered as $suratJalan)
                             @php
-                                $status = strtolower($suratJalan->status);
-                                $nettoDiterima = in_array($status, ['terima', 'setengah'])
-                                    ? ($suratJalan->netto_diterima ?: $suratJalan->netto_final)
+                                // Status yang dihitung: 'terima' dan 'setengah'
+                                // Status yang dikosongkan: 'tolak' dan 'retur'
+                                $nettoDiterima = in_array(strtolower($suratJalan->status), ['terima', 'setengah'])
+                                    ? $suratJalan->netto_diterima
                                     : 0;
                             @endphp
-                           <tr class="suratjalan-row {{ $suratJalanIndex >= 5 ? 'hidden' : '' }}"
+                            <tr class="suratjalan-row {{ $suratJalanIndex >= 5 ? 'hidden' : '' }}"
                                 data-index="{{ $suratJalanIndex }}">
                                 <td class="border p-2 text-center text-sm">
                                     <a href="{{ route('filament.admin.resources.timbangan-trontons.view-laporan-penjualan', $suratJalan->tronton->id ?? '') }}"
@@ -231,7 +210,7 @@
                     <tfoot>
                         <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
                             <td colspan="5" class="border p-2 text-center text-sm">
-                                Total Berat Surat Jalan (Terima + Setengah):
+                                Total Berat Surat Jalan
                             </td>
                             <td class="border p-2 text-right text-sm">
                                 {{ number_format($totalBeratSuratJalanFiltered, 0, ',', '.') }}
@@ -242,7 +221,6 @@
             </div>
         @endif
     </div>
-
     {{-- JavaScript --}}
     <script>
         function changePenjualanPerPage() {
@@ -251,6 +229,7 @@
             let limit = select.value === 'all' ? rows.length : parseInt(select.value);
             rows.forEach((row, i) => row.classList.toggle('hidden', i >= limit));
         }
+
         function changeSuratJalanPerPage() {
             const select = document.getElementById('suratjalan-per-page');
             const rows = document.querySelectorAll('.suratjalan-row');

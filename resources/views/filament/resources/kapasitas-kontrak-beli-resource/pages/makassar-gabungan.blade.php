@@ -1,6 +1,5 @@
 <x-filament-panels::page>
     <div class="p-6 bg-white dark:bg-gray-900 rounded-md shadow-md">
-        <h2 class="text-2xl font-bold mb-4 text-blue-600">Laporan Gabungan MAKASSAR</h2>
 
         @php
             // Hitung total keseluruhan pembelian dari semua kontrak

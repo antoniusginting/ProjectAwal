@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('kapasitas_kontrak_belis', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('nama');
+            $table->string('supplier');
             $table->integer('stok')->nullable();
             $table->boolean('status');
             $table->integer('harga')->nullable();

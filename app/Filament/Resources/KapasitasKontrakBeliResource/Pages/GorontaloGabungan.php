@@ -29,6 +29,6 @@ class GorontaloGabungan extends Page
 
     public function getTitle(): string
     {
-        return 'Laporan Gabungan GORONTALO';
+        return 'Laporan Gabungan Jagung GORONTALO';
     }
 }

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('nama_barang');
             $table->string('no_container')->nullable();
             $table->string('no_container_antar_pulau')->nullable();
+            $table->string('no_surat_jalan')->nullable();
             $table->string('brondolan')->nullable();
             $table->string('plat_polisi')->nullable();
             $table->integer('bruto');

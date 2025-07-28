@@ -30,6 +30,6 @@ class MakassarGabungan extends Page
 
     public function getTitle(): string
     {
-        return 'Laporan Gabungan MAKASSAR';
+        return 'Laporan Gabungan Jagung MAKASSAR';
     }
 }

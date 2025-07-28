@@ -210,6 +210,35 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan No Container'),
 
+
+
+
+                                Grid::make(2)
+                                    ->schema([
+                                        TextInput::make('jumlah_karung')
+                                            ->numeric()
+                                            ->label('Jumlah Karung')
+                                            ->autocomplete('off')
+                                            ->placeholder('Masukkan Jumlah Karung')
+                                            ->disabled(fn(Get $get) => $get('brondolan') === 'CURAH')
+                                            ->dehydrated(fn(Get $get) => $get('brondolan') !== 'CURAH'),
+
+                                        Select::make('brondolan')
+                                            ->label('Satuan Muatan')
+                                            ->options([
+                                                'GONI' => 'GONI',
+                                                'CURAH' => 'CURAH',
+                                            ])
+                                            ->placeholder('Pilih Satuan Timbangan')
+                                            ->native(false)
+                                            ->required()
+                                            ->live()
+                                            ->afterStateUpdated(function (Set $set, $state) {
+                                                if ($state === 'CURAH') {
+                                                    $set('jumlah_karung', null);
+                                                }
+                                            }),
+                                    ])->columnSpan(1),
                                 Select::make('no_container_antar_pulau')
                                     ->label('No Container Antar Pulau(Retur)')
                                     ->options(function () {
@@ -242,35 +271,32 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                             $set('nama_barang', strtoupper($penjualan->nama_barang));
                                         }
                                     }),
+                                Select::make('surat_jalan_id')
+                                    ->label('Pilih Surat Jalan(Retur)')
+                                    ->options(function () {
+                                        return \App\Models\SuratJalan::query()
+                                            ->where('status', 'retur')
+                                            ->with('tronton')
+                                            ->get()
+                                            ->mapWithKeys(function ($item) {
+                                                return [$item->id => "{$item->tronton->kode} - {$item->tronton->penjualan1->plat_polisi} - {$item->status}"];
+                                            });
+                                    })
+                                    ->searchable()
+                                    ->reactive()
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        if (!$state) return;
 
+                                        $suratJalan = \App\Models\SuratJalan::find($state);
 
-                                Grid::make(2)
-                                    ->schema([
-                                        TextInput::make('jumlah_karung')
-                                            ->numeric()
-                                            ->label('Jumlah Karung')
-                                            ->autocomplete('off')
-                                            ->placeholder('Masukkan Jumlah Karung')
-                                            ->disabled(fn(Get $get) => $get('brondolan') === 'CURAH')
-                                            ->dehydrated(fn(Get $get) => $get('brondolan') !== 'CURAH'),
+                                        if ($suratJalan) {
+                                            $set('plat_polisi', $suratJalan->tronton->penjualan1->plat_polisi);
+                                            $set('nama_barang', $suratJalan->tronton->penjualan1->nama_barang);
+                                            $set('nama_barang', $suratJalan->tronton->penjualan1->nama_barang);
 
-                                        Select::make('brondolan')
-                                            ->label('Satuan Muatan')
-                                            ->options([
-                                                'GONI' => 'GONI',
-                                                'CURAH' => 'CURAH',
-                                            ])
-                                            ->placeholder('Pilih Satuan Timbangan')
-                                            ->native(false)
-                                            ->required()
-                                            ->live()
-                                            ->afterStateUpdated(function (Set $set, $state) {
-                                                if ($state === 'CURAH') {
-                                                    $set('jumlah_karung', null);
-                                                }
-                                            }),
-                                    ])->columnSpan(1),
-
+                                            // tambahkan field lain sesuai kebutuhan
+                                        }
+                                    }),
                                 FileUpload::make('foto')
                                     ->image()
                                     ->multiple()
@@ -291,6 +317,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
     {
         return $table
             ->recordUrl(function (Pembelian $record): ?string {
+                /** @var \App\Models\User $user */
                 $user = Auth::user();
                 if ($user && $user->hasRole('super_admin')) {
                     return EditPembelian::getUrl(['record' => $record]);
