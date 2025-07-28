@@ -846,7 +846,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
         return $table
             ->poll('5s') // polling ulang setiap 5 detik
             ->defaultPaginationPageOption(5)
-            ->paginated([5, 10, 15])
+            // ->paginated([5, 10, 15])
             ->columns([
                 // ToggleColumn::make('statuss')
                 //     ->label('Status')

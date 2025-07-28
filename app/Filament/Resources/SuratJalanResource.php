@@ -70,16 +70,42 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                                     ->label('Ambil dari Surat Jalan yang Ditolak')
                                     ->options(function () {
                                         // Ambil ID timbangan tronton yang sudah memiliki status 'terima' di surat jalan
-                                        $usedTimbanganIds = \App\Models\SuratJalan::where('status', 'terima')
+                                        $terimaTimbanganIds = \App\Models\SuratJalan::where('status', 'terima')
                                             ->whereNotNull('id_timbangan_tronton')
+                                            ->pluck('id_timbangan_tronton')
+                                            ->toArray();
+
+                                        // Ambil ID timbangan tronton yang sudah memiliki status 'setengah' di surat jalan (untuk menghilangkan yang 'tolak')
+                                        $setengahTimbanganIds = \App\Models\SuratJalan::where('status', 'setengah')
+                                            ->whereNotNull('id_timbangan_tronton')
+                                            ->pluck('id_timbangan_tronton')
+                                            ->toArray();
+
+                                        // Ambil ID timbangan tronton yang sudah memiliki status 'setengah' sebanyak 2 kali atau lebih
+                                        $setengahCountIds = \App\Models\SuratJalan::where('status', 'setengah')
+                                            ->whereNotNull('id_timbangan_tronton')
+                                            ->groupBy('id_timbangan_tronton')
+                                            ->selectRaw('id_timbangan_tronton, COUNT(*) as count')
+                                            ->havingRaw('COUNT(*) >= 2')
                                             ->pluck('id_timbangan_tronton')
                                             ->toArray();
 
                                         return \App\Models\SuratJalan::with(['kapasitasKontrakJual', 'tronton'])
                                             ->whereHas('kapasitasKontrakJual')
-                                            ->whereIn('status', ['tolak', 'retur'])
-                                            // Filter: jangan tampilkan jika timbangan trontonnya sudah dipakai dengan status 'terima'
-                                            ->whereNotIn('id_timbangan_tronton', $usedTimbanganIds)
+                                            ->where(function ($query) use ($terimaTimbanganIds, $setengahTimbanganIds, $setengahCountIds) {
+                                                // Untuk status 'tolak': tidak tampilkan jika ID timbangan trontonnya ada yang 'terima' atau 'setengah'
+                                                $query->where(function ($subQuery) use ($terimaTimbanganIds, $setengahTimbanganIds) {
+                                                    $subQuery->where('status', 'tolak')
+                                                        ->whereNotIn('id_timbangan_tronton', $terimaTimbanganIds)
+                                                        ->whereNotIn('id_timbangan_tronton', $setengahTimbanganIds);
+                                                })
+                                                    // Untuk status 'setengah': tidak tampilkan jika ID timbangan trontonnya ada yang 'terima' atau sudah 2 kali setengah
+                                                    ->orWhere(function ($subQuery) use ($terimaTimbanganIds, $setengahCountIds) {
+                                                        $subQuery->where('status', 'setengah')
+                                                            ->whereNotIn('id_timbangan_tronton', $terimaTimbanganIds)
+                                                            ->whereNotIn('id_timbangan_tronton', $setengahCountIds);
+                                                    });
+                                            })
                                             ->latest()
                                             ->take(50)
                                             ->get()
@@ -111,6 +137,10 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                                             $set('id_kontrak', $transfer->id_kontrak);
                                             $set('kota', $transfer->kota);
                                             $set('id_timbangan_tronton', $transfer->id_timbangan_tronton);
+                                            $set('jenis_mobil', $transfer->jenis_mobil);
+                                            $set('tambah_berat', $transfer->tambah_berat);
+                                            $set('bruto_final', $transfer->bruto_final);
+                                            $set('netto_final', $transfer->netto_final);
 
                                             // Set data timbangan tronton secara manual
                                             if ($transfer->id_timbangan_tronton) {
@@ -197,27 +227,33 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                                     ->native(false)
                                     ->options([
                                         'TERIMA' => 'TERIMA',
+                                        'SETENGAH' => 'SETENGAH',
                                         'RETUR' => 'RETUR',
                                         'TOLAK' => 'TOLAK',
                                     ])
                                     ->label('Status')
                                     ->placeholder('Belum ada Status')
-                                    ->columnSpan(fn(callable $get) => $get('status') === 'TERIMA' ? 1 : 2)
+                                    ->columnSpan(fn(callable $get) => match ($get('status')) {
+                                        'TERIMA' => 1,
+                                        'SETENGAH' => 1,
+                                        default => 2
+                                    })
                                     ->visible(fn() => !optional(Auth::user())->hasAnyRole(['timbangan']))
                                     ->live(), // Penting untuk reaktivitas
                                 TextInput::make('netto_diterima')
                                     ->label('Netto Diterima')
                                     ->placeholder('Masukkan netto diterima')
                                     ->numeric()
-                                    ->disabled(fn(Get $get) => $get('status') !== 'TERIMA') // Hanya aktif jika status TERIMA
-                                    ->dehydrated(fn(Get $get) => $get('status') === 'TERIMA') // Hanya simpan jika status TERIMA
+                                    ->disabled(fn(Get $get) => !in_array($get('status'), ['TERIMA', 'SETENGAH'])) // Aktif jika status TERIMA atau SETENGAH
+                                    ->dehydrated(fn(Get $get) => in_array($get('status'), ['TERIMA', 'SETENGAH'])) // Simpan jika status TERIMA atau SETENGAH
                                     ->afterStateUpdated(function ($state, Set $set, Get $get) {
-                                        // Reset nilai ketika status bukan TERIMA
-                                        if ($get('status') !== 'TERIMA') {
+                                        // Reset nilai ketika status bukan TERIMA atau SETENGAH
+                                        if (!in_array($get('status'), ['TERIMA', 'SETENGAH'])) {
                                             $set('netto_diterima', null);
                                         }
                                     })
-                                    ->visible(fn(callable $get) => $get('status') === 'TERIMA'),
+                                    ->visible(fn(callable $get) => in_array($get('status'), ['TERIMA', 'SETENGAH'])),
+
 
 
                             ])->columns(4),
@@ -228,25 +264,33 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                                     ->options(function ($get) {
                                         $selectedId = $get('id_timbangan_tronton');
 
-                                        // Ambil semua id_timbangan_tronton yang sudah dipakai
-                                        // Kecuali jika status surat jalan adalah 'tolak'
-                                        $usedIds = SuratJalan::where(function ($query) {
-                                            // Status yang dianggap 'terpakai' (tidak 'tolak' dan tidak 'retur')
-                                            $query->whereNotIn('status', ['tolak', 'retur']);
-                                            // ATAU statusnya NULL
-                                            $query->orWhereNull('status');
-                                        })
+                                        // 1. ID tronton yang memiliki status 'terima' di surat jalan -> tidak kelihatan
+                                        // 2. ID tronton yang memiliki status 'retur' di surat jalan -> tidak kelihatan
+                                        // 3. ID tronton yang memiliki status 'null' di surat jalan -> tidak kelihatan
+                                        $excludedIds = SuratJalan::whereIn('status', ['terima', 'retur'])
+                                            ->orWhereNull('status')
                                             ->pluck('id_timbangan_tronton')
                                             ->toArray();
 
-                                        // Hapus dulu selectedId dari daftar id yang digunakan (agar tidak terfilter saat edit)
+                                        // 4. ID tronton yang memiliki status 'setengah' sudah 2 kali -> tidak kelihatan
+                                        $setengahCounts = SuratJalan::where('status', 'setengah')
+                                            ->groupBy('id_timbangan_tronton')
+                                            ->selectRaw('id_timbangan_tronton, COUNT(*) as count')
+                                            ->havingRaw('COUNT(*) >= 2')
+                                            ->pluck('id_timbangan_tronton')
+                                            ->toArray();
+
+                                        // Gabungkan semua ID yang harus dikecualikan
+                                        $finalExcludedIds = array_merge($excludedIds, $setengahCounts);
+
+                                        // Hapus selectedId dari daftar yang dikecualikan (untuk keperluan edit)
                                         if ($selectedId) {
-                                            $usedIds = array_diff($usedIds, [$selectedId]);
+                                            $finalExcludedIds = array_diff($finalExcludedIds, [$selectedId]);
                                         }
 
-                                        // Query untuk mengambil data TimbanganTronton yang id_luar_1 nya NULL dan belum digunakan
+                                        // Query untuk mengambil data TimbanganTronton yang tersedia
                                         $query = TimbanganTronton::whereNull('id_penjualan_antar_pulau_1')
-                                            ->whereNotIn('id', $usedIds)
+                                            ->whereNotIn('id', $finalExcludedIds)
                                             ->latest()
                                             ->with('penjualan1');
 
