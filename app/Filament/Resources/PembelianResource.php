@@ -239,6 +239,21 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                                 }
                                             }),
                                     ])->columnSpan(1),
+
+                                FileUpload::make('foto')
+                                    ->image()
+                                    ->multiple()
+                                    ->openable()
+                                    ->imagePreviewHeight(200)
+                                    ->label('Foto')
+                                    ->columnSpanFull(),
+
+                                Hidden::make('user_id')
+                                    ->label('User ID')
+                                    ->default(Auth::id()),
+                            ])->columns(2),
+                        Card::make('Returan')
+                            ->schema([
                                 Select::make('no_container_antar_pulau')
                                     ->label('No Container Antar Pulau(Retur)')
                                     ->options(function () {
@@ -269,6 +284,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                             $tara = (int) ($get('tara') ?? 0);
                                             $set('netto', max(0, (int) $penjualan->netto_diterima - $tara));
                                             $set('nama_barang', strtoupper($penjualan->nama_barang));
+                                            $set('no_container', strtoupper($penjualan->pembelianAntarPulau->no_container));
                                         }
                                     }),
                                 Select::make('surat_jalan_id')
@@ -297,18 +313,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                             // tambahkan field lain sesuai kebutuhan
                                         }
                                     }),
-                                FileUpload::make('foto')
-                                    ->image()
-                                    ->multiple()
-                                    ->openable()
-                                    ->imagePreviewHeight(200)
-                                    ->label('Foto')
-                                    ->columnSpanFull(),
-
-                                Hidden::make('user_id')
-                                    ->label('User ID')
-                                    ->default(Auth::id()),
-                            ])->columns(2),
+                            ])->columns(2)->collapsed()
                     ])->columns(2),
             ]);
     }
