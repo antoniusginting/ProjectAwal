@@ -22,6 +22,11 @@ class PembelianAntarPulau extends Model
     {
         return $this->belongsTo(KapasitasKontrakBeli::class, 'kapasitas_kontrak_beli_id');
     }
+
+    public function penjualanAntarPulau()
+    {
+        return $this->hasMany(PenjualanAntarPulau::class, 'pembelian_antar_pulau_id');
+    }
     // Relasi ke User
     public function user()
     {

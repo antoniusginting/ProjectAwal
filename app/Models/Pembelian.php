@@ -17,6 +17,7 @@ class Pembelian extends Model
         'nama_supir',
         'nama_barang',
         'no_container',
+        'no_container_antar_pulau',
         'brondolan',
         'bruto',
         'tara',

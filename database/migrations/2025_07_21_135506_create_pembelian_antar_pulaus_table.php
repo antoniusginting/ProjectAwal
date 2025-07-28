@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('pembelian_antar_pulaus', function (Blueprint $table) {
-           $table->id(); // Changed from int(11) to bigIncrements
+            $table->id(); // Changed from int(11) to bigIncrements
             $table->char('jenis', 2)->default('CB');
             $table->string('kode', 10)->unique()->nullable();
             $table->string('nama_barang');

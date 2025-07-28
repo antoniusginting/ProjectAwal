@@ -10,6 +10,4 @@ class Kontrak extends Model
         'nama',
         'npwp',
     ];
-
-    
 }
