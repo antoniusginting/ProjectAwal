@@ -21,12 +21,9 @@ class PenjualanAntarPulau extends Model
     protected static function booted()
     {
         static::saving(function ($model) {
-            // Logika otomatis untuk netto_diterima
             if ($model->status === 'TERIMA') {
                 $model->netto_diterima = $model->netto;
-            } elseif ($model->status === 'SETENGAH') {
-                $model->netto_diterima = $model->netto / 2;
-            } else {
+            } elseif ($model->status !== 'SETENGAH') {
                 $model->netto_diterima = 0;
             }
         });

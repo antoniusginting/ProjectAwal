@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('no_spb', 10)->unique()->nullable();
             $table->string('nama_barang');
             $table->string('no_container')->nullable();
+            $table->string('no_container_antar_pulau')->nullable();
             $table->string('brondolan')->nullable();
             $table->string('plat_polisi')->nullable();
             $table->integer('bruto');

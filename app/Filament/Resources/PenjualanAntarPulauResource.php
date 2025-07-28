@@ -95,8 +95,6 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
 
                             if ($state === 'TERIMA') {
                                 $set('netto_diterima', $netto);
-                            } elseif ($state === 'SETENGAH') {
-                                $set('netto_diterima', $netto / 2);
                             } else {
                                 $set('netto_diterima', null);
                             }
@@ -114,12 +112,16 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                         ->native(false)
                         ->required()
                         ->options(function (Get $get) {
-                            // Get containers yang sudah tidak bisa digunakan lagi
+                            /**
+                             * Exclude container jika:
+                             * - Sudah ada status TERIMA
+                             * - Sudah ada 2x SETENGAH
+                             * - ATAU status RETUR
+                             */
                             $excludedContainers = PembelianAntarPulau::whereHas('penjualanAntarPulau', function ($q) {
                                 $q->where(function ($query) {
-                                    // Container dengan status TERIMA (sekali pakai)
                                     $query->where('status', 'TERIMA')
-                                        // Atau container dengan status SETENGAH yang sudah 2 kali
+                                        ->orWhere('status', 'RETUR')
                                         ->orWhere(function ($subQuery) {
                                             $subQuery->where('status', 'SETENGAH')
                                                 ->havingRaw('COUNT(*) >= 2');
@@ -131,33 +133,28 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                                 }])
                                 ->get()
                                 ->filter(function ($item) {
-                                    // Exclude jika sudah TERIMA atau SETENGAH >= 2 kali
-                                    $hasTerimStatus = $item->penjualanAntarPulau()
-                                        ->where('status', 'TERIMA')
+                                    $hasTerimaOrRetur = $item->penjualanAntarPulau()
+                                        ->whereIn('status', ['TERIMA', 'RETUR'])
                                         ->exists();
 
                                     $setengahCount = $item->penjualan_antar_pulau_count ?? $item->penjualanAntarPulau()
                                         ->where('status', 'SETENGAH')
                                         ->count();
 
-                                    return $hasTerimStatus || $setengahCount >= 2;
+                                    return $hasTerimaOrRetur || $setengahCount >= 2;
                                 })
                                 ->pluck('id')
                                 ->toArray();
 
-                            // Get available containers
                             $available = PembelianAntarPulau::whereNotIn('id', $excludedContainers)
                                 ->with('kapasitasKontrakBeli')
                                 ->get()
                                 ->mapWithKeys(function ($item) {
                                     $supplier = $item->kapasitasKontrakBeli?->nama ?? 'TANPA SUPPLIER';
-
-                                    // Hitung berapa kali sudah digunakan dengan status SETENGAH
                                     $setengahCount = $item->penjualanAntarPulau()
                                         ->where('status', 'SETENGAH')
                                         ->count();
 
-                                    // Tambahkan indikator jika sudah pernah digunakan
                                     $usageIndicator = '';
                                     if ($setengahCount > 0) {
                                         $usageIndicator = " (Sudah digunakan {$setengahCount}x)";
@@ -169,7 +166,6 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                                     ];
                                 });
 
-                            // Handle current record (untuk edit mode)
                             $currentId = $get('pembelian_antar_pulau_id');
                             if ($currentId && !$available->has($currentId)) {
                                 if ($current = PembelianAntarPulau::with('kapasitasKontrakBeli')->find($currentId)) {
@@ -226,18 +222,23 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                                 $status = $get('status');
                                 if ($status === 'TERIMA') {
                                     $set('netto_diterima', $state);
-                                } elseif ($status === 'SETENGAH') {
-                                    $set('netto_diterima', $state / 2);
-                                } else {
-                                    $set('netto_diterima', null);
                                 }
                             }),
 
                         TextInput::make('netto_diterima')
                             ->label('Netto Diterima')
                             ->numeric()
-                            ->disabled()
-                            ->dehydrated(),
+                            ->reactive()
+                            ->dehydrated()
+                            ->afterStateHydrated(function ($state, Set $set, Get $get) {
+                                if ($state === null) {
+                                    $status = $get('status');
+                                    $netto = $get('netto') ?? 0;
+                                    if ($status === 'TERIMA') {
+                                        $set('netto_diterima', $netto);
+                                    }
+                                }
+                            }),
                     ])->columnSpan(1),
 
                     Hidden::make('user_id')
