@@ -293,8 +293,7 @@
                 <tbody>
                     <tr>
                         <td class="label">Tanggal</td>
-                        <td class="value" width='110px'>:@if (!empty($dryer->pj)){{ optional($dryer->created_at)->format('d-m-Y') }}
-                            @endif
+                        <td class="value" width='110px'>:@if (!empty($dryer->pj)){{ optional($dryer->created_at)->format('d-m-Y') }}@endif
                         </td>
                         <td class="label">Penanggung Jawab</td>
                         <td class="value">:{{ $dryer->pj }}</td>
@@ -303,15 +302,15 @@
                     </tr>
                     <tr>
                         <td class="label">Jam</td>
-                        <td class="value">:@if (!empty($dryer->pj)){{ optional($dryer->created_at)->format('h:i:s') }}
-                            @endif
+                        <td class="value">:@if (!empty($dryer->pj)){{ optional($dryer->created_at)->format('h:i:s') }}@endif
                         </td>
                         <td class="label">Rencana Kadar</td>
                         <td class="value">:{{ $dryer->rencana_kadar }}@if ($dryer->rencana_kadar !== null)%
                             @endif
                         </td>
                         <td class="label">Kapasitas Dryer</td>
-                        <td class="value">:{{ number_format($dryer->kapasitasdryer->kapasitas_total, '0', ',', '.') }}
+                        <td class="value">
+                            :{{ in_array($dryer->kapasitasdryer->id, [7, 8, 9, 10,11]) ? '' : number_format($dryer->kapasitasdryer->kapasitas_total, '0', ',', '.') }}
                         </td>
                     </tr>
                     <tr>
@@ -322,7 +321,8 @@
                             @endif
                         </td>
                         <td class="label">Kapasitas Terpakai</td>
-                        <td class="value">:{{ $grandTotalNetto == 0 ? '' : number_format($grandTotalNetto, 0, ',', '.') }}</td>
+                        <td class="value">
+                            :{{ $grandTotalNetto == 0 ? '' : number_format($grandTotalNetto, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
                         <td class="label">Jenis Barang</td>
@@ -330,7 +330,7 @@
                         <td class="label">No Dryer</td>
                         <td class="value">:{{ $dryer->no_dryer }}</td>
                         <td class="label">Lumbung Tujuan</td>
-                        <td class="value">:{{ $dryer->lumbung_tujuan }}</td>
+                        <td class="value">:{{ $dryer->laporanLumbung->lumbung ?? ''}}</td>
                     </tr>
                 </tbody>
             </table>
