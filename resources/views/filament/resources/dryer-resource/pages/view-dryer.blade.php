@@ -199,11 +199,6 @@
 
                                             $persen = $totalPercentage / $totalNettoBersih;
 
-                                            // Hitung CA (kadar_air * percentage)
-                                            // $kadarAirValue = is_numeric($sortiran->kadar_air)
-                                            //     ? round(floatval($sortiran->kadar_air), 2)
-                                            //     : 0;
-                                            // $caValue = round($kadarAirValue * $percentage, 2);
 
                                         @endphp
                                         {{ number_format($percentage, 0, ',', '.') }}
@@ -230,32 +225,6 @@
                                 <td colspan="1" class="p-2 text-center border-gray-300 dark:border-gray-700">
                                     {{ number_format($persen, 2, ',', '.') }}%
                                 </td>
-                                {{-- <td class="p-2 text-center border-gray-300 dark:border-gray-700">
-                                    @php
-                                        // Hitung total CA untuk grup ini
-                                        $totalCA = 0;
-                                        $totalCB = 0;
-                                        foreach ($sortiransGroup as $sortiran) {
-                                            $nettoBersihStripped = str_replace('.', '', $sortiran->netto_bersih);
-                                            $nettoBersihValue = is_numeric($nettoBersihStripped)
-                                                ? floatval($nettoBersihStripped)
-                                                : 0;
-                                            $percentage =
-                                                $totalNettoBersih > 0
-                                                    ? round(($nettoBersihValue / $totalNettoBersih) * 100, 1)
-                                                    : 0;
-                                            $kadarAirValue = is_numeric($sortiran->kadar_air)
-                                                ? floatval($sortiran->kadar_air)
-                                                : 0;
-                                            $caValue = $kadarAirValue * $percentage;
-                                            $cbValue = ($kadarAirValue * $percentage) / 100;
-                                            $totalCA += $caValue;
-                                            $totalCB += $cbValue;
-                                        }
-                                    @endphp --}}
-                                {{-- {{ number_format($totalCA, 2, ',', '.') }} == --}}
-                                {{-- {{ number_format($totalCB, 2, ',', '.') }}%
-                                </td> --}}
                             </tr>
                         @endforeach
                     </tbody>
@@ -291,125 +260,6 @@
             @endif
             <br>
             <br>
-            <!-- Header Simple -->
-            {{-- <div class="bg-white border-b-2 border-blue-500 p-4 mb-4">
-                <h2 class="text-2xl font-bold text-gray-800 text-center">TABEL RANGKUMAN DATA SORTIRAN</h2> --}}
-            {{-- <p class="text-gray-600 text-center mt-1">Rekapitulasi Data Sortiran Jagung</p> --}}
-            {{-- </div>
-            <table class="w-full border border-collapse border-gray-300 dark:border-gray-700">
-                <thead>
-                    <tr class="bg-gray-100 dark:bg-gray-800">
-                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">TGL</th>
-                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">No Timbangan</th>
-                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Netto</th>
-                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Tungkul</th>
-                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Jenis Jagung</th>
-                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">X1-X10</th>
-                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Jumlah Karung</th>
-                        <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Tonase</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @php
-                        $groupedSortirans = $dryer->sortirans->groupBy('id_sortiran');
-                    @endphp
-
-                    @foreach ($groupedSortirans as $idSortiran => $sortiransGroup)
-                        @foreach ($sortiransGroup as $index => $sortiran)
-                            @php
-                                // Kumpulkan semua kualitas yang tidak null
-                                $kualitasData = [];
-                                for ($i = 1; $i <= 6; $i++) {
-                                    $kualitas = $sortiran->{"kualitas_jagung_$i"};
-                                    $x1_10 = $sortiran->{"x1_x10_$i"};
-                                    $jumlah_karung = $sortiran->{"jumlah_karung_$i"};
-                                    $tonase = $sortiran->{"tonase_$i"};
-
-                                    if ($kualitas !== null && $kualitas !== '') {
-                                        $kualitasData[] = [
-                                            'kualitas' => $kualitas,
-                                            'x1_10' => $x1_10,
-                                            'jumlah_karung' => $jumlah_karung,
-                                            'tonase' => $tonase,
-                                            'index' => $i,
-                                        ];
-                                    }
-                                }
-                            @endphp --}}
-
-            {{-- @if (count($kualitasData) > 0)
-                                @foreach ($kualitasData as $kIndex => $data)
-                                    <tr>
-                                        @if ($kIndex == 0)
-                                            <!-- Tampilkan tanggal dan no timbangan hanya di baris pertama -->
-                                            <td class="border text-center p-2 border-gray-300 dark:border-gray-700"
-                                                width='50px' rowspan="{{ count($kualitasData) }}">
-                                                {{ $sortiran->created_at->format('d/m') ?? '-' }}
-                                            </td>
-                                            <td class="border text-center p-2 border-gray-300 dark:border-gray-700"
-                                                width='130px' rowspan="{{ count($kualitasData) }}">
-                                                {{ $sortiran->pembelian->no_spb ?? '-' }}
-                                            </td>
-                                            <td class="border text-center p-2 border-gray-300 dark:border-gray-700"
-                                                width='70px' rowspan="{{ count($kualitasData) }}">
-                                                {{ number_format($sortiran->pembelian->netto ?? '-', 0, ',', '.') }}
-                                            </td>
-                                            <td class="border text-center p-2 border-gray-300 dark:border-gray-700"
-                                                width='50px' rowspan="{{ count($kualitasData) }}">
-                                                {{ $sortiran->berat_tungkul ?? '-' }}
-                                            </td>
-                                        @endif
-
-                                        <!-- Jenis Jagung per baris -->
-                                        <td class="border text-center p-2 border-gray-300 dark:border-gray-700"
-                                            width='180px'>
-                                            {{ $data['kualitas'] }}
-                                        </td>
-
-                                        <!-- X1-X10 per baris -->
-                                        <td class="border text-center p-2 border-gray-300 dark:border-gray-700"
-                                            width='100px'>
-                                            {{ $data['x1_10'] ?? '-' }}
-                                        </td>
-
-                                        <!-- Jumlah Karung per baris -->
-                                        <td class="border text-center p-2 border-gray-300 dark:border-gray-700"
-                                            width='180px'>
-                                            {{ $data['jumlah_karung'] ?? '-' }}
-                                        </td>
-                                        <!-- Jumlah Tonase per baris -->
-                                        <td class="border text-center p-2 border-gray-300 dark:border-gray-700"
-                                            width='180px'>
-                                            {{ $data['tonase'] ?? '-' }}
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            @else
-                                <!-- Jika tidak ada kualitas, tampilkan baris kosong -->
-                                <tr>
-                                    <td class="border text-center p-2 border-gray-300 dark:border-gray-700"
-                                        width='50px'>
-                                        {{ $sortiran->created_at->format('d/m') ?? '-' }}
-                                    </td>
-                                    <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
-                                        {{ $sortiran->pembelian->no_spb ?? '-' }}
-                                    </td>
-                                    <td class="border text-center p-2 border-gray-300 dark:border-gray-700"
-                                        width='150px'>
-                                        <span class="text-gray-400 italic">-</span>
-                                    </td>
-                                    <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
-                                        <span class="text-gray-400 italic">-</span>
-                                    </td>
-                                    <td class="border text-center p-2 border-gray-300 dark:border-gray-700">
-                                        <span class="text-gray-400 italic">-</span>
-                                    </td>
-                                </tr>
-                            @endif
-                        @endforeach
-                    @endforeach
-                </tbody>
-            </table> --}}
 
             <div class="mb-4">
                 @if ($dryer->laporanLumbung && $dryer->laporanLumbung->status == true)

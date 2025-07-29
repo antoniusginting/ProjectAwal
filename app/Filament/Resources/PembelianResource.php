@@ -256,8 +256,8 @@ class PembelianResource extends Resource implements HasShieldPermissions
                             ->schema([
                                 Select::make('no_container_antar_pulau')
                                     ->label('No Container Antar Pulau(Retur)')
+                                    ->disabled(fn(Get $get) => !empty($get('surat_jalan_id')))
                                     ->options(function () {
-                                        // Ambil no_container dari penjualan antar pulau yang belum dipakai di pembelian
                                         $usedContainers = \App\Models\Pembelian::whereNotNull('no_container_antar_pulau')
                                             ->pluck('no_container_antar_pulau')
                                             ->toArray();
@@ -270,8 +270,26 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                     ->searchable()
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                        if (!$state) return;
+                                        // Reset field lain jika ini dipilih
+                                        if (!empty($state)) {
+                                            $set('surat_jalan_id', null);
+                                        }
 
+                                        // Helper function untuk reset fields
+                                        $resetFields = function () use ($set) {
+                                            $set('bruto', null);
+                                            $set('netto', null);
+                                            $set('nama_barang', null);
+                                            $set('no_container', null);
+                                        };
+
+                                        // Jika deselect, reset dan return
+                                        if (empty($state)) {
+                                            $resetFields();
+                                            return;
+                                        }
+
+                                        // Cari data penjualan
                                         $penjualan = \App\Models\PenjualanAntarPulau::whereHas('pembelianAntarPulau', function ($q) use ($state) {
                                             $q->where('no_container', $state);
                                         })
@@ -279,16 +297,20 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                             ->latest()
                                             ->first();
 
+                                        // Set data atau reset jika tidak ada
                                         if ($penjualan) {
                                             $set('bruto', (int) $penjualan->netto_diterima);
                                             $tara = (int) ($get('tara') ?? 0);
                                             $set('netto', max(0, (int) $penjualan->netto_diterima - $tara));
                                             $set('nama_barang', strtoupper($penjualan->nama_barang));
                                             $set('no_container', strtoupper($penjualan->pembelianAntarPulau->no_container));
+                                        } else {
+                                            $resetFields();
                                         }
                                     }),
                                 Select::make('surat_jalan_id')
                                     ->label('Pilih Surat Jalan(Retur)')
+                                    ->disabled(fn(Get $get) => !empty($get('no_container_antar_pulau')))
                                     ->options(function () {
                                         return \App\Models\SuratJalan::query()
                                             ->where('status', 'retur')
@@ -301,16 +323,34 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                     ->searchable()
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                        if (!$state) return;
+                                        // Reset field lain jika ini dipilih
+                                        if (!empty($state)) {
+                                            $set('no_container_antar_pulau', null);
+                                        }
 
+                                        // Helper function untuk reset fields
+                                        $resetFields = function () use ($set) {
+                                            $set('plat_polisi', null);
+                                            $set('nama_barang', null);
+                                            // tambahkan field lain yang perlu direset
+                                        };
+
+                                        // Jika deselect, reset dan return
+                                        if (empty($state)) {
+                                            $resetFields();
+                                            return;
+                                        }
+
+                                        // Cari data surat jalan
                                         $suratJalan = \App\Models\SuratJalan::find($state);
 
-                                        if ($suratJalan) {
+                                        // Set data atau reset jika tidak ada
+                                        if ($suratJalan && $suratJalan->tronton && $suratJalan->tronton->penjualan1) {
                                             $set('plat_polisi', $suratJalan->tronton->penjualan1->plat_polisi);
                                             $set('nama_barang', $suratJalan->tronton->penjualan1->nama_barang);
-                                            $set('nama_barang', $suratJalan->tronton->penjualan1->nama_barang);
-
                                             // tambahkan field lain sesuai kebutuhan
+                                        } else {
+                                            $resetFields();
                                         }
                                     }),
                             ])->columns(2)->collapsed()
