@@ -493,7 +493,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('netto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                TextColumn::make('conditional_kode')
+                TextColumn::make('no_lumbung')
                     ->label('No Lumbung')
                     ->state(function ($record) {
                         // Cek apakah ada laporanLumbung.kode
@@ -511,7 +511,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                     ->alignCenter()
                     ->placeholder('-'),
 
-                TextColumn::make('conditional_nama')
+                TextColumn::make('nama_lumbung')
                     ->label('Nama Lumbung')
                     ->state(function ($record) {
                         // Cek apakah ada nama_lumbung
@@ -567,7 +567,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                 ]),
             ])
             ->filters([
-                 Filter::make('date_range')
+                Filter::make('date_range')
                     ->form([
                         DatePicker::make('dari_tanggal')
                             ->label('Dari Tanggal'),

@@ -1472,17 +1472,20 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                     ->label('Netto 6')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 //Pembelian Luar 1
-                TextColumn::make('luar1.kode')
+                TextColumn::make('penjualanAntarPulau1.kode')
                     ->label('No SPB Luar 1')
                     ->color('info')
                     ->searchable(),
-                TextColumn::make('luar1.nama_barang')
+
+                TextColumn::make('penjualanAntarPulau1.nama_barang')
                     ->label('Nama Barang')
                     ->alignCenter(),
-                TextColumn::make('luar1.no_container')
+
+                TextColumn::make('penjualanAntarPulau1.no_container')
                     ->label('No Container')
                     ->alignCenter(),
-                TextColumn::make('luar1.netto')
+
+                TextColumn::make('penjualanAntarPulau1.netto')
                     ->label('Netto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
                 TextColumn::make('nama_barang'),
