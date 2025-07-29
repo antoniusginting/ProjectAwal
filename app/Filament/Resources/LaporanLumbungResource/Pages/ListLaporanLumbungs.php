@@ -180,9 +180,6 @@ class ListLaporanLumbungs extends ListRecords
         }
     }
 
-    /**
-     * Mengecek apakah user dapat membuat record baru berdasarkan tab aktif
-     */
     private function canCreateRecord(): bool
     {
         $activeTab = $this->activeTab ?? 'semua';
@@ -194,6 +191,11 @@ class ListLaporanLumbungs extends ListRecords
 
         // Tab SILO selalu dapat menambah data
         if ($activeTab === 'silo') {
+            return true;
+        }
+
+        // Tab FIKTIF selalu dapat menambah data kapan pun
+        if ($activeTab === 'lumbung_fiktif') {
             return true;
         }
 
@@ -215,7 +217,7 @@ class ListLaporanLumbungs extends ListRecords
             return (bool) $latestRecord->status;
         }
 
-        // Tab untuk Lumbung A-I dan Z (FIKTIF)
+        // Tab untuk Lumbung A-I (kecuali FIKTIF yang sudah dihandle di atas)
         if (str_starts_with($activeTab, 'lumbung_')) {
             $lumbungCode = strtoupper(str_replace('lumbung_', '', $activeTab));
 
@@ -235,7 +237,6 @@ class ListLaporanLumbungs extends ListRecords
 
         return true;
     }
-
     /**
      * Menampilkan notifikasi ketika lumbung atau silo masih terbuka
      */

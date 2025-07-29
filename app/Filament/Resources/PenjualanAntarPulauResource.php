@@ -297,6 +297,7 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
             ->defaultSort('kode', 'desc')
             ->filters([
                 Filter::make('date_range')
+                    ->columns(2)
                     ->form([
                         DatePicker::make('dari_tanggal')->label('Dari Tanggal'),
                         DatePicker::make('sampai_tanggal')->label('Sampai Tanggal'),
