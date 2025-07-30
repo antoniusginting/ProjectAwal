@@ -557,16 +557,15 @@ class DryerResource extends Resource implements HasShieldPermissions
                 TextColumn::make('kapasitasdryer.nama_kapasitas_dryer')
                     ->label('Nama Dryer')
                     ->alignCenter(),
-                TextColumn::make('laporan_info')
-                    ->label('Tujuan')
-                    ->getStateUsing(function ($record) {
-                        if ($record->laporanLumbung) {
-                            return $record->laporanLumbung->kode . ' - ' . $record->laporanLumbung->lumbung;
-                        }
-                        return '-';
-                    })
-                    ->searchable()
-                    ->alignCenter(),
+                TextColumn::make('laporanLumbung.kode')
+                    ->label('Kode Lumbung')
+                    ->searchable(query: function ($query, $search) {
+                        $query->orWhereHas('laporanLumbung', function ($q) use ($search) {
+                            $q->where('kode', 'like', "%{$search}%")
+                                ->orWhere('lumbung', 'like', "%{$search}%");
+                        });
+                    }),
+
                 // TextColumn::make('lumbung_tujuan')
                 //     ->label('Tujuan')
                 //     ->searchable()
