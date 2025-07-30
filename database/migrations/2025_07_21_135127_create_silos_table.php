@@ -11,13 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('silos', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->integer('stok')->nullable();
-            $table->string('nama', 20)->nullable();
-            $table->boolean('status')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('silos')) {
+            Schema::create('silos', function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->integer('stok')->nullable();
+                $table->string('nama', 20)->nullable();
+                $table->boolean('status')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

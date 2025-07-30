@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('dryer_has_sortiran', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->foreignId('dryer_id')->constrained('dryers')->onDelete('cascade');
-            $table->foreignId('sortiran_id')->constrained('sortirans')->onDelete('cascade');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('dryer_has_sortiran')) {
+            Schema::create('dryer_has_sortiran', function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->foreignId('dryer_id')->constrained('dryers')->onDelete('cascade');
+                $table->foreignId('sortiran_id')->constrained('sortirans')->onDelete('cascade');
+                $table->timestamps();
+            });
+        }
     }
 
     /**

@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sortiran_records', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->foreignId('sortiran_id')->constrained('sortirans')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('sortiran_records')) {
+            Schema::create('sortiran_records', function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->foreignId('sortiran_id')->constrained('sortirans')->onDelete('cascade');
+                $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+                $table->timestamps();
+            });
+        }
     }
 
     /**

@@ -11,13 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kapasitas_lumbung_basahs', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('no_kapasitas_lumbung', 25)->unique();
-            $table->integer('kapasitas_total')->nullable();
-            $table->integer('kapasitas_sisa')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('kapasitas_lumbung_basahs')) {
+            Schema::create('kapasitas_lumbung_basahs', function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->string('no_kapasitas_lumbung', 25)->unique();
+                $table->integer('kapasitas_total')->nullable();
+                $table->integer('kapasitas_sisa')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

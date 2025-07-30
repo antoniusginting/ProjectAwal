@@ -3,10 +3,10 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\KapasitasKontrakJual;
+use App\Models\KapasitasKontrakBeli;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class KapasitasKontrakJualPolicy
+class KapasitasKontrakBeliPolicy
 {
     use HandlesAuthorization;
 
@@ -15,15 +15,15 @@ class KapasitasKontrakJualPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_kapasitas::kontrak::jual');
+        return $user->can('view_any_kapasitas::kontrak::beli');
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, KapasitasKontrakJual $kapasitasKontrakJual): bool
+    public function view(User $user, KapasitasKontrakBeli $kapasitasKontrakBeli): bool
     {
-        return $user->can('view_kapasitas::kontrak::jual');
+        return $user->can('view_kapasitas::kontrak::beli');
     }
 
     /**
@@ -31,23 +31,23 @@ class KapasitasKontrakJualPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_kapasitas::kontrak::jual');
+        return $user->can('create_kapasitas::kontrak::beli');
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, KapasitasKontrakJual $kapasitasKontrakJual): bool
+    public function update(User $user, KapasitasKontrakBeli $kapasitasKontrakBeli): bool
     {
-        return $user->can('update_kapasitas::kontrak::jual');
+        return $user->can('update_kapasitas::kontrak::beli');
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, KapasitasKontrakJual $kapasitasKontrakJual): bool
+    public function delete(User $user, KapasitasKontrakBeli $kapasitasKontrakBeli): bool
     {
-        return $user->can('delete_kapasitas::kontrak::jual');
+        return $user->can('delete_kapasitas::kontrak::beli');
     }
 
     /**
@@ -55,13 +55,13 @@ class KapasitasKontrakJualPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_kapasitas::kontrak::jual');
+        return $user->can('delete_any_kapasitas::kontrak::beli');
     }
 
     /**
      * Determine whether the user can permanently delete.
      */
-    public function forceDelete(User $user, KapasitasKontrakJual $kapasitasKontrakJual): bool
+    public function forceDelete(User $user, KapasitasKontrakBeli $kapasitasKontrakBeli): bool
     {
         return $user->can('{{ ForceDelete }}');
     }
@@ -77,7 +77,7 @@ class KapasitasKontrakJualPolicy
     /**
      * Determine whether the user can restore.
      */
-    public function restore(User $user, KapasitasKontrakJual $kapasitasKontrakJual): bool
+    public function restore(User $user, KapasitasKontrakBeli $kapasitasKontrakBeli): bool
     {
         return $user->can('{{ Restore }}');
     }
@@ -93,7 +93,7 @@ class KapasitasKontrakJualPolicy
     /**
      * Determine whether the user can replicate.
      */
-    public function replicate(User $user, KapasitasKontrakJual $kapasitasKontrakJual): bool
+    public function replicate(User $user, KapasitasKontrakBeli $kapasitasKontrakBeli): bool
     {
         return $user->can('{{ Replicate }}');
     }

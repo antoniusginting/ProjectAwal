@@ -11,13 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kapasitas_dryers', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('nama_kapasitas_dryer');
-            $table->integer('kapasitas_total');
-            $table->integer('kapasitas_sisa')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('kapasitas_dryers')) {
+            Schema::create('kapasitas_dryers', function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->string('nama_kapasitas_dryer');
+                $table->integer('kapasitas_total');
+                $table->integer('kapasitas_sisa')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

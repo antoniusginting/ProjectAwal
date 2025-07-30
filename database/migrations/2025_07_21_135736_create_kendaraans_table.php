@@ -11,17 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kendaraans', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('plat_polisi_terbaru');
-            $table->string('plat_polisi_sebelumnya')->nullable();
-            $table->string('pemilik')->nullable();
-            $table->string('nama_supir')->nullable();
-            $table->string('nama_kernek')->nullable();
-            $table->string('jenis_mobil')->nullable();
-            $table->string('status_sp')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('kendaraans')) {
+            Schema::create('kendaraans', function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->string('plat_polisi_terbaru');
+                $table->string('plat_polisi_sebelumnya')->nullable();
+                $table->string('pemilik')->nullable();
+                $table->string('nama_supir')->nullable();
+                $table->string('nama_kernek')->nullable();
+                $table->string('jenis_mobil')->nullable();
+                $table->string('status_sp')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('laporan_lumbung_records', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->foreignId('laporan_lumbung_id')->constrained('laporan_lumbungs')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('laporan_lumbung_records')) {
+            Schema::create('laporan_lumbung_records', function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->foreignId('laporan_lumbung_id')->constrained('laporan_lumbungs')->onDelete('cascade');
+                $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+                $table->timestamps();
+            });
+        }
     }
 
     /**

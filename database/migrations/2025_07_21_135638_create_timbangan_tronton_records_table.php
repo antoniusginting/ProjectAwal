@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('timbangan_tronton_records', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->foreignId('timbangan_id')->constrained('timbangan_trontons')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('timbangan_tronton_records')) {
+            Schema::create('timbangan_tronton_records', function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->foreignId('timbangan_id')->constrained('timbangan_trontons')->onDelete('cascade');
+                $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+                $table->timestamps();
+            });
+        }
     }
 
     /**

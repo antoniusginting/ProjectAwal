@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kontraks', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('nama');
-            $table->string('npwp', 20)->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('kontraks')) {
+            Schema::create('kontraks', function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->string('nama');
+                $table->string('npwp', 20)->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

@@ -11,17 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('suppliers', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('nama_supplier')->unique();
-            $table->string('jenis_supplier')->nullable();
-            $table->string('no_ktp', 30)->nullable();
-            $table->string('npwp', 30)->nullable();
-            $table->string('no_rek', 30)->nullable();
-            $table->string('nama_bank', 50)->nullable();
-            $table->string('atas_nama_bank', 50)->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('suppliers')) {
+            Schema::create('suppliers', function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->string('nama_supplier')->unique();
+                $table->string('jenis_supplier')->nullable();
+                $table->string('no_ktp', 30)->nullable();
+                $table->string('npwp', 30)->nullable();
+                $table->string('no_rek', 30)->nullable();
+                $table->string('nama_bank', 50)->nullable();
+                $table->string('atas_nama_bank', 50)->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**
