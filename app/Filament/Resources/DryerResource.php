@@ -145,6 +145,7 @@ class DryerResource extends Resource implements HasShieldPermissions
 
                         Select::make('laporan_lumbung_id')
                             ->label('Lumbung Tujuan')
+                            ->disabled(fn(string $operation): bool => $operation === 'create')
                             ->options(function () {
                                 return LaporanLumbung::whereNull('status_silo')
                                     ->where('status', false)
@@ -501,7 +502,7 @@ class DryerResource extends Resource implements HasShieldPermissions
                 }
 
                 // 2) Admin1 hanya bisa edit jika tara belum ada
-                if ($user && $user->hasRole('admin')) {
+                if ($user && $user->hasRole('qc_contoh')) {
                     if (!$record->no_cc) {
                         return EditDryer::getUrl(['record' => $record]);
                     }

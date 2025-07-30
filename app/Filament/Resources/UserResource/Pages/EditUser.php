@@ -18,14 +18,18 @@ class EditUser extends EditRecord
         ];
     }
     protected function getFormActions(): array
-{
-    return [
-        Action::make('save')
-            ->label('Ubah')
-            ->action(fn () => $this->save()), // Menggunakan fungsi simpan manual
-    ];
-}
-protected function getRedirectUrl(): string
+    {
+        return [
+            Action::make('save')
+                ->label('Ubah')
+                ->action(fn() => $this->save()), // Menggunakan fungsi simpan manual
+            Action::make('cancel')
+                ->label('Batal')
+                ->color('gray')
+                ->url(UserResource::getUrl('index')),
+        ];
+    }
+    protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index'); // Arahkan ke daftar tabel
     }
