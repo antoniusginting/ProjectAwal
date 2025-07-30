@@ -31,6 +31,6 @@ class EditUser extends EditRecord
     }
     protected function getRedirectUrl(): string
     {
-        return $this->getResource()::getUrl('index'); // Arahkan ke daftar tabel
+        return $this->getResource()::getUrl('index');
     }
 }
