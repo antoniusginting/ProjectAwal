@@ -18,7 +18,7 @@ class EditPembelianAntarPulau extends EditRecord
         ];
     }
 
-     protected function getFormActions(): array
+    protected function getFormActions(): array
     {
         return [
             Action::make('save')
@@ -29,5 +29,10 @@ class EditPembelianAntarPulau extends EditRecord
                 ->color('gray')
                 ->url(PembelianAntarPulauResource::getUrl('index')),
         ];
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index'); // Arahkan ke daftar tabel
     }
 }

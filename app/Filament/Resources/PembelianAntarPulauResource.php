@@ -92,9 +92,13 @@ class PembelianAntarPulauResource extends Resource implements HasShieldPermissio
                                     ->options(function () {
                                         return \App\Models\KapasitasKontrakBeli::query()
                                             ->where('status', false)
-                                            ->pluck('nama', 'id')
+                                            ->get()
+                                            ->mapWithKeys(function ($item) {
+                                                return [$item->id => $item->nama . ' - ' . $item->supplier];
+                                            })
                                             ->toArray();
                                     })
+
                                     ->placeholder('Pilih Supplier')
                                     ->searchable()
                                     ->live(),
