@@ -89,7 +89,7 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                             if ($state === 'RETUR') {
                                 $nama = $get('nama_barang');
                                 if ($nama && ! str_contains($nama, '(RETUR)')) {
-                                    $set('nama_barang', trim($nama . ' (RETUR)'));
+                                    $set('nama_barang', trim($nama));
                                 }
                             }
 
