@@ -101,7 +101,8 @@ class PembelianAntarPulauResource extends Resource implements HasShieldPermissio
                                 TextInput::make('netto')
                                     ->label('Netto')
                                     ->placeholder('Masukkan Netto')
-                                    ->numeric(),
+                                    ->numeric()
+                                    ->required(),
                                 TextInput::make('no_container')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan No Container'),
