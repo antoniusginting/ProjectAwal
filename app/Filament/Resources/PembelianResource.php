@@ -210,9 +210,6 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan No Container'),
 
-
-
-
                                 Grid::make(2)
                                     ->schema([
                                         TextInput::make('jumlah_karung')
@@ -302,7 +299,14 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                             $set('bruto', (int) $penjualan->netto_diterima);
                                             $tara = (int) ($get('tara') ?? 0);
                                             $set('netto', max(0, (int) $penjualan->netto_diterima - $tara));
-                                            $set('nama_barang', strtoupper($penjualan->nama_barang));
+
+                                            // Tambahkan suffix (retur) pada nama barang
+                                            $namaBarang = strtoupper($penjualan->nama_barang);
+                                            if (!str_contains($namaBarang, '(RETUR)')) {
+                                                $namaBarang .= ' (RETUR)';
+                                            }
+                                            $set('nama_barang', $namaBarang);
+
                                             $set('no_container', strtoupper($penjualan->pembelianAntarPulau->no_container));
                                         } else {
                                             $resetFields();
@@ -347,7 +351,14 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                         // Set data atau reset jika tidak ada
                                         if ($suratJalan && $suratJalan->tronton && $suratJalan->tronton->penjualan1) {
                                             $set('plat_polisi', $suratJalan->tronton->penjualan1->plat_polisi);
-                                            $set('nama_barang', $suratJalan->tronton->penjualan1->nama_barang);
+
+                                            // Tambahkan suffix (retur) pada nama barang dari surat jalan
+                                            $namaBarang = strtoupper($suratJalan->tronton->penjualan1->nama_barang);
+                                            if (!str_contains($namaBarang, '(RETUR)')) {
+                                                $namaBarang .= ' (RETUR)';
+                                            }
+                                            $set('nama_barang', $namaBarang);
+
                                             // tambahkan field lain sesuai kebutuhan
                                         } else {
                                             $resetFields();

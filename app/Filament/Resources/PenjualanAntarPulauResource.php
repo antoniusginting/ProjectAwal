@@ -71,35 +71,7 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                         ->label('Tanggal')
                         ->formatStateUsing(fn($state) => Carbon::parse($state)->format('d-m-Y'))
                         ->disabled(),
-
-                    Select::make('status')
-                        ->native(false)
-                        ->options([
-                            'TERIMA'   => 'TERIMA',
-                            'RETUR'    => 'RETUR',
-                            'TOLAK'    => 'TOLAK',
-                            'SETENGAH' => 'SETENGAH',
-                        ])
-                        ->label('Status')
-                        ->placeholder('Belum ada Status')
-                        ->live()
-                        ->afterStateUpdated(function ($state, Set $set, Get $get) {
-                            $netto = $get('netto') ?? 0;
-
-                            if ($state === 'RETUR') {
-                                $nama = $get('nama_barang');
-                                if ($nama && ! str_contains($nama, '(RETUR)')) {
-                                    $set('nama_barang', trim($nama));
-                                }
-                            }
-
-                            if ($state === 'TERIMA') {
-                                $set('netto_diterima', $netto);
-                            } else {
-                                $set('netto_diterima', null);
-                            }
-                        }),
-                ])->columns(3)->collapsed(),
+                ])->columns(2)->collapsed(),
 
                 Card::make()->schema([
                     TextInput::make('nama_barang')
@@ -247,11 +219,19 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                             default => 2
                         })
                         ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                            $netto = $get('netto') ?? 0;
+
                             if ($state === 'RETUR') {
                                 $nama = $get('nama_barang');
                                 if ($nama && ! str_contains($nama, '(RETUR)')) {
-                                    $set('nama_barang', trim($nama . ' (RETUR)'));
+                                    $set('nama_barang', trim($nama));
                                 }
+                            }
+
+                            if ($state === 'TERIMA') {
+                                $set('netto_diterima', $netto);
+                            } else {
+                                $set('netto_diterima', null);
                             }
                         }),
                     TextInput::make('netto_diterima')
