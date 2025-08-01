@@ -35,6 +35,7 @@ use App\Filament\Resources\PembelianResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\PembelianResource\Pages\EditPembelian;
 use App\Models\PembelianAntarPulau;
+use Filament\Notifications\Notification;
 
 class PembelianResource extends Resource implements HasShieldPermissions
 {
@@ -55,6 +56,18 @@ class PembelianResource extends Resource implements HasShieldPermissions
             'delete',
             'delete_any',
         ];
+    }
+
+    /**
+     * Helper method untuk reset fields retur
+     */
+    private static function resetReturFields(callable $set): void
+    {
+        $set('bruto', null);
+        $set('netto', null);
+        $set('nama_barang', null);
+        $set('no_container', null);
+        $set('plat_polisi', null);
     }
 
     public static function form(Form $form): Form
@@ -133,6 +146,11 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                                 : $pembelian->keterangan;
                                             $set('keterangan', $keteranganBaru);
                                             $set('brondolan', $pembelian->brondolan);
+
+                                            // Reset semua field retur ketika ambil dari pembelian sebelumnya
+                                            $set('tipe_retur', null);
+                                            $set('no_container_antar_pulau', null);
+                                            $set('surat_jalan_id', null);
                                         }
                                     })
                                     ->columnSpan(2),
@@ -210,9 +228,6 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan No Container'),
 
-
-
-
                                 Grid::make(2)
                                     ->schema([
                                         TextInput::make('jumlah_karung')
@@ -252,111 +267,218 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                     ->label('User ID')
                                     ->default(Auth::id()),
                             ])->columns(2),
+
+                        // CARD RETURAN - OPSI 1: RADIO BUTTON SELECTION
                         Card::make('Returan')
                             ->schema([
+                                // Pilihan tipe retur
+                                Select::make('tipe_retur')
+                                    ->label('Pilih Tipe Retur')
+                                    ->options([
+                                        'container_antar_pulau' => 'Container Antar Pulau',
+                                        'surat_jalan' => 'Surat Jalan',
+                                    ])
+                                    ->placeholder('Pilih tipe retur (opsional)')
+                                    ->native(false)
+                                    ->live()
+                                    ->dehydrated(false) // Tidak perlu disimpan ke database
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        // Reset semua field retur ketika ganti tipe
+                                        $set('no_container_antar_pulau', null);
+                                        $set('surat_jalan_id', null);
+
+                                        // Reset field data yang terpengaruh retur
+                                        if (empty($state)) {
+                                            // Jika tipe retur dikosongkan, reset semua field terkait
+                                            self::resetReturFields($set);
+                                        }
+
+                                        // Notifikasi perubahan
+                                        if (!empty($state)) {
+                                            Notification::make()
+                                                ->title('Tipe Retur Dipilih')
+                                                ->success()
+                                                ->body('Silakan pilih ' . ($state === 'container_antar_pulau' ? 'Container Antar Pulau' : 'Surat Jalan'))
+                                                ->send();
+                                        }
+                                    })
+                                    ->columnSpanFull(),
+
+                                // Container Antar Pulau - hanya muncul jika tipe_retur = container_antar_pulau
                                 Select::make('no_container_antar_pulau')
-                                    ->label('No Container Antar Pulau(Retur)')
-                                    ->disabled(fn(Get $get) => !empty($get('surat_jalan_id')))
+                                    ->label('No Container Antar Pulau')
+                                    ->visible(fn(Get $get) => $get('tipe_retur') === 'container_antar_pulau')
                                     ->options(function () {
-                                        $usedContainers = \App\Models\Pembelian::whereNotNull('no_container_antar_pulau')
-                                            ->pluck('no_container_antar_pulau')
-                                            ->toArray();
+                                        try {
+                                            $usedContainers = \App\Models\Pembelian::whereNotNull('no_container_antar_pulau')
+                                                ->pluck('no_container_antar_pulau')
+                                                ->toArray();
 
-                                        return \App\Models\PembelianAntarPulau::query()
-                                            ->whereNotIn('no_container', $usedContainers)
-                                            ->get()
-                                            ->pluck('no_container', 'no_container');
+                                            return \App\Models\PembelianAntarPulau::query()
+                                                ->whereNotIn('no_container', $usedContainers)
+                                                ->get()
+                                                ->pluck('no_container', 'no_container');
+                                        } catch (\Exception $e) {
+                                            \Log::error('Error loading container options: ' . $e->getMessage());
+                                            return [];
+                                        }
                                     })
                                     ->searchable()
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                        // Reset field lain jika ini dipilih
-                                        if (!empty($state)) {
-                                            $set('surat_jalan_id', null);
-                                        }
+                                        try {
+                                            if (empty($state)) {
+                                                self::resetReturFields($set);
+                                                return;
+                                            }
 
-                                        // Helper function untuk reset fields
-                                        $resetFields = function () use ($set) {
-                                            $set('bruto', null);
-                                            $set('netto', null);
-                                            $set('nama_barang', null);
-                                            $set('no_container', null);
-                                        };
+                                            // Debug: cek apakah container ada
+                                            $containerExists = \App\Models\PembelianAntarPulau::where('no_container', $state)->exists();
+                                            if (!$containerExists) {
+                                                \Log::warning("Container {$state} not found in PembelianAntarPulau");
+                                                self::resetReturFields($set);
 
-                                        // Jika deselect, reset dan return
-                                        if (empty($state)) {
-                                            $resetFields();
-                                            return;
-                                        }
+                                                Notification::make()
+                                                    ->title('Container Tidak Ditemukan')
+                                                    ->danger()
+                                                    ->body("Container {$state} tidak ditemukan di database")
+                                                    ->send();
+                                                return;
+                                            }
 
-                                        // Cari data penjualan antar pulau dari no_container
-                                        $penjualan = \App\Models\PenjualanAntarPulau::whereHas('pembelianAntarPulau', function ($q) use ($state) {
-                                            $q->where('no_container', $state);
-                                        })
-                                            ->whereIn('status', ['TERIMA', 'SETENGAH'])
-                                            ->latest()
-                                            ->first();
+                                            $penjualan = \App\Models\PenjualanAntarPulau::with('pembelianAntarPulau')
+                                                ->whereHas('pembelianAntarPulau', function ($q) use ($state) {
+                                                    $q->where('no_container', $state);
+                                                })
+                                                ->whereIn('status', ['TERIMA', 'SETENGAH', 'RETUR'])
+                                                ->latest()
+                                                ->first();
 
-                                        if ($penjualan) {
-                                            $bruto = (int) $penjualan->netto_diterima;
-                                            $tara = (int) ($get('tara') ?? 0);
-                                            $netto = max(0, $bruto - $tara);
+                                            if ($penjualan) {
+                                                $bruto = (int) $penjualan->netto_diterima;
+                                                $tara = (int) ($get('tara') ?? 0);
+                                                $netto = max(0, $bruto - $tara);
 
-                                            $set('bruto', $bruto); // Ambil dari netto_diterima penjualan
-                                            $set('netto', $netto); // Hitung bruto - tara
-                                            $set('nama_barang', strtoupper($penjualan->nama_barang) . ' (Retur)');
-                                            $set('no_container', strtoupper($penjualan->pembelianAntarPulau->no_container));
-                                        } else {
-                                            $resetFields();
+                                                $set('bruto', $bruto);
+                                                $set('netto', $netto);
+                                                $set('nama_barang', strtoupper($penjualan->nama_barang) . ' (RETUR)');
+                                                $set('no_container', strtoupper(optional($penjualan->pembelianAntarPulau)->no_container));
+
+                                                Notification::make()
+                                                    ->title('Data Container Berhasil Dimuat')
+                                                    ->success()
+                                                    ->body("Container: {$state} - Bruto: " . number_format($bruto))
+                                                    ->send();
+                                            } else {
+                                                self::resetReturFields($set);
+
+                                                Notification::make()
+                                                    ->title('Data Penjualan Tidak Ditemukan')
+                                                    ->warning()
+                                                    ->body("Tidak ada penjualan dengan status TERIMA/SETENGAH untuk container: {$state}")
+                                                    ->send();
+                                            }
+                                        } catch (\Exception $e) {
+                                            \Log::error('Error in container afterStateUpdated: ' . $e->getMessage());
+                                            self::resetReturFields($set);
+
+                                            Notification::make()
+                                                ->title('Error')
+                                                ->danger()
+                                                ->body('Terjadi kesalahan saat memuat data container')
+                                                ->send();
                                         }
                                     }),
 
+                                // Surat Jalan - hanya muncul jika tipe_retur = surat_jalan
                                 Select::make('surat_jalan_id')
-                                    ->label('Pilih Surat Jalan(Retur)')
-                                    ->disabled(fn(Get $get) => !empty($get('no_container_antar_pulau')))
+                                    ->label('Pilih Surat Jalan')
+                                    ->visible(fn(Get $get) => $get('tipe_retur') === 'surat_jalan')
                                     ->options(function () {
-                                        return \App\Models\SuratJalan::query()
-                                            ->where('status', 'retur')
-                                            ->with('tronton')
-                                            ->get()
-                                            ->mapWithKeys(function ($item) {
-                                                return [$item->id => "{$item->tronton->kode} - {$item->tronton->penjualan1->plat_polisi} - {$item->status}"];
-                                            });
+                                        try {
+                                            return \App\Models\SuratJalan::query()
+                                                ->where('status', 'retur')
+                                                ->with(['tronton', 'tronton.penjualan1'])
+                                                ->get()
+                                                ->mapWithKeys(function ($item) {
+                                                    $kode = $item->tronton->kode ?? 'N/A';
+                                                    $plat = $item->tronton->penjualan1->plat_polisi ?? 'N/A';
+                                                    return [$item->id => "{$kode} - {$plat} - {$item->status}"];
+                                                });
+                                        } catch (\Exception $e) {
+                                            \Log::error('Error loading surat jalan options: ' . $e->getMessage());
+                                            return [];
+                                        }
                                     })
                                     ->searchable()
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                        // Reset field lain jika ini dipilih
-                                        if (!empty($state)) {
-                                            $set('no_container_antar_pulau', null);
-                                        }
+                                        try {
+                                            if (empty($state)) {
+                                                self::resetReturFields($set);
+                                                return;
+                                            }
 
-                                        // Helper function untuk reset fields
-                                        $resetFields = function () use ($set) {
-                                            $set('plat_polisi', null);
-                                            $set('nama_barang', null);
-                                            // tambahkan field lain yang perlu direset
-                                        };
+                                            $suratJalan = \App\Models\SuratJalan::with(['tronton', 'tronton.penjualan1'])
+                                                ->find($state);
 
-                                        // Jika deselect, reset dan return
-                                        if (empty($state)) {
-                                            $resetFields();
-                                            return;
-                                        }
+                                            if ($suratJalan && $suratJalan->tronton && $suratJalan->tronton->penjualan1) {
+                                                $penjualan1 = $suratJalan->tronton->penjualan1;
 
-                                        // Cari data surat jalan
-                                        $suratJalan = \App\Models\SuratJalan::find($state);
+                                                $set('plat_polisi', $penjualan1->plat_polisi);
+                                                $set('nama_barang', strtoupper($penjualan1->nama_barang) . ' (RETUR SURAT JALAN)');
+                                                $set('nama_supir', $penjualan1->nama_supir ?? null);
 
-                                        // Set data atau reset jika tidak ada
-                                        if ($suratJalan && $suratJalan->tronton && $suratJalan->tronton->penjualan1) {
-                                            $set('plat_polisi', $suratJalan->tronton->penjualan1->plat_polisi);
-                                            $set('nama_barang', $suratJalan->tronton->penjualan1->nama_barang);
-                                            // tambahkan field lain sesuai kebutuhan
-                                        } else {
-                                            $resetFields();
+                                                // Bisa tambahkan field lain sesuai kebutuhan
+                                                // $set('id_supplier', $penjualan1->id_supplier ?? null);
+
+                                                Notification::make()
+                                                    ->title('Data Surat Jalan Berhasil Dimuat')
+                                                    ->success()
+                                                    ->body("Surat Jalan: {$suratJalan->tronton->kode} - {$penjualan1->plat_polisi}")
+                                                    ->send();
+                                            } else {
+                                                self::resetReturFields($set);
+
+                                                Notification::make()
+                                                    ->title('Data Surat Jalan Tidak Lengkap')
+                                                    ->warning()
+                                                    ->body('Data tronton atau penjualan tidak ditemukan untuk surat jalan ini')
+                                                    ->send();
+                                            }
+                                        } catch (\Exception $e) {
+                                            \Log::error('Error in surat jalan afterStateUpdated: ' . $e->getMessage());
+                                            self::resetReturFields($set);
+
+                                            Notification::make()
+                                                ->title('Error')
+                                                ->danger()
+                                                ->body('Terjadi kesalahan saat memuat data surat jalan')
+                                                ->send();
                                         }
                                     }),
-                            ])->columns(2)->collapsed()
+
+                                // Info helper text
+                                Placeholder::make('info_retur')
+                                    ->label('')
+                                    ->content(function (Get $get) {
+                                        $tipe = $get('tipe_retur');
+                                        if (empty($tipe)) {
+                                            return '💡 Pilih tipe retur untuk mengaktifkan opsi retur';
+                                        }
+                                        if ($tipe === 'container_antar_pulau') {
+                                            return '📦 Mode: Retur Container Antar Pulau - Data akan dimuat dari PenjualanAntarPulau';
+                                        }
+                                        if ($tipe === 'surat_jalan') {
+                                            return '📋 Mode: Retur Surat Jalan - Data akan dimuat dari SuratJalan';
+                                        }
+                                        return '';
+                                    })
+                                    ->columnSpanFull(),
+                            ])
+                            ->columns(2)
+                            ->collapsed()
+                            ->collapsible(),
                     ])->columns(2),
             ]);
     }
@@ -415,6 +537,12 @@ class PembelianResource extends Resource implements HasShieldPermissions
                 TextColumn::make('no_container')->label('No Container Manual')->searchable(),
                 TextColumn::make('no_container_antar_pulau')->label('No Container Antar Pulau')->searchable(),
 
+                // Tambahan kolom untuk surat jalan
+                TextColumn::make('suratJalan.tronton.kode')
+                    ->label('Kode Surat Jalan')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('jam_masuk'),
                 TextColumn::make('jam_keluar'),
 
@@ -472,6 +600,17 @@ class PembelianResource extends Resource implements HasShieldPermissions
                     ->query(fn(Builder $query) => $query->whereNull('tara'))
                     ->toggle()
                     ->default(fn() => !optional(Auth::user())->hasAnyRole(['super_admin'])),
+
+                // Filter tambahan untuk retur
+                Filter::make('retur_container')
+                    ->label('Retur Container')
+                    ->query(fn(Builder $query) => $query->whereNotNull('no_container_antar_pulau'))
+                    ->toggle(),
+
+                Filter::make('retur_surat_jalan')
+                    ->label('Retur Surat Jalan')
+                    ->query(fn(Builder $query) => $query->whereNotNull('surat_jalan_id'))
+                    ->toggle(),
             ]);
     }
 
