@@ -99,22 +99,113 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                 Grid::make()
                                     ->schema([
 
+                                        Select::make('lumbung')
+                                            ->label('Lumbung')
+                                            ->native(false)
+                                            ->columnSpan(1)
+                                            ->options(function () {
+                                                $lumbungList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'FIKTIF', 'SILO STAFFEL A', 'SILO STAFFEL B', 'SILO 1800', 'SILO 2500'];
+                                                $availableOptions = [];
+
+                                                // Cek apakah sedang dalam mode edit
+                                                $isEditing = false;
+                                                $currentLumbung = null;
+
+                                                try {
+                                                    $livewire = \Livewire\Livewire::current();
+                                                    if ($livewire && method_exists($livewire, 'getRecord')) {
+                                                        $record = $livewire->getRecord();
+                                                        if ($record && isset($record->lumbung)) {
+                                                            $isEditing = true;
+                                                            $currentLumbung = $record->lumbung;
+                                                        }
+                                                    }
+                                                } catch (\Exception $e) {
+                                                    // Ignore error
+                                                }
+
+                                                foreach ($lumbungList as $lumbungCode) {
+                                                    // Cek apakah ada record dengan status 0 untuk lumbung ini
+                                                    $hasStatusZero = \App\Models\LaporanLumbung::where('lumbung', $lumbungCode)
+                                                        ->where('status', 0)
+                                                        ->exists();
+
+                                                    // Jika ada record dengan status 0, lumbung tidak bisa dipilih
+                                                    if ($hasStatusZero) {
+                                                        // Khusus untuk mode edit: tetap tampilkan lumbung yang sedang dipilih meski tidak bisa dipilih
+                                                        if ($isEditing && $lumbungCode === $currentLumbung) {
+                                                            if (str_starts_with($lumbungCode, 'SILO')) {
+                                                                $availableOptions[$lumbungCode] = "{$lumbungCode} ";
+                                                            } else {
+                                                                $availableOptions[$lumbungCode] = "Lumbung {$lumbungCode} ";
+                                                            }
+                                                        }
+                                                        // Jika tidak dalam mode edit, skip lumbung ini
+                                                        continue;
+                                                    }
+
+                                                    // Jika tidak ada record dengan status 0, lumbung bisa dipilih
+                                                    // Format label berbeda untuk silo
+                                                    if (str_starts_with($lumbungCode, 'SILO')) {
+                                                        $availableOptions[$lumbungCode] = $lumbungCode;
+                                                    } else {
+                                                        $availableOptions[$lumbungCode] = "Lumbung {$lumbungCode}";
+                                                    }
+                                                }
+
+                                                return $availableOptions;
+                                            })
+                                            ->nullable() // Memungkinkan nilai kosong/null
+                                            ->default(function () {
+                                                // Cek apakah default dari parameter/record masih valid (tidak tertutup)
+                                                $defaultLumbung = null;
+
+                                                if (request()->get('lumbung')) {
+                                                    $defaultLumbung = request()->get('lumbung');
+                                                } else {
+                                                    try {
+                                                        $livewire = \Livewire\Livewire::current();
+                                                        if ($livewire && method_exists($livewire, 'getRecord')) {
+                                                            $record = $livewire->getRecord();
+                                                            if ($record && isset($record->lumbung)) {
+                                                                $defaultLumbung = $record->lumbung;
+                                                            }
+                                                        }
+                                                    } catch (\Exception $e) {
+                                                        // Ignore error
+                                                    }
+                                                }
+
+                                                // Validasi apakah default lumbung masih bisa dipilih
+                                                if ($defaultLumbung) {
+                                                    // Cek apakah ada record dengan status 0 untuk lumbung ini
+                                                    $hasStatusZero = \App\Models\LaporanLumbung::where('lumbung', $defaultLumbung)
+                                                        ->where('status', 0)
+                                                        ->exists();
+
+                                                    // Jika tidak ada record dengan status 0, lumbung bisa dipilih
+                                                    if (!$hasStatusZero) {
+                                                        return $defaultLumbung;
+                                                    }
+                                                }
+
+                                                return null;
+                                            })
+                                            ->placeholder('Pilih Lumbung (opsional)')
+                                            // ->helperText('Hanya lumbung yang semua recordnya berstatus terbuka (1) yang dapat dipilih')
+                                            ->reactive(), // Agar bisa update otomatis jika ada perubahan
                                         Select::make('silo_id')
                                             ->label('Kode')
-                                            ->options(function () {
-                                                return Silo::whereIn('nama', [
-                                                    'SILO STAFFEL A',
-                                                    'SILO STAFFEL B',
-                                                    'SILO 2500',
-                                                    'SILO 1800'
-                                                ])
-                                                    ->where('status', '!=', true) // Tambahkan kondisi untuk mengecualikan status true
-                                                    // Atau bisa juga menggunakan:
-                                                    // ->where('status', false)
-                                                    // ->whereNull('status')
-                                                    // ->where(function($query) {
-                                                    //     $query->where('status', false)->orWhereNull('status');
-                                                    // })
+                                            ->options(function (callable $get) {
+                                                $lumbung = $get('lumbung');
+
+                                                // Hanya tampilkan options jika lumbung adalah salah satu dari silo
+                                                if (!in_array($lumbung, ['SILO STAFFEL A', 'SILO STAFFEL B', 'SILO 1800', 'SILO 2500'])) {
+                                                    return [];
+                                                }
+
+                                                return Silo::where('nama', $lumbung)
+                                                    ->where('status', '!=', true)
                                                     ->get()
                                                     ->mapWithKeys(function ($item) {
                                                         return [
@@ -125,109 +216,55 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                             ->searchable()
                                             ->preload()
                                             ->nullable()
-                                            ->disabled(function (callable $get) {
-                                                // Disabled jika field lumbung terisi
-                                                return !empty($get('lumbung'));
+                                            ->visible(function (callable $get) {
+                                                $lumbung = $get('lumbung');
+                                                // Hanya tampilkan field ini jika lumbung adalah salah satu dari silo
+                                                return in_array($lumbung, ['SILO STAFFEL A', 'SILO STAFFEL B', 'SILO 1800', 'SILO 2500']);
                                             })
-                                            ->placeholder('Pilih')
+                                            ->placeholder('Pilih Kode Silo')
                                             ->reactive()
-                                            ->default(function () {
-                                                // Auto-select berdasarkan parameter URL dari tab aktif
-                                                $statusSilo = request()->get('status_silo');
-
-                                                if ($statusSilo) {
-                                                    // Mapping dari parameter URL ke nama silo
-                                                    $statusMapping = [
-                                                        'silo staffel a' => 'SILO STAFFEL A',
-                                                        'silo staffel b' => 'SILO STAFFEL B',
-                                                        'silo 2500' => 'SILO 2500',
-                                                        'silo 1800' => 'SILO 1800',
-                                                    ];
-
-                                                    $namaTarget = $statusMapping[$statusSilo] ?? null;
-
-                                                    if ($namaTarget) {
-                                                        // Cari silo berdasarkan nama dan pastikan status bukan true
-                                                        $silo = Silo::where('nama', $namaTarget)
-                                                            ->where('status', '!=', true)
-                                                            ->first();
-                                                        return $silo ? $silo->id : null;
-                                                    }
-                                                }
-
-                                                return null;
-                                            })
-                                            ->afterStateHydrated(function (Select $component, $state, callable $set) {
-                                                // Jika belum ada nilai terpilih, set berdasarkan parameter URL
-                                                if (!$state) {
-                                                    $statusSilo = request()->get('status_silo');
-
-                                                    if ($statusSilo) {
-                                                        $statusMapping = [
-                                                            'silo staffel a' => 'SILO STAFFEL A',
-                                                            'silo staffel b' => 'SILO STAFFEL B',
-                                                            'silo 2500' => 'SILO 2500',
-                                                            'silo 1800' => 'SILO 1800',
-                                                        ];
-
-                                                        $namaTarget = $statusMapping[$statusSilo] ?? null;
-
-                                                        if ($namaTarget) {
-                                                            $silo = Silo::where('nama', $namaTarget)
-                                                                ->where('status', '!=', true)
-                                                                ->first();
-                                                            if ($silo) {
-                                                                $component->state($silo->id);
-                                                                $set('status_silo', $silo->nama); // Set status_silo juga
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            })
-                                            ->afterStateUpdated(function ($state, callable $set) {
+                                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                                 if ($state) {
-                                                    // Ambil data silo berdasarkan ID yang dipilih
-                                                    $silo = Silo::find($state);
-                                                    if ($silo) {
-                                                        $set('status_silo', $silo->nama); // Set status sesuai nama silo
-                                                    }
+                                                    // Set status_silo sesuai dengan lumbung yang dipilih
+                                                    $lumbung = $get('lumbung');
+                                                    $set('status_silo', $lumbung);
                                                 } else {
                                                     $set('status_silo', null);
                                                 }
                                             }),
 
-                                        Select::make('status_silo')
-                                            ->native(false)
-                                            ->placeholder('Otomatis')
-                                            ->label('Status silo')
-                                            ->disabled()
-                                            ->dehydrated() // Memastikan field tetap terkirim meskipun disabled
-                                            ->options([
-                                                'SILO STAFFEL A' => 'SILO STAFFEL A',
-                                                'SILO STAFFEL B' => 'SILO STAFFEL B',
-                                                'SILO 2500' => 'SILO 2500',
-                                                'SILO 1800' => 'SILO 1800',
-                                            ])
-                                            ->default(function () {
-                                                // Ambil dari parameter URL yang sudah dikirim dari ListLaporanLumbungs
-                                                $statusSilo = request()->get('status_silo');
+                                        // Select::make('status_silo')
+                                        //     ->native(false)
+                                        //     ->placeholder('Otomatis')
+                                        //     ->label('Status silo')
+                                        //     ->disabled()
+                                        //     ->dehydrated() // Memastikan field tetap terkirim meskipun disabled
+                                        //     ->options([
+                                        //         'SILO STAFFEL A' => 'SILO STAFFEL A',
+                                        //         'SILO STAFFEL B' => 'SILO STAFFEL B',
+                                        //         'SILO 2500' => 'SILO 2500',
+                                        //         'SILO 1800' => 'SILO 1800',
+                                        //     ])
+                                        //     ->default(function () {
+                                        //         // Ambil dari parameter URL yang sudah dikirim dari ListLaporanLumbungs
+                                        //         $statusSilo = request()->get('status_silo');
 
-                                                if ($statusSilo) {
-                                                    // Mapping dari database value ke display value
-                                                    $statusMapping = [
-                                                        'silo staffel a' => 'SILO STAFFEL A',
-                                                        'silo staffel b' => 'SILO STAFFEL B',
-                                                        'silo 2500' => 'SILO 2500',
-                                                        'silo 1800' => 'SILO 1800',
-                                                    ];
+                                        //         if ($statusSilo) {
+                                        //             // Mapping dari database value ke display value
+                                        //             $statusMapping = [
+                                        //                 'silo staffel a' => 'SILO STAFFEL A',
+                                        //                 'silo staffel b' => 'SILO STAFFEL B',
+                                        //                 'silo 2500' => 'SILO 2500',
+                                        //                 'silo 1800' => 'SILO 1800',
+                                        //             ];
 
-                                                    return $statusMapping[strtolower($statusSilo)] ?? strtoupper($statusSilo);
-                                                }
+                                        //             return $statusMapping[strtolower($statusSilo)] ?? strtoupper($statusSilo);
+                                        //         }
 
-                                                return null;
-                                            })
-                                            ->live()
-                                            ->reactive(),
+                                        //         return null;
+                                        //     })
+                                        //     ->live()
+                                        //     ->reactive(),
 
 
                                     ])->columnSpan(1),
@@ -255,27 +292,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                     ),
                             ]),
 
-                        Hidden::make('lumbung')
-                            ->default(function () {
-                                // Set default dari request parameter atau record
-                                if (request()->get('lumbung')) {
-                                    return request()->get('lumbung');
-                                }
 
-                                try {
-                                    $livewire = \Livewire\Livewire::current();
-                                    if ($livewire && method_exists($livewire, 'getRecord')) {
-                                        $record = $livewire->getRecord();
-                                        if ($record && isset($record->lumbung)) {
-                                            return $record->lumbung;
-                                        }
-                                    }
-                                } catch (\Exception $e) {
-                                    // Ignore error
-                                }
-
-                                return null;
-                            }),
 
                     ])
                     ->columns(1),
@@ -333,21 +350,21 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                     ->color(function ($state) {
                         return $state ? 'danger' : 'success';
                     }),
-                TextColumn::make('status_silo')
-                    ->label('Silo')
-                    ->default('-')
-                    ->alignCenter()
-                    ->badge()
-                    ->color(function ($state) {
-                        return match ($state) {
-                            'SILO STAFFEL A' => 'primary',
-                            'SILO STAFFEL B' => 'primary',
-                            'SILO 2500' => 'primary',
-                            'SILO 1800' => 'primary',
-                            '-' => 'primary',
-                            default => 'primary'
-                        };
-                    }),
+                // TextColumn::make('status_silo')
+                //     ->label('Silo')
+                //     ->default('-')
+                //     ->alignCenter()
+                //     ->badge()
+                //     ->color(function ($state) {
+                //         return match ($state) {
+                //             'SILO STAFFEL A' => 'primary',
+                //             'SILO STAFFEL B' => 'primary',
+                //             'SILO 2500' => 'primary',
+                //             'SILO 1800' => 'primary',
+                //             '-' => 'primary',
+                //             default => 'primary'
+                //         };
+                //     }),
                 TextColumn::make('kode')
                     ->label('No Laporan')
                     ->alignCenter()
@@ -355,14 +372,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                 TextColumn::make('lumbung')
                     ->alignCenter()
                     ->searchable()
-                    ->label('Lumbung')
-                    ->placeholder('- TRANSFER -')
-                    ->formatStateUsing(function ($state) {
-                        if ($state === 'Z') {
-                            return 'FIKTIF';
-                        }
-                        return $state;
-                    }),
+                    ->label('Lumbung'),
                 TextColumn::make('dryers.no_dryer')
                     ->alignCenter()
                     ->searchable()

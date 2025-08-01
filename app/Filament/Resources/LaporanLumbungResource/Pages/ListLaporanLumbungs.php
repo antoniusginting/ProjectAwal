@@ -33,31 +33,22 @@ class ListLaporanLumbungs extends ListRecords
                     }
                 })
                 ->mutateFormDataUsing(function (array $data): array {
-                    // Auto-set lumbung atau status_silo berdasarkan tab aktif
+                    // Auto-set lumbung berdasarkan tab aktif
                     $activeLumbung = $this->getActiveLumbungCode();
-                    $activeSilo = $this->getActiveStatusSilo();
 
                     if ($activeLumbung) {
                         $data['lumbung'] = $activeLumbung;
                     }
 
-                    if ($activeSilo) {
-                        $data['status_silo'] = $activeSilo;
-                    }
-
                     return $data;
                 })
                 ->url(function () {
-                    // Pass parameter lumbung atau status_silo ke URL create
+                    // Pass parameter lumbung ke URL create
                     $activeLumbung = $this->getActiveLumbungCode();
-                    $activeSilo = $this->getActiveStatusSilo();
 
                     $params = [];
                     if ($activeLumbung) {
                         $params['lumbung'] = $activeLumbung;
-                    }
-                    if ($activeSilo) {
-                        $params['status_silo'] = $activeSilo;
                     }
 
                     return $this->getResource()::getUrl('create', $params);
@@ -67,91 +58,113 @@ class ListLaporanLumbungs extends ListRecords
 
     public function getTabs(): array
     {
-        $tabs = [
-            'semua' => Tab::make('Semua Data')
-                ->badge(LaporanLumbung::count())
-                ->badgeColor('primary'),
-        ];
+        $tabs = [];
 
-        // Tab SILO untuk data tanpa nilai lumbung
-        $siloCount = LaporanLumbung::whereNull('lumbung')
+        // Debug: Cek semua nilai lumbung yang ada di database
+        $existingLumbungs = LaporanLumbung::distinct()->pluck('lumbung')->filter()->toArray();
+        // Uncomment baris berikut untuk debugging
+        // dd('Existing lumbungs in database:', $existingLumbungs);
+
+        // Tab AWAL (posisi pertama) - untuk data tanpa lumbung/null
+        $awalCount = LaporanLumbung::whereNull('lumbung')
             ->orWhere('lumbung', '')
             ->count();
 
-        // $tabs['silo'] = Tab::make('SILO')
-        //     // ->badge($siloCount)
-        //     ->badgeColor('info')
-        //     ->modifyQueryUsing(function (Builder $query) {
-        //         return $query->whereNull('lumbung')
-        //             ->orWhere('lumbung', '');
-        //     });
+        $tabs['awal'] = Tab::make('TANPA LUMBUNG')
+            ->badge($awalCount)
+            ->badgeColor('primary')
+            ->modifyQueryUsing(function (Builder $query) {
+                return $query->where(function ($query) {
+                    $query->whereNull('lumbung')
+                        ->orWhere('lumbung', '');
+                })
+                    ->orderByRaw('CASE 
+                        WHEN lumbung IS NULL OR lumbung = "" THEN 0 
+                        ELSE 1 
+                    END')
+                    ->orderBy('created_at', 'desc');
+            });
 
-        // Tab untuk Silo berdasarkan status_silo
-        // Periksa nilai yang ada di database untuk debugging
-        $distinctStatusSilo = LaporanLumbung::whereNotNull('status_silo')
-            ->distinct()
-            ->pluck('status_silo')
-            ->toArray();
-
-        // Debug: uncomment baris berikut untuk melihat nilai yang ada
-        // dd($distinctStatusSilo);
+        // Tab Semua Data
+        $tabs['semua'] = Tab::make('Semua Data')
+            ->badge(LaporanLumbung::count())
+            ->badgeColor('info');
 
         // Definisi lumbung A sampai I
         $lumbungList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
 
         foreach ($lumbungList as $lumbungCode) {
-            // Ambil data terakhir berdasarkan created_at untuk lumbung ini
-            $latestRecord = LaporanLumbung::where('lumbung', $lumbungCode)
-                ->latest('created_at')
-                ->first();
+            // Hitung jumlah record untuk lumbung ini
+            $lumbungCount = LaporanLumbung::where('lumbung', $lumbungCode)->count();
 
-            // Tentukan badge dan icon berdasarkan status data terakhir
-            $badgeInfo = $this->getBadgeInfo($latestRecord);
+            // Jika tidak ada data, tampilkan count 0
+            if ($lumbungCount == 0) {
+                $badgeDisplay = '0';
+                $badgeColor = 'gray';
+            } else {
+                // Logika baru: cek apakah ada record dengan status 0
+                $hasStatusZero = LaporanLumbung::where('lumbung', $lumbungCode)
+                    ->where('status', 0)
+                    ->exists();
+
+                if ($hasStatusZero) {
+                    // Jika ada record dengan status 0, tampilkan centang
+                    $badgeDisplay = '✓';
+                    $badgeColor = 'success';
+                } else {
+                    // Jika semua record memiliki status 1, tampilkan silang
+                    $badgeDisplay = '✕';
+                    $badgeColor = 'danger';
+                }
+            }
 
             $tabs['lumbung_' . strtolower($lumbungCode)] = Tab::make('LK ' . $lumbungCode)
-                ->badge($badgeInfo['icon'])
-                ->badgeColor($badgeInfo['color'])
+                ->badge($badgeDisplay)
+                ->badgeColor($badgeColor)
                 ->modifyQueryUsing(function (Builder $query) use ($lumbungCode) {
                     return $query->where('lumbung', $lumbungCode);
                 });
         }
-        $siloStatusList = [
-            'silo staffel a' => 'Silo Staffel A',
-            'silo staffel b' => 'Silo Staffel B',
-            'silo 2500' => 'Silo 2500',
-            'silo 1800' => 'Silo 1800'
+
+        // Tab untuk Silo berdasarkan lumbung (bukan status_silo lagi)
+        $siloLumbungList = [
+            'SILO STAFFEL A' => 'Silo Staffel A',
+            'SILO STAFFEL B' => 'Silo Staffel B',
+            'SILO 2500' => 'Silo 2500',
+            'SILO 1800' => 'Silo 1800'
         ];
 
-        foreach ($siloStatusList as $statusValue => $tabLabel) {
-            // Ambil data terakhir berdasarkan created_at untuk status_silo ini
-            $latestRecord = LaporanLumbung::where('status_silo', $statusValue)
+        foreach ($siloLumbungList as $lumbungValue => $tabLabel) {
+            // Ambil data terakhir berdasarkan created_at untuk lumbung ini
+            $latestRecord = LaporanLumbung::where('lumbung', $lumbungValue)
                 ->latest('created_at')
                 ->first();
 
             // Tentukan badge dan icon berdasarkan status data terakhir
             $badgeInfo = $this->getBadgeInfo($latestRecord);
 
-            $tabs['silo_' . $statusValue] = Tab::make($tabLabel)
+            $tabs['silo_' . strtolower(str_replace(' ', '_', $lumbungValue))] = Tab::make($tabLabel)
                 ->badge($badgeInfo['icon'])
                 ->badgeColor($badgeInfo['color'])
-                ->modifyQueryUsing(function (Builder $query) use ($statusValue) {
-                    return $query->where('status_silo', $statusValue);
+                ->modifyQueryUsing(function (Builder $query) use ($lumbungValue) {
+                    return $query->where('lumbung', $lumbungValue);
                 });
         }
 
-        // Tab khusus untuk Lumbung Z (FIKTIF)
-        $latestRecordZ = LaporanLumbung::where('lumbung', 'FIKTIF')
+        // Tab khusus untuk Lumbung FIKTIF
+        $latestRecordFiktif = LaporanLumbung::where('lumbung', 'FIKTIF')
             ->latest('created_at')
             ->first();
 
-        $badgeInfoZ = $this->getBadgeInfo($latestRecordZ);
+        $badgeInfoFiktif = $this->getBadgeInfo($latestRecordFiktif);
 
         $tabs['lumbung_fiktif'] = Tab::make('FIKTIF')
-            ->badge($badgeInfoZ['icon'])
-            ->badgeColor($badgeInfoZ['color'])
+            ->badge($badgeInfoFiktif['icon'])
+            ->badgeColor($badgeInfoFiktif['color'])
             ->modifyQueryUsing(function (Builder $query) {
                 return $query->where('lumbung', 'FIKTIF');
             });
+
         return $tabs;
     }
 
@@ -182,46 +195,28 @@ class ListLaporanLumbungs extends ListRecords
 
     private function canCreateRecord(): bool
     {
-        $activeTab = $this->activeTab ?? 'semua';
+        $activeTab = $this->activeTab ?? 'awal';
+
+        // Tab "AWAL" selalu dapat menambah data
+        if ($activeTab === 'awal') {
+            return true;
+        }
 
         // Tab "Semua Data" tidak dapat menambah data
         if ($activeTab === 'semua') {
             return false;
         }
 
-        // Tab SILO selalu dapat menambah data
-        if ($activeTab === 'silo') {
-            return true;
-        }
-
-        // Tab FIKTIF selalu dapat menambah data kapan pun
-        if ($activeTab === 'lumbung_fiktif') {
-            return true;
-        }
-
-        // Tab untuk Silo berdasarkan status_silo
-        if (str_starts_with($activeTab, 'silo_')) {
-            $statusValue = str_replace('silo_', '', $activeTab);
-
-            $latestRecord = LaporanLumbung::where('status_silo', $statusValue)
-                ->latest('created_at')
-                ->first();
-
-            // Jika belum ada record, bisa menambah data
-            if (!$latestRecord) {
-                return true;
-            }
-
-            // Jika status false (tertutup), tidak bisa menambah data
-            // Jika status true (terbuka), bisa menambah data
-            return (bool) $latestRecord->status;
-        }
-
-        // Tab untuk Lumbung A-I (kecuali FIKTIF yang sudah dihandle di atas)
+        // Tab untuk Lumbung A-I dan FIKTIF - TIDAK BISA TAMBAH DATA
         if (str_starts_with($activeTab, 'lumbung_')) {
-            $lumbungCode = strtoupper(str_replace('lumbung_', '', $activeTab));
+            return false;
+        }
 
-            $latestRecord = LaporanLumbung::where('lumbung', $lumbungCode)
+        // Tab untuk Silo - menggunakan logika yang sama dengan lumbung
+        if (str_starts_with($activeTab, 'silo_')) {
+            $lumbungValue = $this->getSiloLumbungValue($activeTab);
+
+            $latestRecord = LaporanLumbung::where('lumbung', $lumbungValue)
                 ->latest('created_at')
                 ->first();
 
@@ -235,30 +230,51 @@ class ListLaporanLumbungs extends ListRecords
             return (bool) $latestRecord->status;
         }
 
-        return true;
+        return false;
     }
+
     /**
-     * Menampilkan notifikasi ketika lumbung atau silo masih terbuka
+     * Mendapatkan nilai lumbung untuk silo berdasarkan tab
+     */
+    private function getSiloLumbungValue(string $activeTab): string
+    {
+        $siloMapping = [
+            'silo_silo_staffel_a' => 'SILO STAFFEL A',
+            'silo_silo_staffel_b' => 'SILO STAFFEL B',
+            'silo_silo_2500' => 'SILO 2500',
+            'silo_silo_1800' => 'SILO 1800'
+        ];
+
+        return $siloMapping[$activeTab] ?? '';
+    }
+
+    /**
+     * Menampilkan notifikasi ketika tidak bisa menambah data
      */
     private function showLumbungStatusNotification(): void
     {
-        $activeTab = $this->activeTab ?? 'semua';
+        $activeTab = $this->activeTab ?? 'awal';
 
-        if (str_starts_with($activeTab, 'lumbung_')) {
+        if ($activeTab === 'semua') {
+            Notification::make()
+                ->title('Tidak dapat menambah data')
+                ->body("Tidak dapat menambah data di tab Semua Data. Pilih tab yang sesuai.")
+                ->danger()
+                ->duration(5000)
+                ->send();
+        } elseif (str_starts_with($activeTab, 'lumbung_')) {
             $lumbungCode = strtoupper(str_replace('lumbung_', '', $activeTab));
-
-            // Khusus untuk Lumbung Z, tampilkan nama FIKTIF
             $lumbungName = $lumbungCode === 'FIKTIF' ? 'FIKTIF' : $lumbungCode;
 
             Notification::make()
                 ->title('Tidak dapat menambah data')
-                ->body("Lumbung {$lumbungName} masih dalam status terbuka. Tutup lumbung terlebih dahulu sebelum menambah data baru.")
+                ->body("Tidak dapat menambah data di tab Lumbung {$lumbungName}. Gunakan tab AWAL untuk menambah data baru.")
                 ->danger()
                 ->duration(5000)
                 ->send();
         } elseif (str_starts_with($activeTab, 'silo_')) {
-            $statusValue = str_replace('silo_', '', $activeTab);
-            $siloName = $this->getSiloDisplayName($statusValue);
+            $lumbungValue = $this->getSiloLumbungValue($activeTab);
+            $siloName = $this->getSiloDisplayName($lumbungValue);
 
             Notification::make()
                 ->title('Tidak dapat menambah data')
@@ -270,18 +286,18 @@ class ListLaporanLumbungs extends ListRecords
     }
 
     /**
-     * Mendapatkan nama display untuk silo berdasarkan status value
+     * Mendapatkan nama display untuk silo berdasarkan lumbung value
      */
-    private function getSiloDisplayName(string $statusValue): string
+    private function getSiloDisplayName(string $lumbungValue): string
     {
         $siloNames = [
-            'silo staffel a' => 'Staffel A',
-            'silo staffel b' => 'Staffel B',
-            'silo 2500' => '2500',
-            'silo 1800' => '1800'
+            'SILO STAFFEL A' => 'Staffel A',
+            'SILO STAFFEL B' => 'Staffel B',
+            'SILO 2500' => '2500',
+            'SILO 1800' => '1800'
         ];
 
-        return $siloNames[$statusValue] ?? $statusValue;
+        return $siloNames[$lumbungValue] ?? $lumbungValue;
     }
 
     /**
@@ -289,29 +305,21 @@ class ListLaporanLumbungs extends ListRecords
      */
     public function getActiveLumbungCode(): ?string
     {
-        $activeTab = $this->activeTab ?? 'semua';
+        $activeTab = $this->activeTab ?? 'awal';
 
-        // Untuk tab SILO, return null agar lumbung tidak diset
-        if ($activeTab === 'silo') {
+        // Untuk tab AWAL, return null agar lumbung tidak diset
+        if ($activeTab === 'awal') {
             return null;
         }
 
+        // Untuk tab lumbung A-I dan FIKTIF
         if (str_starts_with($activeTab, 'lumbung_')) {
             return strtoupper(str_replace('lumbung_', '', $activeTab));
         }
 
-        return null;
-    }
-
-    /**
-     * Mendapatkan status_silo dari tab aktif
-     */
-    public function getActiveStatusSilo(): ?string
-    {
-        $activeTab = $this->activeTab ?? 'semua';
-
+        // Untuk tab silo, return nilai lumbung yang sesuai
         if (str_starts_with($activeTab, 'silo_')) {
-            return str_replace('silo_', '', $activeTab);
+            return $this->getSiloLumbungValue($activeTab);
         }
 
         return null;

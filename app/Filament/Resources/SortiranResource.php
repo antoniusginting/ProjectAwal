@@ -985,6 +985,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                     ExportBulkAction::make()->exporter(SortiranExporter::class)->label('Export to Excel'),
                 ]),
             ])
+            ->defaultSort('id', 'desc')
             ->filters([
                 Filter::make('date_range')
                     ->form([

@@ -52,6 +52,7 @@ class KapasitasDryerResource extends Resource implements HasShieldPermissions
                     ->schema([
                         TextInput::make('nama_kapasitas_dryer')
                             ->label('Nama Dryer')
+                            ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                             ->placeholder('Masukkan Nama Kapasitas Dryer'),
                         TextInput::make('kapasitas_total')
                             ->label('Kapasitas Total')
