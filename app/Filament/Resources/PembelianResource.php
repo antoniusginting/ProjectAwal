@@ -8,6 +8,7 @@ use App\Models\Mobil;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use App\Models\Supplier;
+use Illuminate\Support\Facades\Log;
 use Filament\Forms\Form;
 use App\Models\Pembelian;
 use Filament\Tables\Table;
@@ -290,7 +291,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                             self::resetReturFields($set);
                                         }
                                     })
-                                    ->columnSpanFull(),
+                                    ->columnSpan(fn (Get $get) => $get('tipe_retur') ? 1 : 2),
 
                                 // Container Antar Pulau
                                 Select::make('no_container_antar_pulau')
@@ -307,7 +308,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                                 ->get()
                                                 ->pluck('no_container', 'no_container');
                                         } catch (\Exception $e) {
-                                            \Log::error('Error loading container options: ' . $e->getMessage());
+                                            Log::error('Error loading container options: ' . $e->getMessage());
                                             return [];
                                         }
                                     })
@@ -322,7 +323,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
 
                                             $containerExists = \App\Models\PembelianAntarPulau::where('no_container', $state)->exists();
                                             if (!$containerExists) {
-                                                \Log::warning("Container {$state} not found in PembelianAntarPulau");
+                                                Log::warning("Container {$state} not found in PembelianAntarPulau");
                                                 self::resetReturFields($set);
                                                 return;
                                             }
@@ -348,7 +349,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                                 self::resetReturFields($set);
                                             }
                                         } catch (\Exception $e) {
-                                            \Log::error('Error in container afterStateUpdated: ' . $e->getMessage());
+                                            Log::error('Error in container afterStateUpdated: ' . $e->getMessage());
                                             self::resetReturFields($set);
                                         }
                                     }),
@@ -369,7 +370,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                                     return [$item->id => "{$kode} - {$plat} - {$item->status}"];
                                                 });
                                         } catch (\Exception $e) {
-                                            \Log::error('Error loading surat jalan options: ' . $e->getMessage());
+                                            Log::error('Error loading surat jalan options: ' . $e->getMessage());
                                             return [];
                                         }
                                     })
@@ -395,7 +396,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                                 self::resetReturFields($set);
                                             }
                                         } catch (\Exception $e) {
-                                            \Log::error('Error in surat jalan afterStateUpdated: ' . $e->getMessage());
+                                            Log::error('Error in surat jalan afterStateUpdated: ' . $e->getMessage());
                                             self::resetReturFields($set);
                                         }
                                     }),
