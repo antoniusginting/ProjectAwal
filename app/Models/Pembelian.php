@@ -18,6 +18,7 @@ class Pembelian extends Model
         'nama_barang',
         'no_container',
         'no_container_antar_pulau',
+        'no_surat_jalan',
         'brondolan',
         'bruto',
         'tara',

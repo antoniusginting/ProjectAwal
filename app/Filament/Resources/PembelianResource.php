@@ -355,7 +355,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                     }),
 
                                 // Surat Jalan
-                                Select::make('surat_jalan_id')
+                                Select::make('no_surat_jalan')
                                     ->label('Pilih Surat Jalan')
                                     ->visible(fn(Get $get) => $get('tipe_retur') === 'surat_jalan')
                                     ->options(function () {
