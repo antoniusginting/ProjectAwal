@@ -23,7 +23,13 @@ class EditPembelianAntarPulau extends EditRecord
         return [
             Action::make('save')
                 ->label('Ubah')
-                ->action(fn() => $this->save()), // Menggunakan fungsi simpan manual
+                ->action(function () {
+                    $this->save();
+
+                    // Redirect setelah simpan
+                    return redirect()->to(PembelianAntarPulauResource::getUrl('index'));
+                }),
+
             Action::make('cancel')
                 ->label('Batal')
                 ->color('gray')
