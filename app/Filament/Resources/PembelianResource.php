@@ -268,7 +268,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                     ->default(Auth::id()),
                             ])->columns(2),
 
-                        // CARD RETURAN - OPSI 1: RADIO BUTTON SELECTION
+
                         Card::make('Returan')
                             ->schema([
                                 // Pilihan tipe retur
@@ -281,30 +281,18 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                     ->placeholder('Pilih tipe retur (opsional)')
                                     ->native(false)
                                     ->live()
-                                    ->dehydrated(false) // Tidak perlu disimpan ke database
+                                    ->dehydrated(false)
                                     ->afterStateUpdated(function ($state, callable $set) {
-                                        // Reset semua field retur ketika ganti tipe
                                         $set('no_container_antar_pulau', null);
                                         $set('surat_jalan_id', null);
 
-                                        // Reset field data yang terpengaruh retur
                                         if (empty($state)) {
-                                            // Jika tipe retur dikosongkan, reset semua field terkait
                                             self::resetReturFields($set);
-                                        }
-
-                                        // Notifikasi perubahan
-                                        if (!empty($state)) {
-                                            Notification::make()
-                                                ->title('Tipe Retur Dipilih')
-                                                ->success()
-                                                ->body('Silakan pilih ' . ($state === 'container_antar_pulau' ? 'Container Antar Pulau' : 'Surat Jalan'))
-                                                ->send();
                                         }
                                     })
                                     ->columnSpanFull(),
 
-                                // Container Antar Pulau - hanya muncul jika tipe_retur = container_antar_pulau
+                                // Container Antar Pulau
                                 Select::make('no_container_antar_pulau')
                                     ->label('No Container Antar Pulau')
                                     ->visible(fn(Get $get) => $get('tipe_retur') === 'container_antar_pulau')
@@ -332,17 +320,10 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                                 return;
                                             }
 
-                                            // Debug: cek apakah container ada
                                             $containerExists = \App\Models\PembelianAntarPulau::where('no_container', $state)->exists();
                                             if (!$containerExists) {
                                                 \Log::warning("Container {$state} not found in PembelianAntarPulau");
                                                 self::resetReturFields($set);
-
-                                                Notification::make()
-                                                    ->title('Container Tidak Ditemukan')
-                                                    ->danger()
-                                                    ->body("Container {$state} tidak ditemukan di database")
-                                                    ->send();
                                                 return;
                                             }
 
@@ -363,34 +344,16 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                                 $set('netto', $netto);
                                                 $set('nama_barang', strtoupper($penjualan->nama_barang) . ' (RETUR)');
                                                 $set('no_container', strtoupper(optional($penjualan->pembelianAntarPulau)->no_container));
-
-                                                Notification::make()
-                                                    ->title('Data Container Berhasil Dimuat')
-                                                    ->success()
-                                                    ->body("Container: {$state} - Bruto: " . number_format($bruto))
-                                                    ->send();
                                             } else {
                                                 self::resetReturFields($set);
-
-                                                Notification::make()
-                                                    ->title('Data Penjualan Tidak Ditemukan')
-                                                    ->warning()
-                                                    ->body("Tidak ada penjualan dengan status TERIMA/SETENGAH untuk container: {$state}")
-                                                    ->send();
                                             }
                                         } catch (\Exception $e) {
                                             \Log::error('Error in container afterStateUpdated: ' . $e->getMessage());
                                             self::resetReturFields($set);
-
-                                            Notification::make()
-                                                ->title('Error')
-                                                ->danger()
-                                                ->body('Terjadi kesalahan saat memuat data container')
-                                                ->send();
                                         }
                                     }),
 
-                                // Surat Jalan - hanya muncul jika tipe_retur = surat_jalan
+                                // Surat Jalan
                                 Select::make('surat_jalan_id')
                                     ->label('Pilih Surat Jalan')
                                     ->visible(fn(Get $get) => $get('tipe_retur') === 'surat_jalan')
@@ -428,57 +391,19 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                                 $set('plat_polisi', $penjualan1->plat_polisi);
                                                 $set('nama_barang', strtoupper($penjualan1->nama_barang) . ' (RETUR SURAT JALAN)');
                                                 $set('nama_supir', $penjualan1->nama_supir ?? null);
-
-                                                // Bisa tambahkan field lain sesuai kebutuhan
-                                                // $set('id_supplier', $penjualan1->id_supplier ?? null);
-
-                                                Notification::make()
-                                                    ->title('Data Surat Jalan Berhasil Dimuat')
-                                                    ->success()
-                                                    ->body("Surat Jalan: {$suratJalan->tronton->kode} - {$penjualan1->plat_polisi}")
-                                                    ->send();
                                             } else {
                                                 self::resetReturFields($set);
-
-                                                Notification::make()
-                                                    ->title('Data Surat Jalan Tidak Lengkap')
-                                                    ->warning()
-                                                    ->body('Data tronton atau penjualan tidak ditemukan untuk surat jalan ini')
-                                                    ->send();
                                             }
                                         } catch (\Exception $e) {
                                             \Log::error('Error in surat jalan afterStateUpdated: ' . $e->getMessage());
                                             self::resetReturFields($set);
-
-                                            Notification::make()
-                                                ->title('Error')
-                                                ->danger()
-                                                ->body('Terjadi kesalahan saat memuat data surat jalan')
-                                                ->send();
                                         }
                                     }),
-
-                                // Info helper text
-                                Placeholder::make('info_retur')
-                                    ->label('')
-                                    ->content(function (Get $get) {
-                                        $tipe = $get('tipe_retur');
-                                        if (empty($tipe)) {
-                                            return '💡 Pilih tipe retur untuk mengaktifkan opsi retur';
-                                        }
-                                        if ($tipe === 'container_antar_pulau') {
-                                            return '📦 Mode: Retur Container Antar Pulau - Data akan dimuat dari PenjualanAntarPulau';
-                                        }
-                                        if ($tipe === 'surat_jalan') {
-                                            return '📋 Mode: Retur Surat Jalan - Data akan dimuat dari SuratJalan';
-                                        }
-                                        return '';
-                                    })
-                                    ->columnSpanFull(),
                             ])
                             ->columns(2)
                             ->collapsed()
-                            ->collapsible(),
+                            ->collapsible()
+
                     ])->columns(2),
             ]);
     }
