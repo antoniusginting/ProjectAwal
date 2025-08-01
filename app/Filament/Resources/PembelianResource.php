@@ -210,6 +210,9 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan No Container'),
 
+
+
+
                                 Grid::make(2)
                                     ->schema([
                                         TextInput::make('jumlah_karung')
@@ -286,7 +289,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                             return;
                                         }
 
-                                        // Cari data penjualan
+                                        // Cari data penjualan antar pulau dari no_container
                                         $penjualan = \App\Models\PenjualanAntarPulau::whereHas('pembelianAntarPulau', function ($q) use ($state) {
                                             $q->where('no_container', $state);
                                         })
@@ -294,24 +297,20 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                             ->latest()
                                             ->first();
 
-                                        // Set data atau reset jika tidak ada
                                         if ($penjualan) {
-                                            $set('bruto', (int) $penjualan->netto_diterima);
+                                            $bruto = (int) $penjualan->netto_diterima;
                                             $tara = (int) ($get('tara') ?? 0);
-                                            $set('netto', max(0, (int) $penjualan->netto_diterima - $tara));
+                                            $netto = max(0, $bruto - $tara);
 
-                                            // Tambahkan suffix (retur) pada nama barang
-                                            $namaBarang = strtoupper($penjualan->nama_barang);
-                                            if (!str_contains($namaBarang, '(RETUR)')) {
-                                                $namaBarang .= ' (RETUR)';
-                                            }
-                                            $set('nama_barang', $namaBarang);
-
+                                            $set('bruto', $bruto); // Ambil dari netto_diterima penjualan
+                                            $set('netto', $netto); // Hitung bruto - tara
+                                            $set('nama_barang', strtoupper($penjualan->nama_barang) . ' (Retur)');
                                             $set('no_container', strtoupper($penjualan->pembelianAntarPulau->no_container));
                                         } else {
                                             $resetFields();
                                         }
                                     }),
+
                                 Select::make('surat_jalan_id')
                                     ->label('Pilih Surat Jalan(Retur)')
                                     ->disabled(fn(Get $get) => !empty($get('no_container_antar_pulau')))
@@ -351,14 +350,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                         // Set data atau reset jika tidak ada
                                         if ($suratJalan && $suratJalan->tronton && $suratJalan->tronton->penjualan1) {
                                             $set('plat_polisi', $suratJalan->tronton->penjualan1->plat_polisi);
-
-                                            // Tambahkan suffix (retur) pada nama barang dari surat jalan
-                                            $namaBarang = strtoupper($suratJalan->tronton->penjualan1->nama_barang);
-                                            if (!str_contains($namaBarang, '(RETUR)')) {
-                                                $namaBarang .= ' (RETUR)';
-                                            }
-                                            $set('nama_barang', $namaBarang);
-
+                                            $set('nama_barang', $suratJalan->tronton->penjualan1->nama_barang);
                                             // tambahkan field lain sesuai kebutuhan
                                         } else {
                                             $resetFields();
