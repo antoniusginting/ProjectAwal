@@ -16,7 +16,7 @@ class DryerService
     public function create(array $data): Dryer
     {
         return DB::transaction(function () use ($data) {
-            $totalNetto = $this->parseTotalNetto($data['total_netto']);
+            $totalNetto = $this->parseTotalNetto($data['total_netto'] ?? ''); // Use an empty string if null
 
             // Validasi kapasitas dryer
             $kapasitas = $this->getKapasitasDryer($data['id_kapasitas_dryer']);
