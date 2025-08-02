@@ -291,7 +291,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                             self::resetReturFields($set);
                                         }
                                     })
-                                    ->columnSpan(fn (Get $get) => $get('tipe_retur') ? 1 : 2),
+                                    ->columnSpan(fn(Get $get) => $get('tipe_retur') ? 1 : 2),
 
                                 // Container Antar Pulau
                                 Select::make('no_container_antar_pulau')
@@ -464,7 +464,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                 TextColumn::make('no_container_antar_pulau')->label('No Container Antar Pulau')->searchable(),
 
                 // Tambahan kolom untuk surat jalan
-                TextColumn::make('suratJalan.tronton.kode')
+                TextColumn::make('no_surat_jalan')
                     ->label('Kode Surat Jalan')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
