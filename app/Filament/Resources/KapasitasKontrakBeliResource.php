@@ -49,7 +49,7 @@ class KapasitasKontrakBeliResource extends Resource implements HasShieldPermissi
                         TextInput::make('stok')
                             ->label('Nilai Kontrak')
                             ->placeholder('Masukkan Nilai Kontrak')
-                            ->live()
+                            ->live(debounce: 200)
                             ->extraAttributes([
                                 'x-data' => '{}',
                                 'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
@@ -72,13 +72,13 @@ class KapasitasKontrakBeliResource extends Resource implements HasShieldPermissi
                         TextInput::make('harga')
                             ->label('Harga')
                             ->placeholder('Masukkan harga')
-                            ->live()
+                            ->live(debounce: 200)
                             ->extraAttributes([
                                 'x-data' => '{}',
                                 'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
                             ])
                             ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)),
-                       Toggle::make('status')
+                        Toggle::make('status')
                             ->label('Status')
                             ->helperText('Aktifkan untuk menutup, nonaktifkan untuk membuka')
                             ->default(false) // Default false (buka)

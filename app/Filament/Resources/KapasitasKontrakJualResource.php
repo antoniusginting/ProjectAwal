@@ -42,7 +42,7 @@ class KapasitasKontrakJualResource extends Resource implements HasShieldPermissi
                     TextInput::make('stok')
                         ->label('Nilai Kontrak')
                         ->placeholder('Masukkan Nilai Kontrak')
-                        ->live()
+                        ->live(debounce: 200)
                         ->extraAttributes([
                             'x-data' => '{}',
                             'x-on:input' => "event.target.value = event.target.value.replace(/\\D/g, '').replace(/\\B(?=(\\d{3})+(?!\\d))/g, '.')",
@@ -52,7 +52,7 @@ class KapasitasKontrakJualResource extends Resource implements HasShieldPermissi
                     TextInput::make('harga')
                         ->label('Harga')
                         ->placeholder('Masukkan harga')
-                        ->live()
+                        ->live(debounce: 200)
                         ->extraAttributes([
                             'x-data' => '{}',
                             'x-on:input' => "event.target.value = event.target.value.replace(/\\D/g, '').replace(/\\B(?=(\\d{3})+(?!\\d))/g, '.')",

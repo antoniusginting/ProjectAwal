@@ -191,7 +191,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->columnSpan(2)
                                     ->numeric()
                                     ->placeholder('Masukkan Nilai Bruto')
-                                    ->live(debounce: 600) // Tunggu 500ms setelah user berhenti mengetik
+                                    ->live(debounce: 200) // Tunggu 500ms setelah user berhenti mengetik
                                     ->afterStateUpdated(function ($state, callable $set, callable $get, $livewire) {
                                         $tara = $get('tara') ?? 0;
                                         $set('netto', max(0, intval($state) - intval($tara))); // Hitung netto
@@ -216,7 +216,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->placeholder('Masukkan Nilai Tara')
                                     ->numeric()
                                     ->required()
-                                    ->live(debounce: 600) // Tambahkan debounce juga di sini
+                                    ->live(debounce: 200) // Tambahkan debounce juga di sini
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                         $bruto = $get('bruto') ?? 0;
                                         $set('netto', max(0, intval($bruto) - intval($state)));
@@ -350,7 +350,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                             $set('status_silo', null);
                                         }
                                     }),
-                                
+
                                 TextInput::make('no_container')
                                     ->label('No Container')
                                     ->placeholder('Masukkan no container')

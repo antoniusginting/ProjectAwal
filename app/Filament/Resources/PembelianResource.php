@@ -166,7 +166,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                     ->label('Bruto')
                                     ->numeric()
                                     ->required()
-                                    ->live(debounce: 600)
+                                    ->live(debounce: 200)
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                         $tara = $get('tara') ?? 0;
                                         $set('netto', max(0, intval($state) - intval($tara)));
@@ -181,7 +181,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                     ->label('Tara')
                                     ->placeholder('Masukkan Nilai Tara')
                                     ->numeric()
-                                    ->live(debounce: 600)
+                                    ->live(debounce: 200)
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                         $bruto = $get('bruto') ?? 0;
                                         $set('netto', max(0, intval($bruto) - intval($state)));
@@ -248,7 +248,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                             ->placeholder('Pilih Satuan Timbangan')
                                             ->native(false)
                                             ->required()
-                                            ->live()
+                                            ->live(debounce: 200)
                                             ->afterStateUpdated(function (Set $set, $state) {
                                                 if ($state === 'CURAH') {
                                                     $set('jumlah_karung', null);

@@ -58,7 +58,7 @@ class KapasitasLumbungBasahResource extends Resource implements HasShieldPermiss
                         TextInput::make('kapasitas_total')
                             ->label('Kapasitas Total')
                             ->placeholder('Masukkan Jumlah Kapasitas Total')
-                            ->live() // Memastikan perubahan langsung terjadi di Livewire
+                            ->live(debounce: 200) // Memastikan perubahan langsung terjadi di Livewire
                             ->extraAttributes([
                                 'x-data' => '{}',
                                 'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
@@ -67,7 +67,7 @@ class KapasitasLumbungBasahResource extends Resource implements HasShieldPermiss
                         TextInput::make('kapasitas_sisa')
                             ->label('Kapasitas Sisa')
                             ->placeholder('Masukkan Jumlah Kapasitas Sisa')
-                            ->live() // Memastikan perubahan langsung terjadi di Livewire
+                            ->live(debounce: 200) // Memastikan perubahan langsung terjadi di Livewire
                             ->extraAttributes([
                                 'x-data' => '{}',
                                 'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"

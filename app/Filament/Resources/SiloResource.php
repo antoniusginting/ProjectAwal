@@ -59,7 +59,7 @@ class SiloResource extends Resource implements HasShieldPermissions
                         TextInput::make('stok')
                             ->label('Stok Awal')
                             ->placeholder('Masukkan stok awal')
-                            ->live() // Memastikan perubahan langsung terjadi di Livewire
+                            ->live(debounce: 200) // Memastikan perubahan langsung terjadi di Livewire
                             ->extraAttributes([
                                 'x-data' => '{}',
                                 'x-on:input' => "event.target.value = event.target.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.')"
