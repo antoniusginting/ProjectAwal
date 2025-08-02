@@ -16,6 +16,7 @@ class Pembelian extends Model
         'id_supplier', // Forein key ke suppliers
         'nama_supir',
         'nama_barang',
+        'no_spb',
         'no_container',
         'no_container_antar_pulau',
         'no_surat_jalan',

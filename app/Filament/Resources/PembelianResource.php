@@ -37,6 +37,7 @@ use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\PembelianResource\Pages\EditPembelian;
 use App\Models\PembelianAntarPulau;
 use Filament\Notifications\Notification;
+use Filament\Forms\Components\Actions\Action;
 
 class PembelianResource extends Resource implements HasShieldPermissions
 {
@@ -166,11 +167,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                     ->label('Bruto')
                                     ->numeric()
                                     ->required()
-                                    ->live(debounce: 200)
-                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                        $tara = $get('tara') ?? 0;
-                                        $set('netto', max(0, intval($state) - intval($tara)));
-                                    }),
+                                    ->reactive(), // Hapus live() dan afterStateUpdated untuk otomatis
 
                                 TextInput::make('nama_supir')
                                     ->autocomplete('off')
@@ -181,17 +178,32 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                     ->label('Tara')
                                     ->placeholder('Masukkan Nilai Tara')
                                     ->numeric()
-                                    ->live(debounce: 200)
-                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                        $bruto = $get('bruto') ?? 0;
-                                        $set('netto', max(0, intval($bruto) - intval($state)));
+                                    ->reactive()
+                                    ->suffixAction(
+                                        Action::make('hitungNetto')
+                                            ->icon('heroicon-o-calculator')
+                                            ->tooltip('Klik untuk menghitung netto')
+                                            ->color('primary')
+                                            ->action(function ($state, callable $set, callable $get) {
+                                                $bruto = $get('bruto') ?? 0;
+                                                $tara = $state ?? 0;
+                                                $netto = max(0, intval($bruto) - intval($tara));
+                                                $set('netto', $netto);
 
-                                        if (!empty($state) && empty($get('jam_keluar'))) {
-                                            $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
-                                        } elseif (empty($state)) {
-                                            $set('jam_keluar', null);
-                                        }
-                                    }),
+                                                // Set jam keluar jika tara diisi dan belum ada jam keluar
+                                                if (!empty($state) && empty($get('jam_keluar'))) {
+                                                    $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
+                                                } elseif (empty($state)) {
+                                                    $set('jam_keluar', null);
+                                                }
+
+                                                // Notifikasi berhasil
+                                                Notification::make()
+                                                    ->title('Netto berhasil dihitung!')
+                                                    ->success()
+                                                    ->send();
+                                            })
+                                    ),
 
                                 TextInput::make('nama_barang')
                                     ->autocomplete('off')
@@ -201,7 +213,8 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                 TextInput::make('netto')
                                     ->label('Netto')
                                     ->readOnly()
-                                    ->placeholder('Otomatis Terhitung')
+                                    ->disabled()
+                                    ->placeholder('Klik kalkulator pada field Tara untuk menghitung')
                                     ->numeric(),
 
                                 Select::make('id_supplier')
@@ -409,6 +422,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
             ]);
     }
 
+    // Sisanya tetap sama seperti kode asli...
     public static function table(Table $table): Table
     {
         return $table

@@ -37,6 +37,8 @@ use Filament\Tables\Actions\ExportBulkAction;
 use App\Filament\Resources\PenjualanResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use App\Filament\Resources\PenjualanResource\Pages\EditPenjualan;
+use Filament\Forms\Components\Actions\Action;
+use Filament\Notifications\Notification;
 
 class PenjualanResource extends Resource implements HasShieldPermissions
 {
@@ -191,19 +193,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->columnSpan(2)
                                     ->numeric()
                                     ->placeholder('Masukkan Nilai Bruto')
-                                    ->live(debounce: 200) // Tunggu 500ms setelah user berhenti mengetik
-                                    ->afterStateUpdated(function ($state, callable $set, callable $get, $livewire) {
-                                        $tara = $get('tara') ?? 0;
-                                        $set('netto', max(0, intval($state) - intval($tara))); // Hitung netto
-                                        $record = $livewire->record ?? null;
-                                        // Hanya isi jam_keluar jika sedang edit ($record tidak null) dan jam_keluar masih kosong
-                                        if (!empty($state) && empty($get('jam_keluar'))) {
-                                            $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
-                                        } elseif (empty($state)) {
-                                            // Jika tara dikosongkan, hapus juga jam_keluar
-                                            $set('jam_keluar', null);
-                                        }
-                                    }),
+                                    ->reactive(),
                                 TextInput::make('nama_supir')
                                     ->autocomplete('off')
                                     ->columnSpan(2)
@@ -216,11 +206,32 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->placeholder('Masukkan Nilai Tara')
                                     ->numeric()
                                     ->required()
-                                    ->live(debounce: 200) // Tambahkan debounce juga di sini
-                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                        $bruto = $get('bruto') ?? 0;
-                                        $set('netto', max(0, intval($bruto) - intval($state)));
-                                    }),
+                                    ->reactive()
+                                    ->suffixAction(
+                                        Action::make('hitungNetto')
+                                            ->icon('heroicon-o-calculator')
+                                            ->tooltip('Klik untuk menghitung netto')
+                                            ->color('primary')
+                                            ->action(function ($state, callable $set, callable $get) {
+                                                $bruto = $get('bruto') ?? 0;
+                                                $tara = $state ?? 0;
+                                                $netto = max(0, intval($bruto) - intval($tara));
+                                                $set('netto', $netto);
+
+                                                // Set jam keluar jika tara diisi dan belum ada jam keluar
+                                                if (!empty($state) && empty($get('jam_keluar'))) {
+                                                    $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
+                                                } elseif (empty($state)) {
+                                                    $set('jam_keluar', null);
+                                                }
+
+                                                // Notifikasi berhasil
+                                                Notification::make()
+                                                    ->title('Netto berhasil dihitung!')
+                                                    ->success()
+                                                    ->send();
+                                            })
+                                    ),
                                 TextInput::make('nama_barang')
                                     ->default('JAGUNG KERING SUPER')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
@@ -229,8 +240,9 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                 TextInput::make('netto')
                                     ->label('Netto')
                                     ->readOnly()
+                                    ->disabled()
                                     ->columnSpan(2)
-                                    ->placeholder('Otomatis Terhitung')
+                                    ->placeholder('Klik kalkulator pada field Tara untuk menghitung')
                                     ->numeric(),
                                 // TextInput::make('nama_lumbung')
                                 //     ->placeholder('Masukkan Nama Lumbung')
