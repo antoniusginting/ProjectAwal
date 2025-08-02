@@ -267,7 +267,7 @@
                 @endif
 
                 {{-- Tabel untuk No Container --}}
-                @if (empty($laporanpenjualan->penjualan1->plat_polisi) && !empty($laporanpenjualan->penjualanAntarPulau1->no_container))
+                @if (empty($laporanpenjualan->penjualan1->plat_polisi) && !empty($laporanpenjualan->penjualanAntarPulau1->pembelian_antar_pulau_id))
                     @php
                         $totalNetto = 0;
                         $totalKarung = 0;

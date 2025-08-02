@@ -77,12 +77,12 @@ class TimbanganTronton extends Model
 
     public function penjualanAntarPulau2()
     {
-        return $this->belongsTo(PenjualanAntarPulau::class, 'id_penjualan_antar_pulau_2');
+        return $this->belongsTo(PenjualanAntarPulau::class, 'id_penjualan_antar_pulau_2', 'id');
     }
 
     public function penjualanAntarPulau3()
     {
-        return $this->belongsTo(PenjualanAntarPulau::class, 'id_penjualan_antar_pulau_3');
+        return $this->belongsTo(PenjualanAntarPulau::class, 'id_penjualan_antar_pulau_3', 'id');
     }
     public function suratJalans()
     {
