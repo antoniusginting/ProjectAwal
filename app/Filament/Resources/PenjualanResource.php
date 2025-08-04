@@ -12,7 +12,6 @@ use App\Models\Supplier;
 use Filament\Forms\Form;
 use App\Models\Penjualan;
 use Filament\Tables\Table;
-
 use App\Models\LaporanLumbung;
 use Filament\Resources\Resource;
 use function Laravel\Prompts\text;
@@ -26,7 +25,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
-
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Actions\ExportAction;
 use Illuminate\Database\Eloquent\Builder;
@@ -53,19 +51,12 @@ class PenjualanResource extends Resource implements HasShieldPermissions
             'delete_any',
         ];
     }
-    // public static function getNavigationBadge(): ?string
-    // {
-    //     return static::getModel()::count();
-    // }
+
     protected static ?string $model = Penjualan::class;
-
     protected static ?string $navigationIcon = 'heroicon-o-document-currency-dollar';
-
     protected static ?string $navigationLabel = 'Penjualan';
     protected static ?int $navigationSort = 2;
-
     protected static ?string $navigationGroup = 'Timbangan';
-
     public static ?string $label = 'Daftar Penjualan ';
 
     public static function form(Form $form): Form
@@ -79,12 +70,9 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                 Placeholder::make('next_id')
                                     ->label('No SPB')
                                     ->content(function ($record) {
-                                        // Jika sedang dalam mode edit, tampilkan kode yang sudah ada
                                         if ($record) {
                                             return $record->no_spb;
                                         }
-
-                                        // Jika sedang membuat data baru, hitung kode berikutnya
                                         $nextId = (Penjualan::max('id') ?? 0) + 1;
                                         return 'J' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
                                     }),
@@ -111,11 +99,9 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                 Select::make('id_penjualan')
                                     ->label('Ambil dari Penjualan Sebelumnya')
                                     ->options(function () {
-                                        // Ambil id_timbangan_tronton dari SuratJalan
                                         $timbanganTrontonIds = \App\Models\SuratJalan::whereNotNull('id_timbangan_tronton')
                                             ->pluck('id_timbangan_tronton');
 
-                                        // Gunakan subquery untuk mendapatkan semua id penjualan
                                         $existingPenjualans = \App\Models\TimbanganTronton::whereIn('id', $timbanganTrontonIds)
                                             ->select(
                                                 'id_timbangan_jual_1',
@@ -138,9 +124,8 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                             })
                                             ->toArray();
 
-                                        // Ambil ID penjualan yang belum ada di tabel timbangan_tronton
                                         return \App\Models\Penjualan::latest()
-                                            ->whereNotIn('id', $existingPenjualans)  // Hanya ambil yang belum ada di tabel timbangan_tronton
+                                            ->whereNotIn('id', $existingPenjualans)
                                             ->take(50)
                                             ->get()
                                             ->mapWithKeys(function ($penjualan) {
@@ -151,12 +136,10 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     })
                                     ->searchable()
                                     ->reactive()
-                                    // ->hidden(fn($livewire) => $livewire->getRecord()?->exists)
-                                    ->dehydrated(false) // jangan disimpan ke DB
+                                    ->dehydrated(false)
                                     ->afterStateUpdated(function (callable $set, $state) {
                                         $penjualan = \App\Models\Penjualan::find($state);
                                         if ($state === null) {
-                                            // Kosongkan semua data yang sebelumnya di-set
                                             $set('plat_polisi', null);
                                             $set('bruto', null);
                                             $set('tara', null);
@@ -172,7 +155,6 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                             $set('tara', $penjualan->bruto);
                                             $set('nama_supir', $penjualan->nama_supir);
                                             $set('nama_barang', $penjualan->nama_barang);
-                                            // Naikkan keterangan jika awalnya 1, 2, atau 3
                                             $keteranganBaru = in_array(intval($penjualan->keterangan), [1, 2, 3, 4, 5])
                                                 ? intval($penjualan->keterangan) + 1
                                                 : $penjualan->keterangan;
@@ -188,18 +170,21 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->columnSpan(2)
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan plat polisi'),
+
                                 TextInput::make('bruto')
                                     ->label('Bruto')
                                     ->columnSpan(2)
                                     ->numeric()
                                     ->placeholder('Masukkan Nilai Bruto')
                                     ->reactive(),
+
                                 TextInput::make('nama_supir')
                                     ->autocomplete('off')
                                     ->columnSpan(2)
                                     ->placeholder('Masukkan Nama Supir')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->required(),
+
                                 TextInput::make('tara')
                                     ->label('Tara')
                                     ->columnSpan(2)
@@ -218,25 +203,25 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                                 $netto = max(0, intval($bruto) - intval($tara));
                                                 $set('netto', $netto);
 
-                                                // Set jam keluar jika tara diisi dan belum ada jam keluar
                                                 if (!empty($state) && empty($get('jam_keluar'))) {
                                                     $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
                                                 } elseif (empty($state)) {
                                                     $set('jam_keluar', null);
                                                 }
 
-                                                // Notifikasi berhasil
                                                 Notification::make()
                                                     ->title('Netto berhasil dihitung!')
                                                     ->success()
                                                     ->send();
                                             })
                                     ),
+
                                 TextInput::make('nama_barang')
                                     ->default('JAGUNG KERING SUPER')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->required()
                                     ->columnSpan(2),
+
                                 TextInput::make('netto')
                                     ->label('Netto')
                                     ->readOnly()
@@ -244,12 +229,8 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->columnSpan(2)
                                     ->placeholder('Klik kalkulator pada field Tara untuk menghitung')
                                     ->numeric(),
-                                // TextInput::make('nama_lumbung')
-                                //     ->placeholder('Masukkan Nama Lumbung')
-                                //     ->autocomplete('off')
-                                //     ->columnSpan(2)
-                                //     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state)),
-                                Select::make('keterangan') // Gantilah 'tipe' dengan nama field di database
+
+                                Select::make('keterangan')
                                     ->label('Timbangan ke-')
                                     ->columnSpan(2)
                                     ->options([
@@ -262,15 +243,20 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ])
                                     ->default(1)
                                     ->placeholder('Pilih timbangan ke-')
-                                    // ->inlineLabel() // Membuat label sebelah kiri
-                                    ->native(false) // Mengunakan dropdown modern
-                                    ->required(), // Opsional: Atur default value
+                                    ->native(false)
+                                    ->required(),
+
+                                // UPDATED: Filter laporan lumbung yang tidak memiliki nama lumbung kosong
                                 Select::make('laporan_lumbung_id')
                                     ->disabled(fn($get) => !empty($get('silo_id')))
                                     ->label('No Lumbung')
                                     ->options(function () {
                                         return LaporanLumbung::whereNull('status_silo')
                                             ->where('status', false)
+                                            // TAMBAHAN BARU: Filter hanya yang memiliki lumbung (tidak null dan tidak kosong)
+                                            ->whereNotNull('lumbung')
+                                            ->where('lumbung', '!=', '')
+                                            ->where('lumbung', '!=', ' ') // Juga filter spasi
                                             ->get()
                                             ->mapWithKeys(function ($item) {
                                                 return [
@@ -301,6 +287,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->autocomplete('off')
                                     ->columnSpan(1)
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state)),
+
                                 TextInput::make('jumlah_karung')
                                     ->numeric()
                                     ->columnSpan(2)
@@ -308,8 +295,9 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->autocomplete('off')
                                     ->placeholder('Masukkan Jumlah Karung')
                                     ->disabled(fn(Get $get) => $get('brondolan') === 'CURAH')
-                                    ->dehydrated(fn(Get $get) => $get('brondolan') !== 'CURAH'), // Opsional: tidak menyimpan nilai jika disabled
-                                Select::make('brondolan') // Gantilah 'tipe' dengan nama field di database
+                                    ->dehydrated(fn(Get $get) => $get('brondolan') !== 'CURAH'),
+
+                                Select::make('brondolan')
                                     ->label('Satuan Muatan')
                                     ->columnSpan(1)
                                     ->options([
@@ -317,16 +305,14 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                         'CURAH' => 'CURAH',
                                     ])
                                     ->placeholder('Pilih Satuan Timbangan')
-                                    ->native(false) // Mengunakan dropdown modern
-                                    ->required() // Opsional: Atur default value\
-                                    ->live() // Penting: membuat field reactive
+                                    ->native(false)
+                                    ->required()
+                                    ->live()
                                     ->afterStateUpdated(function (Set $set, $state) {
-                                        // Opsional: Reset nilai jumlah_karung ketika berubah ke CURAH
                                         if ($state === 'CURAH') {
                                             $set('jumlah_karung', null);
                                         }
                                     }),
-
 
                                 Select::make('silo_id')
                                     ->label('Silo')
@@ -353,10 +339,9 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, callable $set) {
                                         if ($state) {
-                                            // Ambil data silo berdasarkan ID yang dipilih
                                             $silo = Silo::find($state);
                                             if ($silo) {
-                                                $set('status_silo', $silo->nama); // Set status sesuai nama silo
+                                                $set('status_silo', $silo->nama);
                                             }
                                         } else {
                                             $set('status_silo', null);
@@ -367,9 +352,10 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->label('No Container')
                                     ->placeholder('Masukkan no container')
                                     ->hidden(),
+
                                 Hidden::make('user_id')
                                     ->label('User ID')
-                                    ->default(Auth::id()) // Set nilai default user yang sedang login,
+                                    ->default(Auth::id())
                             ])->columns(4),
                     ])
             ]);
@@ -382,12 +368,10 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                 /** @var \App\Models\User $user */
                 $user = Auth::user();
 
-                // 1) Super admin bisa edit semua kondisi
                 if ($user && $user->hasRole('super_admin')) {
                     return EditPenjualan::getUrl(['record' => $record]);
                 }
 
-                // 2) Admin1 hanya bisa edit jika tara belum ada
                 if ($user && $user->hasRole('timbangan')) {
                     if (!$record->bruto) {
                         return EditPenjualan::getUrl(['record' => $record]);
@@ -395,21 +379,8 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                     return null;
                 }
 
-                // // 3) Admin2 hanya bisa edit jika no_spb belum ada
-                // if ($user && $user->hasRole('admin')) {
-                //     if (!$record->no_spb) {  // Sesuaikan dengan struktur data BK
-                //         return EditPembelian::getUrl(['record' => $record]);
-                //     }
-                //     return null;
-                // }
-
-                // 4) Role lainnya tidak bisa edit
                 return null;
             })
-
-            // ->query(
-            //     Penjualan::query()->whereNull('bruto') // hanya data yang punya nilai tara
-            // )
             ->query(Penjualan::query())
             ->defaultPaginationPageOption(10)
             ->columns([
@@ -422,31 +393,27 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                         'gray' => fn($state) => Carbon::parse($state)->isBefore(Carbon::yesterday()),
                     ])
                     ->formatStateUsing(function ($state) {
-                        // Mengatur lokalitas ke Bahasa Indonesia
                         Carbon::setLocale('id');
-
                         return Carbon::parse($state)
-                            ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
+                            ->locale('id')
                             ->isoFormat('D MMMM YYYY | HH:mm:ss');
                     }),
-                // TextColumn::make('status_timbangan')
-                //     ->alignCenter()
-                //     ->label('Status'),
+
                 TextColumn::make('no_spb')
                     ->searchable()
                     ->copyable()
                     ->copyMessage('berhasil menyalin'),
+
                 TextColumn::make('plat_polisi')->label('Plat Polisi')
                     ->searchable(),
+
                 TextColumn::make('nama_supir')
                     ->searchable(),
-                // TextColumn::make('supplier.nama_supplier')->label('Supplier')
-                //     ->searchable(),
-                // TextColumn::make('supplier.jenis_supplier')->label('Jenis')
-                //     ->searchable(),
+
                 TextColumn::make('keterangan')
                     ->prefix('Timbangan ke-')
                     ->searchable(),
+
                 TextColumn::make('satuan_muatan')
                     ->label('Satuan Muatan')
                     ->alignCenter()
@@ -460,21 +427,23 @@ class PenjualanResource extends Resource implements HasShieldPermissions
 
                         return "{$karung} - {$brondolan}";
                     }),
+
                 TextColumn::make('bruto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+
                 TextColumn::make('tara')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+
                 TextColumn::make('netto')
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+
                 TextColumn::make('no_lumbung')
                     ->label('No Lumbung')
                     ->state(function ($record) {
-                        // Cek apakah ada laporanLumbung.kode
                         if ($record->laporanLumbung && $record->laporanLumbung->kode) {
                             return $record->laporanLumbung->kode;
                         }
 
-                        // Kalau tidak ada, cek silos.nama
                         if ($record->silos && $record->silos->nama) {
                             return $record->silos->nama;
                         }
@@ -487,12 +456,10 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                 TextColumn::make('nama_lumbung')
                     ->label('Nama Lumbung')
                     ->state(function ($record) {
-                        // Cek apakah ada nama_lumbung
                         if ($record->nama_lumbung) {
                             return $record->nama_lumbung;
                         }
 
-                        // Kalau tidak ada, cek silos.nama
                         if ($record->silos && $record->silos->nama) {
                             return $record->silos->nama;
                         }
@@ -502,43 +469,20 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                     ->searchable()
                     ->alignCenter()
                     ->placeholder('-'),
+
                 TextColumn::make('nama_barang')
                     ->searchable(),
+
                 TextColumn::make('jam_masuk')
                     ->alignCenter(),
+
                 TextColumn::make('jam_keluar')
                     ->alignCenter(),
+
                 TextColumn::make('user.name')
                     ->label('User')
             ])
-            ->defaultSort('no_spb', 'desc') // Megurutkan no_spb terakhir menjadi pertama pada tabel
-            ->filters([
-                //
-            ])
-            ->actions([
-                Tables\Actions\Action::make('view-penjualan')
-                    ->label(__("Lihat"))
-                    ->icon('heroicon-o-eye')
-                    ->url(fn($record) => self::getUrl("view-penjualan", ['record' => $record->id])),
-            ], position: ActionsPosition::BeforeColumns)
-            // ->bulkActions([
-            //     // Tables\Actions\BulkActionGroup::make([
-            //     Tables\Actions\DeleteBulkAction::make(),
-            //     // ]),
-            // ])
-            ->headerActions([
-                ExportAction::make()->exporter(PenjualanExporter::class)
-                    ->color('success')
-                    ->icon('heroicon-o-arrow-down-tray')
-                    ->label('Export to Excel')
-                    ->size('xs')
-                    ->outlined()
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    ExportBulkAction::make()->exporter(PenjualanExporter::class)->label('Export to Excel'),
-                ]),
-            ])
+            ->defaultSort('no_spb', 'desc')
             ->filters([
                 Filter::make('date_range')
                     ->form([
@@ -565,17 +509,35 @@ class PenjualanResource extends Resource implements HasShieldPermissions
 
                         return $query;
                     }),
-                // Filter toggle untuk menampilkan data dimana tara null
+
                 Filter::make('Bruto Kosong')
                     ->query(
                         fn(Builder $query) =>
                         $query->whereNull('bruto')
                     )
-                    ->toggle() // Filter ini dapat diaktifkan/nonaktifkan oleh pengguna
+                    ->toggle()
                     ->default(function () {
-                        // Filter aktif secara default hanya jika pengguna BUKAN super_admin ,'admin'
                         return !optional(Auth::user())->hasAnyRole(['super_admin']);
                     })
+            ])
+            ->actions([
+                Tables\Actions\Action::make('view-penjualan')
+                    ->label(__("Lihat"))
+                    ->icon('heroicon-o-eye')
+                    ->url(fn($record) => self::getUrl("view-penjualan", ['record' => $record->id])),
+            ], position: ActionsPosition::BeforeColumns)
+            ->headerActions([
+                ExportAction::make()->exporter(PenjualanExporter::class)
+                    ->color('success')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->label('Export to Excel')
+                    ->size('xs')
+                    ->outlined()
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    ExportBulkAction::make()->exporter(PenjualanExporter::class)->label('Export to Excel'),
+                ]),
             ]);
     }
 
