@@ -68,7 +68,7 @@
                         <td class="font-semibold whitespace-nowrap">Lumbung Tujuan</td>
                         <td class="whitespace-nowrap">: 
                             @if($dryer->laporanLumbung)
-                                {{ $dryer->laporanLumbung->kode }} - {{ $dryer->laporanLumbung->lumbung }}
+                               {{ $dryer->laporanLumbung->lumbung }}
                             @else
                                 {{ $dryer->lumbung_tujuan ?? '-' }}
                             @endif
