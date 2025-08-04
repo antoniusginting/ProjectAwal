@@ -23,7 +23,7 @@ return new class extends Migration
                 $table->double('hasil_kadar')->nullable();
                 $table->integer('total_netto')->nullable();
                 $table->string('pj', 50)->nullable();
-                $table->enum('status', ['processing', 'completed'])->default('processing');
+                $table->enum('status', ['processing', 'completed', 'pending'])->default('processing');
                 $table->timestamps();
                 $table->string('no_cc', 50)->nullable();
                 $table->foreignId('user_id')->constrained('users')->onDelete('cascade');

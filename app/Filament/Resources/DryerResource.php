@@ -544,11 +544,13 @@ class DryerResource extends Resource implements HasShieldPermissions
                     ->formatStateUsing(fn(string $state): string => match ($state) {
                         'processing' => 'Dalam Dryer',
                         'completed' => 'Selesai',
+                        'pending' => 'Tertunda',
                         default => $state,
                     })
                     ->colors([
                         'primary' => 'completed',
                         'danger' => 'processing',
+                        'info' => 'tertunda',
                     ]),
                 TextColumn::make('no_dryer')
                     ->label('No Dryer')
