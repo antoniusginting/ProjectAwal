@@ -66,13 +66,7 @@
                         <td class="font-semibold whitespace-nowrap">No Dryer</td>
                         <td class="whitespace-nowrap">: {{ $dryer->no_dryer ?? '-' }}</td>
                         <td class="font-semibold whitespace-nowrap">Lumbung Tujuan</td>
-                        <td class="whitespace-nowrap">: 
-                            @if($dryer->laporanLumbung)
-                               {{ $dryer->laporanLumbung->lumbung }}
-                            @else
-                                {{ $dryer->lumbung_tujuan ?? '-' }}
-                            @endif
-                        </td>
+                        <td class="whitespace-nowrap">: {{ $dryer->laporanLumbung->lumbung }}- {{ $dryer->laporanLumbung->kode }}</td>
                     </tr>
                 </tbody>
             </table>

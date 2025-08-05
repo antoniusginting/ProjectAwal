@@ -330,7 +330,11 @@
                         <td class="label">No Dryer</td>
                         <td class="value">:{{ $dryer->no_dryer }}</td>
                         <td class="label">Lumbung Tujuan</td>
-                        <td class="value">:{{ $dryer->laporanLumbung->lumbung ?? ''}}</td>
+                        <td class="whitespace-nowrap">: {{ $dryer->laporanLumbung->lumbung }}</td>   
+                    </tr>
+                    <tr>
+                        <td class="label">No IO</td>
+                        <td>: {{ $dryer->laporanLumbung->kode ?? '-' }}</td>
                     </tr>
                 </tbody>
             </table>
