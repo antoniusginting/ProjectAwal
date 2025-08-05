@@ -11,9 +11,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Dryer extends Model
 {
-    const STATUS_PROCESSING = 'processing';
-    const STATUS_COMPLETED = 'completed';
-    const STATUS_PENDING = 'pending';
     protected $fillable = [
         'id_kapasitas_dryer',
         'operator',
@@ -78,20 +75,6 @@ class Dryer extends Model
             if ($dryer->status === 'completed') {
                 foreach ($dryer->sortirans as $sortiran) {
                     $sortiran->update(['status' => 'completed']);
-                }
-            }
-
-
-            if ($dryer->status === 'pending') {
-                foreach ($dryer->sortirans as $sortiran) {
-                    $sortiran->update(['status' => 'pending']);
-                }
-            }
-
-
-            if ($dryer->status === 'processing') {
-                foreach ($dryer->sortirans as $sortiran) {
-                    $sortiran->update(['status' => 'processing']);
                 }
             }
         });

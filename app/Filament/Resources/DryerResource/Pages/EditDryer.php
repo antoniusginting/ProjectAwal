@@ -44,30 +44,6 @@ class EditDryer extends EditRecord
         ];
     }
 
-    // protected function getFormActions(): array
-    // {
-    //     return [
-    //         Action::make('save')
-    //             ->label('Ubah')
-    //             ->action(fn() => $this->save()), // Menggunakan fungsi simpan manual
-    //         // Action::make('cancel')
-    //         //     ->label('Batal')
-    //         //     ->color('gray')
-    //         //     ->url(DryerResource::getUrl('index')),
-    //     ];
-    // }
-    // protected function getRedirectUrl(): string
-    // {
-    //     return $this->getResource()::getUrl('index'); // Arahkan ke daftar tabel
-    // }
-    
-    // protected function getHeaderActions(): array
-    // {
-    //     return [
-    //         Actions\DeleteAction::make(),
-    //     ];
-    // }
-
     
     // Property untuk menyimpan dryer asli sebelum edit
     public $originalSortirans = [];
