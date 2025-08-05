@@ -15,6 +15,7 @@ return new class extends Migration
             Schema::create('kapasitas_lumbung_basahs', function (Blueprint $table) {
                 $table->bigIncrements('id');
                 $table->string('no_kapasitas_lumbung', 25)->unique();
+                $table->string('jenis', 25)->nullable();
                 $table->integer('kapasitas_total')->nullable();
                 $table->integer('kapasitas_sisa')->nullable();
                 $table->timestamps();

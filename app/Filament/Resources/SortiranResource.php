@@ -384,7 +384,11 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                 Select::make('no_lumbung_basah')
                                     ->label('No Lumbung Basah')
                                     ->placeholder('Pilih No Lumbung')
-                                    ->options(KapasitasLumbungBasah::pluck('no_kapasitas_lumbung', 'id'))
+                                    ->options(
+                                        KapasitasLumbungBasah::all()->mapWithKeys(function ($item) {
+                                            return [$item->id => $item->no_kapasitas_lumbung . ' - ' . $item->jenis];
+                                        })
+                                    )
                                     ->searchable() // Biar bisa cari
                                     ->required()
                                     ->disabled(function (callable $get, $record) {
@@ -394,7 +398,6 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                         }
 
                                         return false;
-
                                     })
                                     ->reactive()
                                     ->afterStateHydrated(function ($state, callable $set) {
