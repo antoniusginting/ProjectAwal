@@ -90,7 +90,18 @@ class DryerResource extends Resource implements HasShieldPermissions
                             ->disabled(function (callable $get, $record) {
                                 // Jika ini adalah form edit, cek status dari record yang sedang diedit
                                 if ($record && $record->status) {
-                                    return in_array($record->status, ['completed']);
+                                    if (in_array($record->status, ['completed'])) {
+                                        return true;
+                                    }
+                                }
+
+                                // Disable jika masih ada sortiran di database untuk record ini
+                                if ($record && $record->id) {
+                                    $hasSortirans = DB::table('dryer_has_sortiran')
+                                        ->where('dryer_id', $record->id)
+                                        ->exists();
+
+                                    return $hasSortirans;
                                 }
 
                                 return false;
@@ -122,8 +133,8 @@ class DryerResource extends Resource implements HasShieldPermissions
                                 $set('kapasitas_sisa', $formattedSisa);
                                 $formattedtotal = number_format($kapasitasdryer?->kapasitas_total ?? 0, 0, ',', '.');
                                 $set('kapasitas_total', $formattedtotal);
-                                $set('sortirans', null);
                                 $set('total_netto', null);
+                                $set('sortirans', null);
                                 $set('kapasitas_sisa_akhir', $formattedSisa);
                             }),
 
@@ -469,14 +480,21 @@ class DryerResource extends Resource implements HasShieldPermissions
                     ->alignCenter(),
 
                 TextColumn::make('laporanLumbung.kode')
-                    ->label('Kode Lumbung')
+                    ->label('No Lumbung')
+                    ->alignCenter()
+                    ->formatStateUsing(function ($record) {
+                        $laporan = $record->laporanLumbung;
+                        if ($laporan) {
+                            return $laporan->kode . ' - ' . $laporan->lumbung;
+                        }
+                        return '-';
+                    })
                     ->searchable(query: function ($query, $search) {
                         $query->orWhereHas('laporanLumbung', function ($q) use ($search) {
                             $q->where('kode', 'like', "%{$search}%")
                                 ->orWhere('lumbung', 'like', "%{$search}%");
                         });
                     }),
-
                 TextColumn::make('nama_barang')
                     ->label('Nama Barang')
                     ->searchable()
