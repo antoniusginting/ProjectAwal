@@ -61,6 +61,24 @@ class PembelianResource extends Resource implements HasShieldPermissions
     }
 
     /**
+     * Helper method untuk format angka dengan titik sebagai pemisah ribuan
+     */
+    private static function formatNumber($number): string
+    {
+        if (!$number) return '0';
+        return number_format((float)$number, 0, ',', '.');
+    }
+
+    /**
+     * Helper method untuk convert formatted number ke integer
+     */
+    private static function parseNumber($formattedNumber): ?int
+    {
+        if (!$formattedNumber) return null;
+        return (int) str_replace('.', '', $formattedNumber);
+    }
+
+    /**
      * Helper method untuk reset fields retur
      */
     private static function resetReturFields(callable $set): void
@@ -165,9 +183,17 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                 TextInput::make('bruto')
                                     ->placeholder('Masukkan nilai bruto')
                                     ->label('Bruto')
-                                    ->numeric()
                                     ->required()
-                                    ->reactive(), // Hapus live() dan afterStateUpdated untuk otomatis
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        // Format angka saat user selesai mengetik
+                                        if ($state) {
+                                            $cleanNumber = preg_replace('/[^\d]/', '', $state);
+                                            $formatted = self::formatNumber($cleanNumber);
+                                            $set('bruto', $formatted);
+                                        }
+                                    })
+                                    ->dehydrateStateUsing(fn($state) => self::parseNumber($state)),
 
                                 TextInput::make('nama_supir')
                                     ->autocomplete('off')
@@ -177,18 +203,26 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                 TextInput::make('tara')
                                     ->label('Tara')
                                     ->placeholder('Masukkan Nilai Tara')
-                                    ->numeric()
-                                    ->reactive()
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        // Format angka saat user selesai mengetik
+                                        if ($state) {
+                                            $cleanNumber = preg_replace('/[^\d]/', '', $state);
+                                            $formatted = self::formatNumber($cleanNumber);
+                                            $set('tara', $formatted);
+                                        }
+                                    })
+                                    ->dehydrateStateUsing(fn($state) => self::parseNumber($state))
                                     ->suffixAction(
                                         Action::make('hitungNetto')
                                             ->icon('heroicon-o-calculator')
                                             ->tooltip('Klik untuk menghitung netto')
                                             ->color('primary')
                                             ->action(function ($state, callable $set, callable $get) {
-                                                $bruto = $get('bruto') ?? 0;
-                                                $tara = $state ?? 0;
-                                                $netto = max(0, intval($bruto) - intval($tara));
-                                                $set('netto', $netto);
+                                                $bruto = self::parseNumber($get('bruto')) ?? 0;
+                                                $tara = self::parseNumber($state) ?? 0;
+                                                $netto = max(0, $bruto - $tara);
+                                                $set('netto', self::formatNumber($netto));
 
                                                 // Set jam keluar jika tara diisi dan belum ada jam keluar
                                                 if (!empty($state) && empty($get('jam_keluar'))) {
@@ -214,7 +248,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                     ->label('Netto')
                                     ->readOnly()
                                     ->placeholder('Klik kalkulator pada field Tara untuk menghitung')
-                                    ->numeric(),
+                                    ->dehydrateStateUsing(fn($state) => self::parseNumber($state)),
 
                                 Select::make('id_supplier')
                                     ->label('Supplier')
@@ -350,11 +384,11 @@ class PembelianResource extends Resource implements HasShieldPermissions
 
                                             if ($penjualan) {
                                                 $bruto = (int) $penjualan->netto_diterima;
-                                                $tara = (int) ($get('tara') ?? 0);
+                                                $tara = self::parseNumber($get('tara')) ?? 0;
                                                 $netto = max(0, $bruto - $tara);
 
-                                                $set('bruto', $bruto);
-                                                $set('netto', $netto);
+                                                $set('bruto', self::formatNumber($bruto));
+                                                $set('netto', self::formatNumber($netto));
                                                 $set('nama_barang', strtoupper($penjualan->nama_barang) . ' (RETUR)');
                                                 $set('no_container', strtoupper(optional($penjualan->pembelianAntarPulau)->no_container));
                                             } else {
@@ -421,7 +455,6 @@ class PembelianResource extends Resource implements HasShieldPermissions
             ]);
     }
 
-    // Sisanya tetap sama seperti kode asli...
     public static function table(Table $table): Table
     {
         return $table
@@ -469,9 +502,15 @@ class PembelianResource extends Resource implements HasShieldPermissions
                         }
                         return "{$karung} - {$brondolan}";
                     }),
-                TextColumn::make('bruto')->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                TextColumn::make('tara')->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
-                TextColumn::make('netto')->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+
+                TextColumn::make('bruto')
+                    ->formatStateUsing(fn($state) => self::formatNumber($state)),
+
+                TextColumn::make('tara')
+                    ->formatStateUsing(fn($state) => self::formatNumber($state)),
+
+                TextColumn::make('netto')
+                    ->formatStateUsing(fn($state) => self::formatNumber($state)),
 
                 TextColumn::make('no_container')->label('No Container Manual')->searchable(),
                 TextColumn::make('no_container_antar_pulau')->label('No Container Antar Pulau')->searchable(),

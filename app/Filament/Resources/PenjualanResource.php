@@ -59,6 +59,24 @@ class PenjualanResource extends Resource implements HasShieldPermissions
     protected static ?string $navigationGroup = 'Timbangan';
     public static ?string $label = 'Daftar Penjualan ';
 
+    /**
+     * Helper method untuk format angka dengan titik sebagai pemisah ribuan
+     */
+    private static function formatNumber($number): string
+    {
+        if (!$number) return '0';
+        return number_format((float)$number, 0, ',', '.');
+    }
+
+    /**
+     * Helper method untuk convert formatted number ke integer
+     */
+    private static function parseNumber($formattedNumber): ?int
+    {
+        if (!$formattedNumber) return null;
+        return (int) str_replace('.', '', $formattedNumber);
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -152,7 +170,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                         }
                                         if ($penjualan) {
                                             $set('plat_polisi', $penjualan->plat_polisi);
-                                            $set('tara', $penjualan->bruto);
+                                            $set('tara', self::formatNumber($penjualan->bruto));
                                             $set('nama_supir', $penjualan->nama_supir);
                                             $set('nama_barang', $penjualan->nama_barang);
                                             $keteranganBaru = in_array(intval($penjualan->keterangan), [1, 2, 3, 4, 5])
@@ -174,9 +192,17 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                 TextInput::make('bruto')
                                     ->label('Bruto')
                                     ->columnSpan(2)
-                                    ->numeric()
                                     ->placeholder('Masukkan Nilai Bruto')
-                                    ->reactive(),
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        // Format angka saat user selesai mengetik
+                                        if ($state) {
+                                            $cleanNumber = preg_replace('/[^\d]/', '', $state);
+                                            $formatted = self::formatNumber($cleanNumber);
+                                            $set('bruto', $formatted);
+                                        }
+                                    })
+                                    ->dehydrateStateUsing(fn($state) => self::parseNumber($state)),
 
                                 TextInput::make('nama_supir')
                                     ->autocomplete('off')
@@ -189,19 +215,27 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->label('Tara')
                                     ->columnSpan(2)
                                     ->placeholder('Masukkan Nilai Tara')
-                                    ->numeric()
                                     ->required()
-                                    ->reactive()
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        // Format angka saat user selesai mengetik
+                                        if ($state) {
+                                            $cleanNumber = preg_replace('/[^\d]/', '', $state);
+                                            $formatted = self::formatNumber($cleanNumber);
+                                            $set('tara', $formatted);
+                                        }
+                                    })
+                                    ->dehydrateStateUsing(fn($state) => self::parseNumber($state))
                                     ->suffixAction(
                                         Action::make('hitungNetto')
                                             ->icon('heroicon-o-calculator')
                                             ->tooltip('Klik untuk menghitung netto')
                                             ->color('primary')
                                             ->action(function ($state, callable $set, callable $get) {
-                                                $bruto = $get('bruto') ?? 0;
-                                                $tara = $state ?? 0;
-                                                $netto = max(0, intval($bruto) - intval($tara));
-                                                $set('netto', $netto);
+                                                $bruto = self::parseNumber($get('bruto')) ?? 0;
+                                                $tara = self::parseNumber($state) ?? 0;
+                                                $netto = max(0, $bruto - $tara);
+                                                $set('netto', self::formatNumber($netto));
 
                                                 if (!empty($state) && empty($get('jam_keluar'))) {
                                                     $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
@@ -227,7 +261,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->readOnly()
                                     ->columnSpan(2)
                                     ->placeholder('Klik kalkulator pada field Tara untuk menghitung')
-                                    ->numeric(),
+                                    ->dehydrateStateUsing(fn($state) => self::parseNumber($state)),
 
                                 Select::make('keterangan')
                                     ->label('Timbangan ke-')
@@ -428,13 +462,13 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                     }),
 
                 TextColumn::make('bruto')
-                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                    ->formatStateUsing(fn($state) => self::formatNumber($state)),
 
                 TextColumn::make('tara')
-                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                    ->formatStateUsing(fn($state) => self::formatNumber($state)),
 
                 TextColumn::make('netto')
-                    ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+                    ->formatStateUsing(fn($state) => self::formatNumber($state)),
 
                 TextColumn::make('no_lumbung')
                     ->label('No Lumbung')
