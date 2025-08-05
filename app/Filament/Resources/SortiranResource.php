@@ -387,6 +387,15 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                     ->options(KapasitasLumbungBasah::pluck('no_kapasitas_lumbung', 'id'))
                                     ->searchable() // Biar bisa cari
                                     ->required()
+                                    ->disabled(function (callable $get, $record) {
+                                        // Jika ini adalah form edit, cek status dari record yang sedang diedit
+                                        if ($record && $record->status) {
+                                            return in_array($record->status, ['in_dryer', 'completed']);
+                                        }
+
+                                        return false;
+
+                                    })
                                     ->reactive()
                                     ->afterStateHydrated(function ($state, callable $set) {
                                         if ($state) {
