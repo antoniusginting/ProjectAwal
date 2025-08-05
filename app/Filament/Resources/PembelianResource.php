@@ -213,7 +213,6 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                 TextInput::make('netto')
                                     ->label('Netto')
                                     ->readOnly()
-                                    ->disabled()
                                     ->placeholder('Klik kalkulator pada field Tara untuk menghitung')
                                     ->numeric(),
 

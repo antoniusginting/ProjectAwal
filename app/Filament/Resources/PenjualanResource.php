@@ -225,7 +225,6 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                 TextInput::make('netto')
                                     ->label('Netto')
                                     ->readOnly()
-                                    ->disabled()
                                     ->columnSpan(2)
                                     ->placeholder('Klik kalkulator pada field Tara untuk menghitung')
                                     ->numeric(),

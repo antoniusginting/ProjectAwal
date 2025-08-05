@@ -11,12 +11,13 @@ class SortiranRecord extends Model
         "sortiran_id",
     ];
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function sortiran_id(){
+    public function sortiran_id()
+    {
         return $this->belongsTo(Sortiran::class);
     }
-
 }
