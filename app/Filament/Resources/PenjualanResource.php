@@ -214,6 +214,8 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                 TextInput::make('tara')
                                     ->label('Tara')
                                     ->columnSpan(2)
+                                    ->hint('Jangan Lupa confirm Weight')
+                                    ->hintColor('danger')
                                     ->placeholder('Masukkan Nilai Tara')
                                     ->required()
                                     ->live(onBlur: true)
@@ -229,7 +231,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->suffixAction(
                                         Action::make('hitungNetto')
                                             ->icon('heroicon-o-calculator')
-                                            ->tooltip('Klik untuk menghitung netto')
+                                            ->tooltip('Confirm Weight')
                                             ->color('primary')
                                             ->action(function ($state, callable $set, callable $get) {
                                                 $bruto = self::parseNumber($get('bruto')) ?? 0;

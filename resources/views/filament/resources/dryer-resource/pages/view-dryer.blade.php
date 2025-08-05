@@ -42,9 +42,8 @@
                                 %
                             @endif
                         </td>
-                        <td class="font-semibold whitespace-nowrap">Kapasitas Dryer</td>
-                        <td class="whitespace-nowrap">:
-                            {{ number_format($dryer->kapasitasdryer->kapasitas_total, '0', ',', '.') }}</td>
+                        <td class="font-semibold whitespace-nowrap">Kapasitas Terpakai</td>
+                        <td>: {{ $grandTotalNetto == 0 ? '' : number_format($grandTotalNetto, 0, ',', '.') }}</td>
 
                     </tr>
                     <tr>
@@ -55,8 +54,8 @@
                                 %
                             @endif
                         </td>
-                        <td class="font-semibold whitespace-nowrap">Kapasitas Terpakai</td>
-                        <td>: {{ $grandTotalNetto == 0 ? '' : number_format($grandTotalNetto, 0, ',', '.') }}</td>
+                        <td class="font-semibold whitespace-nowrap">No IO</td>
+                        <td class="whitespace-nowrap">: {{ $dryer->laporanLumbung->kode }}</td>
                         {{-- <td class="whitespace-nowrap">: {{ number_format($totalBerat, '0', ',', '.') }}</td> --}}
                         {{-- {{ number_format($dryer->kapasitasdryer->kapasitas_total - $totalBerat, 0, ',', '.') }} --}}
                     </tr>
@@ -66,7 +65,7 @@
                         <td class="font-semibold whitespace-nowrap">No Dryer</td>
                         <td class="whitespace-nowrap">: {{ $dryer->no_dryer ?? '-' }}</td>
                         <td class="font-semibold whitespace-nowrap">Lumbung Tujuan</td>
-                        <td class="whitespace-nowrap">: {{ $dryer->laporanLumbung->lumbung }}- {{ $dryer->laporanLumbung->kode }}</td>
+                        <td class="whitespace-nowrap">: {{ $dryer->laporanLumbung->lumbung }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -199,7 +198,6 @@
 
                                             $persen = $totalPercentage / $totalNettoBersih;
 
-
                                         @endphp
                                         {{ number_format($percentage, 0, ',', '.') }}
                                     </td>
@@ -269,7 +267,8 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            Persentase Lumbung Kering {{ number_format($dryer->laporanLumbung->persentase_keluar, 2) }}%
+                            Persentase Lumbung Kering
+                            {{ number_format($dryer->laporanLumbung->persentase_keluar, 2) }}%
                         </span>
                     </h1>
                 @else

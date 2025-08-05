@@ -203,6 +203,8 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                 TextInput::make('tara')
                                     ->label('Tara')
                                     ->placeholder('Masukkan Nilai Tara')
+                                    ->hint('Jangan lupa confirm Weight')
+                                    ->hintColor('danger')
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                                         // Format angka saat user selesai mengetik
@@ -216,7 +218,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
                                     ->suffixAction(
                                         Action::make('hitungNetto')
                                             ->icon('heroicon-o-calculator')
-                                            ->tooltip('Klik untuk menghitung netto')
+                                            ->tooltip('Confirm Weight')
                                             ->color('primary')
                                             ->action(function ($state, callable $set, callable $get) {
                                                 $bruto = self::parseNumber($get('bruto')) ?? 0;
