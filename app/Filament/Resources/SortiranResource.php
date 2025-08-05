@@ -632,205 +632,205 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                     ->columnSpan(1)->collapsible(),
 
                                 // Kualitas Jagung 4
-                                Card::make('Jagung ke-4')
-                                    ->schema([
-                                        Select::make('kualitas_jagung_4') // Gantilah 'tipe' dengan nama field di database
-                                            ->label('Kualitas Jagung')
-                                            ->options([
-                                                'JG Kering' => 'Jagung Kering',
-                                                'JG Basah' => 'Jagung Basah',
-                                                'JG Kurang Kering' => 'Jagung Kurang Kering',
-                                            ])
-                                            ->placeholder('Pilih Kualitas Jagung')
-                                            ->native(false), // Mengunakan dropdown modern
+                                // Card::make('Jagung ke-4')
+                                //     ->schema([
+                                //         Select::make('kualitas_jagung_4') // Gantilah 'tipe' dengan nama field di database
+                                //             ->label('Kualitas Jagung')
+                                //             ->options([
+                                //                 'JG Kering' => 'Jagung Kering',
+                                //                 'JG Basah' => 'Jagung Basah',
+                                //                 'JG Kurang Kering' => 'Jagung Kurang Kering',
+                                //             ])
+                                //             ->placeholder('Pilih Kualitas Jagung')
+                                //             ->native(false), // Mengunakan dropdown modern
 
-                                        FileUpload::make('foto_jagung_4')
-                                            ->image()
-                                            ->openable()
-                                            ->multiple()
-                                            ->imagePreviewHeight(200)
-                                            ->label('Foto Jagung'),
-                                        Select::make('x1_x10_4')
-                                            ->label('X1-X10')
-                                            ->options([
-                                                'X0' => 'X0',
-                                                'X1' => 'X1',
-                                                'X2' => 'X2',
-                                                'X3' => 'X3',
-                                                'X4' => 'X4',
-                                                'X5' => 'X5',
-                                                'X6' => 'X6',
-                                                'X7' => 'X7',
-                                                'X8' => 'X8',
-                                                'X9' => 'X9',
-                                                'X10' => 'X10',
-                                            ])
-                                            ->placeholder('Pilih Silang Jagung')
-                                            ->native(false), // Mengunakan dropdown modern
+                                //         FileUpload::make('foto_jagung_4')
+                                //             ->image()
+                                //             ->openable()
+                                //             ->multiple()
+                                //             ->imagePreviewHeight(200)
+                                //             ->label('Foto Jagung'),
+                                //         Select::make('x1_x10_4')
+                                //             ->label('X1-X10')
+                                //             ->options([
+                                //                 'X0' => 'X0',
+                                //                 'X1' => 'X1',
+                                //                 'X2' => 'X2',
+                                //                 'X3' => 'X3',
+                                //                 'X4' => 'X4',
+                                //                 'X5' => 'X5',
+                                //                 'X6' => 'X6',
+                                //                 'X7' => 'X7',
+                                //                 'X8' => 'X8',
+                                //                 'X9' => 'X9',
+                                //                 'X10' => 'X10',
+                                //             ])
+                                //             ->placeholder('Pilih Silang Jagung')
+                                //             ->native(false), // Mengunakan dropdown modern
 
-                                        TextInput::make('jumlah_karung_4')
-                                            ->placeholder('Masukkan Jumlah Karung')
-                                            ->label('Jumlah Karung')
-                                            ->numeric()
-                                            ->reactive()
-                                            ->afterStateUpdated(
-                                                fn($state, $set, $get) =>
-                                                $set(
-                                                    'total_karung',
-                                                    (int) ($get('jumlah_karung_1') ?? 0) +
-                                                        (int) ($get('jumlah_karung_2') ?? 0) +
-                                                        (int) ($get('jumlah_karung_3') ?? 0) +
-                                                        (int) ($get('jumlah_karung_4') ?? 0) +
-                                                        (int) ($get('jumlah_karung_5') ?? 0) +
-                                                        (int) ($get('jumlah_karung_6') ?? 0)
-                                                )
-                                            ),
-                                        // TextInput::make('total_karung')
-                                        //     ->label('Jumlah Karung Saat Ini')
-                                        //     ->reactive()
-                                        //     ->disabled()
-                                        //     ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
-                                        TextInput::make('tonase_4')
-                                            ->placeholder('Otomatis tonase terisi')
-                                            ->label('Tonase')
-                                            ->required()
-                                            ->readOnly(),
-                                    ])
-                                    ->columnSpan(1)->collapsed(),
+                                //         TextInput::make('jumlah_karung_4')
+                                //             ->placeholder('Masukkan Jumlah Karung')
+                                //             ->label('Jumlah Karung')
+                                //             ->numeric()
+                                //             ->reactive()
+                                //             ->afterStateUpdated(
+                                //                 fn($state, $set, $get) =>
+                                //                 $set(
+                                //                     'total_karung',
+                                //                     (int) ($get('jumlah_karung_1') ?? 0) +
+                                //                         (int) ($get('jumlah_karung_2') ?? 0) +
+                                //                         (int) ($get('jumlah_karung_3') ?? 0) +
+                                //                         (int) ($get('jumlah_karung_4') ?? 0) +
+                                //                         (int) ($get('jumlah_karung_5') ?? 0) +
+                                //                         (int) ($get('jumlah_karung_6') ?? 0)
+                                //                 )
+                                //             ),
+                                //         // TextInput::make('total_karung')
+                                //         //     ->label('Jumlah Karung Saat Ini')
+                                //         //     ->reactive()
+                                //         //     ->disabled()
+                                //         //     ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
+                                //         TextInput::make('tonase_4')
+                                //             ->placeholder('Otomatis tonase terisi')
+                                //             ->label('Tonase')
+                                //             ->required()
+                                //             ->readOnly(),
+                                //     ])
+                                //     ->columnSpan(1)->collapsed(),
 
-                                // Kualitas Jagung 5
-                                Card::make('Jagung ke-5')
-                                    ->schema([
-                                        Select::make('kualitas_jagung_5') // Gantilah 'tipe' dengan nama field di database
-                                            ->label('Kualitas Jagung')
-                                            ->options([
-                                                'JG Kering' => 'Jagung Kering',
-                                                'JG Basah' => 'Jagung Basah',
-                                                'JG Kurang Kering' => 'Jagung Kurang Kering',
-                                            ])
-                                            ->placeholder('Pilih Kualitas Jagung')
-                                            ->native(false), // Mengunakan dropdown modern
+                                // // Kualitas Jagung 5
+                                // Card::make('Jagung ke-5')
+                                //     ->schema([
+                                //         Select::make('kualitas_jagung_5') // Gantilah 'tipe' dengan nama field di database
+                                //             ->label('Kualitas Jagung')
+                                //             ->options([
+                                //                 'JG Kering' => 'Jagung Kering',
+                                //                 'JG Basah' => 'Jagung Basah',
+                                //                 'JG Kurang Kering' => 'Jagung Kurang Kering',
+                                //             ])
+                                //             ->placeholder('Pilih Kualitas Jagung')
+                                //             ->native(false), // Mengunakan dropdown modern
 
-                                        FileUpload::make('foto_jagung_5')
-                                            ->image()
-                                            ->openable()
-                                            ->multiple()
-                                            ->imagePreviewHeight(200)
-                                            ->label('Foto Jagung'),
-                                        Select::make('x1_x10_5')
-                                            ->label('X1-X10')
-                                            ->options([
-                                                'X0' => 'X0',
-                                                'X1' => 'X1',
-                                                'X2' => 'X2',
-                                                'X3' => 'X3',
-                                                'X4' => 'X4',
-                                                'X5' => 'X5',
-                                                'X6' => 'X6',
-                                                'X7' => 'X7',
-                                                'X8' => 'X8',
-                                                'X9' => 'X9',
-                                                'X10' => 'X10',
-                                            ])
-                                            ->placeholder('Pilih Silang Jagung')
-                                            ->native(false), // Mengunakan dropdown modern
+                                //         FileUpload::make('foto_jagung_5')
+                                //             ->image()
+                                //             ->openable()
+                                //             ->multiple()
+                                //             ->imagePreviewHeight(200)
+                                //             ->label('Foto Jagung'),
+                                //         Select::make('x1_x10_5')
+                                //             ->label('X1-X10')
+                                //             ->options([
+                                //                 'X0' => 'X0',
+                                //                 'X1' => 'X1',
+                                //                 'X2' => 'X2',
+                                //                 'X3' => 'X3',
+                                //                 'X4' => 'X4',
+                                //                 'X5' => 'X5',
+                                //                 'X6' => 'X6',
+                                //                 'X7' => 'X7',
+                                //                 'X8' => 'X8',
+                                //                 'X9' => 'X9',
+                                //                 'X10' => 'X10',
+                                //             ])
+                                //             ->placeholder('Pilih Silang Jagung')
+                                //             ->native(false), // Mengunakan dropdown modern
 
-                                        TextInput::make('jumlah_karung_5')
-                                            ->placeholder('Masukkan Jumlah Karung')
-                                            ->label('Jumlah Karung')
-                                            ->numeric()
-                                            ->reactive()
-                                            ->afterStateUpdated(
-                                                fn($state, $set, $get) =>
-                                                $set(
-                                                    'total_karung',
-                                                    (int) ($get('jumlah_karung_1') ?? 0) +
-                                                        (int) ($get('jumlah_karung_2') ?? 0) +
-                                                        (int) ($get('jumlah_karung_3') ?? 0) +
-                                                        (int) ($get('jumlah_karung_4') ?? 0) +
-                                                        (int) ($get('jumlah_karung_5') ?? 0) +
-                                                        (int) ($get('jumlah_karung_6') ?? 0)
-                                                )
-                                            ),
-                                        // TextInput::make('total_karung')
-                                        //     ->label('Jumlah Karung Saat Ini')
-                                        //     ->reactive()
-                                        //     ->disabled()
-                                        //     ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
-                                        TextInput::make('tonase_5')
-                                            ->placeholder('Otomatis tonase terisi')
-                                            ->label('Tonase')
-                                            ->required()
-                                            ->readOnly(),
-                                    ])
-                                    ->columnSpan(1)->collapsed(),
+                                //         TextInput::make('jumlah_karung_5')
+                                //             ->placeholder('Masukkan Jumlah Karung')
+                                //             ->label('Jumlah Karung')
+                                //             ->numeric()
+                                //             ->reactive()
+                                //             ->afterStateUpdated(
+                                //                 fn($state, $set, $get) =>
+                                //                 $set(
+                                //                     'total_karung',
+                                //                     (int) ($get('jumlah_karung_1') ?? 0) +
+                                //                         (int) ($get('jumlah_karung_2') ?? 0) +
+                                //                         (int) ($get('jumlah_karung_3') ?? 0) +
+                                //                         (int) ($get('jumlah_karung_4') ?? 0) +
+                                //                         (int) ($get('jumlah_karung_5') ?? 0) +
+                                //                         (int) ($get('jumlah_karung_6') ?? 0)
+                                //                 )
+                                //             ),
+                                //         // TextInput::make('total_karung')
+                                //         //     ->label('Jumlah Karung Saat Ini')
+                                //         //     ->reactive()
+                                //         //     ->disabled()
+                                //         //     ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
+                                //         TextInput::make('tonase_5')
+                                //             ->placeholder('Otomatis tonase terisi')
+                                //             ->label('Tonase')
+                                //             ->required()
+                                //             ->readOnly(),
+                                //     ])
+                                //     ->columnSpan(1)->collapsed(),
 
-                                // Kualitas Jagung 6
-                                Card::make('Jagung ke-6')
-                                    ->schema([
-                                        Select::make('kualitas_jagung_6') // Gantilah 'tipe' dengan nama field di database
-                                            ->label('Kualitas Jagung')
-                                            ->options([
-                                                'JG Kering' => 'Jagung Kering',
-                                                'JG Basah' => 'Jagung Basah',
-                                                'JG Kurang Kering' => 'Jagung Kurang Kering',
-                                            ])
-                                            ->placeholder('Pilih Kualitas Jagung')
-                                            ->native(false), // Mengunakan dropdown modern
+                                // // Kualitas Jagung 6
+                                // Card::make('Jagung ke-6')
+                                //     ->schema([
+                                //         Select::make('kualitas_jagung_6') // Gantilah 'tipe' dengan nama field di database
+                                //             ->label('Kualitas Jagung')
+                                //             ->options([
+                                //                 'JG Kering' => 'Jagung Kering',
+                                //                 'JG Basah' => 'Jagung Basah',
+                                //                 'JG Kurang Kering' => 'Jagung Kurang Kering',
+                                //             ])
+                                //             ->placeholder('Pilih Kualitas Jagung')
+                                //             ->native(false), // Mengunakan dropdown modern
 
-                                        FileUpload::make('foto_jagung_6')
-                                            ->image()
-                                            ->openable()
-                                            ->multiple()
-                                            ->imagePreviewHeight(200)
-                                            ->label('Foto Jagung'),
-                                        Select::make('x1_x10_6')
-                                            ->label('X1-X10')
-                                            ->options([
-                                                'X0' => 'X0',
-                                                'X1' => 'X1',
-                                                'X2' => 'X2',
-                                                'X3' => 'X3',
-                                                'X4' => 'X4',
-                                                'X5' => 'X5',
-                                                'X6' => 'X6',
-                                                'X7' => 'X7',
-                                                'X8' => 'X8',
-                                                'X9' => 'X9',
-                                                'X10' => 'X10',
-                                            ])
-                                            ->placeholder('Pilih Silang Jagung')
-                                            ->native(false), // Mengunakan dropdown modern
+                                //         FileUpload::make('foto_jagung_6')
+                                //             ->image()
+                                //             ->openable()
+                                //             ->multiple()
+                                //             ->imagePreviewHeight(200)
+                                //             ->label('Foto Jagung'),
+                                //         Select::make('x1_x10_6')
+                                //             ->label('X1-X10')
+                                //             ->options([
+                                //                 'X0' => 'X0',
+                                //                 'X1' => 'X1',
+                                //                 'X2' => 'X2',
+                                //                 'X3' => 'X3',
+                                //                 'X4' => 'X4',
+                                //                 'X5' => 'X5',
+                                //                 'X6' => 'X6',
+                                //                 'X7' => 'X7',
+                                //                 'X8' => 'X8',
+                                //                 'X9' => 'X9',
+                                //                 'X10' => 'X10',
+                                //             ])
+                                //             ->placeholder('Pilih Silang Jagung')
+                                //             ->native(false), // Mengunakan dropdown modern
 
-                                        TextInput::make('jumlah_karung_6')
-                                            ->placeholder('Masukkan Jumlah Karung')
-                                            ->label('Jumlah Karung')
-                                            ->numeric()
-                                            ->reactive()
-                                            ->afterStateUpdated(
-                                                fn($state, $set, $get) =>
-                                                $set(
-                                                    'total_karung',
-                                                    (int) ($get('jumlah_karung_1') ?? 0) +
-                                                        (int) ($get('jumlah_karung_2') ?? 0) +
-                                                        (int) ($get('jumlah_karung_3') ?? 0) +
-                                                        (int) ($get('jumlah_karung_4') ?? 0) +
-                                                        (int) ($get('jumlah_karung_5') ?? 0) +
-                                                        (int) ($get('jumlah_karung_6') ?? 0)
-                                                )
-                                            ),
-                                        // TextInput::make('total_karung')
-                                        //     ->label('Jumlah Karung Saat Ini')
-                                        //     ->reactive()
-                                        //     ->disabled()
-                                        //     ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
-                                        TextInput::make('tonase_6')
-                                            ->placeholder('Otomatis tonase terisi')
-                                            ->label('Tonase')
-                                            ->required()
-                                            ->readOnly(),
-                                    ])
-                                    ->columnSpan(1)->collapsed(),
+                                //         TextInput::make('jumlah_karung_6')
+                                //             ->placeholder('Masukkan Jumlah Karung')
+                                //             ->label('Jumlah Karung')
+                                //             ->numeric()
+                                //             ->reactive()
+                                //             ->afterStateUpdated(
+                                //                 fn($state, $set, $get) =>
+                                //                 $set(
+                                //                     'total_karung',
+                                //                     (int) ($get('jumlah_karung_1') ?? 0) +
+                                //                         (int) ($get('jumlah_karung_2') ?? 0) +
+                                //                         (int) ($get('jumlah_karung_3') ?? 0) +
+                                //                         (int) ($get('jumlah_karung_4') ?? 0) +
+                                //                         (int) ($get('jumlah_karung_5') ?? 0) +
+                                //                         (int) ($get('jumlah_karung_6') ?? 0)
+                                //                 )
+                                //             ),
+                                //         // TextInput::make('total_karung')
+                                //         //     ->label('Jumlah Karung Saat Ini')
+                                //         //     ->reactive()
+                                //         //     ->disabled()
+                                //         //     ->extraAttributes(['style' => 'color: #333; font-weight: bold;']),
+                                //         TextInput::make('tonase_6')
+                                //             ->placeholder('Otomatis tonase terisi')
+                                //             ->label('Tonase')
+                                //             ->required()
+                                //             ->readOnly(),
+                                //     ])
+                                //     ->columnSpan(1)->collapsed(),
                             ]),
                         // TextInput::make('kadar_air')
                         //     ->label('Kadar Air')

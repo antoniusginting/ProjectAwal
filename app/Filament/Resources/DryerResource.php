@@ -189,6 +189,7 @@ class DryerResource extends Resource implements HasShieldPermissions
                                 'JGK' => 'JGK',
                                 'JGB' => 'JGB',
                                 'JMR' => 'JMR',
+                                'JG.K.Rendah' => 'JG.K.Rendah'
                             ])
                             ->placeholder('Pilih nama barang')
                             ->native(false),
