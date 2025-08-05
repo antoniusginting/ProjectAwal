@@ -14,6 +14,7 @@ use Filament\Notifications\Collection;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Columns\TextInputColumn;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\KapasitasLumbungBasahResource\Pages;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
@@ -90,6 +91,10 @@ class KapasitasLumbungBasahResource extends Resource implements HasShieldPermiss
                 TextColumn::make('no_kapasitas_lumbung')
                     ->alignCenter()
                     ->label('No Lumbung'),
+                TextInputColumn::make('jenis')
+                    ->label('Jenis')
+                    ->alignCenter()
+                    ->placeholder('Masukkan Jenis Jagung'),
                 TextColumn::make('kapasitas_total')
                     ->alignCenter()
                     ->label('Kapasitas Total')
