@@ -87,6 +87,14 @@ class DryerResource extends Resource implements HasShieldPermissions
                             ->placeholder('Pilih nama Dryer')
                             ->options(KapasitasDryer::pluck('nama_kapasitas_dryer', 'id'))
                             ->searchable()
+                            ->disabled(function (callable $get, $record) {
+                                // Jika ini adalah form edit, cek status dari record yang sedang diedit
+                                if ($record && $record->status) {
+                                    return in_array($record->status, ['completed']);
+                                }
+
+                                return false;
+                            })
                             ->required()
                             ->reactive()
                             ->afterStateHydrated(function ($state, callable $set, callable $get) {
