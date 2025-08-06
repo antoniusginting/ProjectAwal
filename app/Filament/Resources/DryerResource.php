@@ -186,10 +186,12 @@ class DryerResource extends Resource implements HasShieldPermissions
 
                         TextInput::make('pj')
                             ->label('PenanggungJawab')
+                            ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                             ->placeholder('Masukkan PenanggungJawab'),
 
                         TextInput::make('operator')
                             ->label('Operator Dryer')
+                            ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                             ->placeholder('Masukkan Operator Dryer'),
 
                         TextInput::make('rencana_kadar')
@@ -217,6 +219,7 @@ class DryerResource extends Resource implements HasShieldPermissions
                             ->placeholder('Masukkan Nomor Pesanan')
                             ->label('Nomor Pesanan')
                             ->columnSpanFull()
+                            ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                             ->maxLength(19)
                             ->visible(fn() => !optional(Auth::user())->hasAnyRole(['timbangan']))
                             ->hint('Setelah nomor pesanan disimpan, maka data tidak dapat diubah')

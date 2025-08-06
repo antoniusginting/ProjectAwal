@@ -42,6 +42,7 @@ use Filament\Forms\Components\Actions\Action as FormAction;
 use App\Filament\Resources\SortiranResource\RelationManagers;
 use App\Filament\Resources\SortiranResource\Pages\ViewSortiran;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
+use Filament\Forms\Components\Textarea;
 
 class SortiranResource extends Resource implements HasShieldPermissions
 {
@@ -428,9 +429,10 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                     ->numeric()
                                     // ->required()
                                     ->placeholder('Masukkan kadar air'),
-                                TextInput::make('keterangan')
+                                Textarea::make('keterangan')
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->label('Keterangan')
+                                    ->columnSpanFull()
                                     ->placeholder('Masukkan keterangan'),
                             ]),
 
