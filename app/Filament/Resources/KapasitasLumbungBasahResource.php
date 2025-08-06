@@ -55,9 +55,11 @@ class KapasitasLumbungBasahResource extends Resource implements HasShieldPermiss
                     ->schema([
                         TextInput::make('no_kapasitas_lumbung')
                             ->label('No Lumbung')
-                            ->placeholder('Masukkan No Kapasitas Lumbung'),
+                            ->placeholder('Masukkan No Kapasitas Lumbung')
+                            ->required(),
                         TextInput::make('kapasitas_total')
                             ->label('Kapasitas Total')
+                            ->required()
                             ->placeholder('Masukkan Jumlah Kapasitas Total')
                             ->live(debounce: 200) // Memastikan perubahan langsung terjadi di Livewire
                             ->extraAttributes([
@@ -67,6 +69,7 @@ class KapasitasLumbungBasahResource extends Resource implements HasShieldPermiss
                             ->dehydrateStateUsing(fn($state) => str_replace('.', '', $state)), // Hapus titik sebelum dikirim ke database
                         TextInput::make('kapasitas_sisa')
                             ->label('Kapasitas Sisa')
+                            ->required()
                             ->placeholder('Masukkan Jumlah Kapasitas Sisa')
                             ->live(debounce: 200) // Memastikan perubahan langsung terjadi di Livewire
                             ->extraAttributes([
