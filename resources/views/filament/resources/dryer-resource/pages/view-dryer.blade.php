@@ -65,7 +65,7 @@
                         <td class="font-semibold whitespace-nowrap">No Dryer</td>
                         <td class="whitespace-nowrap">: {{ $dryer->no_dryer ?? '-' }}</td>
                         <td class="font-semibold whitespace-nowrap">Lumbung Tujuan</td>
-                        <td class="whitespace-nowrap">: {{ $dryer->laporanLumbung->lumbung }}</td>
+                        <td class="whitespace-nowrap">: {{ $dryer->laporanLumbung->lumbung ?? '-' }}</td>
                     </tr>
                 </tbody>
             </table>
