@@ -47,27 +47,29 @@ class DryerObserver
                     // Status sortiran tetap in_dryer karena masih dalam dryer (pending)
                     $this->updateSortirStatus($sortirIds, 'in_dryer');
                 } else {
-                    // Jika lumbung ada isinya, status completed - kembalikan kapasitas
+                    // Jika lumbung ada isinya, status completed - kembalikan kapasitas DRYER saja
                     $kapasitas->increment('kapasitas_sisa', $dryer->total_netto_integer);
                     $dryer->status = 'completed';
                     $dryer->saveQuietly();
 
-                    // Sortiran selesai, status jadi completed dan kembalikan kapasitas lumbung basah
-                    $this->updateSortirStatus($sortirIds, 'completed', true);
+                    // FIXED: Sortiran selesai, status jadi completed tapi JANGAN kembalikan kapasitas lumbung basah
+                    // Karena sudah dikembalikan saat masuk dryer
+                    $this->updateSortirStatus($sortirIds, 'completed');
                 }
             }
         }
 
         // Jika dari ada laporan ke null (dryer dihapus dari laporan)
         elseif (!is_null($oldLaporanId) && is_null($newLaporanId)) {
-            // Jika status sebelumnya completed, berarti kapasitas sudah dikembalikan
+            // Jika status sebelumnya completed, berarti kapasitas dryer sudah dikembalikan
             // Sekarang harus dipotong lagi karena kembali ke processing
             if ($oldStatus === 'completed') {
                 $kapasitas->decrement('kapasitas_sisa', $dryer->total_netto_integer);
-                // Sortiran kembali ke in_dryer dan potong kapasitas lumbung basah lagi
-                $this->updateSortirStatus($sortirIds, 'in_dryer', false, true);
+                // FIXED: Sortiran kembali ke in_dryer tapi JANGAN potong kapasitas lumbung basah lagi
+                // Karena kapasitas lumbung basah sudah dikembalikan saat pertama masuk dryer
+                $this->updateSortirStatus($sortirIds, 'in_dryer');
             }
-            // Jika status sebelumnya pending, kapasitas tidak pernah dikembalikan
+            // Jika status sebelumnya pending, kapasitas dryer tidak pernah dikembalikan
             // Sortiran tetap in_dryer, tidak ada perubahan kapasitas
 
             // Update status ke processing
@@ -83,11 +85,11 @@ class DryerObserver
                 // Cek kondisi lumbung baru
                 if (empty(trim($newLaporanLumbung->lumbung))) {
                     // Lumbung baru kosong - status pending
-                    // Jika status lama completed, potong kapasitas karena akan jadi pending
+                    // Jika status lama completed, potong kapasitas dryer karena akan jadi pending
                     if ($oldStatus === 'completed') {
                         $kapasitas->decrement('kapasitas_sisa', $dryer->total_netto_integer);
-                        // Sortiran kembali ke in_dryer dan potong kapasitas lumbung basah
-                        $this->updateSortirStatus($sortirIds, 'in_dryer', false, true);
+                        // FIXED: Sortiran kembali ke in_dryer tapi JANGAN potong kapasitas lumbung basah
+                        $this->updateSortirStatus($sortirIds, 'in_dryer');
                     }
                     // Jika dari pending ke pending lain, tidak ada perubahan
 
@@ -95,11 +97,11 @@ class DryerObserver
                     $dryer->saveQuietly();
                 } else {
                     // Lumbung baru ada isinya - status completed  
-                    // Jika status lama pending, kembalikan kapasitas karena akan jadi completed
+                    // Jika status lama pending, kembalikan kapasitas dryer karena akan jadi completed
                     if ($oldStatus === 'pending') {
                         $kapasitas->increment('kapasitas_sisa', $dryer->total_netto_integer);
-                        // Sortiran selesai, status jadi completed dan kembalikan kapasitas lumbung basah
-                        $this->updateSortirStatus($sortirIds, 'completed', true);
+                        // FIXED: Sortiran selesai, status jadi completed tapi JANGAN kembalikan kapasitas lumbung basah
+                        $this->updateSortirStatus($sortirIds, 'completed');
                     }
                     // Jika dari completed ke completed lain, tidak ada perubahan kapasitas
 
@@ -111,35 +113,17 @@ class DryerObserver
     }
 
     /**
-     * Update status sortiran dan handle kapasitas lumbung basah
+     * Update status sortiran TANPA handle kapasitas lumbung basah
+     * Karena kapasitas lumbung basah sudah dikembalikan saat sortiran masuk dryer
      */
-    private function updateSortirStatus(array $sortirIds, string $status, bool $returnLumbungCapacity = false, bool $deductLumbungCapacity = false): void
+    private function updateSortirStatus(array $sortirIds, string $status): void
     {
         if (empty($sortirIds)) {
             return;
         }
 
-        // Update status sortiran
+        // Update status sortiran saja, TIDAK mengubah kapasitas lumbung basah
         \App\Models\Sortiran::whereIn('id', $sortirIds)
             ->update(['status' => $status]);
-
-        // Handle kapasitas lumbung basah jika diperlukan
-        if ($returnLumbungCapacity || $deductLumbungCapacity) {
-            $sortirans = \App\Models\Sortiran::whereIn('id', $sortirIds)->get();
-
-            foreach ($sortirans as $sortiran) {
-                $kapasitasLumbung = \App\Models\KapasitasLumbungBasah::find($sortiran->no_lumbung_basah);
-
-                if ($kapasitasLumbung) {
-                    if ($returnLumbungCapacity) {
-                        // Kembalikan kapasitas lumbung basah (sortiran selesai)
-                        $kapasitasLumbung->increment('kapasitas_sisa', $sortiran->netto_bersih_integer);
-                    } elseif ($deductLumbungCapacity) {
-                        // Potong kapasitas lumbung basah (sortiran kembali aktif)
-                        $kapasitasLumbung->decrement('kapasitas_sisa', $sortiran->netto_bersih_integer);
-                    }
-                }
-            }
-        }
     }
 }

@@ -40,8 +40,9 @@ class LaporanLumbungObserver
                     $kapasitas->increment('kapasitas_sisa', $dryer->total_netto_integer);
                     $dryer->update(['status' => 'completed']);
 
-                    // Sortiran selesai, status jadi completed dan kembalikan kapasitas lumbung basah
-                    $this->updateSortirStatus($sortirIds, 'completed', true);
+                    // FIXED: Sortiran selesai, status jadi completed tapi JANGAN kembalikan kapasitas lumbung basah
+                    // Karena sudah dikembalikan saat masuk dryer
+                    $this->updateSortirStatus($sortirIds, 'completed');
                 }
             }
 
@@ -52,43 +53,26 @@ class LaporanLumbungObserver
                     $kapasitas->decrement('kapasitas_sisa', $dryer->total_netto_integer);
                     $dryer->update(['status' => 'pending']);
 
-                    // Sortiran kembali ke in_dryer dan potong kapasitas lumbung basah
-                    $this->updateSortirStatus($sortirIds, 'in_dryer', false, true);
+                    // FIXED: Sortiran kembali ke in_dryer tapi JANGAN potong kapasitas lumbung basah
+                    // Karena kapasitas lumbung basah sudah dikembalikan saat masuk dryer dan tidak perlu dipotong lagi
+                    $this->updateSortirStatus($sortirIds, 'in_dryer');
                 }
             }
         }
     }
 
     /**
-     * Update status sortiran dan handle kapasitas lumbung basah
+     * Update status sortiran TANPA handle kapasitas lumbung basah
+     * Karena kapasitas lumbung basah sudah dihandle saat sortiran masuk/keluar dryer
      */
-    private function updateSortirStatus(array $sortirIds, string $status, bool $returnLumbungCapacity = false, bool $deductLumbungCapacity = false): void
+    private function updateSortirStatus(array $sortirIds, string $status): void
     {
         if (empty($sortirIds)) {
             return;
         }
 
-        // Update status sortiran
+        // Update status sortiran saja, TIDAK mengubah kapasitas lumbung basah
         \App\Models\Sortiran::whereIn('id', $sortirIds)
             ->update(['status' => $status]);
-
-        // Handle kapasitas lumbung basah jika diperlukan
-        if ($returnLumbungCapacity || $deductLumbungCapacity) {
-            $sortirans = \App\Models\Sortiran::whereIn('id', $sortirIds)->get();
-
-            foreach ($sortirans as $sortiran) {
-                $kapasitasLumbung = \App\Models\KapasitasLumbungBasah::find($sortiran->no_lumbung_basah);
-
-                if ($kapasitasLumbung) {
-                    if ($returnLumbungCapacity) {
-                        // Kembalikan kapasitas lumbung basah (sortiran selesai)
-                        $kapasitasLumbung->increment('kapasitas_sisa', $sortiran->netto_bersih_integer);
-                    } elseif ($deductLumbungCapacity) {
-                        // Potong kapasitas lumbung basah (sortiran kembali aktif)
-                        $kapasitasLumbung->decrement('kapasitas_sisa', $sortiran->netto_bersih_integer);
-                    }
-                }
-            }
-        }
     }
 }
