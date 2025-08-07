@@ -16,11 +16,18 @@ class SortirService
     public function create(array $data): Sortiran
     {
         return DB::transaction(function () use ($data) {
-            $nettoBersih = $this->parseNettoBersih($data['netto_bersih']);
+            $nettoBersih = $this->parseNettoBersih($data['netto_bersih'] ?? '');
 
-            // Validasi kapasitas lumbung
-            $kapasitas = $this->getKapasitasLumbung($data['no_lumbung_basah']);
-            $this->validateKapasitasAda($kapasitas, $data['no_lumbung_basah']);
+            // Validasi kapasitas lumbung - FIXED: Added null coalescing
+            $noLumbungBasah = $data['no_lumbung_basah'] ?? null;
+            if (!$noLumbungBasah) {
+                throw ValidationException::withMessages([
+                    'no_lumbung_basah' => 'No lumbung basah harus diisi.',
+                ]);
+            }
+
+            $kapasitas = $this->getKapasitasLumbung($noLumbungBasah);
+            $this->validateKapasitasAda($kapasitas, $noLumbungBasah);
 
             // Validasi kapasitas mencukupi
             if ($kapasitas->kapasitas_sisa < $nettoBersih) {
@@ -46,7 +53,13 @@ class SortirService
     public function update(Sortiran $sortiran, array $data): Sortiran
     {
         return DB::transaction(function () use ($sortiran, $data) {
-            $newNettoBersih = $this->parseNettoBersih($data['netto_bersih']);
+            // FIXED: Merge dengan data existing untuk field yang mungkin disabled
+            $data = array_merge([
+                'no_lumbung_basah' => $sortiran->no_lumbung_basah, // Fallback ke nilai lama
+                'netto_bersih' => $sortiran->getOriginal('netto_bersih'), // Fallback untuk netto_bersih juga
+            ], $data);
+
+            $newNettoBersih = $this->parseNettoBersih($data['netto_bersih'] ?? '');
             $oldNettoBersih = $sortiran->netto_bersih_integer;
             $oldNoLumbung = $sortiran->no_lumbung_basah;
             $newNoLumbung = $data['no_lumbung_basah'];
@@ -106,7 +119,6 @@ class SortirService
         });
     }
 
-
     // Di SortirService
     public function updateStatusToDryer(array $newSortirIds, array $oldSortirIds = []): void
     {
@@ -158,8 +170,13 @@ class SortirService
     }
 
     // Helper methods
-    private function parseNettoBersih(string $nettoBersih): int
+    private function parseNettoBersih(?string $nettoBersih): int
     {
+        // FIXED: Handle null values
+        if (empty($nettoBersih)) {
+            return 0;
+        }
+
         return (int) str_replace('.', '', $nettoBersih);
     }
 
