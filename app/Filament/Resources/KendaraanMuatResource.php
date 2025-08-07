@@ -243,11 +243,7 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                     ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.'))
                     ->searchable(),
 
-                ImageColumn::make('foto')
-                    ->label('Foto')
-                    ->getStateUsing(fn($record) => $record->foto[0] ?? null)
-                    ->url(fn($record) => asset('storage/' . ($record->foto[0] ?? '')))
-                    ->openUrlInNewTab(),
+
                 // TextColumn::make('created_at_time')
                 //     ->label('Jam Dibuat')
                 //     ->state(fn($record) => \Carbon\Carbon::parse($record->created_at)->format('H:i:s'))
@@ -292,6 +288,18 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                             ->locale('id') // Memastikan locale di-set ke bahasa Indonesia
                             ->isoFormat('D MMMM YYYY | HH:mm:ss');
                     }),
+                ImageColumn::make('foto')
+                    ->label('Foto 1')
+                    ->alignCenter()
+                    ->getStateUsing(fn($record) => $record->foto[0] ?? null)
+                    ->url(fn($record) => asset('storage/' . ($record->foto[0] ?? '')))
+                    ->openUrlInNewTab(),
+                ImageColumn::make('foto2')
+                    ->label('Foto 2')
+                    ->alignCenter()
+                    ->getStateUsing(fn($record) => $record->foto[1] ?? null)
+                    ->url(fn($record) => asset('storage/' . ($record->foto[1] ?? '')))
+                    ->openUrlInNewTab(),
                 TextColumn::make('user.name')
                     ->label('User')
             ])->defaultSort('id', 'desc')

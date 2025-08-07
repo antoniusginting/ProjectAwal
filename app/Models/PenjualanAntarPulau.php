@@ -18,16 +18,16 @@ class PenjualanAntarPulau extends Model
         'pembelian_antar_pulau_id',
     ];
 
-    protected static function booted()
-    {
-        static::saving(function ($model) {
-            if ($model->status === 'TERIMA') {
-                $model->netto_diterima = $model->netto;
-            } elseif ($model->status !== 'SETENGAH') {
-                $model->netto_diterima = 0;
-            }
-        });
-    }
+    // protected static function booted()
+    // {
+    //     static::saving(function ($model) {
+    //         if ($model->status === 'TERIMA') {
+    //             $model->netto_diterima = $model->netto;
+    //         } elseif ($model->status !== 'SETENGAH') {
+    //             $model->netto_diterima = 0;
+    //         }
+    //     });
+    // }
 
     public function kapasitasKontrakJual()
     {

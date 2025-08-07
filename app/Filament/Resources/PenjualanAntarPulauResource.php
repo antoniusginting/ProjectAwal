@@ -194,13 +194,13 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                         ->placeholder('Masukkan netto')
                         ->numeric()
                         ->columnSpan(2)
-                        ->reactive()
-                        ->afterStateUpdated(function ($state, Set $set, Get $get) {
-                            $status = $get('status');
-                            if ($status === 'TERIMA') {
-                                $set('netto_diterima', $state);
-                            }
-                        }),
+                        ->reactive(),
+                    // ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                    //     $status = $get('status');
+                    //     if ($status === 'TERIMA') {
+                    //         $set('netto_diterima', $state);
+                    //     }
+                    // }),
 
                     Select::make('status')
                         ->native(false)
@@ -228,11 +228,11 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                                 }
                             }
 
-                            if ($state === 'TERIMA') {
-                                $set('netto_diterima', $netto);
-                            } else {
-                                $set('netto_diterima', null);
-                            }
+                            // if ($state === 'TERIMA') {
+                            //     $set('netto_diterima', $netto);
+                            // } else {
+                            //     $set('netto_diterima', null);
+                            // }
                         }),
                     TextInput::make('netto_diterima')
                         ->label('Netto Diterima')
@@ -298,6 +298,9 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
             TextColumn::make('nama_barang')->searchable(),
 
             TextColumn::make('netto')
+                ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
+            TextColumn::make('netto_diterima')
+                ->label('Diterima')
                 ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
 
             TextColumn::make('user.name')->label('User'),
