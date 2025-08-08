@@ -433,7 +433,7 @@ class DryerResource extends Resource implements HasShieldPermissions
                     return EditDryer::getUrl(['record' => $record]);
                 }
 
-                if ($user && $user->hasRole('qc_contoh')) {
+                if ($user && $user->hasRole('qc')) {
                     if (!$record->no_cc) {
                         return EditDryer::getUrl(['record' => $record]);
                     }
