@@ -9,10 +9,11 @@
                     <div class="space-y-4">
                         <div class="flex items-center">
                             <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">No SPB</p>
-                            <p class="text-gray-600 dark:text-gray-400">: 
+                            <p class="text-gray-600 dark:text-gray-400">:
                                 <a href="{{ route('filament.admin.resources.pembelians.view-pembelian', $sortiran->pembelian->id ?? '') }}"
-                                        target="_blank"
-                                        class="text-blue-600 hover:text-blue-800 underline">{{ $sortiran->pembelian->no_spb }}</a></p>
+                                    target="_blank"
+                                    class="text-blue-600 hover:text-blue-800 underline">{{ $sortiran->pembelian->no_spb }}</a>
+                            </p>
                         </div>
                         <div class="flex items-center">
                             <p class="w-32 font-semibold text-gray-800 dark:text-gray-300">Supplier</p>
@@ -174,23 +175,53 @@
     background-color: rgba(0,0,0,0.9); overflow: auto;"
         onclick="closeImageModal()">
 
-        <!-- Kontrol Zoom -->
+        <!-- Kontrol Zoom dan Rotate -->
         <div style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10002; 
-        display: flex; gap: 10px; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 25px;"
+        display: flex; gap: 10px; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 25px; flex-wrap: wrap; align-items: center; justify-content: center;"
             onclick="event.stopPropagation();">
-            <button onclick="event.stopPropagation(); zoomOut();"
-                style="background: rgba(255,255,255,0.9); border: none; border-radius: 50%; 
-            width: 40px; height: 40px; cursor: pointer; font-size: 20px; font-weight: bold; display: flex; align-items: center; justify-content: center;">−</button>
-            <span
-                style="background: rgba(255,255,255,0.9); border-radius: 15px; padding: 8px 15px; font-size: 14px; 
-            display: flex; align-items: center; min-width: 50px; justify-content: center;"
-                id="zoomLevel">100%</span>
-            <button onclick="event.stopPropagation(); zoomIn();"
-                style="background: rgba(255,255,255,0.9); border: none; border-radius: 50%; 
-            width: 40px; height: 40px; cursor: pointer; font-size: 20px; font-weight: bold; display: flex; align-items: center; justify-content: center;">+</button>
-            <button onclick="event.stopPropagation(); resetZoom();"
+
+            <!-- Zoom Controls -->
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button onclick="event.stopPropagation(); zoomOut();"
+                    style="background: rgba(255,255,255,0.9); border: none; border-radius: 50%; 
+                width: 40px; height: 40px; cursor: pointer; font-size: 20px; font-weight: bold; display: flex; align-items: center; justify-content: center;"
+                    title="Zoom Out">−</button>
+
+                <span
+                    style="background: rgba(255,255,255,0.9); border-radius: 15px; padding: 8px 15px; font-size: 14px; 
+                display: flex; align-items: center; min-width: 50px; justify-content: center;"
+                    id="zoomLevel">100%</span>
+
+                <button onclick="event.stopPropagation(); zoomIn();"
+                    style="background: rgba(255,255,255,0.9); border: none; border-radius: 50%; 
+                width: 40px; height: 40px; cursor: pointer; font-size: 20px; font-weight: bold; display: flex; align-items: center; justify-content: center;"
+                    title="Zoom In">+</button>
+            </div>
+
+            <!-- Rotate Controls -->
+            <div
+                style="display: flex; gap: 10px; align-items: center; border-left: 2px solid rgba(255,255,255,0.3); padding-left: 15px;">
+                <button onclick="event.stopPropagation(); rotateLeft();"
+                    style="background: rgba(255,255,255,0.9); border: none; border-radius: 50%; 
+                width: 40px; height: 40px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;"
+                    title="Rotate Left">↺</button>
+
+                <span
+                    style="background: rgba(255,255,255,0.9); border-radius: 15px; padding: 8px 15px; font-size: 14px; 
+                display: flex; align-items: center; min-width: 50px; justify-content: center;"
+                    id="rotateLevel">0°</span>
+
+                <button onclick="event.stopPropagation(); rotateRight();"
+                    style="background: rgba(255,255,255,0.9); border: none; border-radius: 50%; 
+                width: 40px; height: 40px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;"
+                    title="Rotate Right">↻</button>
+            </div>
+
+            <!-- Reset Button -->
+            <button onclick="event.stopPropagation(); resetAll();"
                 style="background: rgba(255,255,255,0.9); border: none; border-radius: 15px; 
-            padding: 8px 15px; cursor: pointer; font-size: 12px; margin-left: 10px;">Reset</button>
+            padding: 8px 15px; cursor: pointer; font-size: 12px; margin-left: 10px;"
+                title="Reset All">Reset</button>
         </div>
 
         <div
@@ -215,6 +246,7 @@
 
     <script>
         let currentZoom = 1;
+        let currentRotation = 0;
         let isDragging = false;
         let startX, startY, translateX = 0,
             translateY = 0;
@@ -224,18 +256,21 @@
             document.getElementById('modalImage').src = imageSrc;
             document.getElementById('modalCaption').textContent = caption;
 
-            // Reset zoom dan posisi
+            // Reset zoom, rotation, dan posisi
             currentZoom = 1;
+            currentRotation = 0;
             translateX = 0;
             translateY = 0;
             updateImageTransform();
             updateZoomLevel();
+            updateRotateLevel();
         }
 
         function closeImageModal() {
             document.getElementById('imageModal').style.display = 'none';
-            // Reset zoom dan posisi
+            // Reset zoom, rotation, dan posisi
             currentZoom = 1;
+            currentRotation = 0;
             translateX = 0;
             translateY = 0;
         }
@@ -259,24 +294,48 @@
             updateCursor();
         }
 
-        function resetZoom() {
+        function rotateLeft() {
+            currentRotation -= 90;
+            if (currentRotation < 0) {
+                currentRotation = 270;
+            }
+            updateImageTransform();
+            updateRotateLevel();
+        }
+
+        function rotateRight() {
+            currentRotation += 90;
+            if (currentRotation >= 360) {
+                currentRotation = 0;
+            }
+            updateImageTransform();
+            updateRotateLevel();
+        }
+
+        function resetAll() {
             currentZoom = 1;
+            currentRotation = 0;
             translateX = 0;
             translateY = 0;
             updateImageTransform();
             updateZoomLevel();
+            updateRotateLevel();
             updateCursor();
         }
 
         function updateImageTransform() {
             const image = document.getElementById('modalImage');
             image.style.transform =
-                `scale(${currentZoom}) translate(${translateX / currentZoom}px, ${translateY / currentZoom}px)`;
+                `scale(${currentZoom}) rotate(${currentRotation}deg) translate(${translateX / currentZoom}px, ${translateY / currentZoom}px)`;
             image.style.transformOrigin = 'center center';
         }
 
         function updateZoomLevel() {
             document.getElementById('zoomLevel').textContent = Math.round(currentZoom * 100) + '%';
+        }
+
+        function updateRotateLevel() {
+            document.getElementById('rotateLevel').textContent = currentRotation + '°';
         }
 
         function updateCursor() {
@@ -286,6 +345,18 @@
             } else {
                 image.style.cursor = 'default';
             }
+        }
+
+        // Function untuk mengkonversi koordinat mouse berdasarkan rotasi
+        function getRotatedCoordinates(deltaX, deltaY, rotation) {
+            const radians = (rotation * Math.PI) / 180;
+            const cos = Math.cos(radians);
+            const sin = Math.sin(radians);
+
+            return {
+                x: deltaX * cos + deltaY * sin,
+                y: -deltaX * sin + deltaY * cos
+            };
         }
 
         // Mouse events untuk drag
@@ -301,8 +372,14 @@
 
         document.addEventListener('mousemove', function(e) {
             if (isDragging && currentZoom > 1) {
-                translateX = e.clientX - startX;
-                translateY = e.clientY - startY;
+                const rawDeltaX = e.clientX - startX;
+                const rawDeltaY = e.clientY - startY;
+
+                // Konversi koordinat berdasarkan rotasi
+                const rotatedCoords = getRotatedCoordinates(rawDeltaX, rawDeltaY, -currentRotation);
+
+                translateX = rotatedCoords.x;
+                translateY = rotatedCoords.y;
                 updateImageTransform();
             }
         });
@@ -328,8 +405,14 @@
         document.addEventListener('touchmove', function(e) {
             if (isDragging && currentZoom > 1 && e.touches.length === 1) {
                 const touch = e.touches[0];
-                translateX = touch.clientX - startX;
-                translateY = touch.clientY - startY;
+                const rawDeltaX = touch.clientX - startX;
+                const rawDeltaY = touch.clientY - startY;
+
+                // Konversi koordinat berdasarkan rotasi untuk touch
+                const rotatedCoords = getRotatedCoordinates(rawDeltaX, rawDeltaY, -currentRotation);
+
+                translateX = rotatedCoords.x;
+                translateY = rotatedCoords.y;
                 updateImageTransform();
                 e.preventDefault();
             }
@@ -342,10 +425,37 @@
             }
         });
 
-        // Menutup modal ketika menekan tombol ESC
+        // Keyboard shortcuts
         document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                closeImageModal();
+            if (document.getElementById('imageModal').style.display === 'block') {
+                switch (event.key) {
+                    case 'Escape':
+                        closeImageModal();
+                        break;
+                    case '+':
+                    case '=':
+                        event.preventDefault();
+                        zoomIn();
+                        break;
+                    case '-':
+                    case '_':
+                        event.preventDefault();
+                        zoomOut();
+                        break;
+                    case 'ArrowLeft':
+                        event.preventDefault();
+                        rotateLeft();
+                        break;
+                    case 'ArrowRight':
+                        event.preventDefault();
+                        rotateRight();
+                        break;
+                    case 'r':
+                    case 'R':
+                        event.preventDefault();
+                        resetAll();
+                        break;
+                }
             }
         });
 
@@ -356,10 +466,10 @@
             }
         });
 
-        // Double-click pada gambar untuk reset zoom
+        // Double-click pada gambar untuk reset zoom dan rotation
         document.getElementById('modalImage').addEventListener('dblclick', function(event) {
             event.stopPropagation();
-            resetZoom();
+            resetAll();
         });
     </script>
 

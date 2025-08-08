@@ -221,7 +221,7 @@ class DryerResource extends Resource implements HasShieldPermissions
                             ->columnSpanFull()
                             ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                             ->maxLength(19)
-                            ->visible(fn() => !optional(Auth::user())->hasAnyRole(['timbangan']))
+                            ->visible(fn() => !optional(Auth::user())->hasAnyRole(['qc', 'mandor']))
                             ->hint('Setelah nomor pesanan disimpan, maka data tidak dapat diubah')
                             ->hintColor('warning'),
                     ])->columns(2),
@@ -433,7 +433,7 @@ class DryerResource extends Resource implements HasShieldPermissions
                     return EditDryer::getUrl(['record' => $record]);
                 }
 
-                if ($user && $user->hasRole('qc')) {
+                if ($user && ($user->hasRole('qc') || $user->hasRole('mandor'))) {
                     if (!$record->no_cc) {
                         return EditDryer::getUrl(['record' => $record]);
                     }
