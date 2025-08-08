@@ -164,14 +164,15 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                                     ->columnSpan(2)
                                     ->label('Nama Kontrak')
                                     ->required()
-                                    ->options(Kontrak::all()->pluck('nama', 'id'))
-                                    // ->options(
-                                    //     Kontrak::where('nama', 'like', '%bonar%')
-                                    //         ->orWhere('nama', 'like', '%dharma%')
-                                    //         ->pluck('nama', 'id')
-                                    // )
+                                    ->options(
+                                        Kontrak::whereIn('nama', [
+                                            'PT DHARMA BHAKTI SAMUDERA',
+                                            'CV BONAR JAYA ADIPERKASA NUSANTARA',
+                                        ])->pluck('nama', 'id')
+                                    )
                                     ->searchable()
                                     ->reactive(), // Agar saat memilih kontrak, alamat terfilter
+
                                 TextInput::make('created_at')
                                     ->label('Tanggal Sekarang')
                                     ->columnSpan(2)
@@ -215,12 +216,15 @@ class SuratJalanResource extends Resource implements HasShieldPermissions
                                             : []
                                     )
                                     ->searchable(),
-                                TextInput::make('kota')
+                                Select::make('kota')
                                     ->label('Kota')
                                     ->columnSpan(2)
-                                    ->autocomplete('off')
-                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
-                                    ->placeholder('Masukkan Kota')
+                                    ->options([
+                                        'pematangsiantar' => 'Pematangsiantar',
+                                        'kineppen' => 'Kineppen',
+                                    ])
+                                    ->searchable() // kalau mau ada fitur cari
+                                    ->placeholder('Pilih Kota')
                                     ->required(),
 
                                 Select::make('status')
