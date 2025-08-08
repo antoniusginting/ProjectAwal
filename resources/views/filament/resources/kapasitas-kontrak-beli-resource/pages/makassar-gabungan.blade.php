@@ -1,25 +1,25 @@
 <x-filament-panels::page>
     <div class="p-6 bg-white dark:bg-gray-900 rounded-md shadow-md">
 
-        <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-6 border">
+        <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-6 border dark:border-gray-700">
             <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Filter Data Kontrak</h3>
 
             <form method="GET" id="filterForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-white mb-2">
                         Tanggal Mulai
                     </label>
                     <input type="date" name="tanggal_mulai" id="tanggal_mulai" value="{{ request('tanggal_mulai') }}"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-white mb-2">
                         Tanggal Selesai
                     </label>
                     <input type="date" name="tanggal_selesai" id="tanggal_selesai"
                         value="{{ request('tanggal_selesai') }}"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
 
                 <input type="hidden" name="apply_filter" value="1">
@@ -258,7 +258,7 @@
                         @endphp
 
                         {{-- Summary Dashboard --}}
-                        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg mb-6 shadow-md border">
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg mb-6 shadow-md border dark:border-gray-700">
                             <div class="flex justify-between items-center mb-4">
                                 <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
                                     Ringkasan Tonase Kontrak {{ $kontrakBeli->supplier }} - {{ $kontrakBeli->nama }}
