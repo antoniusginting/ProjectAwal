@@ -270,6 +270,9 @@ class DryerResource extends Resource implements HasShieldPermissions
                         Select::make('sortirans')
                             ->label('Sortiran')
                             ->multiple()
+                            ->disabled(function ($record) {
+                                return $record && $record->status === 'completed';
+                            })
                             ->relationship(
                                 name: 'sortirans',
                                 titleAttribute: 'no_sortiran',
