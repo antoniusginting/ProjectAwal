@@ -39,8 +39,8 @@ class AdminPanelProvider extends PanelProvider
                 'ekspedisi' => '#086E6E'
             ])
             ->defaultThemeMode(ThemeMode::Light)
-            ->brandLogo(asset('storage/logo_cv.png')) // Ganti dengan path logo kamu
-            ->favicon(asset('storage/favicon.ico')) // Ambil dari storage
+            ->brandLogo(asset('images/logo_cv.png')) 
+            ->favicon(asset('images/favicon.ico')) 
             ->brandLogoHeight('40px')
             ->brandName('Bonar Jaya')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
