@@ -122,7 +122,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                                 'ABU JAGUNG',
                                                 'DEDAK'
                                             ])
-                                            ->whereNotBetween(DB::raw('DATE(created_at)'), ['2025-08-02', '2025-08-07'])
+                                            ->whereNotBetween(DB::raw('DATE(created_at)'), ['2025-08-01', '2025-08-07'])
                                             ->latest();
 
 
