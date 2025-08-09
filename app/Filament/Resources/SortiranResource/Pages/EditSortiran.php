@@ -3,16 +3,36 @@
 namespace App\Filament\Resources\SortiranResource\Pages;
 
 use Filament\Actions;
+use App\Models\Sortiran;
 use Filament\Actions\Action;
 use App\Services\SortirService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\SortiranResource;
+use Illuminate\Validation\ValidationException;
 
 class EditSortiran extends EditRecord
 {
     protected static string $resource = SortiranResource::class;
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        // Double check sebelum update
+        if (isset($data['id_pembelian'])) {
+            $exists = Sortiran::where('id_pembelian', $data['id_pembelian'])
+                ->where('id', '!=', $this->record->id)
+                ->exists();
+
+            if ($exists) {
+                throw ValidationException::withMessages([
+                    'id_pembelian' => ['ID Pembelian ini sudah digunakan oleh user lain. Silakan pilih ID yang berbeda.']
+                ]);
+            }
+        }
+
+        return $data;
+    }
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         $service = app(\App\Services\SortirService::class);

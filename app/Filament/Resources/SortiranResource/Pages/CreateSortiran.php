@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\SortiranResource;
+use Illuminate\Validation\ValidationException;
 
 class CreateSortiran extends CreateRecord
 {
@@ -18,6 +19,21 @@ class CreateSortiran extends CreateRecord
     function getTitle(): string
     {
         return 'Tambah Sortiran';
+    }
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        // Double check sebelum create untuk antisipasi race condition
+        if (isset($data['id_pembelian'])) {
+            $exists = Sortiran::where('id_pembelian', $data['id_pembelian'])->exists();
+
+            if ($exists) {
+                throw ValidationException::withMessages([
+                    'id_pembelian' => ['ID Pembelian ini sudah digunakan oleh user lain. Silakan refresh halaman dan pilih ID yang berbeda.']
+                ]);
+            }
+        }
+
+        return $data;
     }
     public function getSubheading(): ?string
     {
@@ -61,5 +77,4 @@ class CreateSortiran extends CreateRecord
             throw $e;
         }
     }
-
 }

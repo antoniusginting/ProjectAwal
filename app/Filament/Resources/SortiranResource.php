@@ -125,7 +125,6 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                             ->whereNotBetween(DB::raw('DATE(created_at)'), ['2025-08-01', '2025-08-07'])
                                             ->latest();
 
-
                                         // Pastikan data yang sedang dipilih (saat edit) tetap ada
                                         if ($selectedId) {
                                             $query->orWhere('id', $selectedId);
@@ -140,13 +139,19 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                                 ];
                                             });
                                     })
-
                                     ->searchable()
                                     ->columnSpan(2)
-                                    // ->required()
+                                    // TAMBAHKAN VALIDASI INI - CARA ALTERNATIF
+                                    ->rules([
+                                        'required',
+                                        'unique:sortirans,id_pembelian'
+                                    ])
+                                    ->validationMessages([
+                                        'unique' => 'ID Pembelian ini sudah digunakan untuk sortiran lain. Silakan pilih ID Pembelian yang berbeda.'
+                                    ])
                                     ->reactive()
                                     ->disabled(fn($record) => $record !== null)
-                                    ->disabled(fn($get) => !empty($get('penjualan_ids'))) // Hide jika pembelian dipilih
+                                    ->disabled(fn($get) => !empty($get('penjualan_ids')))
                                     ->afterStateHydrated(function ($state, callable $set) {
                                         if ($state) {
                                             $pembelian = Pembelian::find($state);
@@ -165,7 +170,6 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                         $set('plat_polisi', $pembelian?->plat_polisi ?? 'Plat tidak ditemukan');
                                         $set('nama_supplier', $pembelian?->supplier->nama_supplier ?? 'Supplier tidak ditemukan');
                                     }),
-
 
                                 // Select::make('penjualan_ids')
                                 //     ->label('Timbangan Langsir')
