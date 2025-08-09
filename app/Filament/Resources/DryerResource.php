@@ -158,7 +158,10 @@ class DryerResource extends Resource implements HasShieldPermissions
                                     ->get()
                                     ->mapWithKeys(function ($item) {
                                         return [
-                                            $item->id => $item->kode . ' - ' . $item->lumbung
+                                            $item->id => $item->kode . ' - ' . $item->lumbung .
+                                                (!empty($item->keterangan) && trim($item->keterangan) !== ''
+                                                    ? ' - Ket : ' . $item->keterangan
+                                                    : '')
                                         ];
                                     });
                             })

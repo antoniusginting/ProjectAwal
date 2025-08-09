@@ -85,10 +85,6 @@ class KapasitasLumbungBasahResource extends Resource implements HasShieldPermiss
     {
         return $table
             ->poll('5s') // polling ulang setiap 5 detik
-            ->modifyQueryUsing(function (Builder $query) {
-                // Filter query untuk mengecualikan baris dengan no_lumbung = 'Muat'
-                return $query->whereNotIn('no_kapasitas_lumbung', ['Muat', 'TANPA LUMBUNG']);
-            })
             ->columns([
                 // TextColumn::make('id')->label('No'),
                 TextColumn::make('no_kapasitas_lumbung')

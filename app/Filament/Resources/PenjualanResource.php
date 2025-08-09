@@ -288,17 +288,21 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->options(function () {
                                         return LaporanLumbung::whereNull('status_silo')
                                             ->where('status', false)
-                                            // TAMBAHAN BARU: Filter hanya yang memiliki lumbung (tidak null dan tidak kosong)
                                             ->whereNotNull('lumbung')
                                             ->where('lumbung', '!=', '')
-                                            ->where('lumbung', '!=', ' ') // Juga filter spasi
+                                            ->where('lumbung', '!=', ' ')
                                             ->get()
                                             ->mapWithKeys(function ($item) {
+                                                $keterangan = !empty($item->keterangan) && trim($item->keterangan) !== ''
+                                                    ? ' - Ket : ' . $item->keterangan
+                                                    : '';
+
                                                 return [
-                                                    $item->id => $item->kode . ' - ' . $item->lumbung
+                                                    $item->id => $item->kode . ' - ' . $item->lumbung . $keterangan
                                                 ];
                                             });
                                     })
+
                                     ->searchable()
                                     ->preload()
                                     ->nullable()
