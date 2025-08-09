@@ -83,60 +83,66 @@ class DryerResource extends Resource implements HasShieldPermissions
                             }),
 
                         Select::make('id_kapasitas_dryer')
-                            ->label('Nama Dryer')
-                            ->placeholder('Pilih nama Dryer')
-                            ->options(KapasitasDryer::pluck('nama_kapasitas_dryer', 'id'))
-                            ->searchable()
-                            ->disabled(function (callable $get, $record) {
-                                // Jika ini adalah form edit, cek status dari record yang sedang diedit
-                                if ($record && $record->status) {
-                                    if (in_array($record->status, ['completed'])) {
-                                        return true;
-                                    }
-                                }
+    ->label('Nama Dryer')
+    ->placeholder('Pilih nama Dryer')
+    ->options(KapasitasDryer::pluck('nama_kapasitas_dryer', 'id'))
+    ->searchable()
+    ->disabled(function (callable $get, $record) {
+        // Jika ini adalah form edit, cek status dari record yang sedang diedit
+        if ($record && $record->status) {
+            if (in_array($record->status, ['completed'])) {
+                return true;
+            }
+        }
 
-                                // Disable jika masih ada sortiran di database untuk record ini
-                                if ($record && $record->id) {
-                                    $hasSortirans = DB::table('dryer_has_sortiran')
-                                        ->where('dryer_id', $record->id)
-                                        ->exists();
-
-                                    return $hasSortirans;
-                                }
-
-                                return false;
-                            })
-                            ->required()
-                            ->reactive()
-                            ->afterStateHydrated(function ($state, callable $set, callable $get) {
-                                if ($state) {
-                                    $kapasitasdryer = KapasitasDryer::find($state);
-                                    $kapasitasSisaValue = $kapasitasdryer?->kapasitas_sisa ?? 0;
-                                    $set('kapasitas_sisa_original', $kapasitasSisaValue);
-                                    $formattedSisa = number_format($kapasitasSisaValue, 0, ',', '.');
-                                    $set('kapasitas_sisa', $formattedSisa);
-                                    $formattedtotal = number_format($kapasitasdryer?->kapasitas_total ?? 0, 0, ',', '.');
-                                    $set('kapasitas_total', $formattedtotal);
-                                    $totalNetto = (float) ($get('total_netto') ?? 0);
-                                    if ($totalNetto > 0) {
-                                        $sisaSetelahDikurangi = $kapasitasSisaValue - $totalNetto;
-                                        $formattedSisaAkhir = number_format($sisaSetelahDikurangi, 0, ',', '.');
-                                        $set('kapasitas_sisa_akhir', $formattedSisaAkhir);
-                                    }
-                                }
-                            })
-                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                $kapasitasdryer = KapasitasDryer::find($state);
-                                $kapasitasSisaValue = $kapasitasdryer?->kapasitas_sisa ?? 0;
-                                $set('kapasitas_sisa_original', $kapasitasSisaValue);
-                                $formattedSisa = number_format($kapasitasSisaValue, 0, ',', '.');
-                                $set('kapasitas_sisa', $formattedSisa);
-                                $formattedtotal = number_format($kapasitasdryer?->kapasitas_total ?? 0, 0, ',', '.');
-                                $set('kapasitas_total', $formattedtotal);
-                                $set('total_netto', null);
-                                $set('sortirans', null);
-                                $set('kapasitas_sisa_akhir', $formattedSisa);
-                            }),
+        // REMOVED: Disable logic untuk sortiran yang masih ada
+        // Sekarang allow perpindahan dryer meskipun ada sortiran
+        
+        return false;
+    })
+    ->required()
+    ->reactive()
+    ->afterStateHydrated(function ($state, callable $set, callable $get) {
+        if ($state) {
+            $kapasitasdryer = KapasitasDryer::find($state);
+            $kapasitasSisaValue = $kapasitasdryer?->kapasitas_sisa ?? 0;
+            $set('kapasitas_sisa_original', $kapasitasSisaValue);
+            $formattedSisa = number_format($kapasitasSisaValue, 0, ',', '.');
+            $set('kapasitas_sisa', $formattedSisa);
+            $formattedtotal = number_format($kapasitasdryer?->kapasitas_total ?? 0, 0, ',', '.');
+            $set('kapasitas_total', $formattedtotal);
+            $totalNetto = (float) ($get('total_netto') ?? 0);
+            if ($totalNetto > 0) {
+                $sisaSetelahDikurangi = $kapasitasSisaValue - $totalNetto;
+                $formattedSisaAkhir = number_format($sisaSetelahDikurangi, 0, ',', '.');
+                $set('kapasitas_sisa_akhir', $formattedSisaAkhir);
+            }
+        }
+    })
+    ->afterStateUpdated(function ($state, callable $set, callable $get, $record) {
+        $kapasitasdryer = KapasitasDryer::find($state);
+        $kapasitasSisaValue = $kapasitasdryer?->kapasitas_sisa ?? 0;
+        
+        // ENHANCED: Jika ada record yang sedang diedit, hitung dengan mengembalikan kapasitas lama
+        if ($record && $record->id_kapasitas_dryer && $record->id_kapasitas_dryer != $state) {
+            // Tambahkan kembali kapasitas yang sedang digunakan oleh record ini
+            $kapasitasSisaValue += $record->total_netto_integer;
+        }
+        
+        $set('kapasitas_sisa_original', $kapasitasSisaValue);
+        $formattedSisa = number_format($kapasitasSisaValue, 0, ',', '.');
+        $set('kapasitas_sisa', $formattedSisa);
+        $formattedtotal = number_format($kapasitasdryer?->kapasitas_total ?? 0, 0, ',', '.');
+        $set('kapasitas_total', $formattedtotal);
+        $set('total_netto', $record ? number_format($record->total_netto_integer, 0, ',', '.') : null);
+        $set('sortirans', $record ? $record->sortirans->pluck('id')->toArray() : null);
+        
+        // Update kapasitas sisa akhir berdasarkan total netto yang ada
+        $currentTotalNetto = $record ? $record->total_netto_integer : 0;
+        $sisaSetelahDikurangi = $kapasitasSisaValue - $currentTotalNetto;
+        $formattedSisaAkhir = number_format(max(0, $sisaSetelahDikurangi), 0, ',', '.');
+        $set('kapasitas_sisa_akhir', $formattedSisaAkhir);
+    }),
 
                         Select::make('laporan_lumbung_id')
                             ->label('Lumbung Tujuan')

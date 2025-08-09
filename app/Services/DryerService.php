@@ -49,38 +49,57 @@ class DryerService
             // 1. Ambil nilai baru & lama - FIXED: Added null coalescing operator
             $newTotal = $this->parseTotalNetto($data['total_netto'] ?? '');
             $oldTotal = $dryer->total_netto_integer;
+            
+            $oldKapasitasId = $dryer->id_kapasitas_dryer;
+            $newKapasitasId = $data['id_kapasitas_dryer'] ?? $oldKapasitasId;
 
-            // 2. Kalau id_kapasitas_dryer juga berubah, rollback dulu di kapasitas lama
-            if (
-                isset($data['id_kapasitas_dryer'])
-                && (int)$data['id_kapasitas_dryer'] !== $dryer->id_kapasitas_dryer
-            ) {
-                // kembalikan semua netto ke kapasitas lama
-                $oldK = $this->getKapasitasDryer($dryer->id_kapasitas_dryer);
-                $oldK->increment('kapasitas_sisa', $oldTotal);
-                // ambil kapasitas baru
-                $newK = $this->getKapasitasDryer($data['id_kapasitas_dryer']);
-                $this->validateKapasitasAda($newK, $data['id_kapasitas_dryer']);
-                // pakai newK untuk decrement nanti
-                $kapasitas = $newK;
-            } else {
-                $kapasitas = $this->getKapasitasDryer($dryer->id_kapasitas_dryer);
-                $this->validateKapasitasAda($kapasitas, $dryer->id_kapasitas_dryer);
-            }
+            // 2. Jika id_kapasitas_dryer berubah (pindah dryer)
+            if ((int)$newKapasitasId !== $oldKapasitasId) {
+                // Kembalikan kapasitas penuh ke dryer lama
+                $oldKapasitas = $this->getKapasitasDryer($oldKapasitasId);
+                if ($oldKapasitas) {
+                    $oldKapasitas->increment('kapasitas_sisa', $oldTotal);
+                }
 
-            // 3. Kalau total berubah, hitung selisih dan adjust
-            if ($newTotal !== $oldTotal) {
-                $delta = $newTotal - $oldTotal;
-                if ($delta > 0 && $kapasitas->kapasitas_sisa < $delta) {
+                // Ambil kapasitas dryer baru dan validasi
+                $newKapasitas = $this->getKapasitasDryer($newKapasitasId);
+                $this->validateKapasitasAda($newKapasitas, $newKapasitasId);
+
+                // Validasi apakah dryer baru bisa menampung total netto
+                if ($newKapasitas->kapasitas_sisa < $newTotal) {
+                    // Rollback perubahan ke dryer lama
+                    $oldKapasitas->decrement('kapasitas_sisa', $oldTotal);
+                    
                     $this->throwKapasitasNotification();
                     throw ValidationException::withMessages([
-                        'total_netto' => 'Total netto melebihi kapasitas sisa dryer.',
+                        'id_kapasitas_dryer' => 'Dryer tujuan tidak memiliki kapasitas yang cukup.',
+                        'total_netto' => 'Total netto melebihi kapasitas sisa dryer tujuan.',
                     ]);
                 }
 
-                // decrement jika bertambah, increment jika berkurang
-                $method = $delta > 0 ? 'decrement' : 'increment';
-                $kapasitas->{$method}('kapasitas_sisa', abs($delta));
+                // Kurangi kapasitas dryer baru
+                $newKapasitas->decrement('kapasitas_sisa', $newTotal);
+                
+                $kapasitas = $newKapasitas;
+            }
+            // 3. Jika dryer tidak berubah tapi total berubah
+            else {
+                $kapasitas = $this->getKapasitasDryer($dryer->id_kapasitas_dryer);
+                $this->validateKapasitasAda($kapasitas, $dryer->id_kapasitas_dryer);
+
+                if ($newTotal !== $oldTotal) {
+                    $delta = $newTotal - $oldTotal;
+                    if ($delta > 0 && $kapasitas->kapasitas_sisa < $delta) {
+                        $this->throwKapasitasNotification();
+                        throw ValidationException::withMessages([
+                            'total_netto' => 'Total netto melebihi kapasitas sisa dryer.',
+                        ]);
+                    }
+
+                    // decrement jika bertambah, increment jika berkurang
+                    $method = $delta > 0 ? 'decrement' : 'increment';
+                    $kapasitas->{$method}('kapasitas_sisa', abs($delta));
+                }
             }
 
             // 4. Simpan perubahan pada dryer
