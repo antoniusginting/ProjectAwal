@@ -323,8 +323,6 @@ class DryerResource extends Resource implements HasShieldPermissions
                                         $usedSortiranIds = array_diff($usedSortiranIds, $currentlySelectedIds);
                                     }
 
-                                    $query = $query->where('sortirans.no_lumbung_basah', '!=', 13);
-
                                     if ($filterKapasitasLumbung) {
                                         $query->where(function ($subQuery) use ($filterKapasitasLumbung, $currentSortirans) {
                                             $subQuery->whereHas('kapasitaslumbungbasah', function ($q) use ($filterKapasitasLumbung) {
