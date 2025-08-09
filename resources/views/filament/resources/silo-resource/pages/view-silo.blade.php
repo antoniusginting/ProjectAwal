@@ -19,20 +19,30 @@
             $laporanLumbungTotal = $silo->laporanlumbungs->count();
             $laporanPenjualanTotal = $penjualanFiltered->count();
 
-            // Hitung total berat dari laporan lumbung berdasarkan total netto transferMasuk
+            // Hitung total berat dari laporan lumbung berdasarkan prioritas: dryer > transferMasuk > hasil
             $totalBerat1 = 0;
             foreach ($silo->laporanlumbungs as $laporan) {
+                // Hitung total netto dari dryer yang terkait (menggunakan field total_netto)
+                $totalNettoDryer = 0;
+                if ($laporan->dryers && $laporan->dryers->count() > 0) {
+                    $totalNettoDryer = $laporan->dryers->sum('total_netto');
+                }
+
                 // Hitung total netto dari transferMasuk yang terkait
                 $totalNettoTransferMasuk = 0;
                 if ($laporan->transferMasuk && $laporan->transferMasuk->count() > 0) {
                     $totalNettoTransferMasuk = $laporan->transferMasuk->sum('netto');
                 }
 
-                // Prioritas: transferMasuk > hasil
-                if ($totalNettoTransferMasuk > 0) {
+                // Prioritas: dryer > transferMasuk > hasil
+                if ($totalNettoDryer > 0) {
+                    $totalBerat1 += $totalNettoDryer;
+                }
+                // Jika tidak ada dryer, gunakan transferMasuk
+                elseif ($totalNettoTransferMasuk > 0) {
                     $totalBerat1 += $totalNettoTransferMasuk;
                 }
-                // Jika tidak ada transferMasuk, gunakan hasil sebagai fallback
+                // Jika tidak ada dryer dan transferMasuk, gunakan hasil sebagai fallback
                 else {
                     $totalBerat1 += $laporan->hasil ?? 0;
                 }
@@ -120,7 +130,6 @@
                 <div class="flex justify-between items-center mb-3">
                     <div class="flex items-center gap-3">
                         <h3 class="text-lg font-semibold">Laporan Lumbung</h3>
-
                     </div>
                     {{-- To Bottom Button --}}
                     <button onclick="scrollToLaporanPenjualan()"
@@ -137,7 +146,7 @@
                         <tr class="bg-gray-100 dark:bg-gray-800">
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Tanggal</th>
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">No IO</th>
-                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Transfer</th>
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Transfer/Dryer</th>
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Berat</th>
                         </tr>
                     </thead>
@@ -159,14 +168,39 @@
                                         class="text-blue-600 hover:text-blue-800 underline">{{ $laporan->kode }}</a>
                                 </td>
                                 <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                                    @if ($laporan->transferMasuk->count() > 0)
+                                    @php
+                                        $hasContent = false;
+                                    @endphp
+
+                                    {{-- Tampilkan Dryers jika ada --}}
+                                    @if ($laporan->dryers && $laporan->dryers->count() > 0)
+                                        @foreach ($laporan->dryers as $index => $dryer)
+                                            <a href="{{ route('filament.admin.resources.dryers.view-dryer', $dryer->id ?? '') }}"
+                                                target="_blank" class="text-green-600 hover:text-green-800 underline">
+                                                {{ $dryer->kode }}
+                                            </a>{{ !$loop->last ? ', ' : '' }}
+                                        @endforeach
+                                        @php $hasContent = true; @endphp
+                                    @endif
+
+                                    {{-- Tambahkan separator jika ada dryer dan transfer --}}
+                                    @if ($hasContent && $laporan->transferMasuk && $laporan->transferMasuk->count() > 0)
+                                        <br>
+                                    @endif
+
+                                    {{-- Tampilkan Transfers --}}
+                                    @if ($laporan->transferMasuk && $laporan->transferMasuk->count() > 0)
                                         @foreach ($laporan->transferMasuk as $index => $transfer)
                                             <a href="{{ route('filament.admin.resources.transfers.view-transfer', $transfer->id ?? '') }}"
                                                 target="_blank" class="text-blue-600 hover:text-blue-800 underline">
                                                 {{ $transfer->kode }}
                                             </a>{{ !$loop->last ? ', ' : '' }}
                                         @endforeach
-                                    @else
+                                        @php $hasContent = true; @endphp
+                                    @endif
+
+                                    {{-- Jika tidak ada dryer atau transfer --}}
+                                    @if (!$hasContent)
                                         -
                                     @endif
                                 </td>
@@ -174,7 +208,7 @@
                                     @php
                                         $totalNettoDryers = 0;
                                         if ($laporan->dryers && $laporan->dryers->count() > 0) {
-                                            $totalNettoDryers = $laporan->dryers->sum('netto');
+                                            $totalNettoDryers = $laporan->dryers->sum('total_netto');
                                         }
 
                                         $totalNettoTransfers = 0;
@@ -251,7 +285,6 @@
                 <div class="flex justify-between items-center mb-3">
                     <div class="flex items-center gap-3">
                         <h3 class="text-lg font-semibold">Laporan Penjualan</h3>
-
                     </div>
                     {{-- Back to Top Button --}}
                     <button onclick="scrollToTop()"
@@ -268,7 +301,6 @@
                         <tr class="bg-gray-100 dark:bg-gray-800">
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Tanggal</th>
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Kode</th>
-                            {{-- <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Nama Lumbung</th> --}}
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Netto</th>
                         </tr>
                     </thead>
@@ -286,9 +318,6 @@
                                         class="text-blue-600 hover:text-blue-800 underline">{{ $penjualan->no_spb ?? '-' }}
                                     </a>
                                 </td>
-                                {{-- <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                                    {{ $penjualan->nama ?? ($penjualan->nama_lumbung ?? ($penjualan->lumbung ?? '-')) }}
-                                </td> --}}
                                 <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
                                     {{ number_format($penjualan->netto ?? 0, 0, ',', '.') }}
                                 </td>
@@ -296,7 +325,7 @@
                             @php $penjualanIndex++; @endphp
                         @empty
                             <tr>
-                                <td colspan="4"
+                                <td colspan="3"
                                     class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm text-gray-500">
                                     Tidak ada data penjualan yang sesuai dengan lumbung "{{ $silo->nama }}"
                                 </td>
@@ -335,22 +364,11 @@
                     </div>
                 </div>
             </div>
-
-
-            {{-- TABEL JIKA LUAR --}}
         @else
             {{-- Summary Dashboard - Layout 1 Baris --}}
             {{-- VIEW UNTUK TABEL LUAR --}}
             {{-- VIEW UNTUK TABEL LUAR --}}
             {{-- JavaScript untuk pagination --}}
-
-            {{-- 
-            <script>
-                function showSupplierDebug() {
-                    const debugDiv = document.getElementById('supplier-debug');
-                    debugDiv.classList.toggle('hidden');
-                }
-            </script> --}}
         @endif
     </div>
 
