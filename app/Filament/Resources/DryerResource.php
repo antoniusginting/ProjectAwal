@@ -536,10 +536,12 @@ class DryerResource extends Resource implements HasShieldPermissions
 
                 TextColumn::make('kapasitasdryer.nama_kapasitas_dryer')
                     ->label('Nama Dryer')
+                    ->searchable()
                     ->alignCenter(),
 
                 TextColumn::make('laporanLumbung.kode')
                     ->label('No Lumbung')
+                    ->searchable()
                     ->alignCenter()
                     ->formatStateUsing(function ($record) {
                         $laporan = $record->laporanLumbung;
@@ -582,23 +584,19 @@ class DryerResource extends Resource implements HasShieldPermissions
                 TextColumn::make('sortirans')
                     ->alignCenter()
                     ->label('No SPB')
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('sortirans', function ($q) use ($search) {
+                            $q->whereHas('pembelian', function ($q2) use ($search) {
+                                $q2->where('no_spb', 'like', "%{$search}%");
+                            });
+                        });
+                    })
                     ->formatStateUsing(function ($record) {
                         $text = $record->sortirans->map(function ($sortiran) {
                             if (!empty($sortiran->pembelian?->no_spb)) {
                                 return $sortiran->pembelian->no_spb;
                             }
-
-                            $penjualanSpbs = $sortiran->penjualans->pluck('no_spb')->filter();
-
-                            if ($penjualanSpbs->isEmpty()) {
-                                return 'N/A';
-                            }
-
-                            if ($penjualanSpbs->count() <= 3) {
-                                return $penjualanSpbs->implode(', ');
-                            }
-
-                            return $penjualanSpbs->take(3)->implode(', ') . '...';
+                            return 'N/A';
                         })->implode(' | ');
 
                         return \Illuminate\Support\Str::limit($text, 30, '...');
@@ -609,12 +607,9 @@ class DryerResource extends Resource implements HasShieldPermissions
                             if (!empty($sortiran->pembelian?->no_spb)) {
                                 return $sortiran->pembelian->no_spb;
                             }
-
-                            $penjualanSpbs = $sortiran->penjualans->pluck('no_spb')->filter();
-                            return $penjualanSpbs->isEmpty() ? 'N/A' : $penjualanSpbs->implode(', ');
+                            return 'N/A';
                         })->implode(' | ');
                     }),
-
                 TextColumn::make('total_netto')
                     ->alignCenter()
                     ->label('Total Netto')
