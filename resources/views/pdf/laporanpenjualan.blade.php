@@ -7,9 +7,15 @@
     <title>Print | Laporan Penjualan</title>
     <style>
         /* Definisi variabel untuk konsistensi warna */
+        :root {
+            --primary-color: #1a202c;
+            --secondary-bg: #ffffff;
+            --border-color: #ffffff;
+            --light-bg: #ffffff;
+        }
 
         * {
-            margin: 4;
+            margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
@@ -17,16 +23,15 @@
         /* Gaya dasar halaman dengan ukuran font lebih kecil */
         body {
             font-family: 'Courier New', Courier, monospace;
-            font-size: 12pt;
+            font-size: 9pt;
             font-weight: bold;
-            /* Sekitar 14px */
             background-color: var(--secondary-bg);
             color: var(--primary-color);
             margin: 20px;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 650px;
             margin: 0 auto;
         }
 
@@ -37,7 +42,7 @@
         }
 
         header.header h1 {
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             margin: 0;
         }
 
@@ -49,8 +54,7 @@
         /* Divider */
         .divider {
             border-bottom: 1px solid #000;
-            /* atau bisa juga 'black' */
-            margin: 8px;
+            margin: 8px 0;
         }
 
         /* Tabel informasi dengan padding dikurangi */
@@ -67,6 +71,7 @@
 
         .caca {
             text-align: right;
+            margin-bottom: 8px;
         }
 
         .info-table .label {
@@ -75,19 +80,24 @@
 
         /* Tabel detail pengiriman dengan padding di dalam sel yang lebih kecil */
         .detail-table {
-            width: 100%;
+            width: 95%;
             border-collapse: collapse;
             margin-bottom: 12px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .detail-table th,
         .detail-table td {
             border: 1px solid #000;
-            padding: 4px;
+            padding: 1px 0.5px;
+            font-size: 8pt;
+            line-height: 1.1;
         }
 
         .detail-table th {
             text-align: center;
+            background-color: #f5f5f5;
         }
 
         .detail-table td.text-center {
@@ -99,13 +109,13 @@
         }
 
         .total-row {
+            background-color: var(--light-bg);
             font-weight: bold;
         }
 
         /* Tanda tangan */
         .signature-container {
             text-align: right;
-            /* Pastikan seluruh konten berada di sisi kanan */
             margin-top: 20px;
         }
 
@@ -128,34 +138,46 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            color: #ffffff;
             font-size: 0.75rem;
         }
 
         .sign-line {
             margin-top: 8px;
-            border-bottom: 1px solid #000;
+            border: 1px solid #000;
             width: 180px;
             margin-left: auto;
             margin-right: auto;
         }
 
-        /* Styles khusus untuk cetak */
         @media print {
+            @page {
+                margin: 0;
+            }
+
             body {
                 font-family: 'Courier New', Courier, monospace;
                 font-size: 12pt;
-                margin: 0;
+                margin: 0 !important;
                 background-color: var(--secondary-bg);
             }
 
             .container {
-                width: 100%;
-                margin: 0;
-                padding: 20px;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 20px 20px 20px 5px !important;
+                box-sizing: border-box;
             }
 
-            .sign-box {
-                background-color: #fff;
+            .detail-table {
+                width: 95% !important;
+            }
+
+            .detail-table th,
+            .detail-table td {
+                font-size: 5pt !important;
+                padding: 0.3px !important;
             }
         }
     </style>
@@ -214,14 +236,14 @@
                                 <th>Jenis</th>
                                 <th>Lumbung</th>
                                 <th>No Lumbung/IO</th>
-                                <th>Satuan Muatan</th> <!-- Kolom untuk jumlah karung / GONI -->
+                                <th>Satuan Muatan</th>
                                 <th>Berat</th>
                             </tr>
                         </thead>
                         <tbody>
                             @php $totalNetto = 0; @endphp
                             @php $totalKarung = 0; @endphp
-                            @php $adaGoni = false; @endphp <!-- Flag untuk mengecek apakah ada GONI -->
+                            @php $adaGoni = false; @endphp
 
                             @for ($i = 1; $i <= 6; $i++)
                                 @php $penjualan = $laporanpenjualan->{'penjualan' . $i} ?? null; @endphp
@@ -300,8 +322,7 @@
                                     <td class="text-center">
                                         {{ $penjualanAntarPulau->kode_segel ?? '' }}
                                     </td>
-                                    <td
-                                        class="border p-2 border-gray-300 dark:border-gray-700 text-right whitespace-nowrap">
+                                    <td class="text-right">
                                         {{ $penjualanAntarPulau ? number_format($penjualanAntarPulau->netto, 0, ',', '.') : '' }}
                                     </td>
                                 </tr>
@@ -311,7 +332,7 @@
                             @endfor
 
                             <!-- TOTAL -->
-                            <tr class="bg-gray-100 dark:bg-gray-800 font-semibold">
+                            <tr class="total-row">
                                 <td colspan="4" class="text-center">Total
                                 </td>
                                 <td class="text-right">

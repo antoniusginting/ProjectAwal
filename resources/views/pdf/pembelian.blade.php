@@ -22,17 +22,15 @@
         /* Gaya dasar halaman dengan ukuran font lebih kecil */
         body {
             font-family: 'Courier New', Courier, monospace;
-            font-size: 12pt;
+            font-size: 9pt;
             font-weight: bold;
-            /* Tambahkan ini supaya bold */
-            /* Sekitar 14px */
             background-color: var(--secondary-bg);
             color: var(--primary-color);
             margin: 20px;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 650px; /* Sesuai dengan template terbaru */
             margin: 0 auto;
         }
 
@@ -43,7 +41,7 @@
         }
 
         header.header h1 {
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             margin: 0;
         }
 
@@ -81,19 +79,24 @@
 
         /* Tabel detail pengiriman dengan padding di dalam sel yang lebih kecil */
         .detail-table {
-            width: 100%;
+            width: 95%; /* Diperkecil dari 100% */
             border-collapse: collapse;
             margin-bottom: 12px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .detail-table th,
         .detail-table td {
             border: 1px solid #000;
-            padding: 4px;
+            padding: 1px 0.5px; /* Sesuai template */
+            font-size: 8pt; /* Diperbaiki ke 8pt sesuai template */
+            line-height: 1.1; /* Mengurangi tinggi baris */
         }
 
         .detail-table th {
             text-align: center;
+            background-color: #f5f5f5;
         }
 
         .detail-table td.text-center {
@@ -112,7 +115,6 @@
         /* Tanda tangan */
         .signature-container {
             text-align: right;
-            /* Pastikan seluruh konten berada di sisi kanan */
             margin-top: 20px;
         }
 
@@ -163,10 +165,18 @@
                 width: 100% !important;
                 max-width: 100% !important;
                 margin: 0 !important;
-                /* Hilangkan auto */
                 padding: 20px 20px 20px 5px !important;
-                /* top, right, bottom, left */
                 box-sizing: border-box;
+            }
+
+            .detail-table {
+                width: 95% !important;
+            }
+
+            .detail-table th,
+            .detail-table td {
+                font-size: 5pt !important;
+                padding: 0.3px !important;
             }
         }
     </style>
@@ -187,24 +197,25 @@
             <table class="info-table">
                 <tr>
                     <td class="label">Tanggal</td>
-                    <td>: {{ $pembelian->created_at->format('d-m-Y') }}</td>
+                    <td>: 07-08-2025</td>
                     <td class="label">Jam Masuk</td>
-                    <td>: {{ $pembelian->jam_masuk }}</td>
+                    <td>: 08:12:51</td>
                     <td class="label">Container</td>
-                    <td>: {{ $pembelian->no_container ?: '-' }}</td>
+                    <td>: 21W</td>
                 </tr>
                 <tr>
                     <td class="label">Operator</td>
-                    <td>: {{ $pembelian->user->name }}</td>
+                    <td>: dev</td>
                     <td class="label">Jam Keluar</td>
-                    <td>: {{ $pembelian->jam_keluar }}</td>
-
+                    <td>: 08:13:06</td>
+                    <td></td>
+                    <td></td>
                 </tr>
             </table>
         </section>
 
         <div class="divider"></div>
-        <div class="caca">Print Date : {{ now()->format('d-m-Y H:i:s') }}</div>
+        <div class="caca">Print Date : 09-08-2025 09:15:04</div>
         <!-- Detail Pengiriman -->
         <section>
             <div style="overflow-x: auto;">
@@ -223,33 +234,23 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td rowspan="3" class="text-center">{{ $pembelian->no_spb }}</td>
-                            <td rowspan="3" class="text-center">{{ $pembelian->plat_polisi }}</td>
-                            <td rowspan="3" class="text-center">{{ $pembelian->nama_barang }}</td>
-                            <td rowspan="3" class="text-center">
-                                {{ optional($pembelian->supplier)->nama_supplier ?? '-' }}</td>
-                            <td rowspan="3" class="text-center">{{ $pembelian->nama_supir }}</td>
-                            <td rowspan="3" class="text-center">
-                                @if ($pembelian->brondolan == 'GONI')
-                                    @php
-                                        $adaGoni = true;
-                                    @endphp
-                                    {{ $pembelian->jumlah_karung }} - {{ $pembelian->brondolan }}
-                                @else
-                                    {{ $pembelian->brondolan }}
-                                @endif
-                            </td>
-                            <td rowspan="3" class="text-center">{{ $pembelian->nama_barang }}</td>
+                            <td rowspan="3" class="text-center">B1111386</td>
+                            <td rowspan="3" class="text-center">BK21</td>
+                            <td rowspan="3" class="text-center">JAGUNG GORONTALO (RETUR)</td>
+                            <td rowspan="3" class="text-center">ADI KARANG ANYER</td>
+                            <td rowspan="3" class="text-center">MANTUL</td>
+                            <td rowspan="3" class="text-center">100 - GONI</td>
+                            <td rowspan="3" class="text-center">JAGUNG GORONTALO (RETUR)</td>
                             <td>Bruto</td>
-                            <td class="text-right">{{ number_format($pembelian->bruto, 0, ',', '.') }}</td>
+                            <td class="text-right">10.000</td>
                         </tr>
                         <tr>
                             <td>Tara</td>
-                            <td class="text-right">{{ number_format($pembelian->tara, 0, ',', '.') }}</td>
+                            <td class="text-right">700</td>
                         </tr>
                         <tr>
                             <td>Netto</td>
-                            <td class="text-right">{{ number_format($pembelian->netto, 0, ',', '.') }}</td>
+                            <td class="text-right">9.300</td>
                         </tr>
                     </tbody>
                 </table>
