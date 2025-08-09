@@ -271,7 +271,6 @@ class DryerResource extends Resource implements HasShieldPermissions
                                 return DB::table('kapasitas_lumbung_basahs')
                                     ->select('id', 'no_kapasitas_lumbung')
                                     ->orderBy('no_kapasitas_lumbung')
-                                    ->where('id', '!=', 13)
                                     ->pluck('no_kapasitas_lumbung', 'id')
                                     ->toArray();
                             })

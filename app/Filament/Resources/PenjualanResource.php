@@ -189,51 +189,28 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->placeholder('Masukkan plat polisi'),
 
-                                TextInput::make('bruto')
-                                    ->label('Bruto')
-                                    ->columnSpan(2)
-                                    ->placeholder('Masukkan Nilai Bruto')
-                                    ->live(onBlur: true)
-                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                        // Format angka saat user selesai mengetik
-                                        if ($state) {
-                                            $cleanNumber = preg_replace('/[^\d]/', '', $state);
-                                            $formatted = self::formatNumber($cleanNumber);
-                                            $set('bruto', $formatted);
-                                        }
-                                    })
-                                    ->dehydrateStateUsing(fn($state) => self::parseNumber($state)),
-
-                                TextInput::make('nama_supir')
-                                    ->autocomplete('off')
-                                    ->columnSpan(2)
-                                    ->placeholder('Masukkan Nama Supir')
-                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
-                                    ->required(),
-
                                 Hidden::make('is_calculated')
                                     ->default(false)
                                     ->dehydrated(false), // Tidak disimpan ke database
 
-                                TextInput::make('tara')
-                                    ->label('Tara')
+                                TextInput::make('bruto')
+                                    ->label('Bruto')
                                     ->columnSpan(2)
-                                    ->placeholder('Masukkan Nilai Tara')
+                                    ->placeholder('Masukkan Nilai Bruto')
                                     ->hint(fn(callable $get) => $get('is_calculated')
                                         ? 'Weight sudah dikonfirmasi ✅'
                                         : 'Confirm Weight ⚠️')
                                     ->hintColor(fn(callable $get) => $get('is_calculated') ? 'success' : 'danger')
-                                    ->required()
                                     ->live(onBlur: true)
-                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                        // Reset status kalkulasi ketika tara berubah
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        // Reset status kalkulasi saat bruto berubah
                                         $set('is_calculated', false);
 
-                                        // Format angka saat user selesai mengetik
+                                        // Format angka
                                         if ($state) {
                                             $cleanNumber = preg_replace('/[^\d]/', '', $state);
                                             $formatted = self::formatNumber($cleanNumber);
-                                            $set('tara', $formatted);
+                                            $set('bruto', $formatted);
                                         }
                                     })
                                     ->dehydrateStateUsing(fn($state) => self::parseNumber($state))
@@ -243,8 +220,8 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                             ->tooltip(fn(callable $get) => $get('is_calculated') ? 'Weight sudah dikonfirmasi' : 'Confirm Weight')
                                             ->color(fn(callable $get) => $get('is_calculated') ? 'success' : 'primary')
                                             ->action(function ($state, callable $set, callable $get) {
-                                                $bruto = self::parseNumber($get('bruto')) ?? 0;
-                                                $tara = self::parseNumber($state) ?? 0;
+                                                $bruto = self::parseNumber($state) ?? 0;
+                                                $tara = self::parseNumber($get('tara')) ?? 0;
                                                 $netto = max(0, $bruto - $tara);
                                                 $set('netto', self::formatNumber($netto));
 
@@ -252,13 +229,46 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                                 $set('is_calculated', true);
 
                                                 // Set jam keluar jika tara diisi dan belum ada jam keluar
-                                                if (!empty($state) && empty($get('jam_keluar'))) {
+                                                if (!empty($tara) && empty($get('jam_keluar'))) {
                                                     $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
-                                                } elseif (empty($state)) {
+                                                } elseif (empty($tara)) {
                                                     $set('jam_keluar', null);
                                                 }
+
+                                                Notification::make()
+                                                    ->title('Netto berhasil dihitung!')
+                                                    ->success()
+                                                    ->send();
                                             })
                                     ),
+
+
+                                TextInput::make('nama_supir')
+                                    ->autocomplete('off')
+                                    ->columnSpan(2)
+                                    ->placeholder('Masukkan Nama Supir')
+                                    ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
+                                    ->required(),
+
+                                TextInput::make('tara')
+                                    ->label('Tara')
+                                    ->columnSpan(2)
+                                    ->placeholder('Masukkan Nilai Tara')
+                                    ->required()
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        // Reset status kalkulasi kalau tara berubah
+                                        $set('is_calculated', false);
+
+                                        // Format angka
+                                        if ($state) {
+                                            $cleanNumber = preg_replace('/[^\d]/', '', $state);
+                                            $formatted = self::formatNumber($cleanNumber);
+                                            $set('tara', $formatted);
+                                        }
+                                    })
+                                    ->dehydrateStateUsing(fn($state) => self::parseNumber($state)),
+
 
 
                                 TextInput::make('nama_barang')
