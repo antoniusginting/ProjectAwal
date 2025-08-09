@@ -22,6 +22,7 @@ return new class extends Migration
                 $table->double('rencana_kadar')->nullable();
                 $table->double('hasil_kadar')->nullable();
                 $table->integer('total_netto')->nullable();
+                $table->string('keterangan')->nullable();
                 $table->string('pj', 50)->nullable();
                 $table->enum('status', ['processing', 'completed', 'pending'])->default('processing');
                 $table->timestamps();

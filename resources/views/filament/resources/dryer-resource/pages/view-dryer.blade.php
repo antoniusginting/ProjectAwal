@@ -67,10 +67,36 @@
                         <td class="font-semibold whitespace-nowrap">Lumbung Tujuan</td>
                         <td class="whitespace-nowrap">: {{ $dryer->laporanLumbung->lumbung ?? '-' }}</td>
                     </tr>
+                    
+                    <!-- TAMBAHAN: Baris untuk Keterangan -->
+                    @if (!empty($dryer->keterangan))
+                    <tr>
+                        <td class="font-semibold whitespace-nowrap align-top">Catatan</td>
+                        <td colspan="5" class="break-words">
+                            : <span class="text-blue-600 dark:text-blue-400 font-medium">{{ $dryer->keterangan }}</span>
+                        </td>
+                    </tr>
+                    @endif
                 </tbody>
             </table>
         </div>
 
+        <!-- TAMBAHAN: Section Keterangan terpisah jika keterangan panjang -->
+        @if (!empty($dryer->keterangan) && strlen($dryer->keterangan) > 100)
+        <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+            <h3 class="text-lg font-semibold text-blue-800 dark:text-blue-300 mb-2 flex items-center">
+                <h4 class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                    </path>
+                </h4>
+                Catatan Dryer
+            </h3>
+            <div class="text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded border">
+                <p class="whitespace-pre-wrap">{{ $dryer->keterangan }}</p>
+            </div>
+        </div>
+        @endif
 
         <!-- Divider -->
         <div class="border-b border-gray-300 dark:border-gray-700"></div>

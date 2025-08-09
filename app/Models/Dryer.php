@@ -18,6 +18,7 @@ class Dryer extends Model
         'rencana_kadar',
         'hasil_kadar',
         'total_netto',
+        'keterangan',
         'pj',
         'status',
         'no_cc',
