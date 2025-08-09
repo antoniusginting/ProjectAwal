@@ -141,7 +141,7 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                                     ->placeholder('Akan terisi saat toggle diaktifkan')
                                     ->suffixIcon('heroicon-o-clock'),
 
-                                // 9 & 10. Toggles (menggunakan grid terpisah)
+                                // 9 & 10. Toggles dengan logika sekali klik
                                 Grid::make()
                                     ->schema([
                                         Toggle::make('status_awal')
@@ -151,12 +151,12 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                                             ->offIcon('heroicon-m-user')
                                             ->dehydrated(true)
                                             ->reactive()
-                                            ->afterStateUpdated(function ($state, callable $set) {
-                                                if ($state) {
+                                            ->afterStateUpdated(function ($state, callable $set, $get) {
+                                                // Hanya set jam jika status_awal true DAN jam_keluar masih kosong
+                                                if ($state && empty($get('jam_keluar'))) {
                                                     $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('Y-m-d H:i:s'));
-                                                } else {
-                                                    $set('jam_keluar', null);
                                                 }
+                                                // Toggle tetap bisa diklik, tapi jam tidak berubah jika sudah terisi
                                             }),
                                         Toggle::make('status')
                                             ->label('Tombol Masuk')
@@ -165,13 +165,14 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                                             ->offIcon('heroicon-m-user')
                                             ->dehydrated(true)
                                             ->reactive()
+                                            // Hanya disabled jika belum berangkat
                                             ->disabled(fn($get) => !$get('status_awal'))
-                                            ->afterStateUpdated(function ($state, callable $set) {
-                                                if ($state) {
+                                            ->afterStateUpdated(function ($state, callable $set, $get) {
+                                                // Hanya set jam jika status true DAN jam_masuk masih kosong
+                                                if ($state && empty($get('jam_masuk'))) {
                                                     $set('jam_masuk', now()->setTimezone('Asia/Jakarta')->format('Y-m-d H:i:s'));
-                                                } else {
-                                                    $set('jam_masuk', null);
                                                 }
+                                                // Toggle tetap bisa diklik, tapi jam tidak berubah jika sudah terisi
                                             }),
                                     ])
                                     ->columns([
