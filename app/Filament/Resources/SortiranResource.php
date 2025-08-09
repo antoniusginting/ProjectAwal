@@ -11,6 +11,7 @@ use App\Models\Pembelian;
 
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Actions\Action;
@@ -22,6 +23,7 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -42,7 +44,6 @@ use Filament\Forms\Components\Actions\Action as FormAction;
 use App\Filament\Resources\SortiranResource\RelationManagers;
 use App\Filament\Resources\SortiranResource\Pages\ViewSortiran;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
-use Filament\Forms\Components\Textarea;
 
 class SortiranResource extends Resource implements HasShieldPermissions
 {
@@ -104,14 +105,26 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                         if ($selectedId) {
                                             $idSudahDisortir = array_diff($idSudahDisortir, [$selectedId]);
                                         }
-                                        $idsYangDikecualikan = [122, 194, 243, 244, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 47581, 47582, 47583]; // Beberapa ID yang ingin dikecualikan
                                         $query = Pembelian::with(['mobil', 'supplier'])
                                             ->whereNotIn('id', $idSudahDisortir)
                                             ->whereNotNull('tara')
-                                            ->whereNotIn('nama_barang', ['CANGKANG', 'SEKAM', 'SALAH', 'RETUR', 'SEKAM PADI', 'BESI', 'LANGSIR SILO', 'PASIR', 'JG TUNGKUL', 'SAMPAH', 'ABU JAGUNG', 'DEDAK'])
-                                            ->whereNotIn('id', $idsYangDikecualikan)
-                                            ->whereDate('created_at', '!=', '2025-06-03')
+                                            ->whereNotIn('nama_barang', [
+                                                'CANGKANG',
+                                                'SEKAM',
+                                                'SALAH',
+                                                'RETUR',
+                                                'SEKAM PADI',
+                                                'BESI',
+                                                'LANGSIR SILO',
+                                                'PASIR',
+                                                'JG TUNGKUL',
+                                                'SAMPAH',
+                                                'ABU JAGUNG',
+                                                'DEDAK'
+                                            ])
+                                            ->whereNotBetween(DB::raw('DATE(created_at)'), ['2025-08-02', '2025-08-07'])
                                             ->latest();
+
 
                                         // Pastikan data yang sedang dipilih (saat edit) tetap ada
                                         if ($selectedId) {
