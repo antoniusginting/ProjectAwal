@@ -211,15 +211,24 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->mutateDehydratedStateUsing(fn($state) => strtoupper($state))
                                     ->required(),
 
+                                Hidden::make('is_calculated')
+                                    ->default(false)
+                                    ->dehydrated(false), // Tidak disimpan ke database
+
                                 TextInput::make('tara')
                                     ->label('Tara')
                                     ->columnSpan(2)
-                                    ->hint('Jangan Lupa confirm Weight')
-                                    ->hintColor('danger')
                                     ->placeholder('Masukkan Nilai Tara')
+                                    ->hint(fn(callable $get) => $get('is_calculated')
+                                        ? 'Weight sudah dikonfirmasi ✅'
+                                        : 'Confirm Weight ⚠️')
+                                    ->hintColor(fn(callable $get) => $get('is_calculated') ? 'success' : 'danger')
                                     ->required()
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        // Reset status kalkulasi ketika tara berubah
+                                        $set('is_calculated', false);
+
                                         // Format angka saat user selesai mengetik
                                         if ($state) {
                                             $cleanNumber = preg_replace('/[^\d]/', '', $state);
@@ -230,27 +239,27 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->dehydrateStateUsing(fn($state) => self::parseNumber($state))
                                     ->suffixAction(
                                         Action::make('hitungNetto')
-                                            ->icon('heroicon-o-calculator')
-                                            ->tooltip('Confirm Weight')
-                                            ->color('primary')
+                                            ->icon(fn(callable $get) => $get('is_calculated') ? 'heroicon-o-check-circle' : 'heroicon-o-calculator')
+                                            ->tooltip(fn(callable $get) => $get('is_calculated') ? 'Weight sudah dikonfirmasi' : 'Confirm Weight')
+                                            ->color(fn(callable $get) => $get('is_calculated') ? 'success' : 'primary')
                                             ->action(function ($state, callable $set, callable $get) {
                                                 $bruto = self::parseNumber($get('bruto')) ?? 0;
                                                 $tara = self::parseNumber($state) ?? 0;
                                                 $netto = max(0, $bruto - $tara);
                                                 $set('netto', self::formatNumber($netto));
 
+                                                // Set status kalkulasi menjadi true
+                                                $set('is_calculated', true);
+
+                                                // Set jam keluar jika tara diisi dan belum ada jam keluar
                                                 if (!empty($state) && empty($get('jam_keluar'))) {
                                                     $set('jam_keluar', now()->setTimezone('Asia/Jakarta')->format('H:i:s'));
                                                 } elseif (empty($state)) {
                                                     $set('jam_keluar', null);
                                                 }
-
-                                                Notification::make()
-                                                    ->title('Netto berhasil dihitung!')
-                                                    ->success()
-                                                    ->send();
                                             })
                                     ),
+
 
                                 TextInput::make('nama_barang')
                                     ->default('JAGUNG KERING SUPER')
