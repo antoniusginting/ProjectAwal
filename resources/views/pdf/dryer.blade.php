@@ -6,161 +6,136 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Print | Dryer</title>
     <style>
-        /* RESET & BASE STYLES */
+        /* Definisi variabel untuk konsistensi warna */
+        :root {
+            --primary-color: #1a202c;
+            --secondary-bg: #ffffff;
+            --border-color: #ffffff;
+            --light-bg: #ffffff;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        /* Gaya dasar halaman dengan ukuran font lebih kecil */
         body {
             font-family: 'Courier New', Courier, monospace;
-            font-size: 11pt;
-            line-height: 1.3;
-            color: #000000;
-            background: white;
-            padding: 8mm;
+            font-size: 9pt;
+            font-weight: bold;
+            background-color: var(--secondary-bg);
+            color: var(--primary-color);
+            margin: 20px;
         }
 
-        /* CONTAINER */
         .container {
-            background-color: white;
-            max-width: 100%;
+            max-width: 650px;
             margin: 0 auto;
         }
 
-        /* TABLE STYLES */
-        .table-wrapper {
-            overflow-x: visible;
-            max-width: 100%;
-            margin-bottom: 8px;
+        /* Header surat dengan ukuran font lebih kecil */
+        header.header {
+            text-align: center;
+            margin-bottom: 12px;
         }
 
-        table {
+        header.header h1 {
+            font-size: 1.2rem;
+            margin: 0;
+        }
+
+        header.header h2 {
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        /* Divider */
+        .divider {
+            border-bottom: 1px solid #000;
+            margin: 8px 0;
+        }
+
+        /* Tabel informasi dengan padding dikurangi */
+        .info-table {
             width: 100%;
             border-collapse: collapse;
-            text-align: left;
-        }
-
-        /* Info Table Styles */
-        .info-table {
-            /* border: 2px solid #000000; */
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         .info-table td {
-            padding: 4px 6px;
+            padding: 2px;
             vertical-align: top;
-            /* border: 1px solid #000000; */
-            font-size: 10.7pt;
+        }
+
+        .caca {
+            text-align: right;
+            margin-bottom: 8px;
         }
 
         .info-table .label {
             font-weight: bold;
-            white-space: nowrap;
-            width: 100px;
-            color: #000000;
-            /* background-color: #f0f0f0; */
         }
 
         .info-table .value {
             font-weight: bold;
-            /* white-space: nowrap;  <-- Hapus ini supaya teks bisa wrap */
-            padding-left: 8px;
-            min-width: 80px;
-            word-wrap: break-word;
-            /* supaya kata panjang pecah */
-            word-break: break-word;
-            /* untuk memaksa pemecahan kata */
-            max-width: 200px;
-            /* batasi lebar kolom agar tidak terlalu lebar */
         }
 
-        /* Print date */
-        .print-date {
-            text-align: right;
-            font-size: 9pt;
-            color: #000000;
-            font-style: italic;
-            font-weight: bold;
-            margin: 8px 0;
-            border-top: 1.5px solid #000000;
-            padding-top: 4px;
-        }
-
-        /* HEADER STYLES */
-        .report-header {
-            text-align: center;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            /* border: 2px solid #000000; */
-            /* background-color: #f0f0f0; */
-        }
-
-        .report-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin: 8px 0;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .report-subtitle {
-            font-size: 11pt;
-            color: #000000;
-            font-weight: normal;
-        }
-
-        /* DETAIL TABLE */
+        /* Tabel detail pengiriman dengan padding di dalam sel yang lebih kecil */
         .detail-table {
-            border: 1px solid #000000;
-            margin: 5px 0;
-            width: 100%;
+            width: 95%;
+            border-collapse: collapse;
+            margin-bottom: 12px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .detail-table th,
         .detail-table td {
-            border: 1px solid #000000;
-            text-align: center;
-            padding: 6px 4px;
-            font-weight: bold;
-            font-size: 10pt;
+            border: 1px solid #000;
+            padding: 1px 0.5px;
+            font-size: 8pt;
+            line-height: 1.1;
         }
 
         .detail-table th {
-            /* background-color: #e0e0e0; */
-            font-weight: bold;
-            text-transform: uppercase;
+            text-align: center;
+            background-color: #f5f5f5;
+        }
+
+        .detail-table td.text-center {
+            text-align: center;
         }
 
         .detail-table td.text-right {
             text-align: right;
-            padding-right: 8px;
         }
 
-        .detail-table .summary-row {
-            /* background-color: #f0f0f0; */
+        .summary-row {
+            background-color: var(--light-bg);
             font-weight: bold;
-            /* border-top: 1.5px solid #000000; */
         }
 
-        /* SIGNATURE TABLE */
+        /* Signature Table */
         .signature-table {
-            margin-top: 15px;
-            /* border: 2px solid #000000; */
+            width: 95%;
+            border-collapse: collapse;
+            margin: 20px auto 0 auto;
         }
 
         .signature-table th,
         .signature-table td {
+            border: 1px solid #000;
             text-align: center;
-            /* border: 1px solid #000000; */
-            padding: 8px;
+            padding: 1px 0.5px;
+            font-size: 8pt;
+            line-height: 1.1;
         }
 
         .signature-table th {
-            /* background-color: #e0e0e0; */
+            background-color: #f5f5f5;
             font-weight: bold;
-            font-size: 11pt;
         }
 
         .signature-box {
@@ -175,94 +150,43 @@
             left: 50%;
             transform: translateX(-50%);
             width: 120px;
-            border-bottom: 2px solid #000000;
+            border-bottom: 1px solid #000;
         }
 
-        /* DIVIDER */
-        .divider {
-            border-bottom: 1.5px solid #000000;
-            margin: 8px 0;
-        }
-
-        /* Utility Classes */
-        .text-bold {
-            font-weight: bold;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .border-thick {
-            border: 2px solid #000000;
-        }
-
-        /* PRINT STYLES */
         @media print {
+            @page {
+                margin: 0;
+            }
+
             body {
-                background: white;
-                padding: 5mm;
-                font-size: 10pt;
-                line-height: 1.2;
+                font-family: 'Courier New', Courier, monospace;
+                font-size: 12pt;
+                margin: 0 !important;
+                background-color: var(--secondary-bg);
             }
 
             .container {
-                width: 100%;
-                max-width: 100%;
-                box-shadow: none;
-                padding: 0;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 20px 20px 20px 5px !important;
+                box-sizing: border-box;
             }
 
-            .detail-table th {
-                background-color: #e0e0e0 !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
+            .detail-table {
+                width: 95% !important;
             }
 
-            .detail-table .summary-row {
-                background-color: #f0f0f0 !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
+            .detail-table th,
+            .detail-table td {
+                font-size: 5pt !important;
+                padding: 0.3px !important;
             }
 
-            .info-table .label {
-                background-color: #f0f0f0 !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
-            .report-header {
-                background-color: #f0f0f0 !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
-            .signature-table th {
-                background-color: #e0e0e0 !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
-            /* Pastikan border tetap tercetak */
-            * {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-        }
-
-        /* Responsif untuk layar kecil */
-        @media screen and (max-width: 768px) {
-            body {
-                padding: 4mm;
-                font-size: 10pt;
-            }
-
-            .info-table .label {
-                width: 100px;
-            }
-
-            .signature-box {
-                height: 50px;
+            .signature-table th,
+            .signature-table td {
+                font-size: 5pt !important;
+                padding: 0.3px !important;
             }
         }
     </style>
@@ -270,12 +194,16 @@
 
 <body>
     <div class="container">
-        <div class="report-header">
-            <h1 class="report-title">FORM PERINTAH KERJA DRYER</h1>
-        </div>
+        <!-- Header Surat -->
+        <header class="header">
+            <h1>Bonar Jaya AdiPerkasa Nusantara</h1>
+            <h2>Form Perintah Kerja Dryer</h2>
+        </header>
+
+        <div class="divider"></div>
 
         <!-- Info Pengiriman -->
-        <div class="table-wrapper">
+        <section>
             <table class="info-table">
                 @php
                     // Hitung total netto bersih dari semua sortirans
@@ -334,112 +262,108 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
+        </section>
 
-        <!-- Print Date -->
-        <div class="print-date">
-            Print Date: {{ now()->format('d-m-Y H:i:s') }}
-        </div>
-
-        <!-- Divider -->
         <div class="divider"></div>
+        <div class="caca">Print Date : {{ now()->format('d-m-Y H:i:s') }}</div>
 
         <!-- Tabel Detail Pengiriman -->
-        <div class="table-wrapper">
-            @if (!empty($dryer->pj))
-                <table class="detail-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 12%;">TGL</th>
-                            <th style="width: 20%;">LUMBUNG</th>
-                            <th style="width: 20%;">JENIS</th>
-                            <th style="width: 12%;">GONI</th>
-                            <th style="width: 18%;">BERAT</th>
-                            <th style="width: 20%;">NO SPB</th>
-                            <th style="width: 13%;">KADAR</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @php
-                            $groupedSortirans = $dryer->sortirans->groupBy('id_sortiran');
-                        @endphp
-
-                        @foreach ($groupedSortirans as $idSortiran => $sortiransGroup)
+        <section>
+            <div style="overflow-x: auto;">
+                @if (!empty($dryer->pj))
+                    <table class="detail-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 12%;">TGL</th>
+                                <th style="width: 20%;">LUMBUNG</th>
+                                <th style="width: 20%;">JENIS</th>
+                                <th style="width: 12%;">GONI</th>
+                                <th style="width: 18%;">BERAT</th>
+                                <th style="width: 20%;">NO SPB</th>
+                                <th style="width: 13%;">KADAR</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                             @php
-                                $totalNettoBersih = 0;
-                                $totalTotalKarung = 0;
+                                $groupedSortirans = $dryer->sortirans->groupBy('id_sortiran');
                             @endphp
 
-                            @foreach ($sortiransGroup as $index => $sortiran)
-                                <tr>
-                                    <td>{{ $sortiran->created_at->format('d/m') ?? '-' }}</td>
-                                    <td>{{ $sortiran->kapasitaslumbungbasah->no_kapasitas_lumbung }}</td>
-                                    <td>{{ $sortiran->pembelian->nama_barang }}</td>
-                                    <td>{{ $sortiran->total_karung ?? '-' }}</td>
-                                    <td class="text-right">{{ $sortiran->netto_bersih ?? '-' }}</td>
-                                    <td>{{ $sortiran->pembelian->no_spb ?? '-' }}</td>
-                                    <td>{{ $sortiran->kadar_air ?? '-' }}%</td>
-                                    @php
-                                        // Hapus pemisah ribuan (titik) dari nilai netto_bersih
-                                        $nettoBersihStripped = str_replace('.', '', $sortiran->netto_bersih);
+                            @foreach ($groupedSortirans as $idSortiran => $sortiransGroup)
+                                @php
+                                    $totalNettoBersih = 0;
+                                    $totalTotalKarung = 0;
+                                @endphp
 
-                                        // Cek jika netto_bersih bisa dikonversi menjadi angka setelah penghapusan titik
-                                        $nettoBersihValue = is_numeric($nettoBersihStripped)
-                                            ? floatval($nettoBersihStripped)
-                                            : 0;
-                                        $totalNettoBersih += $nettoBersihValue;
+                                @foreach ($sortiransGroup as $index => $sortiran)
+                                    <tr>
+                                        <td>{{ $sortiran->created_at->format('d/m') ?? '-' }}</td>
+                                        <td>{{ $sortiran->kapasitaslumbungbasah->no_kapasitas_lumbung }}</td>
+                                        <td>{{ $sortiran->pembelian->nama_barang }}</td>
+                                        <td>{{ $sortiran->total_karung ?? '-' }}</td>
+                                        <td class="text-right">{{ $sortiran->netto_bersih ?? '-' }}</td>
+                                        <td>{{ $sortiran->pembelian->no_spb ?? '-' }}</td>
+                                        <td>{{ $sortiran->kadar_air ?? '-' }}%</td>
+                                        @php
+                                            // Hapus pemisah ribuan (titik) dari nilai netto_bersih
+                                            $nettoBersihStripped = str_replace('.', '', $sortiran->netto_bersih);
 
-                                        // Hapus pemisah ribuan (titik) dari nilai netto_bersih
-                                        $totalKarungStripped = str_replace('.', '', $sortiran->total_karung);
+                                            // Cek jika netto_bersih bisa dikonversi menjadi angka setelah penghapusan titik
+                                            $nettoBersihValue = is_numeric($nettoBersihStripped)
+                                                ? floatval($nettoBersihStripped)
+                                                : 0;
+                                            $totalNettoBersih += $nettoBersihValue;
 
-                                        // Cek jika netto_bersih bisa dikonversi menjadi angka setelah penghapusan titik
-                                        $totalKarungValue = is_numeric($totalKarungStripped)
-                                            ? floatval($totalKarungStripped)
-                                            : 0;
-                                        $totalTotalKarung += $totalKarungValue;
-                                    @endphp
+                                            // Hapus pemisah ribuan (titik) dari nilai netto_bersih
+                                            $totalKarungStripped = str_replace('.', '', $sortiran->total_karung);
+
+                                            // Cek jika netto_bersih bisa dikonversi menjadi angka setelah penghapusan titik
+                                            $totalKarungValue = is_numeric($totalKarungStripped)
+                                                ? floatval($totalKarungStripped)
+                                                : 0;
+                                            $totalTotalKarung += $totalKarungValue;
+                                        @endphp
+                                    </tr>
+                                @endforeach
+                                <tr class="summary-row">
+                                    <td colspan="3" class="text-center">TOTAL</td>
+                                    <td class="text-center">{{ number_format($totalTotalKarung, 0, ',', '.') }}</td>
+                                    <td class="text-right">{{ number_format($totalNettoBersih, 0, ',', '.') }}</td>
+                                    <td colspan="2"></td>
                                 </tr>
                             @endforeach
-                            <tr class="summary-row">
-                                <td colspan="3" class="text-bold">TOTAL</td>
-                                <td class="text-bold">{{ number_format($totalTotalKarung, 0, ',', '.') }}</td>
-                                <td class="text-right text-bold">{{ number_format($totalNettoBersih, 0, ',', '.') }}
-                                </td>
-                                <td colspan="2"></td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @else
-                {{-- Contoh Tabel Alternatif Sederhana --}}
-                <table class="detail-table">
-                    <thead>
-                        <tr>
-                            <th>TGL</th>
-                            <th>Nama Lumbung</th>
-                            <th>Jenis</th>
-                            <th>Goni</th>
-                            <th>Berat</th>
-                            <th>No Timbangan</th>
-                            <th>Kadar</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for ($i = 0; $i < 10; $i++)
+                        </tbody>
+                    </table>
+                @else
+                    {{-- Contoh Tabel Alternatif Sederhana --}}
+                    <table class="detail-table">
+                        <thead>
                             <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td> <span style="color: transparent;">halo</span></td>
+                                <th>TGL</th>
+                                <th>Nama Lumbung</th>
+                                <th>Jenis</th>
+                                <th>Goni</th>
+                                <th>Berat</th>
+                                <th>No Timbangan</th>
+                                <th>Kadar</th>
                             </tr>
-                        @endfor
-                    </tbody>
-                </table>
-            @endif
-        </div>
+                        </thead>
+                        <tbody>
+                            @for ($i = 0; $i < 10; $i++)
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td> <span style="color: transparent;">halo</span></td>
+                                </tr>
+                            @endfor
+                        </tbody>
+                    </table>
+                @endif
+            </div>
+        </section>
 
         <!-- Signature Table -->
         <table class="signature-table">
