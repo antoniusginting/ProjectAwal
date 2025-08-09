@@ -139,7 +139,7 @@ class DryerResource extends Resource implements HasShieldPermissions
                                 $set('kapasitas_sisa', $formattedSisa);
                                 $formattedtotal = number_format($kapasitasdryer?->kapasitas_total ?? 0, 0, ',', '.');
                                 $set('kapasitas_total', $formattedtotal);
-                                $set('total_netto', $record ? number_format($record->total_netto_integer, 0, ',', '.') : null);
+                                $set('total_netto', $record ? $record->total_netto_integer : null);
                                 $set('sortirans', $record ? $record->sortirans->pluck('id')->toArray() : null);
 
                                 // Update kapasitas sisa akhir berdasarkan total netto yang ada
