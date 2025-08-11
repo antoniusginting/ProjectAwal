@@ -141,11 +141,20 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                     })
                                     ->searchable()
                                     ->columnSpan(2)
-                                    // TAMBAHKAN VALIDASI INI - CARA ALTERNATIF
-                                    ->rules([
-                                        'required',
-                                        'unique:sortirans,id_pembelian'
-                                    ])
+                                    // PERBAIKAN: Tambahkan pengecualian untuk record yang sedang diedit
+                                    ->rules(function ($context, $record) {
+                                        $rules = ['required'];
+
+                                        if ($context === 'create') {
+                                            // Saat create, gunakan unique biasa
+                                            $rules[] = 'unique:sortirans,id_pembelian';
+                                        } elseif ($context === 'edit' && $record) {
+                                            // Saat edit, kecualikan record yang sedang diedit
+                                            $rules[] = 'unique:sortirans,id_pembelian,' . $record->id;
+                                        }
+
+                                        return $rules;
+                                    })
                                     ->validationMessages([
                                         'unique' => 'ID Pembelian ini sudah digunakan untuk sortiran lain. Silakan pilih ID Pembelian yang berbeda.'
                                     ])
@@ -170,7 +179,6 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                         $set('plat_polisi', $pembelian?->plat_polisi ?? 'Plat tidak ditemukan');
                                         $set('nama_supplier', $pembelian?->supplier->nama_supplier ?? 'Supplier tidak ditemukan');
                                     }),
-
                                 // Select::make('penjualan_ids')
                                 //     ->label('Timbangan Langsir')
                                 //     ->placeholder('Pilih ID timbangan langsir')
