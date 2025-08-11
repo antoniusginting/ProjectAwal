@@ -6,11 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Print | Penjualan</title>
     <style>
+        /* Font untuk dot matrix - gunakan font yang tersedia atau download font dot matrix */
+        @font-face { 
+            font-family: dotmatrix; 
+            src: url('1979 Dot Matrix Regular.TTF'), url('Consolas'), url('Courier New'); 
+        }
+
         /* Definisi variabel untuk konsistensi warna */
         :root {
-            --primary-color: #1a202c;
+            --primary-color: #000000;
             --secondary-bg: #ffffff;
-            --border-color: #ffffff;
+            --border-color: #000000;
             --light-bg: #ffffff;
         }
 
@@ -20,84 +26,93 @@
             box-sizing: border-box;
         }
 
-        /* Gaya dasar halaman dengan ukuran font lebih kecil */
+        /* Gaya dasar halaman - OPTIMIZED untuk dot matrix */
         body {
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 10pt; /* Diseragamkan dengan template pembelian */
-            font-weight: bold;
+            font-family: 'dotmatrix', 'Courier New', Courier, monospace;
+            font-size: 10pt;
+            font-weight: normal; /* Ubah ke normal untuk dot matrix */
             background-color: var(--secondary-bg);
             color: var(--primary-color);
-            margin: 15px; /* Diseragamkan dengan template pembelian */
+            margin: 15px;
+            line-height: 1.1; /* Lebih rapat untuk dot matrix */
         }
 
         .container {
-            max-width: 650px; /* Diseragamkan dengan template pembelian */
+            max-width: 618px; /* Sesuai standar dot matrix 8.6 inches */
             margin: 0 auto;
+            position: relative;
         }
 
-        /* Header surat dengan ukuran font lebih kecil */
+        /* Header surat dengan ukuran font disesuaikan */
         header.header {
             text-align: left;
-            margin-bottom: 10px; /* Diseragamkan dengan template pembelian */
+            margin-bottom: 8px;
         }
 
         header.header h1 {
-            font-size: 1.2rem; /* Diseragamkan dengan template pembelian */
+            font-size: 12pt; /* Lebih kecil untuk dot matrix */
             margin: 0;
+            font-weight: bold;
         }
 
         header.header h2 {
-            font-size: 0.9rem; /* Diseragamkan dengan template pembelian */
+            font-size: 10pt;
             margin: 0;
+            font-weight: normal;
         }
 
-        /* Divider */
+        /* Divider - simplified untuk dot matrix */
         .divider {
             border-bottom: 1px solid #000;
-            margin: 6px 0; /* Diseragamkan dengan template pembelian */
+            margin: 4px 0;
         }
 
-        /* Tabel informasi dengan padding dikurangi */
+        /* Tabel informasi dengan padding disesuaikan */
         .info-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 10px; /* Diseragamkan dengan template pembelian */
+            margin-bottom: 8px;
         }
 
         .info-table td {
-            padding: 1.5px; /* Diseragamkan dengan template pembelian */
+            padding: 1px 2px;
             vertical-align: top;
-            font-size: 9pt; /* Diseragamkan dengan template pembelian */
+            font-size: 9pt;
+            border: none; /* Hilangkan border untuk dot matrix */
         }
 
         .caca {
             text-align: right;
-            margin-bottom: 6px; /* Diseragamkan dengan template pembelian */
-            font-size: 8pt; /* Diseragamkan dengan template pembelian */
+            margin-bottom: 4px;
+            font-size: 8pt;
         }
 
         .info-table .label {
             font-weight: bold;
+            width: 80px; /* Fixed width untuk alignment */
         }
 
-        /* Tabel detail pengiriman dengan padding di dalam sel yang lebih kecil */
+        /* Tabel detail - OPTIMIZED untuk dot matrix */
         .detail-table {
-            width: 100%; /* Kembali ke 100% untuk luruskan dengan divider */
+            width: 100%;
             border-collapse: collapse;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
+            border: 2px solid #000; /* Border tebal untuk dot matrix */
         }
 
         .detail-table th,
         .detail-table td {
             border: 1px solid #000;
-            padding: 1px 0.5px; /* Diseragamkan dengan template pembelian */
-            font-size: 8pt; /* Diseragamkan dengan template pembelian */
-            line-height: 1.1; /* Diseragamkan dengan template pembelian */
+            padding: 2px 4px; /* Padding minimal untuk dot matrix */
+            font-size: 8pt;
+            line-height: 1.0;
+            text-align: left;
         }
 
         .detail-table th {
             text-align: center;
-            background-color: #f5f5f5;
+            background-color: #ffffff; /* No background untuk dot matrix */
+            font-weight: bold;
         }
 
         .detail-table td.text-center {
@@ -113,75 +128,153 @@
             font-weight: bold;
         }
 
-        /* Tanda tangan */
+        /* Tanda tangan - disesuaikan untuk dot matrix */
         .signature-container {
             text-align: right;
-            margin-top: 15px; /* Diseragamkan dengan template pembelian */
+            margin-top: 12px;
         }
 
         .signature {
             display: inline-block;
             text-align: center;
-            font-size: 0.8rem; /* Diseragamkan dengan template pembelian */
+            font-size: 9pt;
         }
 
         .signature p {
-            margin: 0;
+            margin: 2px 0;
         }
 
         .sign-box {
-            margin-top: 6px; /* Diseragamkan dengan template pembelian */
-            height: 55px; /* Diseragamkan dengan template pembelian */
-            width: 180px; /* Diseragamkan dengan template pembelian */
+            margin-top: 4px;
+            height: 40px; /* Lebih kecil untuk dot matrix */
+            width: 150px;
             background-color: var(--light-bg);
-            border-radius: 4px;
+            border: 1px solid #000;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #ffffff;
-            font-size: 0.7rem; /* Diseragamkan dengan template pembelian */
+            color: #000000;
+            font-size: 8pt;
         }
 
         .sign-line {
-            margin-top: 6px; /* Diseragamkan dengan template pembelian */
-            border: 1px solid #000;
-            width: 160px; /* Diseragamkan dengan template pembelian */
+            margin-top: 4px;
+            border-bottom: 1px solid #000;
+            width: 140px;
             margin-left: auto;
             margin-right: auto;
         }
 
+        /* Media print - FULLY OPTIMIZED UNTUK DOT MATRIX */
         @media print {
             @page {
-                margin: 0;
+                margin: 0.2in; /* Minimal margin */
+                size: 8.5in 11in; /* Standard continuous form */
             }
 
             body {
-                font-family: 'Courier New', Courier, monospace;
-                font-size: 10pt; /* Konsisten dengan body font */
+                font-family: 'dotmatrix', 'Courier New', Courier, monospace !important;
+                font-size: 9pt !important; /* Optimal size untuk dot matrix */
+                font-weight: normal !important;
                 margin: 0 !important;
-                background-color: var(--secondary-bg);
+                background-color: white !important;
+                color: black !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
 
             .container {
                 width: 100% !important;
                 max-width: 100% !important;
                 margin: 0 !important;
-                padding: 15px 15px 15px 5px !important; /* Diseragamkan dengan template pembelian */
+                padding: 0.1in !important;
                 box-sizing: border-box;
             }
 
-            .info-table td {
-                font-size: 8pt !important; /* Font lebih kecil saat print */
+            /* Header optimasi dot matrix */
+            header.header h1 {
+                font-size: 11pt !important;
+                font-weight: bold !important;
             }
 
+            header.header h2 {
+                font-size: 9pt !important;
+            }
+
+            /* Info table untuk dot matrix */
+            .info-table td {
+                font-size: 8pt !important;
+                border: none !important;
+                padding: 1px !important;
+            }
+
+            .info-table .label {
+                font-weight: bold !important;
+            }
+
+            /* Detail table untuk dot matrix */
             .detail-table {
-                width: 100% !important; /* Konsisten dengan screen */
+                width: 100% !important;
+                border: 2px solid black !important;
+                page-break-inside: avoid !important;
             }
 
             .detail-table th,
             .detail-table td {
-                font-size: 5pt !important;
-                padding: 0.3px !important;
+                font-size: 7pt !important;
+                padding: 1px 2px !important;
+                border: 1px solid black !important;
+                background-color: white !important;
+                -webkit-print-color-adjust: exact !important;
+            }
+
+            .detail-table th {
+                background-color: white !important;
+                font-weight: bold !important;
+            }
+
+            /* Divider untuk dot matrix */
+            .divider {
+                border-bottom: 1px solid black !important;
+                margin: 2px 0 !important;
+            }
+
+            /* Print date */
+            .caca {
+                font-size: 7pt !important;
+                margin-bottom: 2px !important;
+            }
+
+            /* Signature untuk dot matrix */
+            .signature-container {
+                margin-top: 8px !important;
+                page-break-inside: avoid !important;
+            }
+
+            .signature {
+                font-size: 8pt !important;
+            }
+
+            .sign-box {
+                border: 1px solid black !important;
+                background-color: white !important;
+                color: black !important;
+                height: 30px !important;
+                width: 120px !important;
+                font-size: 7pt !important;
+            }
+
+            .sign-line {
+                border-bottom: 1px solid black !important;
+                width: 100px !important;
+                margin-top: 2px !important;
+            }
+
+            /* Hide elements yang tidak perlu di print */
+            @media print {
+                .no-print {
+                    display: none !important;
+                }
             }
         }
     </style>
@@ -229,6 +322,7 @@
 
         <div class="divider"></div>
         <div class="caca">Print Date : {{ now()->format('d-m-Y H:i:s') }}</div>
+        
         <!-- Detail Pengiriman -->
         <section>
             <div style="overflow-x: auto;">
@@ -238,7 +332,6 @@
                             <th>No_SPB</th>
                             <th>Plat Polisi</th>
                             <th>Nama Barang</th>
-                            <th>Nama Supplier</th>
                             <th>Nama Supir</th>
                             <th>Satuan Muatan</th>
                             <th>Nama Barang</th>
@@ -250,7 +343,6 @@
                             <td rowspan="3" class="text-center">{{ $penjualan->no_spb }}</td>
                             <td rowspan="3" class="text-center">{{ $penjualan->plat_polisi }}</td>
                             <td rowspan="3" class="text-center">{{ $penjualan->nama_barang }}</td>
-                            <td rowspan="3" class="text-center">-</td>
                             <td rowspan="3" class="text-center">{{ $penjualan->nama_supir }}</td>
                             <td rowspan="3" class="text-center">
                                 @if ($penjualan->brondolan == 'GONI')
@@ -290,6 +382,17 @@
             </div>
         </footer>
     </div>
+
+    <!-- Script untuk auto print (optional) -->
+    <script>
+        // Uncomment baris berikut jika ingin auto print saat load
+        // window.onload = function() { window.print(); }
+        
+        // Function untuk print manual
+        function printDocument() {
+            window.print();
+        }
+    </script>
 </body>
 
 </html>
