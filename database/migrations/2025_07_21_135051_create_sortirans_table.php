@@ -49,7 +49,7 @@ return new class extends Migration
                 $table->timestamps();
                 $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
                 $table->string('keterangan', 50)->nullable();
-                $table->boolean('verif');
+                $table->boolean('verif')->nullable();
                 $table->integer('cek')->nullable();
                 $table->enum('status', ['available', 'in_dryer', 'completed'])->default('available');
                 $table->foreignId('no_lumbung_basah')->nullable()->constrained('kapasitas_lumbung_basahs')->onDelete('cascade');

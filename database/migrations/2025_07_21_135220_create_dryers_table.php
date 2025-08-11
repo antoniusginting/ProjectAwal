@@ -17,6 +17,7 @@ return new class extends Migration
                 $table->char('jenis', 1)->default('D');
                 $table->string('no_dryer', 10)->unique()->nullable();
                 $table->foreignId('id_kapasitas_dryer')->constrained('kapasitas_dryers')->onDelete('cascade');
+                $table->string('tujuan')->nullable();
                 $table->string('operator')->nullable();
                 $table->string('nama_barang')->nullable();
                 $table->double('rencana_kadar')->nullable();

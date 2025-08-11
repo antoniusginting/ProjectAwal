@@ -137,7 +137,7 @@
                                 @if ($itemMasuk->type == 'dryer')
                                     <a href="{{ route('filament.admin.resources.dryers.view-dryer', $itemMasuk->data->id) }}"
                                         target="_blank" class="text-blue-600 hover:text-blue-800 underline">
-                                        {{ $itemMasuk->data->no_dryer }}
+                                        {{ $itemMasuk->data->no_dryer }} - {{ $itemMasuk->data->tujuan }}
                                     </a>
                                 @elseif ($itemMasuk->type == 'transfer_masuk')
                                     <a href="{{ route('filament.admin.resources.transfers.view-transfer', $itemMasuk->data->id) }}"

@@ -339,7 +339,6 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     }),
 
                                 TextInput::make('nama_lumbung')
-                                    ->readOnly()
                                     ->disabled(fn($get) => !empty($get('silo_id')))
                                     ->placeholder('Masukkan Nama Lumbung')
                                     ->autocomplete('off')

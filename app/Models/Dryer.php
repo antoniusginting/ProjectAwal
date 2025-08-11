@@ -24,6 +24,7 @@ class Dryer extends Model
         'no_cc',
         'user_id',
         'laporan_lumbung_id',
+        'tujuan',
     ];
 
     // Relasi ke laporan lumbung

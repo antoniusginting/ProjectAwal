@@ -55,7 +55,12 @@
                             @endif
                         </td>
                         <td class="font-semibold whitespace-nowrap">No IO</td>
-                        <td class="whitespace-nowrap">: {{ $dryer->laporanLumbung->kode ?? '-' }}</td>
+                        <td class="whitespace-nowrap">:
+                            <a href="{{ route('filament.admin.resources.laporan-lumbungs.view-laporan-lumbung', $dryer->laporanLumbung->id ?? '') }}"
+                                    target="_blank" class="text-blue-600 underline hover:text-blue-800">
+                                    {{ $dryer->laporanLumbung->kode }}
+                                </a>
+                        </td>
                         {{-- <td class="whitespace-nowrap">: {{ number_format($totalBerat, '0', ',', '.') }}</td> --}}
                         {{-- {{ number_format($dryer->kapasitasdryer->kapasitas_total - $totalBerat, 0, ',', '.') }} --}}
                     </tr>
@@ -65,7 +70,7 @@
                         <td class="font-semibold whitespace-nowrap">No Dryer</td>
                         <td class="whitespace-nowrap">: {{ $dryer->no_dryer ?? '-' }}</td>
                         <td class="font-semibold whitespace-nowrap">Lumbung Tujuan</td>
-                        <td class="whitespace-nowrap">: {{ $dryer->laporanLumbung->lumbung ?? '-' }}</td>
+                        <td class="whitespace-nowrap">: {{ $dryer->tujuan ?? '-' }}</td>
                     </tr>
                 </tbody>
             </table>

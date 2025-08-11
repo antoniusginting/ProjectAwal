@@ -149,54 +149,61 @@ class DryerResource extends Resource implements HasShieldPermissions
                                 $set('kapasitas_sisa_akhir', $formattedSisaAkhir);
                             }),
 
-                        Select::make('laporan_lumbung_id')
-                            ->label('Lumbung Tujuan')
-                            ->disabled(fn(string $operation): bool => $operation === 'create')
-                            ->options(function () {
-                                return LaporanLumbung::whereNull('status_silo')
-                                    ->where('status', false)
-                                    ->get()
-                                    ->mapWithKeys(function ($item) {
-                                        return [
-                                            $item->id => $item->kode . ' - ' . $item->lumbung .
-                                                (!empty($item->keterangan) && trim($item->keterangan) !== ''
-                                                    ? ' - Ket : ' . $item->keterangan
-                                                    : '')
-                                        ];
-                                    });
-                            })
-                            ->searchable()
-                            ->preload()
-                            ->nullable()
-                            ->placeholder('Pilih Laporan Lumbung')
-                            ->reactive()
-                            ->afterStateUpdated(function ($state, callable $set) {
-                                if ($state) {
-                                    // Ambil data laporan lumbung yang dipilih
-                                    $laporanLumbung = LaporanLumbung::find($state);
+                        Grid::make()
+                            ->schema([
+                                Select::make('laporan_lumbung_id')
+                                    ->label('No IO')
+                                    ->disabled(fn(string $operation): bool => $operation === 'create')
+                                    ->options(function () {
+                                        return LaporanLumbung::whereNull('status_silo')
+                                            ->where('status', false)
+                                            ->get()
+                                            ->mapWithKeys(function ($item) {
+                                                return [
+                                                    $item->id => $item->kode . ' - ' . $item->lumbung .
+                                                        (!empty($item->keterangan) && trim($item->keterangan) !== ''
+                                                            ? ' - Ket : ' . $item->keterangan
+                                                            : '')
+                                                ];
+                                            });
+                                    })
+                                    ->searchable()
+                                    ->preload()
+                                    ->nullable()
+                                    ->placeholder('Pilih Laporan Lumbung')
+                                    ->reactive()
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        if ($state) {
+                                            // Ambil data laporan lumbung yang dipilih
+                                            $laporanLumbung = LaporanLumbung::find($state);
 
-                                    if ($laporanLumbung) {
-                                        $kode = $laporanLumbung->kode;
-                                        $lumbung = $laporanLumbung->lumbung;
+                                            if ($laporanLumbung) {
+                                                $kode = $laporanLumbung->kode;
+                                                $lumbung = $laporanLumbung->lumbung;
 
-                                        // Logika untuk menentukan status berdasarkan lumbung
-                                        // Jika lumbung kosong/null atau hanya berisi spasi, set status pending
-                                        if (empty(trim($lumbung))) {
-                                            $set('status', 'pending');
+                                                // Logika untuk menentukan status berdasarkan lumbung
+                                                // Jika lumbung kosong/null atau hanya berisi spasi, set status pending
+                                                if (empty(trim($lumbung))) {
+                                                    $set('status', 'pending');
 
-                                            // Tampilkan notifikasi
-                                            // Notification::make()
-                                            //     ->title('Status Diubah ke Pending')
-                                            //     ->body('Lumbung tujuan belum ditentukan, status dryer diubah ke pending.')
-                                            //     ->warning()
-                                            //     ->duration(3000)
-                                            //     ->send();
+                                                    // Tampilkan notifikasi
+                                                    // Notification::make()
+                                                    //     ->title('Status Diubah ke Pending')
+                                                    //     ->body('Lumbung tujuan belum ditentukan, status dryer diubah ke pending.')
+                                                    //     ->warning()
+                                                    //     ->duration(3000)
+                                                    //     ->send();
+                                                }
+                                                // Jika lumbung sudah terisi, biarkan status default (processing)
+                                                // Status lain tidak akan diubah secara otomatis
+                                            }
                                         }
-                                        // Jika lumbung sudah terisi, biarkan status default (processing)
-                                        // Status lain tidak akan diubah secara otomatis
-                                    }
-                                }
-                            }),
+                                    }),
+                                TextInput::make('tujuan')
+                                    ->label('Lumbung Tujuan')
+                                    ->placeholder('Masukkan Lumbung Tujuan'),
+                            ])->columnSpan(1),
+
 
                         TextInput::make('pj')
                             ->label('PenanggungJawab')
