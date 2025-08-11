@@ -104,7 +104,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                             ->native(false)
                                             ->columnSpan(1)
                                             ->options(function () {
-                                                $lumbungList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'FIKTIF', 'SILO STAFFEL A', 'SILO STAFFEL B', 'SILO 1800', 'SILO 2500'];
+                                                $lumbungList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'FIKTIF', 'LANTAI DALAM', 'SILO STAFFEL A', 'SILO STAFFEL B', 'SILO 1800', 'SILO 2500'];
                                                 $availableOptions = [];
 
                                                 // Cek apakah sedang dalam mode edit
@@ -136,6 +136,8 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                                         if ($isEditing && $lumbungCode === $currentLumbung) {
                                                             if (str_starts_with($lumbungCode, 'SILO')) {
                                                                 $availableOptions[$lumbungCode] = "{$lumbungCode} ";
+                                                            } elseif ($lumbungCode === 'LANTAI DALAM') {
+                                                                $availableOptions[$lumbungCode] = "Lantai Dalam ";
                                                             } else {
                                                                 $availableOptions[$lumbungCode] = "Lumbung {$lumbungCode} ";
                                                             }
@@ -145,9 +147,11 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                                     }
 
                                                     // Jika tidak ada record dengan status 0, lumbung bisa dipilih
-                                                    // Format label berbeda untuk silo
+                                                    // Format label berbeda untuk silo dan lantai dalam
                                                     if (str_starts_with($lumbungCode, 'SILO')) {
                                                         $availableOptions[$lumbungCode] = $lumbungCode;
+                                                    } elseif ($lumbungCode === 'LANTAI DALAM') {
+                                                        $availableOptions[$lumbungCode] = "Lantai Dalam";
                                                     } else {
                                                         $availableOptions[$lumbungCode] = "Lumbung {$lumbungCode}";
                                                     }

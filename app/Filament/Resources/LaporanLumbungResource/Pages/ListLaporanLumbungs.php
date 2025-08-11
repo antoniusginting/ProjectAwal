@@ -165,6 +165,20 @@ class ListLaporanLumbungs extends ListRecords
                 return $query->where('lumbung', 'FIKTIF');
             });
 
+        // Tab khusus untuk LANTAI DALAM
+        $latestRecordLantaiDalam = LaporanLumbung::where('lumbung', 'LANTAI DALAM')
+            ->latest('created_at')
+            ->first();
+
+        $badgeInfoLantaiDalam = $this->getBadgeInfo($latestRecordLantaiDalam);
+
+        $tabs['lantai_dalam'] = Tab::make('LANTAI DALAM')
+            ->badge($badgeInfoLantaiDalam['icon'])
+            ->badgeColor($badgeInfoLantaiDalam['color'])
+            ->modifyQueryUsing(function (Builder $query) {
+                return $query->where('lumbung', 'LANTAI DALAM');
+            });
+
         return $tabs;
     }
 
@@ -207,8 +221,8 @@ class ListLaporanLumbungs extends ListRecords
             return false;
         }
 
-        // Tab untuk Lumbung A-I dan FIKTIF - TIDAK BISA TAMBAH DATA
-        if (str_starts_with($activeTab, 'lumbung_')) {
+        // Tab untuk Lumbung A-I, FIKTIF, dan LANTAI DALAM - TIDAK BISA TAMBAH DATA
+        if (str_starts_with($activeTab, 'lumbung_') || $activeTab === 'lantai_dalam') {
             return false;
         }
 
@@ -262,13 +276,13 @@ class ListLaporanLumbungs extends ListRecords
                 ->danger()
                 ->duration(5000)
                 ->send();
-        } elseif (str_starts_with($activeTab, 'lumbung_')) {
-            $lumbungCode = strtoupper(str_replace('lumbung_', '', $activeTab));
-            $lumbungName = $lumbungCode === 'FIKTIF' ? 'FIKTIF' : $lumbungCode;
+        } elseif (str_starts_with($activeTab, 'lumbung_') || $activeTab === 'lantai_dalam') {
+            $lumbungCode = $activeTab === 'lantai_dalam' ? 'LANTAI DALAM' : strtoupper(str_replace('lumbung_', '', $activeTab));
+            $lumbungName = $lumbungCode === 'FIKTIF' ? 'FIKTIF' : ($lumbungCode === 'LANTAI DALAM' ? 'LANTAI DALAM' : $lumbungCode);
 
             Notification::make()
                 ->title('Tidak dapat menambah data')
-                ->body("Tidak dapat menambah data di tab Lumbung {$lumbungName}. Gunakan tab AWAL untuk menambah data baru.")
+                ->body("Tidak dapat menambah data di tab {$lumbungName}. Gunakan tab AWAL untuk menambah data baru.")
                 ->danger()
                 ->duration(5000)
                 ->send();
@@ -315,6 +329,11 @@ class ListLaporanLumbungs extends ListRecords
         // Untuk tab lumbung A-I dan FIKTIF
         if (str_starts_with($activeTab, 'lumbung_')) {
             return strtoupper(str_replace('lumbung_', '', $activeTab));
+        }
+
+        // Untuk tab LANTAI DALAM
+        if ($activeTab === 'lantai_dalam') {
+            return 'LANTAI DALAM';
         }
 
         // Untuk tab silo, return nilai lumbung yang sesuai
