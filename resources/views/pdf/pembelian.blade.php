@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="id">
 
 <head>
@@ -7,9 +8,9 @@
     <style>
         /* Definisi variabel untuk konsistensi warna */
         :root {
-            --primary-color: #1a202c;
+            --primary-color: #000000;
             --secondary-bg: #ffffff;
-            --border-color: #ffffff;
+            --border-color: #000000;
             --light-bg: #ffffff;
         }
 
@@ -19,84 +20,85 @@
             box-sizing: border-box;
         }
 
-        /* Gaya dasar halaman dengan ukuran font lebih kecil */
+        /* Gaya dasar halaman - optimized untuk dot matrix */
         body {
             font-family: 'Courier New', Courier, monospace;
-            font-size: 9pt;
+            font-size: 10pt; /* Menggunakan ukuran dari template penjualan */
             font-weight: bold;
             background-color: var(--secondary-bg);
             color: var(--primary-color);
-            margin: 20px;
+            margin: 15px; /* Diseragamkan dengan template penjualan */
+            line-height: 1.2; /* Optimized untuk dot matrix */
         }
 
         .container {
-            max-width: 650px; /* Sesuai dengan template terbaru */
+            max-width: 650px; /* Diseragamkan dengan template penjualan */
             margin: 0 auto;
         }
 
-        /* Header surat dengan ukuran font lebih kecil */
+        /* Header surat dengan ukuran font diseragamkan */
         header.header {
             text-align: left;
-            margin-bottom: 12px;
+            margin-bottom: 10px; /* Diseragamkan dengan template penjualan */
         }
 
         header.header h1 {
-            font-size: 1.2rem;
+            font-size: 1.2rem; /* Diseragamkan dengan template penjualan */
             margin: 0;
         }
 
         header.header h2 {
-            font-size: 1rem;
+            font-size: 0.9rem; /* Diseragamkan dengan template penjualan */
             margin: 0;
         }
 
         /* Divider */
         .divider {
             border-bottom: 1px solid #000;
-            margin: 8px 0;
+            margin: 6px 0; /* Diseragamkan dengan template penjualan */
         }
 
-        /* Tabel informasi dengan padding dikurangi */
+        /* Tabel informasi dengan padding diseragamkan */
         .info-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 12px;
+            margin-bottom: 10px; /* Diseragamkan dengan template penjualan */
         }
 
         .info-table td {
-            padding: 2px;
+            padding: 1.5px; /* Diseragamkan dengan template penjualan */
             vertical-align: top;
+            font-size: 9pt; /* Diseragamkan dengan template penjualan */
         }
 
         .caca {
             text-align: right;
-            margin-bottom: 8px;
+            margin-bottom: 6px; /* Diseragamkan dengan template penjualan */
+            font-size: 8pt; /* Diseragamkan dengan template penjualan */
         }
 
         .info-table .label {
             font-weight: bold;
         }
 
-        /* Tabel detail pengiriman dengan padding di dalam sel yang lebih kecil */
+        /* Tabel detail pengiriman - optimized untuk dot matrix */
         .detail-table {
-            width: 95%; /* Diperkecil dari 100% */
+            width: 100%;
             border-collapse: collapse;
             margin-bottom: 12px;
-            margin-left: auto;
-            margin-right: auto;
         }
 
         .detail-table th,
         .detail-table td {
             border: 1px solid #000;
-            padding: 1px 0.5px; /* Sesuai template */
-            font-size: 8pt; /* Diperbaiki ke 8pt sesuai template */
-            line-height: 1.1; /* Mengurangi tinggi baris */
+            padding: 1px 0.5px; /* Diseragamkan dengan template penjualan */
+            font-size: 8pt; /* Diseragamkan dengan template penjualan */
+            line-height: 1.1; /* Diseragamkan dengan template penjualan */
         }
 
         .detail-table th {
             text-align: center;
-            background-color: #f5f5f5;
+            background-color: #f5f5f5; /* Sama dengan template penjualan */
         }
 
         .detail-table td.text-center {
@@ -112,16 +114,16 @@
             font-weight: bold;
         }
 
-        /* Tanda tangan */
+        /* Tanda tangan - diseragamkan dengan template penjualan */
         .signature-container {
             text-align: right;
-            margin-top: 20px;
+            margin-top: 15px; /* Diseragamkan dengan template penjualan */
         }
 
         .signature {
             display: inline-block;
             text-align: center;
-            font-size: 0.875rem;
+            font-size: 0.8rem; /* Diseragamkan dengan template penjualan */
         }
 
         .signature p {
@@ -129,54 +131,89 @@
         }
 
         .sign-box {
-            margin-top: 8px;
-            height: 64px;
-            width: 200px;
+            margin-top: 6px; /* Diseragamkan dengan template penjualan */
+            height: 55px; /* Diseragamkan dengan template penjualan */
+            width: 180px; /* Diseragamkan dengan template penjualan */
             background-color: var(--light-bg);
             border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #ffffff;
-            font-size: 0.75rem;
+            font-size: 0.7rem; /* Diseragamkan dengan template penjualan */
         }
 
         .sign-line {
-            margin-top: 8px;
+            margin-top: 6px; /* Diseragamkan dengan template penjualan */
             border: 1px solid #000;
-            width: 180px;
+            width: 160px; /* Diseragamkan dengan template penjualan */
             margin-left: auto;
             margin-right: auto;
         }
 
+        /* Media print - OPTIMIZED UNTUK DOT MATRIX */
         @media print {
             @page {
                 margin: 0;
+                size: A4;
             }
 
             body {
-                font-family: 'Courier New', Courier, monospace;
-                font-size: 12pt;
+                font-family: 'Courier New', Courier, monospace !important;
+                font-size: 10pt !important; /* Konsisten dengan body font */
+                font-weight: bold !important;
                 margin: 0 !important;
-                background-color: var(--secondary-bg);
+                background-color: white !important;
+                color: black !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
 
             .container {
                 width: 100% !important;
                 max-width: 100% !important;
                 margin: 0 !important;
-                padding: 20px 20px 20px 5px !important;
+                padding: 15px 15px 15px 5px !important; /* Diseragamkan dengan template penjualan */
                 box-sizing: border-box;
             }
 
+            /* Optimasi untuk dot matrix printer */
+            .info-table td {
+                font-size: 8pt !important; /* Font lebih kecil saat print - sama dengan penjualan */
+                border: none !important; /* Hilangkan border untuk dot matrix */
+            }
+
             .detail-table {
-                width: 95% !important;
+                width: 100% !important;
+                border: 1px solid black !important; /* Border tegas untuk dot matrix */
             }
 
             .detail-table th,
             .detail-table td {
-                font-size: 5pt !important;
-                padding: 0.3px !important;
+                font-size: 5pt !important; /* Sama dengan template penjualan */
+                padding: 0.3px !important; /* Sama dengan template penjualan */
+                border: 1px solid black !important;
+                background-color: white !important;
+            }
+
+            .detail-table th {
+                background-color: white !important; /* Hilangkan background color */
+            }
+
+            /* Optimasi divider untuk dot matrix */
+            .divider {
+                border-bottom: 1px solid black !important;
+            }
+
+            /* Optimasi signature untuk dot matrix */
+            .sign-box {
+                border: 1px solid black !important;
+                background-color: white !important;
+                color: black !important;
+            }
+
+            .sign-line {
+                border: 1px solid black !important;
             }
         }
     </style>
@@ -197,17 +234,17 @@
             <table class="info-table">
                 <tr>
                     <td class="label">Tanggal</td>
-                    <td>: 07-08-2025</td>
+                    <td>: {{ $pembelian->created_at->format('d-m-Y') }}</td>
                     <td class="label">Jam Masuk</td>
-                    <td>: 08:12:51</td>
+                    <td>: {{ $pembelian->jam_masuk }}</td>
                     <td class="label">Container</td>
-                    <td>: 21W</td>
+                    <td>: {{ $pembelian->no_container ?: '-' }}</td>
                 </tr>
                 <tr>
                     <td class="label">Operator</td>
-                    <td>: dev</td>
+                    <td>: {{ $pembelian->user->name }}</td>
                     <td class="label">Jam Keluar</td>
-                    <td>: 08:13:06</td>
+                    <td>: {{ $pembelian->jam_keluar }}</td>
                     <td></td>
                     <td></td>
                 </tr>
@@ -215,7 +252,7 @@
         </section>
 
         <div class="divider"></div>
-        <div class="caca">Print Date : 09-08-2025 09:15:04</div>
+        <div class="caca">Print Date : {{ now()->format('d-m-Y H:i:s') }}</div>
         <!-- Detail Pengiriman -->
         <section>
             <div style="overflow-x: auto;">
@@ -234,23 +271,33 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td rowspan="3" class="text-center">B1111386</td>
-                            <td rowspan="3" class="text-center">BK21</td>
-                            <td rowspan="3" class="text-center">JAGUNG GORONTALO (RETUR)</td>
-                            <td rowspan="3" class="text-center">ADI KARANG ANYER</td>
-                            <td rowspan="3" class="text-center">MANTUL</td>
-                            <td rowspan="3" class="text-center">100 - GONI</td>
-                            <td rowspan="3" class="text-center">JAGUNG GORONTALO (RETUR)</td>
+                            <td rowspan="3" class="text-center">{{ $pembelian->no_spb }}</td>
+                            <td rowspan="3" class="text-center">{{ $pembelian->plat_polisi }}</td>
+                            <td rowspan="3" class="text-center">{{ $pembelian->nama_barang }}</td>
+                            <td rowspan="3" class="text-center">
+                                {{ optional($pembelian->supplier)->nama_supplier ?? '-' }}</td>
+                            <td rowspan="3" class="text-center">{{ $pembelian->nama_supir }}</td>
+                            <td rowspan="3" class="text-center">
+                                @if ($pembelian->brondolan == 'GONI')
+                                    @php
+                                        $adaGoni = true;
+                                    @endphp
+                                    {{ $pembelian->jumlah_karung }} - {{ $pembelian->brondolan }}
+                                @else
+                                    {{ $pembelian->brondolan }}
+                                @endif
+                            </td>
+                            <td rowspan="3" class="text-center">{{ $pembelian->nama_barang }}</td>
                             <td>Bruto</td>
-                            <td class="text-right">10.000</td>
+                            <td class="text-right">{{ number_format($pembelian->bruto, 0, ',', '.') }}</td>
                         </tr>
                         <tr>
                             <td>Tara</td>
-                            <td class="text-right">700</td>
+                            <td class="text-right">{{ number_format($pembelian->tara, 0, ',', '.') }}</td>
                         </tr>
                         <tr>
                             <td>Netto</td>
-                            <td class="text-right">9.300</td>
+                            <td class="text-right">{{ number_format($pembelian->netto, 0, ',', '.') }}</td>
                         </tr>
                     </tbody>
                 </table>
