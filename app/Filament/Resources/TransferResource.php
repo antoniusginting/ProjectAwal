@@ -264,8 +264,8 @@ class TransferResource extends Resource implements HasShieldPermissions
                                                 // Jika status_silo ada, tampilkan format "kode - status_silo"
                                                 // Jika tidak ada, tampilkan hanya kode
                                                 $label = $item->status_silo
-                                                    ? $item->kode . ' - ' . $item->status_silo
-                                                    : $item->kode . ' - ' . $item->lumbung;
+                                                    ? $item->kode . ' - ' . $item->status_silo . ' - ' . $item->keterangan
+                                                    : $item->kode . ' - ' . $item->lumbung . ' - ' . $item->keterangan;
 
                                                 return [
                                                     $item->id => $label
@@ -287,7 +287,7 @@ class TransferResource extends Resource implements HasShieldPermissions
                                             ->get()
                                             ->mapWithKeys(function ($item) {
                                                 return [
-                                                    $item->id => $item->kode . ' - ' . $item->lumbung
+                                                    $item->id => $item->kode . ' - ' . $item->lumbung . ' - ' . $item->keterangan
                                                 ];
                                             });
                                     })

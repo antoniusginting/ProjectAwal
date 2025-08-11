@@ -58,7 +58,7 @@
                         <td class="whitespace-nowrap">:
                             <a href="{{ route('filament.admin.resources.laporan-lumbungs.view-laporan-lumbung', $dryer->laporanLumbung->id ?? '') }}"
                                     target="_blank" class="text-blue-600 underline hover:text-blue-800">
-                                    {{ $dryer->laporanLumbung->kode }}
+                                    {{ $dryer->laporanLumbung->kode ?? '-' }}
                                 </a>
                         </td>
                         {{-- <td class="whitespace-nowrap">: {{ number_format($totalBerat, '0', ',', '.') }}</td> --}}
