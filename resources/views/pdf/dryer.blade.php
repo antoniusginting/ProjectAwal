@@ -211,12 +211,12 @@
                         // Hilangkan titik ribuan, lalu konversi
                         $str = str_replace('.', '', $sortiran->netto_bersih);
                         return is_numeric($str) ? (float) $str : 0;
-                        // Jika hasil penjumlahannya adalah 0 (artinya tidak ada yang valid ditambahkan atau totalnya memang nol),
-                        // ubah $grandTotalNetto menjadi string kosong.
-                        if ($grandTotalNetto == 0) {
-                            $grandTotalNetto = '';
-                        }
                     });
+                    // Jika hasil penjumlahannya adalah 0 (artinya tidak ada yang valid ditambahkan atau totalnya memang nol),
+                    // ubah $grandTotalNetto menjadi string kosong.
+                    if ($grandTotalNetto == 0) {
+                        $grandTotalNetto = '';
+                    }
                 @endphp
                 <tbody>
                     <tr>
@@ -227,7 +227,7 @@
                         <td class="label">Penanggung Jawab</td>
                         <td class="value">:{{ $dryer->pj }}</td>
                         <td class="label">Dryer/Panggangan</td>
-                        <td class="value">:{{ $dryer->kapasitasdryer->nama_kapasitas_dryer }}</td>
+                        <td class="value">:{{ optional($dryer->kapasitasdryer)->nama_kapasitas_dryer }}</td>
                     </tr>
                     <tr>
                         <td class="label">Jam</td>
@@ -250,7 +250,7 @@
                             @endif
                         </td>
                         <td class="label">No IO</td>
-                        <td class="value">:{{ $dryer->laporanLumbung->kode }}</td>
+                        <td class="value">:{{ optional($dryer->laporanLumbung)->kode ?? '-' }}</td>
                     </tr>
                     <tr>
                         <td class="label">Jenis Barang</td>
@@ -258,7 +258,7 @@
                         <td class="label">No Dryer</td>
                         <td class="value">:{{ $dryer->no_dryer }}</td>
                         <td class="label">Lumbung Tujuan</td>
-                        <td class="value">:{{ $dryer->laporanLumbung->lumbung }}</td>
+                        <td class="value">:{{ optional($dryer->laporanLumbung)->lumbung ?? '-' }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -296,16 +296,16 @@
 
                                 @foreach ($sortiransGroup as $index => $sortiran)
                                     <tr>
-                                        <td>{{ $sortiran->created_at->format('d/m') ?? '-' }}</td>
-                                        <td>{{ $sortiran->kapasitaslumbungbasah->no_kapasitas_lumbung }}</td>
-                                        <td>{{ $sortiran->pembelian->nama_barang }}</td>
-                                        <td>{{ $sortiran->total_karung ?? '-' }}</td>
+                                        <td class="text-center">{{ optional($sortiran->created_at)->format('d/m') ?? '-' }}</td>
+                                        <td class = "text-center">{{ optional($sortiran->kapasitaslumbungbasah)->no_kapasitas_lumbung ?? '-' }}</td>
+                                        <td class = "text-center">{{ optional($sortiran->pembelian)->nama_barang ?? '-' }}</td>
+                                        <td class = "text-center">{{ $sortiran->total_karung ?? '-' }}</td>
                                         <td class="text-right">{{ $sortiran->netto_bersih ?? '-' }}</td>
-                                        <td>{{ $sortiran->pembelian->no_spb ?? '-' }}</td>
-                                        <td>{{ $sortiran->kadar_air ?? '-' }}%</td>
+                                        <td class = "text-center">{{ optional($sortiran->pembelian)->no_spb ?? '-' }}</td>
+                                        <td class = "text-center">{{ $sortiran->kadar_air ?? '-' }}%</td>
                                         @php
                                             // Hapus pemisah ribuan (titik) dari nilai netto_bersih
-                                            $nettoBersihStripped = str_replace('.', '', $sortiran->netto_bersih);
+                                            $nettoBersihStripped = str_replace('.', '', $sortiran->netto_bersih ?? '0');
 
                                             // Cek jika netto_bersih bisa dikonversi menjadi angka setelah penghapusan titik
                                             $nettoBersihValue = is_numeric($nettoBersihStripped)
@@ -313,10 +313,10 @@
                                                 : 0;
                                             $totalNettoBersih += $nettoBersihValue;
 
-                                            // Hapus pemisah ribuan (titik) dari nilai netto_bersih
-                                            $totalKarungStripped = str_replace('.', '', $sortiran->total_karung);
+                                            // Hapus pemisah ribuan (titik) dari nilai total_karung
+                                            $totalKarungStripped = str_replace('.', '', $sortiran->total_karung ?? '0');
 
-                                            // Cek jika netto_bersih bisa dikonversi menjadi angka setelah penghapusan titik
+                                            // Cek jika total_karung bisa dikonversi menjadi angka setelah penghapusan titik
                                             $totalKarungValue = is_numeric($totalKarungStripped)
                                                 ? floatval($totalKarungStripped)
                                                 : 0;
