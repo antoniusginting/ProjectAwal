@@ -23,6 +23,8 @@ class Transfer extends Model
         'user_id',
         'laporan_lumbung_keluar_id',
         'laporan_lumbung_masuk_id',
+        'penjualan_id',
+
     ];
 
     // Relasi ke User
@@ -30,6 +32,12 @@ class Transfer extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+     // Relasi penjualan
+    public function penjualan(): BelongsTo
+    {
+        return $this->belongsTo(penjualan::class, 'penjualan_id');
+    }
+
 
     // Relasi ke lumbung asal (keluar)
     public function laporanLumbungKeluar(): BelongsTo

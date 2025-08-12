@@ -29,6 +29,7 @@ return new class extends Migration
                 $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
                 $table->foreignId('laporan_lumbung_keluar_id')->nullable()->constrained('laporan_lumbungs')->onDelete('cascade');
                 $table->foreignId('laporan_lumbung_masuk_id')->nullable()->constrained('laporan_lumbungs')->onDelete('cascade');
+                $table->foreignId('penjualan_id')->nullable()->constrained('penjualans')->onDelete('cascade');
             });
         }
     }

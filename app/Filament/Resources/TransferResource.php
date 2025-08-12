@@ -137,28 +137,76 @@ class TransferResource extends Resource implements HasShieldPermissions
                                         }
                                     })
                                     ->columnSpan(2),
-                                Select::make('id_sortiran')
-                                    ->label('Ambil dari Pembelian Sebelumnya')
+                                // Select::make('id_sortiran')
+                                //     ->label('Ambil dari Pembelian Sebelumnya')
+                                //     ->options(function () {
+                                //         // Ambil semua Sortiran dengan relasi pembelian
+                                //         return \App\Models\Sortiran::with('pembelian')
+                                //             ->whereHas('pembelian') // Pastikan memiliki relasi pembelian
+                                //             ->whereIn('no_lumbung_basah', [13]) // Filter hanya yang no_lumbung_basah = 5 atau 7
+                                //             ->latest()
+                                //             ->take(50)
+                                //             ->get()
+                                //             ->mapWithKeys(function ($sortiran) {
+                                //                 return [
+                                //                     $sortiran->id => "{$sortiran->pembelian->no_spb} - {$sortiran->kapasitaslumbungbasah->no_kapasitas_lumbung} - {$sortiran->pembelian->nama_supir} - Timbangan ke-{$sortiran->pembelian->keterangan} - {$sortiran->created_at->format('d:m:Y')}"
+                                //                 ];
+                                //             });
+                                //     })
+                                //     ->searchable()
+                                //     ->reactive()
+                                //     ->hidden(fn($livewire) => $livewire->getRecord()?->exists)
+                                //     ->dehydrated(false) // jangan disimpan ke DB
+                                //     ->afterStateUpdated(function (callable $set, $state) {
+                                //         $sortiran = \App\Models\Sortiran::with('pembelian')->find($state);
+                                //         if ($state === null) {
+                                //             // Kosongkan semua data yang sebelumnya di-set
+                                //             $set('plat_polisi', null);
+                                //             $set('bruto', null);
+                                //             $set('tara', null);
+                                //             $set('netto', null);
+                                //             $set('nama_supir', null);
+                                //             $set('nama_barang', 'JAGUNG KERING SUPER');
+                                //             $set('keterangan', null);
+                                //             return;
+                                //         }
+                                //         if ($sortiran && $sortiran->pembelian) {
+                                //             // Ambil data dari pembelian yang berelasi
+                                //             $set('plat_polisi', $sortiran->pembelian->plat_polisi);
+                                //             $set('tara', $sortiran->pembelian->tara);
+                                //             $set('bruto', $sortiran->pembelian->bruto);
+                                //             $set('netto', $sortiran->pembelian->netto);
+                                //             $set('nama_supir', $sortiran->pembelian->nama_supir);
+                                //             $set('nama_barang', $sortiran->pembelian->nama_barang);
+
+                                //             // Naikkan keterangan dari sortiran
+                                //             $keteranganBaru = in_array(intval($sortiran->pembelian->keterangan), [1, 2, 3, 4, 5])
+                                //                 ? intval($sortiran->pembelian->keterangan)
+                                //                 : $sortiran->pembelian->keterangan;
+                                //             $set('keterangan', $keteranganBaru);
+                                //         }
+                                //     })
+                                //     ->columnSpan(2),
+
+                                Select::make('penjualan_id')
+                                    ->label('Ambil dari Timbangan Jual (LANGSIR)')
                                     ->options(function () {
-                                        // Ambil semua Sortiran dengan relasi pembelian
-                                        return \App\Models\Sortiran::with('pembelian')
-                                            ->whereHas('pembelian') // Pastikan memiliki relasi pembelian
-                                            ->whereIn('no_lumbung_basah', [13]) // Filter hanya yang no_lumbung_basah = 5 atau 7
-                                            ->latest()
+                                        // Ambil penjualan yang memiliki 'langsir' di field nama_barang
+                                        return \App\Models\Penjualan::latest()
+                                            ->where('nama_barang', 'LIKE', '%langsir%') // Case-insensitive search
                                             ->take(50)
                                             ->get()
-                                            ->mapWithKeys(function ($sortiran) {
+                                            ->mapWithKeys(function ($penjualan) {
                                                 return [
-                                                    $sortiran->id => "{$sortiran->pembelian->no_spb} - {$sortiran->kapasitaslumbungbasah->no_kapasitas_lumbung} - {$sortiran->pembelian->nama_supir} - Timbangan ke-{$sortiran->pembelian->keterangan} - {$sortiran->created_at->format('d:m:Y')}"
+                                                    $penjualan->id => "{$penjualan->no_spb} - {$penjualan->nama_barang} - {$penjualan->nama_supir} - (Timbangan ke-{$penjualan->keterangan}) - {$penjualan->created_at->format('d:m:Y')}"
                                                 ];
                                             });
                                     })
                                     ->searchable()
                                     ->reactive()
                                     ->hidden(fn($livewire) => $livewire->getRecord()?->exists)
-                                    ->dehydrated(false) // jangan disimpan ke DB
                                     ->afterStateUpdated(function (callable $set, $state) {
-                                        $sortiran = \App\Models\Sortiran::with('pembelian')->find($state);
+                                        $penjualan = \App\Models\Penjualan::find($state);
                                         if ($state === null) {
                                             // Kosongkan semua data yang sebelumnya di-set
                                             $set('plat_polisi', null);
@@ -170,24 +218,18 @@ class TransferResource extends Resource implements HasShieldPermissions
                                             $set('keterangan', null);
                                             return;
                                         }
-                                        if ($sortiran && $sortiran->pembelian) {
+                                        if ($penjualan) {
                                             // Ambil data dari pembelian yang berelasi
-                                            $set('plat_polisi', $sortiran->pembelian->plat_polisi);
-                                            $set('tara', $sortiran->pembelian->tara);
-                                            $set('bruto', $sortiran->pembelian->bruto);
-                                            $set('netto', $sortiran->pembelian->netto);
-                                            $set('nama_supir', $sortiran->pembelian->nama_supir);
-                                            $set('nama_barang', $sortiran->pembelian->nama_barang);
-
-                                            // Naikkan keterangan dari sortiran
-                                            $keteranganBaru = in_array(intval($sortiran->pembelian->keterangan), [1, 2, 3, 4, 5])
-                                                ? intval($sortiran->pembelian->keterangan)
-                                                : $sortiran->pembelian->keterangan;
-                                            $set('keterangan', $keteranganBaru);
+                                            $set('plat_polisi', $penjualan->plat_polisi);
+                                            $set('tara', $penjualan->tara);
+                                            $set('bruto', $penjualan->bruto);
+                                            $set('netto', $penjualan->netto);
+                                            $set('nama_supir', $penjualan->nama_supir);
+                                            $set('nama_barang', $penjualan->nama_barang);
+                                            $set('keterangan', $penjualan->keterangan);
                                         }
                                     })
                                     ->columnSpan(2),
-
                                 TextInput::make('plat_polisi')
                                     ->suffixIcon('heroicon-o-truck')
                                     ->autocomplete('off')
