@@ -477,6 +477,8 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                                 'JG Kering' => 'Jagung Kering',
                                                 'JG Basah' => 'Jagung Basah',
                                                 'JG Kurang Kering' => 'Jagung Kurang Kering',
+                                                'JGB.KR' => 'JGB.KR',
+                                                ' JGB.K.T' => ' JGB.K.T'
                                             ])
                                             ->placeholder('Pilih Kualitas Jagung')
                                             ->native(false) // Mengunakan dropdown modern
@@ -544,6 +546,8 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                                 'JG Kering' => 'Jagung Kering',
                                                 'JG Basah' => 'Jagung Basah',
                                                 'JG Kurang Kering' => 'Jagung Kurang Kering',
+                                                'JGB.KR' => 'JGB.KR',
+                                                ' JGB.K.T' => ' JGB.K.T',
                                             ])
                                             ->placeholder('Pilih Kualitas Jagung')
                                             ->native(false), // Mengunakan dropdown modern
@@ -612,6 +616,8 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                                 'JG Kering' => 'Jagung Kering',
                                                 'JG Basah' => 'Jagung Basah',
                                                 'JG Kurang Kering' => 'Jagung Kurang Kering',
+                                                'JGB.KR' => 'JGB.KR',
+                                                ' JGB.K.T' => ' JGB.K.T',
                                             ])
                                             ->placeholder('Pilih Kualitas Jagung')
                                             ->native(false), // Mengunakan dropdown modern
