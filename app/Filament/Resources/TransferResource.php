@@ -109,7 +109,7 @@ class TransferResource extends Resource implements HasShieldPermissions
                                     })
                                     ->searchable()
                                     ->reactive()
-                                    ->hidden(fn($livewire) => $livewire->getRecord()?->exists)
+                                    // ->hidden(fn($livewire) => $livewire->getRecord()?->exists)
                                     ->dehydrated(false) // jangan disimpan ke DB
                                     ->afterStateUpdated(function (callable $set, $state) {
                                         $transfer = \App\Models\Transfer::find($state);
@@ -136,7 +136,7 @@ class TransferResource extends Resource implements HasShieldPermissions
                                             $set('keterangan', $keteranganBaru);
                                         }
                                     })
-                                    ->columnSpan(2),
+                                    ->columnSpan(2)->disabled(fn(callable $get) => filled($get('penjualan_id'))), // HILANG jika penjualan_id ada nilai,
                                 // Select::make('id_sortiran')
                                 //     ->label('Ambil dari Pembelian Sebelumnya')
                                 //     ->options(function () {
@@ -190,10 +190,23 @@ class TransferResource extends Resource implements HasShieldPermissions
 
                                 Select::make('penjualan_id')
                                     ->label('Ambil dari Timbangan Jual (LANGSIR)')
-                                    ->options(function () {
+                                    ->options(function ($livewire) {
+                                        // Ambil ID penjualan yang sudah digunakan di model ini
+                                        // Ganti YourCurrentModel dengan nama model yang sedang Anda gunakan
+                                        $query = \App\Models\Transfer::whereNotNull('penjualan_id');
+
+                                        // Jika sedang edit, exclude record yang sedang diedit
+                                        if ($livewire->getRecord()?->exists) {
+                                            $query->where('id', '!=', $livewire->getRecord()->id);
+                                        }
+
+                                        $usedPenjualanIds = $query->pluck('penjualan_id')->toArray();
+
                                         // Ambil penjualan yang memiliki 'langsir' di field nama_barang
+                                        // dan belum digunakan
                                         return \App\Models\Penjualan::latest()
-                                            ->where('nama_barang', 'LIKE', '%langsir%') // Case-insensitive search
+                                            ->where('nama_barang', 'LIKE', '%langsir%')
+                                            ->whereNotIn('id', $usedPenjualanIds) // Exclude yang sudah digunakan
                                             ->take(50)
                                             ->get()
                                             ->mapWithKeys(function ($penjualan) {
@@ -204,22 +217,25 @@ class TransferResource extends Resource implements HasShieldPermissions
                                     })
                                     ->searchable()
                                     ->reactive()
-                                    ->hidden(fn($livewire) => $livewire->getRecord()?->exists)
+                                    // ->hidden(fn($livewire) => $livewire->getRecord()?->exists)
                                     ->afterStateUpdated(function (callable $set, $state) {
                                         $penjualan = \App\Models\Penjualan::find($state);
                                         if ($state === null) {
                                             // Kosongkan semua data yang sebelumnya di-set
+                                            $set('id_transfer', null);
                                             $set('plat_polisi', null);
                                             $set('bruto', null);
                                             $set('tara', null);
                                             $set('netto', null);
                                             $set('nama_supir', null);
-                                            $set('nama_barang', 'JAGUNG KERING SUPER');
+                                            $set('nama_barang', null);
                                             $set('keterangan', null);
+                                            $set('silo_id', null);
                                             return;
                                         }
                                         if ($penjualan) {
                                             // Ambil data dari pembelian yang berelasi
+                                            $set('id_transfer', null);
                                             $set('plat_polisi', $penjualan->plat_polisi);
                                             $set('tara', $penjualan->tara);
                                             $set('bruto', $penjualan->bruto);
@@ -296,47 +312,70 @@ class TransferResource extends Resource implements HasShieldPermissions
                                 //             ->inline()
                                 //             ->reactive(),
 
-                                // Select untuk Lumbung Masuk
-                                Select::make('laporan_lumbung_masuk_id')
-                                    ->label('No Lumbung Masuk')
-                                    ->options(function () {
-                                        return LaporanLumbung::where('status', '!=', true)
-                                            ->get()
-                                            ->mapWithKeys(function ($item) {
-                                                // Jika status_silo ada, tampilkan format "kode - status_silo"
-                                                // Jika tidak ada, tampilkan hanya kode
-                                                $label = $item->status_silo
-                                                    ? $item->kode . ' - ' . $item->status_silo . ' - ' . $item->keterangan
-                                                    : $item->kode . ' - ' . $item->lumbung . ' - ' . $item->keterangan;
+                                Grid::make()
+                                    ->schema([
+                                        // Select untuk Lumbung Masuk
+                                        Select::make('laporan_lumbung_masuk_id')
+                                            ->label('No Lumbung Masuk')
+                                            ->options(function () {
+                                                return LaporanLumbung::where('status', '!=', true)
+                                                    ->get()
+                                                    ->mapWithKeys(function ($item) {
+                                                        // Jika status_silo ada, tampilkan format "kode - status_silo"
+                                                        // Jika tidak ada, tampilkan hanya kode
+                                                        $label = $item->status_silo
+                                                            ? $item->kode . ' - ' . $item->status_silo . ' - ' . $item->keterangan
+                                                            : $item->kode . ' - ' . $item->lumbung . ' - ' . $item->keterangan;
 
+                                                        return [
+                                                            $item->id => $label
+                                                        ];
+                                                    });
+                                            })
+                                            ->searchable()
+                                            ->preload()
+                                            ->nullable()
+                                            ->placeholder('Pilih Laporan Lumbung Masuk'),
+                                        // ->visible(fn(Get $get) => $get('tipe') === 'masuk'),
+
+                                        // Select untuk Lumbung Keluar
+                                        Select::make('laporan_lumbung_keluar_id')
+                                            ->label('No Lumbung Keluar')
+                                            ->options(function () {
+                                                return LaporanLumbung::whereNull('status_silo')
+                                                    ->where('status', false)
+                                                    ->get()
+                                                    ->mapWithKeys(function ($item) {
+                                                        return [
+                                                            $item->id => $item->kode . ' - ' . $item->lumbung . ' - ' . $item->keterangan
+                                                        ];
+                                                    });
+                                            })
+                                            ->searchable()
+                                            ->preload()
+                                            ->nullable()
+                                            ->placeholder('Pilih Laporan Lumbung Keluar'),
+                                    ])->columnSpan(2)->hidden(fn(callable $get) => filled($get('penjualan_id'))), // HILANG jika penjualan_id ada nilai,
+
+                                Select::make('silo_id')
+                                    ->label('Silo')
+                                    ->options(function (callable $get) {
+                                        return \App\Models\Silo::where('status', 0) // 0 = buka, 1 = tutup
+                                            ->orderBy('id')
+                                            ->get()
+                                            ->mapWithKeys(function ($silo) {
                                                 return [
-                                                    $item->id => $label
+                                                    $silo->id => "{$silo->nama}" // Menampilkan kode dengan status
                                                 ];
                                             });
                                     })
                                     ->searchable()
                                     ->preload()
+                                    ->columnSpan(2)
                                     ->nullable()
-                                    ->placeholder('Pilih Laporan Lumbung Masuk'),
-                                // ->visible(fn(Get $get) => $get('tipe') === 'masuk'),
-
-                                // Select untuk Lumbung Keluar
-                                Select::make('laporan_lumbung_keluar_id')
-                                    ->label('No Lumbung Keluar')
-                                    ->options(function () {
-                                        return LaporanLumbung::whereNull('status_silo')
-                                            ->where('status', false)
-                                            ->get()
-                                            ->mapWithKeys(function ($item) {
-                                                return [
-                                                    $item->id => $item->kode . ' - ' . $item->lumbung . ' - ' . $item->keterangan
-                                                ];
-                                            });
-                                    })
-                                    ->searchable()
-                                    ->preload()
-                                    ->nullable()
-                                    ->placeholder('Pilih Laporan Lumbung Keluar'),
+                                    ->placeholder('Pilih Kode Silo')
+                                    ->reactive()
+                                    ->visible(fn(callable $get) => filled($get('penjualan_id'))), // Tampil jika penjualan_id ada nilai
                                 // ->visible(fn(Get $get) => $get('tipe') === 'keluar'),
                                 // ])->columnSpan(2),
                                 // TextInput::make('nama_lumbung')
@@ -427,6 +466,7 @@ class TransferResource extends Resource implements HasShieldPermissions
                     }),
 
                 TextColumn::make('laporanLumbungKeluar.kode')
+                    ->default('-')
                     ->alignCenter()
                     ->label('No IO Keluar')
                     ->formatStateUsing(function ($record) {
@@ -436,6 +476,7 @@ class TransferResource extends Resource implements HasShieldPermissions
                         return '-';
                     }),
                 TextColumn::make('laporanLumbungMasuk.kode')
+                    ->default('-')
                     ->alignCenter()
                     ->label('No IO Masuk')
                     ->formatStateUsing(function ($record) {
@@ -448,6 +489,10 @@ class TransferResource extends Resource implements HasShieldPermissions
                         }
                         return '-';
                     }),
+                TextColumn::make('silo.nama')
+                    ->alignCenter()
+                    ->label('Langsir')
+                    ->default('-'),
                 TextColumn::make('kode')
                     ->searchable()
                     ->alignCenter()
