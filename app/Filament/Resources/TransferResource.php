@@ -440,6 +440,64 @@ class TransferResource extends Resource implements HasShieldPermissions
                                     ->reactive()
                                     ->visible(fn(callable $get) => filled($get('penjualan_id'))), // Tampil jika penjualan_id ada nilai
                                 // ->visible(fn(Get $get) => $get('tipe') === 'keluar'),
+                                Grid::make()
+                                    ->schema([
+                                        Select::make('silo_keluar_id')
+                                            ->label('Silo Keluar')
+                                            ->options(function (callable $get) {
+                                                return \App\Models\Silo::where('status', 0) // 0 = buka, 1 = tutup
+                                                    ->orderBy('id')
+                                                    ->get()
+                                                    ->mapWithKeys(function ($silo) {
+                                                        return [
+                                                            $silo->id => "{$silo->nama}"
+                                                        ];
+                                                    });
+                                            })
+                                            ->searchable()
+                                            ->preload()
+                                            ->nullable()
+                                            ->placeholder('Pilih Silo Asal')
+                                            ->reactive()
+                                            ->afterStateUpdated(function (callable $set, $state, callable $get) {
+                                                // Jika silo keluar dipilih, pastikan silo masuk tidak sama
+                                                $siloMasukId = $get('silo_masuk_id');
+                                                if ($state && $state == $siloMasukId) {
+                                                    $set('silo_masuk_id', null);
+                                                }
+                                            }),
+
+                                        Select::make('silo_masuk_id')
+                                            ->label('Silo Masuk')
+                                            ->options(function (callable $get) {
+                                                $siloKeluarId = $get('silo_keluar_id');
+
+                                                return \App\Models\Silo::where('status', 0) // 0 = buka, 1 = tutup
+                                                    ->when($siloKeluarId, function ($query) use ($siloKeluarId) {
+                                                        // Exclude silo yang dipilih sebagai silo keluar
+                                                        return $query->where('id', '!=', $siloKeluarId);
+                                                    })
+                                                    ->orderBy('id')
+                                                    ->get()
+                                                    ->mapWithKeys(function ($silo) {
+                                                        return [
+                                                            $silo->id => "{$silo->nama}"
+                                                        ];
+                                                    });
+                                            })
+                                            ->searchable()
+                                            ->preload()
+                                            ->nullable()
+                                            ->placeholder('Pilih Silo Tujuan')
+                                            ->reactive()
+                                            ->afterStateUpdated(function (callable $set, $state, callable $get) {
+                                                // Jika silo masuk dipilih, pastikan silo keluar tidak sama
+                                                $siloKeluarId = $get('silo_keluar_id');
+                                                if ($state && $state == $siloKeluarId) {
+                                                    $set('silo_keluar_id', null);
+                                                }
+                                            }),
+                                    ])->columnSpan(2),
                             ])->columns(4)
                     ]),
                 Hidden::make('user_id')

@@ -15,12 +15,15 @@ class Transfer extends Model
         'tara',
         'netto',
         'keterangan',
+        'silo_masuk_id',
+        'silo_keluar_id',
         'jam_masuk',
         'jam_keluar',
         'nama_lumbung',
         'status_transfer',
         'silo',
         'user_id',
+        'silo_masuk',
         'laporan_lumbung_keluar_id',
         'laporan_lumbung_masuk_id',
         'penjualan_id',
@@ -41,6 +44,19 @@ class Transfer extends Model
     public function silo(): BelongsTo
     {
         return $this->belongsTo(Silo::class, 'silo_id');
+    }
+
+    public function siloMasuk(): BelongsTo
+    {
+        return $this->belongsTo(Silo::class, 'silo_masuk_id');
+    }
+
+    /**
+     * Relasi ke model Silo untuk Silo Keluar
+     */
+    public function siloKeluar(): BelongsTo
+    {
+        return $this->belongsTo(Silo::class, 'silo_keluar_id');
     }
 
     // Relasi ke lumbung asal (keluar)
