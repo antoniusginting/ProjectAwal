@@ -307,9 +307,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                     ->options(function () {
                                         return LaporanLumbung::whereNull('status_silo')
                                             ->where('status', false)
-                                            ->whereNotNull('lumbung')
-                                            ->where('lumbung', '!=', '')
-                                            ->where('lumbung', '!=', ' ')
+                                            // ->whereNotNull('lumbung')
                                             ->get()
                                             ->mapWithKeys(function ($item) {
                                                 $keterangan = !empty($item->keterangan) && trim($item->keterangan) !== ''
