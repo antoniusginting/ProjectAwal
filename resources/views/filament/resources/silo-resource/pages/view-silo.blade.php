@@ -240,7 +240,16 @@
                                         @endif
                                     @else
                                         {{-- Tampilkan data langsir --}}
-                                        <span class="text-purple-600 font-medium">Langsir</span>
+                                        <span class="text-purple-600 font-medium">Langsir - <a
+                                                href="{{ route('filament.admin.resources.penjualans.view-penjualan', $langsir->penjualan->id ?? '') }}"
+                                                target="_blank" class="underline">
+                                                {{ $langsir->penjualan->no_spb }}
+                                            </a> - 
+                                            <a
+                                                href="{{ route('filament.admin.resources.laporan-lumbungs.view-laporan-lumbung', $langsir->penjualan->laporanLumbung->id ?? '') }}"
+                                                target="_blank" class="underline">
+                                                {{ $langsir->penjualan->laporanLumbung->kode }}
+                                            </a></span>
                                     @endif
                                 </td>
                                 <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">

@@ -192,7 +192,6 @@ class TransferResource extends Resource implements HasShieldPermissions
                                     ->label('Ambil dari Timbangan Jual (LANGSIR)')
                                     ->options(function ($livewire) {
                                         // Ambil ID penjualan yang sudah digunakan di model ini
-                                        // Ganti YourCurrentModel dengan nama model yang sedang Anda gunakan
                                         $query = \App\Models\Transfer::whereNotNull('penjualan_id');
 
                                         // Jika sedang edit, exclude record yang sedang diedit
@@ -202,11 +201,15 @@ class TransferResource extends Resource implements HasShieldPermissions
 
                                         $usedPenjualanIds = $query->pluck('penjualan_id')->toArray();
 
-                                        // Ambil penjualan yang memiliki 'langsir' di field nama_barang
-                                        // dan belum digunakan
+                                        // Ambil penjualan yang memenuhi kriteria:
                                         return \App\Models\Penjualan::latest()
                                             ->where('nama_barang', 'LIKE', '%langsir%')
                                             ->whereNotIn('id', $usedPenjualanIds) // Exclude yang sudah digunakan
+                                            ->whereNotNull('bruto') // Bruto tidak boleh null
+                                            ->whereNotNull('netto') // Netto tidak boleh null
+                                            ->where('bruto', '>', 0) // Bruto harus lebih dari 0
+                                            ->where('netto', '>', 0) // Netto harus lebih dari 0
+                                            ->whereNotNull('laporan_lumbung_id') // Laporan lumbung ID tidak boleh null
                                             ->take(50)
                                             ->get()
                                             ->mapWithKeys(function ($penjualan) {

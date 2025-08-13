@@ -128,13 +128,13 @@
                     <h4 class="font-semibold text-yellow-800 dark:text-yellow-200">Catatan Langsir</h4>
                 </div>
                 <p class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
-                    Transfer ini merupakan <strong>langsir</strong> yang terkait dengan penjualan ID:
-                    {{ $transfer->penjualan_id }}
+                    Transfer ini merupakan <strong>langsir</strong> yang terkait dengan timbangan penjualan
                     @if ($transfer->penjualan)
-                        - SPB: {{ $transfer->penjualan->no_spb ?? 'N/A' }}
+                        - SPB: <a
+                            href="{{ route('filament.admin.resources.penjualans.view-penjualan', $transfer->penjualan->id ?? '') }}"
+                            target="_blank" class="underline">{{ $transfer->penjualan->no_spb }}</a>
                     @endif
-                    ke <a
-                        href="{{ route('filament.admin.resources.silos.view-silo', $transfer->silo->id ?? '') }}"
+                    ke <a href="{{ route('filament.admin.resources.silos.view-silo', $transfer->silo->id ?? '') }}"
                         target="_blank" class="underline">{{ $transfer->silo->nama }}</a>
                 </p>
             </div>

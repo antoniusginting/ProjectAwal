@@ -319,7 +319,6 @@ class PenjualanResource extends Resource implements HasShieldPermissions
                                                 ];
                                             });
                                     })
-
                                     ->searchable()
                                     ->preload()
                                     ->nullable()
