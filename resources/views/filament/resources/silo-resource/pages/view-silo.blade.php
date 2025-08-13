@@ -48,6 +48,10 @@
                 }
             }
 
+            // Tambahkan data langsir ke total berat
+            $totalBeratLangsir = $silo->langsir->sum('netto');
+            $totalBerat1 += $totalBeratLangsir;
+
             // Jika tidak ada total berat dari laporan lumbung, gunakan stock luar
             // if ($totalBerat1 == 0) {
             //     $totalBerat1 = $silo->stockLuar()->sum('quantity');
@@ -145,101 +149,142 @@
                     <thead>
                         <tr class="bg-gray-100 dark:bg-gray-800">
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Tanggal</th>
-                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">No IO</th>
-                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Transfer/Dryer</th>
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">No IO / No Transfer</th>
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Transfer/Dryer/Langsir
+                            </th>
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Berat</th>
                         </tr>
                     </thead>
                     <tbody id="lumbung-tbody">
-                        @foreach ($silo->laporanlumbungs as $index => $laporan)
-                            @php
-                                $beratKolom1 = $laporan->berat_langsir ?? 0;
-                                $beratKolom2 = $laporan->berat_penjualan ?? 0;
-                            @endphp
+                        @php
+                            // Gabungkan data laporan lumbung dan langsir untuk sorting berdasarkan tanggal
+                            $allData = collect();
 
+                            // Tambahkan data laporan lumbung
+                            foreach ($silo->laporanlumbungs as $laporan) {
+                                $allData->push([
+                                    'type' => 'laporan',
+                                    'data' => $laporan,
+                                    'date' => $laporan->created_at,
+                                ]);
+                            }
+
+                            // Tambahkan data langsir
+                            foreach ($silo->langsir as $langsir) {
+                                $allData->push([
+                                    'type' => 'langsir',
+                                    'data' => $langsir,
+                                    'date' => $langsir->created_at,
+                                ]);
+                            }
+
+                            // Sort berdasarkan tanggal (terbaru di atas)
+                            $allData = $allData->sortByDesc('date');
+                        @endphp
+
+                        @foreach ($allData as $index => $item)
                             <tr class="lumbung-row {{ $index >= 5 ? 'hidden' : '' }}"
                                 data-index="{{ $index }}">
                                 <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                                    {{ \Carbon\Carbon::parse($laporan->created_at)->format('d/m/Y') }}
+                                    {{ \Carbon\Carbon::parse($item['date'])->format('d/m/Y') }}
                                 </td>
                                 <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                                    <a href="{{ route('filament.admin.resources.laporan-lumbungs.view-laporan-lumbung', $laporan->id ?? '') }}"
-                                        target="_blank"
-                                        class="text-blue-600 hover:text-blue-800 underline">{{ $laporan->kode }}</a>
+                                    @if ($item['type'] === 'laporan')
+                                        <a href="{{ route('filament.admin.resources.laporan-lumbungs.view-laporan-lumbung', $item['data']->id ?? '') }}"
+                                            target="_blank"
+                                            class="text-blue-600 hover:text-blue-800 underline">{{ $item['data']->kode }}</a>
+                                    @else
+                                        <a href="{{ route('filament.admin.resources.transfers.view-transfer', $item['data']->id ?? '') }}"
+                                            target="_blank"
+                                            class="text-purple-600 hover:text-purple-800 underline">{{ $item['data']->kode }}</a>
+                                    @endif
                                 </td>
                                 <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                                    @php
-                                        $hasContent = false;
-                                    @endphp
+                                    @if ($item['type'] === 'laporan')
+                                        @php
+                                            $laporan = $item['data'];
+                                            $hasContent = false;
+                                        @endphp
 
-                                    {{-- Tampilkan Dryers jika ada --}}
-                                    @if ($laporan->dryers && $laporan->dryers->count() > 0)
-                                        @foreach ($laporan->dryers as $index => $dryer)
-                                            <a href="{{ route('filament.admin.resources.dryers.view-dryer', $dryer->id ?? '') }}"
-                                                target="_blank" class="text-green-600 hover:text-green-800 underline">
-                                                {{ $dryer->kode }}
-                                            </a>{{ !$loop->last ? ', ' : '' }}
-                                        @endforeach
-                                        @php $hasContent = true; @endphp
-                                    @endif
+                                        {{-- Tampilkan Dryers jika ada --}}
+                                        @if ($laporan->dryers && $laporan->dryers->count() > 0)
+                                            @foreach ($laporan->dryers as $index => $dryer)
+                                                <a href="{{ route('filament.admin.resources.dryers.view-dryer', $dryer->id ?? '') }}"
+                                                    target="_blank"
+                                                    class="text-green-600 hover:text-green-800 underline">
+                                                    {{ $dryer->no_dryer }}
+                                                </a>{{ !$loop->last ? ', ' : '' }}
+                                            @endforeach
+                                            @php $hasContent = true; @endphp
+                                        @endif
 
-                                    {{-- Tambahkan separator jika ada dryer dan transfer --}}
-                                    @if ($hasContent && $laporan->transferMasuk && $laporan->transferMasuk->count() > 0)
-                                        <br>
-                                    @endif
+                                        {{-- Tambahkan separator jika ada dryer dan transfer --}}
+                                        @if ($hasContent && $laporan->transferMasuk && $laporan->transferMasuk->count() > 0)
+                                            <br>
+                                        @endif
 
-                                    {{-- Tampilkan Transfers --}}
-                                    @if ($laporan->transferMasuk && $laporan->transferMasuk->count() > 0)
-                                        @foreach ($laporan->transferMasuk as $index => $transfer)
-                                            <a href="{{ route('filament.admin.resources.transfers.view-transfer', $transfer->id ?? '') }}"
-                                                target="_blank" class="text-blue-600 hover:text-blue-800 underline">
-                                                {{ $transfer->kode }}
-                                            </a>{{ !$loop->last ? ', ' : '' }}
-                                        @endforeach
-                                        @php $hasContent = true; @endphp
-                                    @endif
+                                        {{-- Tampilkan Transfers --}}
+                                        @if ($laporan->transferMasuk && $laporan->transferMasuk->count() > 0)
+                                            @foreach ($laporan->transferMasuk as $index => $transfer)
+                                                <a href="{{ route('filament.admin.resources.transfers.view-transfer', $transfer->id ?? '') }}"
+                                                    target="_blank" class="text-blue-600 hover:text-blue-800 underline">
+                                                    {{ $transfer->kode }}
+                                                </a>{{ !$loop->last ? ', ' : '' }}
+                                            @endforeach
+                                            @php $hasContent = true; @endphp
+                                        @endif
 
-                                    {{-- Jika tidak ada dryer atau transfer --}}
-                                    @if (!$hasContent)
-                                        -
+                                        {{-- Jika tidak ada dryer atau transfer --}}
+                                        @if (!$hasContent)
+                                            -
+                                        @endif
+                                    @else
+                                        {{-- Tampilkan data langsir --}}
+                                        <span class="text-purple-600 font-medium">Langsir</span>
                                     @endif
                                 </td>
                                 <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
-                                    @php
-                                        $totalNettoDryers = 0;
-                                        if ($laporan->dryers && $laporan->dryers->count() > 0) {
-                                            $totalNettoDryers = $laporan->dryers->sum('total_netto');
-                                        }
+                                    @if ($item['type'] === 'laporan')
+                                        @php
+                                            $laporan = $item['data'];
+                                            $totalNettoDryers = 0;
+                                            if ($laporan->dryers && $laporan->dryers->count() > 0) {
+                                                $totalNettoDryers = $laporan->dryers->sum('total_netto');
+                                            }
 
-                                        $totalNettoTransfers = 0;
-                                        if ($laporan->transfers && $laporan->transfers->count() > 0) {
-                                            $totalNettoTransfers = $laporan->transfers->sum('netto');
-                                        }
+                                            $totalNettoTransfers = 0;
+                                            if ($laporan->transfers && $laporan->transfers->count() > 0) {
+                                                $totalNettoTransfers = $laporan->transfers->sum('netto');
+                                            }
 
-                                        $totalNettoTransferMasuk = 0;
-                                        if ($laporan->transferMasuk && $laporan->transferMasuk->count() > 0) {
-                                            $totalNettoTransferMasuk = $laporan->transferMasuk->sum('netto');
-                                        }
-                                    @endphp
+                                            $totalNettoTransferMasuk = 0;
+                                            if ($laporan->transferMasuk && $laporan->transferMasuk->count() > 0) {
+                                                $totalNettoTransferMasuk = $laporan->transferMasuk->sum('netto');
+                                            }
+                                        @endphp
 
-                                    @if ($totalNettoDryers > 0)
-                                        {{ number_format($totalNettoDryers, 0, ',', '.') }}
-                                    @elseif ($totalNettoTransfers > 0)
-                                        {{ number_format($totalNettoTransfers, 0, ',', '.') }}
-                                    @elseif ($totalNettoTransferMasuk > 0)
-                                        {{ number_format($totalNettoTransferMasuk, 0, ',', '.') }}
+                                        @if ($totalNettoDryers > 0)
+                                            {{ number_format($totalNettoDryers, 0, ',', '.') }}
+                                        @elseif ($totalNettoTransfers > 0)
+                                            {{ number_format($totalNettoTransfers, 0, ',', '.') }}
+                                        @elseif ($totalNettoTransferMasuk > 0)
+                                            {{ number_format($totalNettoTransferMasuk, 0, ',', '.') }}
+                                        @else
+                                            {{ number_format($laporan->hasil ?? 0, 0, ',', '.') }}
+                                        @endif
                                     @else
-                                        {{ number_format($laporan->hasil ?? 0, 0, ',', '.') }}
+                                        {{-- Tampilkan berat langsir --}}
+                                        {{ number_format($item['data']->netto ?? 0, 0, ',', '.') }}
                                     @endif
                                 </td>
                             </tr>
                         @endforeach
 
-                        @if ($silo->laporanlumbungs->count() == 0)
+                        @if ($allData->count() == 0)
                             <tr>
                                 <td colspan="4"
                                     class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm text-gray-500">
-                                    Tidak ada data laporan lumbung
+                                    Tidak ada data laporan lumbung atau langsir
                                 </td>
                             </tr>
                         @endif
@@ -271,7 +316,7 @@
                         <span
                             class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
                             <span id="showing-lumbung">5</span>
-                            dari {{ $laporanLumbungTotal }} data
+                            dari {{ $allData->count() }} data
                         </span>
                     </div>
                 </div>

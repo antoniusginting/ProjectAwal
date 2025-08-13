@@ -368,7 +368,7 @@
                                     $totalFrekuensiKualitas += $data['count'];
                                 @endphp
 
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                <tr class="dark:bg-gray-800">
                                     @if ($index == 0)
                                         <td class="border text-center p-2 font-medium"
                                             rowspan="{{ count($dataGroup) + 1 }}">
@@ -387,7 +387,7 @@
                                 </tr>
                             @endforeach
 
-                            <tr class="bg-gray-100 dark:bg-blue-900/20 font-semibold">
+                            <tr class="bg-gray-100 dark:bg-gray-900 font-semibold">
                                 <td class="border text-center p-2 italic">Subtotal</td>
                                 <td class="border text-center p-2">{{ $totalFrekuensiKualitas }}</td>
                                 <td class="border text-center p-2">
@@ -405,7 +405,7 @@
                             $grandTotalFrekuensi = array_sum(array_column($rangkumanData, 'count'));
                         @endphp
 
-                        <tr class="bg-gray-200 dark:bg-green-900/30 font-bold">
+                        <tr class="bg-gray-200 dark:bg-gray-800 font-bold">
                             <td class="border text-center p-2" colspan="2">GRAND TOTAL</td>
                             <td class="border text-center p-2">{{ $grandTotalFrekuensi }}</td>
                             <td class="border text-center p-2">
