@@ -35,7 +35,7 @@ class Transfer extends Model
     // Relasi penjualan
     public function penjualan(): BelongsTo
     {
-        return $this->belongsTo(penjualan::class, 'penjualan_id');
+        return $this->belongsTo(Penjualan::class, 'penjualan_id');
     }
     // Relasi silo
     public function silo(): BelongsTo

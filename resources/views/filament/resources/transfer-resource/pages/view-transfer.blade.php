@@ -24,8 +24,7 @@
                         <td class="whitespace-nowrap">: <a
                                 href="{{ route('filament.admin.resources.laporan-lumbungs.view-laporan-lumbung', $transfer->laporanLumbungKeluar->id ?? '') }}"
                                 target="_blank"
-                                class="text-blue-600 hover:text-blue-800 underline"
-                                >{{ $transfer->laporanLumbungKeluar->kode ?? '-' }}
+                                class="text-blue-600 hover:text-blue-800 underline">{{ $transfer->laporanLumbungKeluar->kode ?? '-' }}
                                 -
                                 {{ $transfer->laporanLumbungKeluar->lumbung ?? '-' }} </a></td>
                         <td class="font-semibold whitespace-nowrap">Jam Masuk</td>
@@ -38,7 +37,8 @@
                         <td class="whitespace-nowrap">: <a
                                 href="{{ route('filament.admin.resources.laporan-lumbungs.view-laporan-lumbung', $transfer->laporanLumbungMasuk->id ?? '') }}"
                                 target="_blank"
-                                class="text-blue-600 hover:text-blue-800 underline">{{ $transfer->laporanLumbungMasuk->kode ?? '-'}} -
+                                class="text-blue-600 hover:text-blue-800 underline">{{ $transfer->laporanLumbungMasuk->kode ?? '-' }}
+                                -
                                 {{ $transfer->laporanLumbungMasuk->status_silo ?? ($transfer->laporanLumbungMasuk->lumbung ?? '-') }}</a>
                         </td>
                         <td class="font-semibold whitespace-nowrap">Jam Keluar</td>
@@ -115,8 +115,33 @@
             </table>
         </div>
 
+        {{-- Catatan Langsir --}}
+        @if ($transfer->penjualan_id)
+            <div
+                class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                <div class="flex items-center space-x-2">
+                    <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <h4 class="font-semibold text-yellow-800 dark:text-yellow-200">Catatan Langsir</h4>
+                </div>
+                <p class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+                    Transfer ini merupakan <strong>langsir</strong> yang terkait dengan penjualan ID:
+                    {{ $transfer->penjualan_id }}
+                    @if ($transfer->penjualan)
+                        - SPB: {{ $transfer->penjualan->no_spb ?? 'N/A' }}
+                    @endif
+                    ke <a
+                        href="{{ route('filament.admin.resources.silos.view-silo', $transfer->silo->id ?? '') }}"
+                        target="_blank" class="underline">{{ $transfer->silo->nama }}</a>
+                </p>
+            </div>
+        @endif
+
         <!-- Tanda Tangan -->
-        <div class="flex justify-end mt-10">
+        {{-- <div class="flex justify-end mt-10">
             <div class="text-center">
                 <p class="text-lg font-semibold">TTD OPERATOR</p>
                 <div class="mt-4 h-24 w-64 flex items-center justify-center bg-gray-50 dark:bg-gray-800 rounded-md">
@@ -124,7 +149,7 @@
                 </div>
                 <div class="mt-4 border-b border-gray-300 dark:border-gray-700 w-56 mx-auto"></div>
             </div>
-        </div>
+        </div> --}}
 
 
     </div>

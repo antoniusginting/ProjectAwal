@@ -150,7 +150,7 @@
                         <tr class="bg-gray-100 dark:bg-gray-800">
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Tanggal</th>
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">No IO / No Transfer</th>
-                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Transfer/Dryer/Langsir
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Dryer / Langsir
                             </th>
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Berat</th>
                         </tr>
