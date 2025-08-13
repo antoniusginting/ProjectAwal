@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Silo extends Model
@@ -34,7 +35,17 @@ class Silo extends Model
     {
         return $this->hasMany(Penjualan::class);
     }
+    // Transfer yang keluar dari lumbung ini (lumbung sebagai asal)
+    public function transferKeluar(): HasMany
+    {
+        return $this->hasMany(Transfer::class, 'silo_keluar_id');
+    }
 
+    // Transfer yang masuk ke lumbung ini (lumbung sebagai tujuan)
+    public function transferMasuk(): HasMany
+    {
+        return $this->hasMany(Transfer::class, 'silo_masuk_id');
+    }
     // // Method untuk menghitung total stok (stok awal + semua penambahan)
     // public function getTotalStockAttribute()
     // {
