@@ -149,7 +149,8 @@
                     <thead>
                         <tr class="bg-gray-100 dark:bg-gray-800">
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Tanggal</th>
-                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">No IO / No Transfer</th>
+                            <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">No IO / No Transfer / No
+                                SPB</th>
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Dryer / Langsir
                             </th>
                             <th class="border p-2 border-gray-300 dark:border-gray-700 text-sm">Berat</th>
@@ -194,9 +195,35 @@
                                             target="_blank"
                                             class="text-blue-600 hover:text-blue-800 underline">{{ $item['data']->kode }}</a>
                                     @else
-                                        <a href="{{ route('filament.admin.resources.transfers.view-transfer', $item['data']->id ?? '') }}"
+                                        @php
+                                            $langsir = $item['data'];
+                                        @endphp
+
+                                        @if (
+                                            $langsir->penjualan_id &&
+                                                $langsir->penjualan &&
+                                                $langsir->penjualan->laporan_lumbung_id &&
+                                                $langsir->penjualan->laporanLumbung)
+                                            <a href="{{ route('filament.admin.resources.laporan-lumbungs.view-laporan-lumbung', $langsir->penjualan->laporanLumbung->id) }}"
+                                                target="_blank"
+                                                class="text-blue-600 hover:text-blue-800 underline text-sm">
+                                                {{ $langsir->penjualan->laporanLumbung->kode }}
+                                            </a>
+                                            -
+                                        @endif
+
+                                        <a href="{{ route('filament.admin.resources.transfers.view-transfer', $langsir->id ?? '') }}"
                                             target="_blank"
-                                            class="text-purple-600 hover:text-purple-800 underline">{{ $item['data']->kode }}</a>
+                                            class="text-purple-600 hover:text-purple-800 underline">{{ $langsir->kode }}</a>
+
+                                        @if ($langsir->penjualan_id && $langsir->penjualan)
+                                            -
+                                            <a href="{{ route('filament.admin.resources.penjualans.view-penjualan', $langsir->penjualan->id) }}"
+                                                target="_blank"
+                                                class="text-blue-600 hover:text-blue-800 underline text-sm">
+                                                {{ $langsir->penjualan->no_spb }}
+                                            </a>
+                                        @endif
                                     @endif
                                 </td>
                                 <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
@@ -240,16 +267,10 @@
                                         @endif
                                     @else
                                         {{-- Tampilkan data langsir --}}
-                                        <span class="text-purple-600 font-medium">Langsir - <a
-                                                href="{{ route('filament.admin.resources.penjualans.view-penjualan', $langsir->penjualan->id ?? '') }}"
-                                                target="_blank" class="underline">
-                                                {{ $langsir->penjualan->no_spb }}
-                                            </a> - 
-                                            <a
-                                                href="{{ route('filament.admin.resources.laporan-lumbungs.view-laporan-lumbung', $langsir->penjualan->laporanLumbung->id ?? '') }}"
-                                                target="_blank" class="underline">
-                                                {{ $langsir->penjualan->laporanLumbung->kode }}
-                                            </a></span>
+                                        <div class="text-purple-600 font-medium">
+                                            {{-- Tampilkan kode transfer langsir --}}
+                                            <span>Langsir</span>
+                                        </div>
                                     @endif
                                 </td>
                                 <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">

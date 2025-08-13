@@ -358,28 +358,9 @@ class TransferResource extends Resource implements HasShieldPermissions
                                             ->preload()
                                             ->nullable()
                                             ->placeholder('Pilih Laporan Lumbung Keluar'),
-                                    ])->columnSpan(2)->hidden(fn(callable $get) => filled($get('penjualan_id'))), // HILANG jika penjualan_id ada nilai,
+                                    ])->columnSpan(2),
 
-                                Select::make('silo_id')
-                                    ->label('Silo')
-                                    ->options(function (callable $get) {
-                                        return \App\Models\Silo::where('status', 0) // 0 = buka, 1 = tutup
-                                            ->orderBy('id')
-                                            ->get()
-                                            ->mapWithKeys(function ($silo) {
-                                                return [
-                                                    $silo->id => "{$silo->nama}" // Menampilkan kode dengan status
-                                                ];
-                                            });
-                                    })
-                                    ->searchable()
-                                    ->preload()
-                                    ->columnSpan(2)
-                                    ->nullable()
-                                    ->placeholder('Pilih Kode Silo')
-                                    ->reactive()
-                                    ->visible(fn(callable $get) => filled($get('penjualan_id'))), // Tampil jika penjualan_id ada nilai
-                                // ->visible(fn(Get $get) => $get('tipe') === 'keluar'),
+
                                 // ])->columnSpan(2),
                                 // TextInput::make('nama_lumbung')
                                 //     ->readOnly()
@@ -422,9 +403,11 @@ class TransferResource extends Resource implements HasShieldPermissions
                                 //     ->extraAttributes(['class' => 'top-dropdown'])
                                 //     ->visible(fn(Get $get) => $get('status_transfer') === 'MASUK'),
 
-                                Select::make('keterangan') // Gantilah 'tipe' dengan nama field di database
+                                Select::make('keterangan')
                                     ->label('Timbangan ke-')
-                                    ->columnSpan(2)
+                                    ->columnSpan(function (callable $get) {
+                                        return $get('penjualan_id') ? 1 : 2; // Jika penjualan_id ada, columnSpan = 1, jika tidak = 2
+                                    })
                                     ->options([
                                         '1' => 'Timbangan ke-1',
                                         '2' => 'Timbangan ke-2',
@@ -435,9 +418,28 @@ class TransferResource extends Resource implements HasShieldPermissions
                                     ])
                                     ->default(1)
                                     ->placeholder('Pilih timbangan ke-')
-                                    // ->inlineLabel() // Membuat label sebelah kiri
-                                    ->native(false) // Mengunakan dropdown modern
-                                    ->required(), // Opsional: Atur default value
+                                    ->native(false)
+                                    ->required(),
+                                Select::make('silo_id')
+                                    ->label('Silo')
+                                    ->options(function (callable $get) {
+                                        return \App\Models\Silo::where('status', 0) // 0 = buka, 1 = tutup
+                                            ->orderBy('id')
+                                            ->get()
+                                            ->mapWithKeys(function ($silo) {
+                                                return [
+                                                    $silo->id => "{$silo->nama}" // Menampilkan kode dengan status
+                                                ];
+                                            });
+                                    })
+                                    ->searchable()
+                                    ->preload()
+                                    ->columnSpan(1)
+                                    ->nullable()
+                                    ->placeholder('Pilih Kode Silo')
+                                    ->reactive()
+                                    ->visible(fn(callable $get) => filled($get('penjualan_id'))), // Tampil jika penjualan_id ada nilai
+                                // ->visible(fn(Get $get) => $get('tipe') === 'keluar'),
                             ])->columns(4)
                     ]),
                 Hidden::make('user_id')
