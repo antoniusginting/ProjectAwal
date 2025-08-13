@@ -23,7 +23,6 @@ class Transfer extends Model
         'status_transfer',
         'silo',
         'user_id',
-        'silo_masuk',
         'laporan_lumbung_keluar_id',
         'laporan_lumbung_masuk_id',
         'penjualan_id',
