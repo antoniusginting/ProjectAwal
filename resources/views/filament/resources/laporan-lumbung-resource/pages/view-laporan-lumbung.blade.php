@@ -132,22 +132,47 @@
                         </td>
 
                         {{-- Kolom Masuk --}}
-                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                            @if ($itemMasuk)
-                                @if ($itemMasuk->type == 'dryer')
-                                    <a href="{{ route('filament.admin.resources.dryers.view-dryer', $itemMasuk->data->id) }}"
-                                        target="_blank" class="text-blue-600 hover:text-blue-800 underline">
-                                        {{ $itemMasuk->data->no_dryer }} - {{ $itemMasuk->data->tujuan }}
-                                    </a>
-                                @elseif ($itemMasuk->type == 'transfer_masuk')
-                                    <a href="{{ route('filament.admin.resources.transfers.view-transfer', $itemMasuk->data->id) }}"
-                                        target="_blank" class="text-blue-600 hover:text-blue-800 underline">
-                                        {{ $itemMasuk->data->kode ?? 'Transfer' }}</a>
-                                @endif
-                            @else
-                                -
-                            @endif
-                        </td>
+                       <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+    @if ($itemMasuk)
+        @php
+            $itemsToDisplay = [];
+            
+            // Add dryer/transfer info
+            if ($itemMasuk->type == 'dryer' && isset($itemMasuk->data)) {
+                $dryerLink = route('filament.admin.resources.dryers.view-dryer', $itemMasuk->data->id);
+                $dryerText = ($itemMasuk->data->no_dryer ?? 'Dryer') . 
+                            (isset($itemMasuk->data->tujuan) ? ' - ' . $itemMasuk->data->tujuan : '');
+                $itemsToDisplay[] = '<a href="'.$dryerLink.'" target="_blank" class="text-blue-600 hover:text-blue-800 underline">'.$dryerText.'</a>';
+            } 
+            elseif ($itemMasuk->type == 'transfer_masuk' && isset($itemMasuk->data)) {
+                $transferLink = route('filament.admin.resources.transfers.view-transfer', $itemMasuk->data->id);
+                $transferText = $itemMasuk->data->kode ?? 'Transfer';
+                $itemsToDisplay[] = '<a href="'.$transferLink.'" target="_blank" class="text-blue-600 hover:text-blue-800 underline">'.$transferText.'</a>';
+            }
+
+            // Add SPB info (limit to 2)
+            $spbCount = 0;
+            foreach ($penjualanFiltered as $penjualan) {
+                if ($spbCount >= 2) break;
+                if (isset($penjualan->no_spb)) {
+                    $spbLink = route('filament.admin.resources.penjualans.view-penjualan', $penjualan->id);
+                    $itemsToDisplay[] = '<a href="'.$spbLink.'" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 underline">'.$penjualan->no_spb.'</a>';
+                    $spbCount++;
+                }
+            }
+        @endphp
+
+                @if (count($itemsToDisplay) > 0)
+                    @foreach ($itemsToDisplay as $index => $item)
+                        {!! $item !!}@if(!$loop->last), @endif
+                    @endforeach
+                @else
+                    -
+                @endif
+            @else
+                -
+            @endif
+        </td>
 
                         {{-- Kolom Berat Masuk --}}
                         <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
