@@ -145,19 +145,17 @@
                                 $itemsToDisplay[] = '<a href="'.$dryerLink.'" target="_blank" class="text-blue-600 hover:text-blue-800 underline">'.$dryerText.'</a>';
                             } 
                             elseif ($itemMasuk->type == 'transfer_masuk' && isset($itemMasuk->data)) {
-                                // Cek apakah transfer ini memiliki penjualan_id dan SPB
-                                if ($itemMasuk->data->penjualan_id && $itemMasuk->data->penjualan) {
-                                    // Link mengarah ke penjualan, bukan transfer
+                                    // Link mengarah ke penjualan
                                     $penjualanLink = route('filament.admin.resources.penjualans.view-penjualan', $itemMasuk->data->penjualan_id);
-                                    // Tampilkan format: T0001 - SPB_NUMBER
-                                    $transferText = $itemMasuk->data->kode . ' - ' . $itemMasuk->data->penjualan->no_spb;
-                                    $itemsToDisplay[] = '<a href="'.$penjualanLink.'" target="_blank" class="text-blue-600 hover:text-blue-800 underline">'.$transferText.'</a>';
-                                } else {
-                                    // Jika tidak ada SPB, link ke transfer
+                                    // Link mengarah ke transfer
                                     $transferLink = route('filament.admin.resources.transfers.view-transfer', $itemMasuk->data->id);
-                                    $transferText = $itemMasuk->data->kode ?? 'Transfer';
+                                    // Tampilkan spb
+                                    $penjualanText =$itemMasuk->data->penjualan->no_spb ?? '-';
+                                    // Tampilkan kode transfer
+                                    $transferText = $itemMasuk->data->kode ?? '-';
+                                    // Tambahkan link ke daftar
                                     $itemsToDisplay[] = '<a href="'.$transferLink.'" target="_blank" class="text-blue-600 hover:text-blue-800 underline">'.$transferText.'</a>';
-                                }
+                                    $itemsToDisplay[] = '<a href="'.$penjualanLink.'" target="_blank" class="text-blue-600 hover:text-blue-800 underline">'.$penjualanText.'</a>';
                             }
 
 
