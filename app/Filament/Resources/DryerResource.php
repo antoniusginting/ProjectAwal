@@ -355,7 +355,7 @@ class DryerResource extends Resource implements HasShieldPermissions
                                 $kapasitas = $record->kapasitaslumbungbasah ? $record->kapasitaslumbungbasah->no_kapasitas_lumbung : 'N/A';
                                 $noSpb = $record->pembelian ? $record->pembelian->no_spb : 'LANGSIR';
 
-                                return $kapasitas . ' - ' . $noSpb . ' - ' . $noBk . ' - ' . $supplier . ' - ' . $record->netto_bersih;
+                                return $kapasitas . ' - ' . $noSpb . ' - ' . $noBk . ' - ' . $supplier . ' - ' . $record->netto_bersih . ' - ' . $record->created_at->format('d/m/Y');
                             })
                             ->reactive()
                             ->afterStateUpdated(function ($state, callable $set, callable $get, $livewire, $old) {

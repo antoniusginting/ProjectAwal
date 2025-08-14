@@ -138,6 +138,25 @@
                         target="_blank" class="underline">{{ $transfer->silo->nama }}</a>
                 </p>
             </div>
+        @elseif ($transfer->silo_keluar_id)
+            <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div class="flex items-center space-x-2">
+                    <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <h4 class="font-semibold text-blue-800 dark:text-blue-200">Catatan Transfer Antar Silo</h4>
+                </div>
+                <p class="mt-2 text-sm text-blue-700 dark:text-blue-300">
+                    Transfer ini merupakan <strong>langsir antar silo</strong> dari
+                    <a href="{{ route('filament.admin.resources.silos.view-silo', $transfer->siloKeluar->id ?? '') }}"
+                        target="_blank" class="underline">{{ $transfer->siloKeluar->nama }}</a>
+                    ke
+                    <a href="{{ route('filament.admin.resources.silos.view-silo', $transfer->siloMasuk->id ?? '') }}"
+                        target="_blank" class="underline">{{ $transfer->siloMasuk->nama }}</a>
+                </p>
+            </div>
         @endif
 
         <!-- Tanda Tangan -->

@@ -128,7 +128,6 @@ class KapasitasLumbungBasahResource extends Resource implements HasShieldPermiss
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
                     Tables\Actions\BulkAction::make('reset_kapasitas')
                         ->label('Reset Kapasitas')
                         ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
