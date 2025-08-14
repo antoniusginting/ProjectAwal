@@ -13,14 +13,13 @@
             $transferKeluarData = collect();
             if ($silo->transferKeluar) {
                 foreach ($silo->transferKeluar as $transfer) {
-                    // Buat array dengan struktur yang sama dengan penjualan
                     $transferKeluarData->push([
                         'id' => $transfer->id,
                         'no_spb' => $transfer->kode,
                         'netto' => $transfer->netto,
                         'created_at' => $transfer->created_at,
                         'is_transfer' => true,
-                        'transfer_data' => $transfer,
+                        'silo_masuk_nama' => optional($transfer->siloMasuk)->nama ?? 'Tidak Diketahui',
                     ]);
                 }
             }
@@ -33,12 +32,14 @@
                     'netto' => $penjualan->netto,
                     'created_at' => $penjualan->created_at,
                     'is_transfer' => false,
-                    'penjualan_data' => $penjualan,
                 ];
             });
 
             // Gabungkan penjualan dengan transfer keluar
-            $penjualanFiltered = $penjualanArray->merge($transferKeluarData)->sortByDesc('created_at');
+            $penjualanFiltered = $penjualanArray
+                ->concat($transferKeluarData)
+                ->sortByDesc('created_at')
+                ->values();
 
             // Hitung total berat dari penjualan dan transfer keluar yang sudah difilter
             $totalBeratPenjualanFiltered = $penjualanFiltered->sum('netto');
@@ -464,9 +465,8 @@
                             <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                                 @if ($item['is_transfer'])
                                     <span>
-                                        Transfer Keluar Ke {{$transfer->siloMasuk->nama ?? '-'}}
+                                        Transfer Keluar Ke {{ $item['silo_masuk_nama'] }}
                                     </span>
-                                    
                                 @else
                                     <span>
                                         Penjualan
@@ -601,8 +601,12 @@
             const lumbungRows = document.querySelectorAll('.lumbung-row:not(.hidden)');
             const penjualanRows = document.querySelectorAll('.penjualan-row:not(.hidden)');
 
-            document.getElementById('showing-lumbung').textContent = lumbungRows.length;
-            document.getElementById('showing-penjualan').textContent = penjualanRows.length;
+            if (document.getElementById('showing-lumbung')) {
+                document.getElementById('showing-lumbung').textContent = Math.min(lumbungRows.length, 5);
+            }
+            if (document.getElementById('showing-penjualan')) {
+                document.getElementById('showing-penjualan').textContent = Math.min(penjualanRows.length, 5);
+            }
         });
     </script>
 </x-filament-panels::page>
