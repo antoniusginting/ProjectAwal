@@ -95,6 +95,7 @@ class TransferResource extends Resource implements HasShieldPermissions
                             ->schema([
 
                                 Select::make('penjualan_id')
+                                    ->required()
                                     ->label('Ambil dari Timbangan Jual (LANGSIR)')
                                     ->options(function ($livewire) {
                                         // Ambil ID penjualan yang sudah digunakan di model ini
