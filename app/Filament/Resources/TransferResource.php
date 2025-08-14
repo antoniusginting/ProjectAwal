@@ -333,7 +333,15 @@ class TransferResource extends Resource implements HasShieldPermissions
                                             ->preload()
                                             ->columnSpanFull()
                                             ->nullable()
-                                            ->placeholder('Pilih Laporan Lumbung Masuk'),
+                                            ->placeholder('Pilih Laporan Lumbung Masuk')
+                                            ->reactive()
+                                            ->disabled(
+                                                fn(callable $get) =>
+                                                filled($get('silo_id')) ||
+                                                filled($get('silo_keluar_id')) ||
+                                                filled($get('silo_masuk_id')) 
+                                            ),
+
                                         // ->visible(fn(Get $get) => $get('tipe') === 'masuk'),
 
                                         // Select untuk Lumbung Keluar
@@ -433,11 +441,17 @@ class TransferResource extends Resource implements HasShieldPermissions
                                     ->nullable()
                                     ->placeholder('Pilih Kode Silo')
                                     ->reactive()
+                                    ->disabled(
+                                        fn(callable $get) =>
+                                        filled($get('laporan_lumbung_masuk_id')) ||
+                                        filled($get('silo_keluar_id')) ||
+                                        filled($get('silo_masuk_id'))
+                                    )
                                     ->visible(fn(callable $get) => filled($get('penjualan_id'))), // Tampil jika penjualan_id ada nilai
                                 // ->visible(fn(Get $get) => $get('tipe') === 'keluar'),
-                                
+
                             ])->columns(4),
-                            Card::make('Langsir Silo ke Silo')
+                        Card::make('Langsir Silo ke Silo')
                             ->schema([
                                 Grid::make()
                                     ->schema([
@@ -458,6 +472,11 @@ class TransferResource extends Resource implements HasShieldPermissions
                                             ->nullable()
                                             ->placeholder('Pilih Silo Asal')
                                             ->reactive()
+                                            ->disabled(
+                                                fn(callable $get) =>
+                                                filled($get('laporan_lumbung_masuk_id')) ||
+                                                    filled($get('silo_id'))
+                                            )
                                             ->afterStateUpdated(function (callable $set, $state, callable $get) {
                                                 // Jika silo keluar dipilih, pastikan silo masuk tidak sama
                                                 $siloMasukId = $get('silo_masuk_id');
@@ -489,6 +508,11 @@ class TransferResource extends Resource implements HasShieldPermissions
                                             ->nullable()
                                             ->placeholder('Pilih Silo Tujuan')
                                             ->reactive()
+                                            ->disabled(
+                                                fn(callable $get) =>
+                                                filled($get('laporan_lumbung_masuk_id')) ||
+                                                    filled($get('silo_id'))
+                                            )
                                             ->afterStateUpdated(function (callable $set, $state, callable $get) {
                                                 // Jika silo masuk dipilih, pastikan silo keluar tidak sama
                                                 $siloKeluarId = $get('silo_keluar_id');

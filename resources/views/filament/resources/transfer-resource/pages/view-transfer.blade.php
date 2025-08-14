@@ -116,7 +116,7 @@
         </div>
 
         {{-- Catatan Langsir --}}
-        @if ($transfer->penjualan_id)
+        @if ($transfer->silo_id)
             <div
                 class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
                 <div class="flex items-center space-x-2">
@@ -135,7 +135,7 @@
                             target="_blank" class="underline">{{ $transfer->penjualan->no_spb }}</a>
                     @endif
                     ke <a href="{{ route('filament.admin.resources.silos.view-silo', $transfer->silo->id ?? '') }}"
-                        target="_blank" class="underline">{{ $transfer->silo->nama }}</a>
+                        target="_blank" class="underline">{{ $transfer->silo->nama ?? '-' }}</a>
                 </p>
             </div>
         @elseif ($transfer->silo_keluar_id)
@@ -151,10 +151,10 @@
                 <p class="mt-2 text-sm text-blue-700 dark:text-blue-300">
                     Transfer ini merupakan <strong>langsir antar silo</strong> dari
                     <a href="{{ route('filament.admin.resources.silos.view-silo', $transfer->siloKeluar->id ?? '') }}"
-                        target="_blank" class="underline">{{ $transfer->siloKeluar->nama }}</a>
+                        target="_blank" class="underline">{{ $transfer->siloKeluar->nama ?? '-' }}</a>
                     ke
                     <a href="{{ route('filament.admin.resources.silos.view-silo', $transfer->siloMasuk->id ?? '') }}"
-                        target="_blank" class="underline">{{ $transfer->siloMasuk->nama }}</a>
+                        target="_blank" class="underline">{{ $transfer->siloMasuk->nama ?? '-' }}</a>
                 </p>
             </div>
         @endif
