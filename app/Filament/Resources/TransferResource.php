@@ -324,31 +324,6 @@ class TransferResource extends Resource implements HasShieldPermissions
                                                 return LaporanLumbung::where('status', '!=', true)
                                                     ->get()
                                                     ->mapWithKeys(function ($item) {
-                                                        // Jika status_silo ada, tampilkan format "kode - status_silo"
-                                                        // Jika tidak ada, tampilkan hanya kode
-                                                        $label = $item->status_silo
-                                                            ? $item->kode . ' - ' . $item->status_silo . ' - ' . $item->keterangan
-                                                            : $item->kode . ' - ' . $item->lumbung . ' - ' . $item->keterangan;
-
-                                                        return [
-                                                            $item->id => $label
-                                                        ];
-                                                    });
-                                            })
-                                            ->searchable()
-                                            ->preload()
-                                            ->nullable()
-                                            ->placeholder('Pilih Laporan Lumbung Masuk'),
-                                        // ->visible(fn(Get $get) => $get('tipe') === 'masuk'),
-
-                                        // Select untuk Lumbung Keluar
-                                        Select::make('laporan_lumbung_keluar_id')
-                                            ->label('No Lumbung Keluar')
-                                            ->options(function () {
-                                                return LaporanLumbung::whereNull('status_silo')
-                                                    ->where('status', false)
-                                                    ->get()
-                                                    ->mapWithKeys(function ($item) {
                                                         return [
                                                             $item->id => $item->kode . ' - ' . $item->lumbung . ' - ' . $item->keterangan
                                                         ];
@@ -356,8 +331,28 @@ class TransferResource extends Resource implements HasShieldPermissions
                                             })
                                             ->searchable()
                                             ->preload()
+                                            ->columnSpanFull()
                                             ->nullable()
-                                            ->placeholder('Pilih Laporan Lumbung Keluar'),
+                                            ->placeholder('Pilih Laporan Lumbung Masuk'),
+                                        // ->visible(fn(Get $get) => $get('tipe') === 'masuk'),
+
+                                        // Select untuk Lumbung Keluar
+                                        // Select::make('laporan_lumbung_keluar_id')
+                                        //     ->label('No Lumbung Keluar')
+                                        //     ->options(function () {
+                                        //         return LaporanLumbung::whereNull('status_silo')
+                                        //             ->where('status', false)
+                                        //             ->get()
+                                        //             ->mapWithKeys(function ($item) {
+                                        //                 return [
+                                        //                     $item->id => $item->kode . ' - ' . $item->lumbung . ' - ' . $item->keterangan
+                                        //                 ];
+                                        //             });
+                                        //     })
+                                        //     ->searchable()
+                                        //     ->preload()
+                                        //     ->nullable()
+                                        //     ->placeholder('Pilih Laporan Lumbung Keluar'),
                                     ])->columnSpan(2),
 
 
@@ -440,6 +435,10 @@ class TransferResource extends Resource implements HasShieldPermissions
                                     ->reactive()
                                     ->visible(fn(callable $get) => filled($get('penjualan_id'))), // Tampil jika penjualan_id ada nilai
                                 // ->visible(fn(Get $get) => $get('tipe') === 'keluar'),
+                                
+                            ])->columns(4),
+                            Card::make('Langsir Silo ke Silo')
+                            ->schema([
                                 Grid::make()
                                     ->schema([
                                         Select::make('silo_keluar_id')
@@ -498,7 +497,7 @@ class TransferResource extends Resource implements HasShieldPermissions
                                                 }
                                             }),
                                     ])->columnSpan(2),
-                            ])->columns(4)
+                            ])->collapsed(),
                     ]),
                 Hidden::make('user_id')
                     ->label('User ID')
@@ -528,16 +527,16 @@ class TransferResource extends Resource implements HasShieldPermissions
                             ->isoFormat('D MMMM YYYY | HH:mm:ss');
                     }),
 
-                TextColumn::make('laporanLumbungKeluar.kode')
-                    ->default('-')
-                    ->alignCenter()
-                    ->label('No IO Keluar')
-                    ->formatStateUsing(function ($record) {
-                        if ($record->laporanLumbungKeluar) {
-                            return $record->laporanLumbungKeluar->kode . ' - ' . $record->laporanLumbungKeluar->lumbung;
-                        }
-                        return '-';
-                    }),
+                // TextColumn::make('laporanLumbungKeluar.kode')
+                //     ->default('-')
+                //     ->alignCenter()
+                //     ->label('No IO Keluar')
+                //     ->formatStateUsing(function ($record) {
+                //         if ($record->laporanLumbungKeluar) {
+                //             return $record->laporanLumbungKeluar->kode . ' - ' . $record->laporanLumbungKeluar->lumbung;
+                //         }
+                //         return '-';
+                //     }),
                 TextColumn::make('laporanLumbungMasuk.kode')
                     ->default('-')
                     ->alignCenter()

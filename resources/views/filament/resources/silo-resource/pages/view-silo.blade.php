@@ -465,7 +465,11 @@
                             <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                                 @if ($item['is_transfer'])
                                     <span>
-                                        Transfer Keluar Ke {{ $item['silo_masuk_nama'] }}
+                                        Transfer Keluar Ke 
+                                        <a href="{{ route('filament.admin.resources.silos.view-silo', $item['id'] ?? '') }}"
+                                        target="_blank"
+                                        class="text-blue-600 hover:text-blue-800 underline">{{ $item['silo_masuk_nama'] ?? '-' }}
+                                    </a>
                                     </span>
                                 @else
                                     <span>
