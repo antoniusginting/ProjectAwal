@@ -146,7 +146,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
-                    <h4 class="font-semibold text-blue-800 dark:text-blue-200">Catatan Transfer Antar Silo</h4>
+                    <h4 class="font-semibold text-blue-800 dark:text-blue-200">Catatan Langsir Antar Silo</h4>
                 </div>
                 <p class="mt-2 text-sm text-blue-700 dark:text-blue-300">
                     Transfer ini merupakan <strong>langsir antar silo</strong> dari
@@ -155,6 +155,27 @@
                     ke
                     <a href="{{ route('filament.admin.resources.silos.view-silo', $transfer->siloMasuk->id ?? '') }}"
                         target="_blank" class="underline">{{ $transfer->siloMasuk->nama ?? '-' }}</a>
+                </p>
+            </div>
+        @elseif ($transfer->laporan_lumbung_masuk_id)
+            <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+                <div class="flex items-center space-x-2">
+                    <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <h4 class="font-semibold text-green-800 dark:text-green-200">Catatan Langsir Gonian</h4>
+                </div>
+                <p class="mt-2 text-sm text-green-700 dark:text-green-300">
+                    Transfer ini merupakan <strong>langsir gonian</strong> Dari timbangan penjualan
+                    <a href="{{ route('filament.admin.resources.penjualans.view-penjualan', $transfer->penjualan->id ?? '') }}"
+                        target="_blank" class="underline">{{ $transfer->penjualan->no_spb ?? '-' }}</a> Dengan
+                    <a href="{{ route('filament.admin.resources.laporan-lumbungs.view-laporan-lumbung', $transfer->penjualan->laporanLumbung->id ?? '') }}"
+                        target="_blank" class="underline">{{ $transfer->penjualan->laporanLumbung->kode ?? '-' }}</a>
+                    KE
+                    <a href="{{ route('filament.admin.resources.laporan-lumbungs.view-laporan-lumbung', $transfer->laporanLumbungMasuk->id ?? '') }}"
+                        target="_blank" class="underline">{{ $transfer->laporanLumbungMasuk->kode ?? '-' }}
                 </p>
             </div>
         @endif

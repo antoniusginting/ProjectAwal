@@ -209,7 +209,6 @@ class TransferResource extends Resource implements HasShieldPermissions
                                             ->whereNotNull('netto') // Netto tidak boleh null
                                             ->where('bruto', '>', 0) // Bruto harus lebih dari 0
                                             ->where('netto', '>', 0) // Netto harus lebih dari 0
-                                            ->whereNotNull('laporan_lumbung_id') // Laporan lumbung ID tidak boleh null
                                             ->take(50)
                                             ->get()
                                             ->mapWithKeys(function ($penjualan) {
@@ -338,8 +337,8 @@ class TransferResource extends Resource implements HasShieldPermissions
                                             ->disabled(
                                                 fn(callable $get) =>
                                                 filled($get('silo_id')) ||
-                                                filled($get('silo_keluar_id')) ||
-                                                filled($get('silo_masuk_id')) 
+                                                    filled($get('silo_keluar_id')) ||
+                                                    filled($get('silo_masuk_id'))
                                             ),
 
                                         // ->visible(fn(Get $get) => $get('tipe') === 'masuk'),
@@ -444,8 +443,8 @@ class TransferResource extends Resource implements HasShieldPermissions
                                     ->disabled(
                                         fn(callable $get) =>
                                         filled($get('laporan_lumbung_masuk_id')) ||
-                                        filled($get('silo_keluar_id')) ||
-                                        filled($get('silo_masuk_id'))
+                                            filled($get('silo_keluar_id')) ||
+                                            filled($get('silo_masuk_id'))
                                     )
                                     ->visible(fn(callable $get) => filled($get('penjualan_id'))), // Tampil jika penjualan_id ada nilai
                                 // ->visible(fn(Get $get) => $get('tipe') === 'keluar'),
