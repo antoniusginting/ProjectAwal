@@ -128,6 +128,7 @@
                             @if ($itemMasuk && $itemMasuk->type == 'dryer')
                                 {{ $itemMasuk->data->nama_barang }}
                             @elseif ($itemMasuk && $itemMasuk->type == 'transfer_masuk')
+                                LANGSIR GONIAN
                             @endif
                         </td>
 
@@ -145,22 +146,18 @@
                                 $itemsToDisplay[] = '<a href="'.$dryerLink.'" target="_blank" class="text-blue-600 hover:text-blue-800 underline">'.$dryerText.'</a>';
                             } 
                             elseif ($itemMasuk->type == 'transfer_masuk' && isset($itemMasuk->data)) {
-                                // Cek apakah transfer ini memiliki penjualan_id dan SPB
-                                if ($itemMasuk->data->penjualan_id && $itemMasuk->data->penjualan) {
-                                    // Link mengarah ke penjualan, bukan transfer
+                                    // Link mengarah ke penjualan
                                     $penjualanLink = route('filament.admin.resources.penjualans.view-penjualan', $itemMasuk->data->penjualan_id);
-                                    // Tampilkan format: T0001 - SPB_NUMBER
-                                    $transferText = $itemMasuk->data->kode . ' - ' . $itemMasuk->data->penjualan->no_spb;
-                                    $itemsToDisplay[] = '<a href="'.$penjualanLink.'" target="_blank" class="text-blue-600 hover:text-blue-800 underline">'.$transferText.'</a>';
-                                } else {
-                                    // Jika tidak ada SPB, link ke transfer
+                                    // Link mengarah ke transfer
                                     $transferLink = route('filament.admin.resources.transfers.view-transfer', $itemMasuk->data->id);
-                                    $transferText = $itemMasuk->data->kode ?? 'Transfer';
+                                    // Tampilkan spb
+                                    $penjualanText =$itemMasuk->data->penjualan->no_spb ?? '-';
+                                    // Tampilkan kode transfer
+                                    $transferText = $itemMasuk->data->kode ?? '-';
+                                    // Tambahkan link ke daftar
                                     $itemsToDisplay[] = '<a href="'.$transferLink.'" target="_blank" class="text-blue-600 hover:text-blue-800 underline">'.$transferText.'</a>';
-                                }
+                                    $itemsToDisplay[] = '<a href="'.$penjualanLink.'" target="_blank" class="text-blue-600 hover:text-blue-800 underline">'.$penjualanText.'</a>';
                             }
-
-
                         @endphp
 
                         @if (count($itemsToDisplay) > 0)
@@ -237,7 +234,14 @@
             @php
                 $totalMasuk = $dryers->sum('total_netto') + $transferMasuk->sum('netto');
                 $totalKeluar = $totalNettoPenjualansBaru + $totalTransferKeluar;
-                $persentaseKeluar = $totalMasuk > 0 ? ($totalKeluar / $totalMasuk) * 100 : 0;
+                
+                // PERBAIKAN LOGIKA: Persentase HANYA dihitung ketika status = true (lumbung ditutup)
+                $persentaseKeluar = 0;
+                
+                // Hanya hitung persentase jika lumbung sudah ditutup (status = true)
+                if ($laporanlumbung->status == true && $totalMasuk > 0) {
+                    $persentaseKeluar = ($totalKeluar / $totalMasuk) * 100;
+                }
             @endphp
 
             <tfoot>
@@ -253,13 +257,42 @@
                         {{ number_format($totalKeluar, 0, ',', '.') }}
                     </td>
                     <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                        @if ($laporanlumbung->lumbung && $laporanlumbung->status)
+                        {{-- PERBAIKAN: Persentase HANYA tampil ketika status = true (lumbung ditutup) --}}
+                        @if ($laporanlumbung->status == true)
                             {{ number_format($persentaseKeluar, 2) }}%
+                        @else
+                            -
                         @endif
                     </td>
                 </tr>
             </tfoot>
         </table>
+
+        {{-- Status Badge - Menampilkan status lumbung --}}
+        <div class="mt-4">
+            @if ($laporanlumbung->status == true)
+                <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    Lumbung Ditutup - Persentase Final: {{ number_format($persentaseKeluar, 2) }}%
+                </div>
+            @elseif ($transferMasuk->count() > 0)
+                <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    Lumbung Aktif dengan Langsir Gonian - Tutup untuk melihat persentase final
+                </div>
+            @else
+                <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                    </svg>
+                    Lumbung Aktif - Tutup untuk melihat persentase final
+                </div>
+            @endif
+        </div>
 
         {{-- Keterangan --}}
         <div class="mt-6">
