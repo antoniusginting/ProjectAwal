@@ -104,7 +104,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                             ->native(false)
                                             ->columnSpan(1)
                                             ->options(function () {
-                                                $lumbungList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'FIKTIF', 'LANTAI DALAM', 'SILO 2500'];
+                                                $lumbungList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'FIKTIF', 'LANTAI DALAM', 'SILO 2500', 'LANGSIR GONIAN'];
                                                 $availableOptions = [];
 
                                                 // Cek apakah sedang dalam mode edit
@@ -138,6 +138,8 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                                                 $availableOptions[$lumbungCode] = "{$lumbungCode} ";
                                                             } elseif ($lumbungCode === 'LANTAI DALAM') {
                                                                 $availableOptions[$lumbungCode] = "Lantai Dalam ";
+                                                            } elseif ($lumbungCode === 'LANGSIR GONIAN') {
+                                                                $availableOptions[$lumbungCode] = "Langsir Gonian ";
                                                             } else {
                                                                 $availableOptions[$lumbungCode] = "Lumbung {$lumbungCode} ";
                                                             }
@@ -147,11 +149,13 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                                     }
 
                                                     // Jika tidak ada record dengan status 0, lumbung bisa dipilih
-                                                    // Format label berbeda untuk silo dan lantai dalam
+                                                    // Format label berbeda untuk silo, lantai dalam, dan langsir gonian
                                                     if (str_starts_with($lumbungCode, 'SILO')) {
                                                         $availableOptions[$lumbungCode] = $lumbungCode;
                                                     } elseif ($lumbungCode === 'LANTAI DALAM') {
                                                         $availableOptions[$lumbungCode] = "Lantai Dalam";
+                                                    } elseif ($lumbungCode === 'LANGSIR GONIAN') {
+                                                        $availableOptions[$lumbungCode] = "Langsir Gonian";
                                                     } else {
                                                         $availableOptions[$lumbungCode] = "Lumbung {$lumbungCode}";
                                                     }
@@ -196,7 +200,6 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                                 return null;
                                             })
                                             ->placeholder('Pilih Lumbung (opsional)')
-                                            // ->helperText('Hanya lumbung yang semua recordnya berstatus terbuka (1) yang dapat dipilih')
                                             ->reactive(), // Agar bisa update otomatis jika ada perubahan
                                         Select::make('silo_id')
                                             ->label('Kode')

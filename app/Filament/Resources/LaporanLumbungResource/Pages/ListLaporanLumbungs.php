@@ -179,6 +179,20 @@ class ListLaporanLumbungs extends ListRecords
                 return $query->where('lumbung', 'LANTAI DALAM');
             });
 
+        // Tab khusus untuk LANGSIR GONIAN
+        $latestRecordLangsirGonian = LaporanLumbung::where('lumbung', 'LANGSIR GONIAN')
+            ->latest('created_at')
+            ->first();
+
+        $badgeInfoLangsirGonian = $this->getBadgeInfo($latestRecordLangsirGonian);
+
+        $tabs['langsir_gonian'] = Tab::make('LANGSIR GONIAN')
+            ->badge($badgeInfoLangsirGonian['icon'])
+            ->badgeColor($badgeInfoLangsirGonian['color'])
+            ->modifyQueryUsing(function (Builder $query) {
+                return $query->where('lumbung', 'LANGSIR GONIAN');
+            });
+
         return $tabs;
     }
 
@@ -221,8 +235,8 @@ class ListLaporanLumbungs extends ListRecords
             return false;
         }
 
-        // Tab untuk Lumbung A-I, FIKTIF, dan LANTAI DALAM - TIDAK BISA TAMBAH DATA
-        if (str_starts_with($activeTab, 'lumbung_') || $activeTab === 'lantai_dalam') {
+        // Tab untuk Lumbung A-I, FIKTIF, LANTAI DALAM, dan LANGSIR GONIAN - TIDAK BISA TAMBAH DATA
+        if (str_starts_with($activeTab, 'lumbung_') || $activeTab === 'lantai_dalam' || $activeTab === 'langsir_gonian') {
             return false;
         }
 
@@ -276,9 +290,11 @@ class ListLaporanLumbungs extends ListRecords
                 ->danger()
                 ->duration(5000)
                 ->send();
-        } elseif (str_starts_with($activeTab, 'lumbung_') || $activeTab === 'lantai_dalam') {
-            $lumbungCode = $activeTab === 'lantai_dalam' ? 'LANTAI DALAM' : strtoupper(str_replace('lumbung_', '', $activeTab));
-            $lumbungName = $lumbungCode === 'FIKTIF' ? 'FIKTIF' : ($lumbungCode === 'LANTAI DALAM' ? 'LANTAI DALAM' : $lumbungCode);
+        } elseif (str_starts_with($activeTab, 'lumbung_') || $activeTab === 'lantai_dalam' || $activeTab === 'langsir_gonian') {
+            $lumbungCode = $activeTab === 'lantai_dalam' ? 'LANTAI DALAM' : ($activeTab === 'langsir_gonian' ? 'LANGSIR GONIAN' :
+                strtoupper(str_replace('lumbung_', '', $activeTab)));
+
+            $lumbungName = $lumbungCode === 'FIKTIF' ? 'FIKTIF' : ($lumbungCode === 'LANTAI DALAM' ? 'LANTAI DALAM' : ($lumbungCode === 'LANGSIR GONIAN' ? 'LANGSIR GONIAN' : $lumbungCode));
 
             Notification::make()
                 ->title('Tidak dapat menambah data')
@@ -334,6 +350,11 @@ class ListLaporanLumbungs extends ListRecords
         // Untuk tab LANTAI DALAM
         if ($activeTab === 'lantai_dalam') {
             return 'LANTAI DALAM';
+        }
+
+        // Untuk tab LANGSIR GONIAN
+        if ($activeTab === 'langsir_gonian') {
+            return 'LANGSIR GONIAN';
         }
 
         // Untuk tab silo, return nilai lumbung yang sesuai
