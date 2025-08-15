@@ -479,6 +479,7 @@ class PembelianResource extends Resource implements HasShieldPermissions
             })
             ->query(Pembelian::query())
             ->defaultPaginationPageOption(10)
+            ->paginated([5, 10, 15, 50])
             ->columns([
                 BadgeColumn::make('created_at')
                     ->label('Tanggal')

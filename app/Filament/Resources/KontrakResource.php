@@ -64,6 +64,7 @@ class KontrakResource extends Resource implements HasShieldPermissions
     public static function table(Table $table): Table
     {
         return $table
+            ->paginated([5, 10, 15, 50])
             ->columns([
                 TextColumn::make('No')
                     ->label('No')

@@ -503,6 +503,7 @@ class DryerResource extends Resource implements HasShieldPermissions
                 return null;
             })
             ->defaultPaginationPageOption(10)
+            ->paginated([5, 10, 15, 50])
             ->defaultSort('no_dryer', 'desc')
             ->columns([
                 BadgeColumn::make('created_at')

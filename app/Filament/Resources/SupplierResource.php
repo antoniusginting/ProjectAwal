@@ -133,6 +133,7 @@ class SupplierResource extends Resource implements HasShieldPermissions
     {
         return $table
             ->defaultPaginationPageOption(5)
+            ->paginated([5, 10, 15, 50])
             ->columns([
                 // Kalau mau buat border di tabel ->extraAttributes(['style' => 'border-right: 1px solid #ddd;'])
                 TextColumn::make('No')

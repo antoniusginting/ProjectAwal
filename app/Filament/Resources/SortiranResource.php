@@ -120,9 +120,10 @@ class SortiranResource extends Resource implements HasShieldPermissions
                                                 'JG TUNGKUL',
                                                 'SAMPAH',
                                                 'ABU JAGUNG',
+                                                'KOMPOS',
                                                 'DEDAK'
                                             ])
-                                            ->whereNotBetween(DB::raw('DATE(created_at)'), ['2025-08-01', '2025-08-07'])
+                                            ->whereNotBetween(DB::raw('DATE(created_at)'), ['2025-08-01', '2025-08-09'])
                                             ->latest();
 
                                         // Pastikan data yang sedang dipilih (saat edit) tetap ada
@@ -891,7 +892,7 @@ class SortiranResource extends Resource implements HasShieldPermissions
         return $table
             ->poll('5s') // polling ulang setiap 5 detik
             ->defaultPaginationPageOption(5)
-            // ->paginated([5, 10, 15])
+            ->paginated([5, 10, 15, 50])
             ->columns([
                 // ToggleColumn::make('statuss')
                 //     ->label('Status')

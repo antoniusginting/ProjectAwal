@@ -437,6 +437,7 @@ class PenjualanResource extends Resource implements HasShieldPermissions
             })
             ->query(Penjualan::query())
             ->defaultPaginationPageOption(10)
+            ->paginated([5, 10, 15, 50])
             ->columns([
                 BadgeColumn::make('created_at')
                     ->label('Tanggal')

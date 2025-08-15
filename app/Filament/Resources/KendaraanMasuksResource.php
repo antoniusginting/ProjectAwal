@@ -286,6 +286,7 @@ class KendaraanMasuksResource extends Resource implements HasShieldPermissions
                 return null;
             })
             ->defaultPaginationPageOption(10)
+            ->paginated([5, 10, 15, 50])
             ->columns([
                 // IconColumn::make('status_selesai')
                 //     ->label('')

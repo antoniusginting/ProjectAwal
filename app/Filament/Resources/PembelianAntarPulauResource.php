@@ -124,6 +124,7 @@ class PembelianAntarPulauResource extends Resource implements HasShieldPermissio
     public static function table(Table $table): Table
     {
         return $table
+            ->paginated([5, 10, 15, 50])
             ->columns([
                 BadgeColumn::make('created_at')
                     ->label('Tanggal')

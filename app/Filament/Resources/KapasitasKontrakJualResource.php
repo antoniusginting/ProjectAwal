@@ -88,6 +88,7 @@ class KapasitasKontrakJualResource extends Resource implements HasShieldPermissi
     public static function table(Table $table): Table
     {
         return $table
+            ->paginated([5, 10, 15, 50])
             ->columns([
                 BadgeColumn::make('created_at')
                     ->label('Tanggal')

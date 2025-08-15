@@ -395,6 +395,7 @@ class TransferResource extends Resource implements HasShieldPermissions
     {
         return $table
             ->defaultPaginationPageOption(10)
+            ->paginated([5, 10, 15, 50])
             ->columns([
                 BadgeColumn::make('created_at')
                     ->label('Tanggal')

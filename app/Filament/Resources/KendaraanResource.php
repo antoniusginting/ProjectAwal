@@ -104,6 +104,7 @@ class KendaraanResource extends Resource implements HasShieldPermissions
             //         ? null
             //         : EditKendaraan::getUrl(['record' => $record])
             // )
+            ->paginated([5, 10, 15, 50])
             ->columns([
                 TextColumn::make('No')
                     ->label('No')

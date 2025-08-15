@@ -304,7 +304,7 @@ class PenjualanAntarPulauResource extends Resource implements HasShieldPermissio
                 ->formatStateUsing(fn($state) => number_format($state, 0, ',', '.')),
 
             TextColumn::make('user.name')->label('User'),
-        ])
+        ])->paginated([5, 10, 15, 50])
             ->defaultSort('kode', 'desc')
             ->filters([
                 Filter::make('date_range')

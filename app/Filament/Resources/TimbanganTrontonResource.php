@@ -1339,7 +1339,7 @@ class TimbanganTrontonResource extends Resource implements HasShieldPermissions
                 // 4) Role lainnya tidak bisa edit
                 return null;
             })
-
+            ->paginated([5, 10, 15, 50])
             ->columns([
                 ToggleColumn::make('status')
                     ->label('Status Audit')

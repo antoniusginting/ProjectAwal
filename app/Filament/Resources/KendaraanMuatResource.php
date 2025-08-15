@@ -220,6 +220,7 @@ class KendaraanMuatResource extends Resource implements HasShieldPermissions
                 }
                 return null;
             })
+            ->paginated([5, 10, 15, 50])
             ->columns([
                 IconColumn::make('status')
                     ->label('')
