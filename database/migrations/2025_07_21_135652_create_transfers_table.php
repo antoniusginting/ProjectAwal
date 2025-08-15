@@ -31,17 +31,8 @@ return new class extends Migration
                 $table->foreignId('laporan_lumbung_masuk_id')->nullable()->constrained('laporan_lumbungs')->onDelete('cascade');
                 $table->foreignId('penjualan_id')->nullable()->constrained('penjualans')->onDelete('cascade');
                 $table->foreignId('silo_id')->nullable()->constrained('silos')->onDelete('cascade');
-                $table->foreignId('silo_masuk_id')
-                    ->nullable()
-                    ->after('silo_id')
-                    ->constrained('silos')
-                    ->onDelete('set null');
-
-                $table->foreignId('silo_keluar_id')
-                    ->nullable()
-                    ->after('silo_masuk_id')
-                    ->constrained('silos')
-                    ->onDelete('set null');
+                $table->foreignId('silo_masuk_id')->nullable()->constrained('silos')->onDelete('set null');
+                $table->foreignId('silo_keluar_id')->nullable()->constrained('silos')->onDelete('set null');
             });
         }
     }
