@@ -116,6 +116,7 @@ class TransferResource extends Resource implements HasShieldPermissions
                                             ->whereNotNull('netto') // Netto tidak boleh null
                                             ->where('bruto', '>', 0) // Bruto harus lebih dari 0
                                             ->where('netto', '>', 0) // Netto harus lebih dari 0
+                                            ->whereNull('silo_id') // Silo ID harus null
                                             ->take(50)
                                             ->get()
                                             ->mapWithKeys(function ($penjualan) {
@@ -245,13 +246,9 @@ class TransferResource extends Resource implements HasShieldPermissions
                                             }),
 
                                     ])->columnSpan(2),
-
-
                                 Select::make('keterangan')
                                     ->label('Timbangan ke-')
-                                    ->columnSpan(function (callable $get) {
-                                        return $get('penjualan_id') ? 1 : 2; // Jika penjualan_id ada, columnSpan = 1, jika tidak = 2
-                                    })
+                                    ->columnSpan(1)
                                     ->options([
                                         '1' => 'Timbangan ke-1',
                                         '2' => 'Timbangan ke-2',
@@ -289,7 +286,6 @@ class TransferResource extends Resource implements HasShieldPermissions
                                             filled($get('silo_masuk_id'))
                                     )
                                     ->dehydrated()  // PENTING: Ini memaksa field disabled tetap terkirim
-                                    ->visible(fn(callable $get) => filled($get('penjualan_id')))
                                     ->afterStateUpdated(function (callable $set, $state) {
                                         if (filled($state)) {
                                             $set('laporan_lumbung_masuk_id', null);

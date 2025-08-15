@@ -146,9 +146,9 @@
                             } 
                             elseif ($itemMasuk->type == 'transfer_masuk' && isset($itemMasuk->data)) {
                                     // Link mengarah ke penjualan
-                                    $penjualanLink = route('filament.admin.resources.penjualans.view-penjualan', $itemMasuk->data->penjualan_id);
+                                    $penjualanLink = route('filament.admin.resources.penjualans.view-penjualan', $itemMasuk->data->penjualan_id ?? '-');
                                     // Link mengarah ke transfer
-                                    $transferLink = route('filament.admin.resources.transfers.view-transfer', $itemMasuk->data->id);
+                                    $transferLink = route('filament.admin.resources.transfers.view-transfer', $itemMasuk->data->id ?? '-');
                                     // Tampilkan spb
                                     $penjualanText =$itemMasuk->data->penjualan->no_spb ?? '-';
                                     // Tampilkan kode transfer
