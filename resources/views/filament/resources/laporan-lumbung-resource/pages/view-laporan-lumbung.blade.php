@@ -120,56 +120,56 @@
                     <tr>
                         {{-- Kolom Tanggal --}}
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                            {{($itemKeluar?->created_at->format('d-m') ?: '') }}
+                            {{ ($itemMasuk?->created_at->format('d-m') ?? $itemKeluar?->created_at->format('d-m')) ?: '' }}
                         </td>
 
                         {{-- Kolom Jenis --}}
-                      <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
                             @if ($itemMasuk)
-                                {{-- PERBAIKAN: Menampilkan nama barang untuk semua jenis data masuk --}}
+                                {{-- Menampilkan nama barang untuk semua jenis data masuk --}}
                                 {{ $itemMasuk->data->nama_barang ?? '' }}
                             @endif
                         </td>
 
-                {{-- Kolom Masuk --}}
-                <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                    @if ($itemMasuk)
-                        @php
-                            $itemsToDisplay = [];
-                            
-                            // Add dryer/transfer info
-                            if ($itemMasuk->type == 'dryer' && isset($itemMasuk->data)) {
-                                $dryerLink = route('filament.admin.resources.dryers.view-dryer', $itemMasuk->data->id);
-                                $dryerText = ($itemMasuk->data->no_dryer ?? 'Dryer') . 
-                                            (isset($itemMasuk->data->tujuan) ? ' - ' . $itemMasuk->data->tujuan : '');
-                                $itemsToDisplay[] = '<a href="'.$dryerLink.'" target="_blank" class="text-blue-600 hover:text-blue-800 underline">'.$dryerText.'</a>';
-                            } 
-                            elseif ($itemMasuk->type == 'transfer_masuk' && isset($itemMasuk->data)) {
-                                    // Link mengarah ke penjualan
-                                    $penjualanLink = route('filament.admin.resources.penjualans.view-penjualan', $itemMasuk->data->penjualan_id);
-                                    // Link mengarah ke transfer
-                                    $transferLink = route('filament.admin.resources.transfers.view-transfer', $itemMasuk->data->id);
-                                    // Tampilkan spb
-                                    $penjualanText =$itemMasuk->data->penjualan->no_spb ?? '-';
-                                    // Tampilkan kode transfer
-                                    $transferText = $itemMasuk->data->kode ?? '-';
-                                    // Tambahkan link ke daftar
-                                    $itemsToDisplay[] = '<a href="'.$transferLink.'" target="_blank" class="text-blue-600 hover:text-blue-800 underline">'.$transferText.'</a>';
-                                    $itemsToDisplay[] = '<a href="'.$penjualanLink.'" target="_blank" class="text-blue-600 hover:text-blue-800 underline">'.$penjualanText.'</a>';
-                            }
-                        @endphp
+                        {{-- Kolom Masuk --}}
+                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                            @if ($itemMasuk)
+                                @php
+                                    $itemsToDisplay = [];
+                                    
+                                    // Add dryer/transfer info
+                                    if ($itemMasuk->type == 'dryer' && isset($itemMasuk->data)) {
+                                        $dryerLink = route('filament.admin.resources.dryers.view-dryer', $itemMasuk->data->id);
+                                        $dryerText = ($itemMasuk->data->no_dryer ?? 'Dryer') . 
+                                                    (isset($itemMasuk->data->tujuan) ? ' - ' . $itemMasuk->data->tujuan : '');
+                                        $itemsToDisplay[] = '<a href="'.$dryerLink.'" target="_blank" class="text-blue-600 hover:text-blue-800 underline">'.$dryerText.'</a>';
+                                    } 
+                                    elseif ($itemMasuk->type == 'transfer_masuk' && isset($itemMasuk->data)) {
+                                        // Link mengarah ke penjualan
+                                        $penjualanLink = route('filament.admin.resources.penjualans.view-penjualan', $itemMasuk->data->penjualan_id);
+                                        // Link mengarah ke transfer
+                                        $transferLink = route('filament.admin.resources.transfers.view-transfer', $itemMasuk->data->id);
+                                        // Tampilkan spb
+                                        $penjualanText = $itemMasuk->data->penjualan->no_spb ?? '-';
+                                        // Tampilkan kode transfer
+                                        $transferText = $itemMasuk->data->kode ?? '-';
+                                        // Tambahkan link ke daftar
+                                        $itemsToDisplay[] = '<a href="'.$transferLink.'" target="_blank" class="text-blue-600 hover:text-blue-800 underline">'.$transferText.'</a>';
+                                        $itemsToDisplay[] = '<a href="'.$penjualanLink.'" target="_blank" class="text-blue-600 hover:text-blue-800 underline">'.$penjualanText.'</a>';
+                                    }
+                                @endphp
 
-                        @if (count($itemsToDisplay) > 0)
-                            @foreach ($itemsToDisplay as $index => $item)
-                                {!! $item !!}@if(!$loop->last), @endif
-                            @endforeach
-                        @else
-                            -
-                        @endif
-                    @else
-                        -
-                    @endif
-                </td>
+                                @if (count($itemsToDisplay) > 0)
+                                    @foreach ($itemsToDisplay as $index => $item)
+                                        {!! $item !!}@if(!$loop->last), @endif
+                                    @endforeach
+                                @else
+                                    -
+                                @endif
+                            @else
+                                -
+                            @endif
+                        </td>
 
                         {{-- Kolom Berat Masuk --}}
                         <td class="border p-2 text-right border-gray-300 dark:border-gray-700 text-sm">
@@ -217,7 +217,15 @@
 
                         {{-- Kolom Penanggung Jawab --}}
                         <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                            @if ($itemKeluar)
+                            @if ($itemMasuk)
+                                {{-- Tampilkan PJ untuk data masuk --}}
+                                @if ($itemMasuk->type == 'dryer')
+                                    {{ $itemMasuk->data->user->name ?? '' }}
+                                @elseif ($itemMasuk->type == 'transfer_masuk')
+                                    {{ $itemMasuk->data->user->name ?? '' }}
+                                @endif
+                            @elseif ($itemKeluar)
+                                {{-- Tampilkan PJ untuk data keluar --}}
                                 @if ($itemKeluar->type == 'penjualan')
                                     {{ $itemKeluar->data->user->name ?? '' }}
                                 @elseif ($itemKeluar->type == 'transfer_keluar')
@@ -234,7 +242,7 @@
                 $totalMasuk = $dryers->sum('total_netto') + $transferMasuk->sum('netto');
                 $totalKeluar = $totalNettoPenjualansBaru + $totalTransferKeluar;
                 
-                // PERBAIKAN LOGIKA: Persentase HANYA dihitung ketika status = true (lumbung ditutup)
+                // Persentase HANYA dihitung ketika status = true (lumbung ditutup)
                 $persentaseKeluar = 0;
                 
                 // Hanya hitung persentase jika lumbung sudah ditutup (status = true)
@@ -256,7 +264,7 @@
                         {{ number_format($totalKeluar, 0, ',', '.') }}
                     </td>
                     <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                        {{-- PERBAIKAN: Persentase HANYA tampil ketika status = true (lumbung ditutup) --}}
+                        {{-- Persentase HANYA tampil ketika status = true (lumbung ditutup) --}}
                         @if ($laporanlumbung->status == true)
                             {{ number_format($persentaseKeluar, 2) }}%
                         @else
