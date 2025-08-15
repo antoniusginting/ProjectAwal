@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LaporanLumbung extends Model
 {
@@ -18,205 +18,251 @@ class LaporanLumbung extends Model
         "keterangan",
     ];
 
-    // Relasi ke silo
-    public function silos()
+    protected $casts = [
+        'status' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
+
+    /**
+     * Relasi ke Silo
+     */
+    public function silos(): BelongsTo
     {
         return $this->belongsTo(Silo::class, 'silo_id');
     }
 
-    public function dryers()
+    /**
+     * Relasi ke User
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Relasi ke Dryers (Data Masuk)
+     */
+    public function dryers(): HasMany
     {
         return $this->hasMany(Dryer::class);
     }
-    public function penjualans()
+
+    /**
+     * Relasi ke Penjualans (Data Keluar)
+     */
+    public function penjualans(): HasMany
     {
         return $this->hasMany(Penjualan::class);
     }
 
-    // public function timbanganTrontons(): BelongsToMany
-    // {
-    //     return $this->belongsToMany(TimbanganTronton::class, 'laporan_lb_has_timbangant')
-    //         ->withTimestamps();
-    // }
-
-    // Transfer yang keluar dari lumbung ini (lumbung sebagai asal)
+    /**
+     * Transfer yang keluar dari lumbung ini (lumbung sebagai asal)
+     */
     public function transferKeluar(): HasMany
     {
         return $this->hasMany(Transfer::class, 'laporan_lumbung_keluar_id');
     }
 
-    // Transfer yang masuk ke lumbung ini (lumbung sebagai tujuan)
+    /**
+     * Transfer yang masuk ke lumbung ini (lumbung sebagai tujuan) - LANGSIR GONIAN
+     */
     public function transferMasuk(): HasMany
     {
         return $this->hasMany(Transfer::class, 'laporan_lumbung_masuk_id');
     }
 
-    // Untuk penjualan masuk
-    // public function penjualanMasuk(): BelongsToMany
-    // {
-    //     return $this->belongsToMany(Penjualan::class, 'laporan_lumbungs_has_penjualans')
-    //         ->withPivot('tipe_penjualan')
-    //         ->wherePivot('tipe_penjualan', 'masuk')
-    //         ->withTimestamps();
-    // }
 
-    // // Untuk penjualan keluar
-    // public function penjualanKeluar(): BelongsToMany
-    // {
-    //     return $this->belongsToMany(Penjualan::class, 'laporan_lumbungs_has_penjualans')
-    //         ->withPivot('tipe_penjualan')
-    //         ->wherePivot('tipe_penjualan', 'keluar')
-    //         ->withTimestamps();
-    // }
-
-    // Tetap bisa pakai yang general
-    // public function penjualans(): BelongsToMany
-    // {
-    //     return $this->belongsToMany(Penjualan::class, 'laporan_lumbungs_has_penjualans')
-    //         ->withPivot('tipe_penjualan')
-    //         ->withTimestamps();
-    // }
-
-
-    // public function penjualans(): BelongsToMany
-    // {
-    //     return $this->belongsToMany(Penjualan::class, 'laporan_lumbungs_has_penjualans')
-    //         ->withTimestamps();
-    // }
-    // Relasi ke User
-    public function user()
+    /**
+     * Accessor untuk mendapatkan kode laporan dengan format yang konsisten
+     */
+    public function getKodeAttribute()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->attributes['kode'] ?? 'IO-' . str_pad($this->id, 4, '0', STR_PAD_LEFT);
     }
 
-    // Di model LaporanLumbung
-    public function getPersentaseKeluarAttribute()
+
+    /**
+     * Hitung total berat masuk (Dryers + Transfer Masuk/Langsir Gonian)
+     */
+    public function getTotalMasukAttribute(): int
     {
-        $dryers = $this->dryers->values();
-        $transferMasuk = $this->transferMasuk->values();
-        $penjualanFiltered = $this->penjualans->filter(fn($p) => !empty($p->no_spb));
-        $transferKeluar = $this->transferKeluar->values();
+        $totalDryers = $this->dryers->sum('total_netto') ?? 0;
+        $totalTransferMasuk = $this->transferMasuk->sum('netto') ?? 0;
 
-        $totalMasuk = $dryers->sum('total_netto') + $transferMasuk->sum('netto');
-        $totalKeluar = $penjualanFiltered->sum('netto') + $transferKeluar->sum('netto');
-
-        return $totalMasuk > 0 ? ($totalKeluar / $totalMasuk) * 100 : 0;
+        return $totalDryers + $totalTransferMasuk;
     }
 
-    // RELASI KE MANY TO MANY
-    // public function dryers(): BelongsToMany
-    // {
-    //     return $this->belongsToMany(Dryer::class, 'laporan_lumbung_has_dryers', 'laporan_lumbung_id', 'dryer_id')
-    //         ->withTimestamps();
-    // }
+    /**
+     * Hitung total berat keluar (Penjualans + Transfer Keluar)
+     */
+    public function getTotalKeluarAttribute(): int
+    {
+        $totalPenjualan = $this->penjualans
+            ->filter(fn($p) => !empty($p->no_spb))
+            ->sum('netto') ?? 0;
 
-    // // Property untuk menyimpan dryer IDs sebelum update
-    // protected $originalDryerIds = null;
+        $totalTransferKeluar = $this->transferKeluar->sum('netto') ?? 0;
 
-    // protected static function booted()
-    // {
-    //     // Event sebelum update - simpan data lama
-    //     static::updating(function ($laporanLumbung) {
-    //         // Simpan dryer IDs yang lama sebelum update
-    //         $laporanLumbung->originalDryerIds = $laporanLumbung->dryers()->pluck('dryers.id')->toArray();
-    //     });
+        return $totalPenjualan + $totalTransferKeluar;
+    }
 
-    //     // Event setelah model dan relasi disimpan
-    //     static::saved(function ($laporanLumbung) {
-    //         // Untuk create, tidak perlu rollback
-    //         if ($laporanLumbung->wasRecentlyCreated) {
-    //             return;
-    //         }
-    //     });
+    /**
+     * Hitung persentase keluar - HANYA ketika status = true (ditutup)
+     * Logika diperbaiki: persentase HANYA muncul ketika lumbung ditutup
+     */
+    public function getPersentaseKeluarAttribute(): float
+    {
+        // Persentase HANYA dihitung jika status = true (lumbung ditutup)
+        if ($this->status !== true) {
+            return 0;
+        }
 
-    //     // Event ketika record dihapus
-    //     static::deleting(function ($laporanLumbung) {
-    //         static::rollbackKapasitasDryer($laporanLumbung);
-    //     });
-    // }
+        $totalMasuk = $this->total_masuk;
+        $totalKeluar = $this->total_keluar;
 
-    // // Method yang dipanggil dari Resource setelah relasi disimpan
-    // public function updateKapasitasDryerAfterSync($newDryerIds = null)
-    // {
-    //     // Jika tidak ada dryer IDs baru yang diberikan, ambil dari relasi
-    //     if ($newDryerIds === null) {
-    //         $newDryerIds = $this->dryers()->pluck('dryers.id')->toArray();
-    //     }
+        // Jika tidak ada data masuk, return 0
+        if ($totalMasuk <= 0) {
+            return 0;
+        }
 
-    //     // Untuk create, langsung tambahkan kapasitas
-    //     if ($this->wasRecentlyCreated) {
-    //         $this->updateNewDryers($newDryerIds);
-    //         return;
-    //     }
+        return ($totalKeluar / $totalMasuk) * 100;
+    }
 
-    //     // Untuk update, hanya rollback dan update yang berbeda
-    //     if ($this->originalDryerIds !== null) {
-    //         $oldDryerIds = $this->originalDryerIds;
+    /**
+     * Check apakah persentase harus ditampilkan
+     * HANYA tampilkan jika status = true (lumbung ditutup)
+     */
+    public function getShouldShowPercentageAttribute(): bool
+    {
+        return $this->status === true;
+    }
 
-    //         // Dryer yang dihapus (ada di lama, tidak ada di baru)
-    //         $removedDryerIds = array_diff($oldDryerIds, $newDryerIds);
+    /**
+     * Check apakah ada langsir gonian aktif
+     */
+    public function getHasLangsirGonianAttribute(): bool
+    {
+        return $this->transferMasuk->count() > 0;
+    }
 
-    //         // Dryer yang ditambah (ada di baru, tidak ada di lama)
-    //         $addedDryerIds = array_diff($newDryerIds, $oldDryerIds);
+    /**
+     * Get status text untuk display
+     */
+    public function getStatusTextAttribute(): string
+    {
+        if ($this->status === true) {
+            return 'Ditutup';
+        }
 
-    //         // Rollback hanya dryer yang dihapus
-    //         if (!empty($removedDryerIds)) {
-    //             $this->rollbackOldDryers($removedDryerIds);
-    //         }
+        if ($this->has_langsir_gonian) {
+            return 'Aktif (Langsir Gonian)';
+        }
 
-    //         // Update hanya dryer yang ditambah
-    //         if (!empty($addedDryerIds)) {
-    //             $this->updateNewDryers($addedDryerIds);
-    //         }
-    //     }
+        return 'Aktif';
+    }
 
-    //     // Reset original dryer IDs
-    //     $this->originalDryerIds = null;
-    // }
+    /**
+     * Get status color untuk badge
+     */
+    public function getStatusColorAttribute(): string
+    {
+        if ($this->status === true) {
+            return 'success'; // hijau
+        }
 
-    // protected function rollbackOldDryers($oldDryerIds)
-    // {
-    //     if (empty($oldDryerIds)) return;
+        if ($this->has_langsir_gonian) {
+            return 'warning'; // kuning/orange
+        }
 
-    //     $oldDryers = \App\Models\Dryer::whereIn('id', $oldDryerIds)->get();
+        return 'primary'; // biru
+    }
 
-    //     foreach ($oldDryers as $oldDryer) {
-    //         $oldKapasitas = \App\Models\KapasitasDryer::find($oldDryer->id_kapasitas_dryer);
-    //         if ($oldKapasitas) {
-    //             $oldNettoValue = (int) preg_replace('/[^0-9]/', '', $oldDryer->total_netto);
-    //             $oldKapasitas->decrement('kapasitas_sisa', $oldNettoValue);
-    //         }
-    //     }
-    // }
 
-    // protected function updateNewDryers($newDryerIds)
-    // {
-    //     if (empty($newDryerIds)) return;
+    /**
+     * Scope untuk laporan yang sudah ditutup
+     */
+    public function scopeClosed($query)
+    {
+        return $query->where('status', true);
+    }
 
-    //     $selectedDryers = \App\Models\Dryer::whereIn('id', $newDryerIds)->get();
+    /**
+     * Scope untuk laporan yang masih aktif
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', '!=', true);
+    }
 
-    //     foreach ($selectedDryers as $dryer) {
-    //         $kapasitas = \App\Models\KapasitasDryer::find($dryer->id_kapasitas_dryer);
-    //         if ($kapasitas) {
-    //             $nettoValue = (int) preg_replace('/[^0-9]/', '', $dryer->total_netto);
-    //             $kapasitas->increment('kapasitas_sisa', $nettoValue);
-    //         }
-    //     }
-    // }
+    /**
+     * Scope untuk laporan yang memiliki langsir gonian
+     */
+    public function scopeWithLangsirGonian($query)
+    {
+        return $query->whereHas('transferMasuk');
+    }
 
-    // protected static function rollbackKapasitasDryer($laporanLumbung)
-    // {
-    //     $dryerIds = $laporanLumbung->dryers()->pluck('dryers.id')->toArray();
-    //     if (empty($dryerIds)) return;
+    /**
+     * Scope untuk filter berdasarkan lumbung
+     */
+    public function scopeByLumbung($query, $lumbung)
+    {
+        return $query->where('lumbung', $lumbung);
+    }
 
-    //     $dryers = \App\Models\Dryer::whereIn('id', $dryerIds)->get();
+    // ============= HELPER METHODS =============
 
-    //     foreach ($dryers as $dryer) {
-    //         $kapasitas = \App\Models\KapasitasDryer::find($dryer->id_kapasitas_dryer);
-    //         if ($kapasitas) {
-    //             $nettoValue = (int) preg_replace('/[^0-9]/', '', $dryer->total_netto);
-    //             $kapasitas->decrement('kapasitas_sisa', $nettoValue);
-    //         }
-    //     }
-    // }
+    /**
+     * Method untuk menutup laporan lumbung
+     */
+    public function closeLaporan(): bool
+    {
+        return $this->update(['status' => true]);
+    }
+
+    /**
+     * Method untuk membuka kembali laporan lumbung
+     */
+    public function reopenLaporan(): bool
+    {
+        return $this->update(['status' => false]);
+    }
+
+    /**
+     * Method untuk mendapatkan ringkasan laporan
+     */
+    public function getSummary(): array
+    {
+        return [
+            'kode' => $this->kode,
+            'lumbung' => $this->lumbung,
+            'total_masuk' => $this->total_masuk,
+            'total_keluar' => $this->total_keluar,
+            'persentase_keluar' => $this->persentase_keluar,
+            'status' => $this->status_text,
+            'has_langsir_gonian' => $this->has_langsir_gonian,
+            'should_show_percentage' => $this->should_show_percentage,
+            'created_at' => $this->created_at,
+        ];
+    }
+
+    /**
+     * Method untuk validasi apakah laporan bisa ditutup
+     */
+    public function canBeClosed(): bool
+    {
+        // Bisa ditutup jika ada data masuk dan belum ditutup
+        return $this->total_masuk > 0 && $this->status !== true;
+    }
+
+    /**
+     * Method untuk validasi apakah laporan bisa dibuka kembali
+     */
+    public function canBeReopened(): bool
+    {
+        // Bisa dibuka kembali jika sudah ditutup dan tidak ada kendala bisnis lainnya
+        return $this->status === true;
+    }
 }

@@ -124,10 +124,10 @@
                         </td>
 
                         {{-- Kolom Jenis --}}
-                        <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                            @if ($itemMasuk && $itemMasuk->type == 'dryer')
-                                {{ $itemMasuk->data->nama_barang }}
-                            @elseif ($itemMasuk && $itemMasuk->type == 'transfer_masuk')
+                      <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
+                            @if ($itemMasuk)
+                                {{-- PERBAIKAN: Menampilkan nama barang untuk semua jenis data masuk --}}
+                                {{ $itemMasuk->data->nama_barang ?? '' }}
                             @endif
                         </td>
 
@@ -157,8 +157,6 @@
                                     $itemsToDisplay[] = '<a href="'.$transferLink.'" target="_blank" class="text-blue-600 hover:text-blue-800 underline">'.$transferText.'</a>';
                                     $itemsToDisplay[] = '<a href="'.$penjualanLink.'" target="_blank" class="text-blue-600 hover:text-blue-800 underline">'.$penjualanText.'</a>';
                             }
-
-
                         @endphp
 
                         @if (count($itemsToDisplay) > 0)
@@ -235,7 +233,14 @@
             @php
                 $totalMasuk = $dryers->sum('total_netto') + $transferMasuk->sum('netto');
                 $totalKeluar = $totalNettoPenjualansBaru + $totalTransferKeluar;
-                $persentaseKeluar = $totalMasuk > 0 ? ($totalKeluar / $totalMasuk) * 100 : 0;
+                
+                // PERBAIKAN LOGIKA: Persentase HANYA dihitung ketika status = true (lumbung ditutup)
+                $persentaseKeluar = 0;
+                
+                // Hanya hitung persentase jika lumbung sudah ditutup (status = true)
+                if ($laporanlumbung->status == true && $totalMasuk > 0) {
+                    $persentaseKeluar = ($totalKeluar / $totalMasuk) * 100;
+                }
             @endphp
 
             <tfoot>
@@ -251,8 +256,11 @@
                         {{ number_format($totalKeluar, 0, ',', '.') }}
                     </td>
                     <td class="border p-2 text-center border-gray-300 dark:border-gray-700 text-sm">
-                        @if ($laporanlumbung->lumbung && $laporanlumbung->status)
+                        {{-- PERBAIKAN: Persentase HANYA tampil ketika status = true (lumbung ditutup) --}}
+                        @if ($laporanlumbung->status == true)
                             {{ number_format($persentaseKeluar, 2) }}%
+                        @else
+                            -
                         @endif
                     </td>
                 </tr>
