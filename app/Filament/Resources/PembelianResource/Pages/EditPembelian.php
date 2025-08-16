@@ -23,8 +23,7 @@ class EditPembelian extends EditRecord
         return [
             Action::make('save')
                 ->label('Ubah')
-                ->action(fn() => $this->save())
-                ->url(PembelianResource::getUrl('index')),
+                ->action(fn() => $this->save()),
             Action::make('cancel')
                 ->label('Batal')
                 ->color('gray')
