@@ -23,7 +23,8 @@ class EditPembelian extends EditRecord
         return [
             Action::make('save')
                 ->label('Ubah')
-                ->action(fn() => $this->save()), // Menggunakan fungsi simpan manual
+                ->action(fn() => $this->save())
+                ->url(PembelianResource::getUrl('index')),
             Action::make('cancel')
                 ->label('Batal')
                 ->color('gray')
@@ -59,7 +60,6 @@ class EditPembelian extends EditRecord
     {
         if (static::$taraChanged) {
             return $this->getResource()::getUrl('view-pembelian', ['record' => $this->record]);
-
         }
 
         return $this->getResource()::getUrl('index');
