@@ -128,10 +128,10 @@ class ListLaporanLumbungs extends ListRecords
 
         // Tab untuk Silo berdasarkan lumbung (bukan status_silo lagi)
         $siloLumbungList = [
-            //'SILO STAFFEL A' => 'Silo Staffel A',
-            //'SILO STAFFEL B' => 'Silo Staffel B',
+            'SILO STAFFEL A' => 'Silo Staffel A',
+            'SILO STAFFEL B' => 'Silo Staffel B',
             'SILO 2500' => 'Silo 2500',
-            //'SILO 1800' => 'Silo 1800'
+            'SILO 1800' => 'Silo 1800'
         ];
 
         foreach ($siloLumbungList as $lumbungValue => $tabLabel) {
@@ -267,10 +267,10 @@ class ListLaporanLumbungs extends ListRecords
     private function getSiloLumbungValue(string $activeTab): string
     {
         $siloMapping = [
-            //'silo_silo_staffel_a' => 'SILO STAFFEL A',
-            //'silo_silo_staffel_b' => 'SILO STAFFEL B',
+            'silo_silo_staffel_a' => 'SILO STAFFEL A',
+            'silo_silo_staffel_b' => 'SILO STAFFEL B',
             'silo_silo_2500' => 'SILO 2500',
-            //'silo_silo_1800' => 'SILO 1800'
+            'silo_silo_1800' => 'SILO 1800'
         ];
 
         return $siloMapping[$activeTab] ?? '';
@@ -321,10 +321,10 @@ class ListLaporanLumbungs extends ListRecords
     private function getSiloDisplayName(string $lumbungValue): string
     {
         $siloNames = [
-            //'SILO STAFFEL A' => 'Staffel A',
-            //'SILO STAFFEL B' => 'Staffel B',
+            'SILO STAFFEL A' => 'Staffel A',
+            'SILO STAFFEL B' => 'Staffel B',
             'SILO 2500' => '2500',
-            //'SILO 1800' => '1800'
+            'SILO 1800' => '1800'
         ];
 
         return $siloNames[$lumbungValue] ?? $lumbungValue;

@@ -104,7 +104,7 @@ class LaporanLumbungResource extends Resource implements HasShieldPermissions
                                             ->native(false)
                                             ->columnSpan(1)
                                             ->options(function () {
-                                                $lumbungList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'FIKTIF', 'LANTAI DALAM', 'SILO 2500', 'LANGSIR GONIAN'];
+                                                $lumbungList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'FIKTIF', 'LANTAI DALAM','SILO STAFFEL A', 'SILO STAFFEL B', 'SILO 1800', 'SILO 2500', 'LANGSIR GONIAN'];
                                                 $availableOptions = [];
 
                                                 // Cek apakah sedang dalam mode edit
